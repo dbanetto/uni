@@ -1,0 +1,25 @@
+Questions for reflection.
+=========================
+
+1.  If you have used a programming languages before, other than
+Java, say which language, and identify some significant differences
+between it and Java.
+
+2.  Which part of the two programs did you find the trickiest, and
+why?
+
+3. Identify all the editing and debugging tools in BlueJ that you have
+found that you think will be helpful while programming and debugging.
+Are there any tools that you have used in other languages that you
+wish you had in BlueJ? Why?
+
+4. List a brief summary of the key Java programming constructs (eg if
+statements, while loops, method headers...) that you have used so far.
+
+5. Identify any important concepts about programming or Computer
+Science in general that you have learned so far in the course.
+
+
+
+
+
