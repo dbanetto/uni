@@ -39,16 +39,119 @@ public class FloorCleaner{
     /**
      * cleanFloor is the main simulation loop.
      */
+    
+    private double x = 0, y = 0;
+    private double dir = 0.0;
+    private final double radius = 20;
+    private final int width = 600 , height = 480;
+    
     /*# YOUR CODE HERE */
     public void cleanFloor()
     {
+        UI.setImmediateRepaint(false);
         
+        UI.setColor(Color.GRAY);
+        UI.clearGraphics(false);
+        UI.fillRect(0,0,width, height);
+        
+        UI.setColor(Color.RED);
+        x = 10;
+        y = 10;
+        dir = -Math.PI / 2;
+        
+        while (true)
+        {
+            //Remove ball from last frame
+            UI.eraseOval(x, y, radius*2, radius*2);
+            //move ball
+            move();
+            //Draw in the new place
+            
+            
+            //Check if the ball is at the edge
+            //Left collision
+            if (x < 0 )
+            {
+                //Change direction
+                chanageDir(0);
+                
+            } 
+            //Right Collision
+            else if (x + radius*2 > width)
+            {
+                //Change direction
+                chanageDir(1);
+            }
+            //Top collision
+            if (y < 0)
+            {
+                //Change Direction
+                chanageDir(2);
+                
+            } 
+            //Bottom Collision
+            else if (y + radius*2 > height)
+            {
+                //Change direction
+                chanageDir(3);
+            }
+            
+            //FIX ME!
+            int x_dot = 0, y_dot = 0;
+            x_dot =(int)Math.floor( (Math.cos(this.dir) * radius)); //- (Math.sin(this.dir) * radius-5) );
+            y_dot =(int)Math.floor( (Math.sin(this.dir) * radius)); // + (Math.cos(this.dir) * radius-5) );
+            
+            //Render main ball
+            UI.setColor(Color.red);
+            UI.fillOval(x, y, radius*2, radius*2);
+            
+            //Render directional line
+            UI.setColor(Color.green);
+            UI.drawLine(x+radius,         y+radius,
+                        x+radius + x_dot, y+radius + y_dot);
+            
+            UI.repaintGraphics();
+            UI.sleep(15);
+        }
     }
     
+    private void move()
+    {
+        this.x += Math.cos(this.dir) * 1;
+        this.y += Math.sin(this.dir) * 1;
+    }
+    
+    private void chanageDir(int side)
+    {
+        switch (side)
+        {
+           
+            //Towards left side
+            case(0):
+                this.dir = Math.random() * Math.PI - Math.PI/2;
+                break;
+           
+            //Towards right side
+            case(1):
+                this.dir = Math.random() * Math.PI + Math.PI/2;
+                break;
+            
+            //Towards top
+            case (2):
+                this.dir = Math.random() * Math.PI;
+                break;
+            
+            //Towards bottom
+            case(3):
+                this.dir = Math.random() * -Math.PI;
+                break;
+        }
+    }
     
     // Main
     /** Create a new FloorCleaner object and call cleanFloor.   */
     public static void main(String[] arguments){
+        UI.initialise();
         FloorCleaner fc =new FloorCleaner();
         fc.cleanFloor();
     }        
