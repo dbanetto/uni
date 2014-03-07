@@ -78,6 +78,7 @@ public class DateChecker {
         if (isValidDate(day , month , year))
         {
             UI.println( weekDayToString(findDay(day,month,year)) + " " + day + getDateSuffix(day) + " " + monthToString(month) + ", " + year );
+            drawMonth(day,month,year);
         }
     }
     
@@ -104,6 +105,16 @@ public class DateChecker {
             return false;
         }
         
+        if (day < 1 || day > lengthOfMonth(month , year))
+        {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private int lengthOfMonth (int month , int year)
+    {
         //Figure out the number of days in month
         //Using Method described in https://en.wikipedia.org/wiki/Gregorian_calendar#Description
         int daysInMonth = 30 + ( ( month +  (int)(java.lang.Math.floor(month/8)) ) % 2 );
@@ -118,12 +129,7 @@ public class DateChecker {
             }
         }
         
-        if (day < 1 || day > daysInMonth)
-        {
-            return false;
-        }
-        
-        return true;
+        return daysInMonth;
     }
     
     private int findDay(int day, int month , int year)
@@ -176,6 +182,7 @@ public class DateChecker {
         }
         
         int c = year / 100;
+        
         c = 6 - 2 * (c % 4);
         
         
@@ -237,6 +244,134 @@ public class DateChecker {
             case 3 : return "rd";
             default : return "th";
         }
+    }
+    
+    public void drawMonth (int day , int month , int year)
+    {
+        //Draw Header with month and year
+        UI.clearGraphics(false);
+        UI.setColor(Color.black);
+        UI.setFontSize(36);
+        UI.drawString(monthToString(month) + " " + year ,0, 36);
+        
+        int width = 64;
+        int height = 48;
+        
+        int weekday = findDay(day,month,year);
+        
+        
+        //Draw Week days
+        for (int i = 0; i  < 7; i++)
+        {
+            if (weekday == i+1 || (i == 6 && weekday == 0))
+            {
+                UI.setColor(Color.green);
+                UI.fillRect(0 + i*width, 48, width, 24);
+            }
+            UI.setColor(Color.black);
+            UI.drawRect(0 + i*width, 48, width, 24);
+            
+            UI.setFontSize(11);
+            if (i != 6)
+            {
+                UI.drawString( weekDayToString(i+1) , (i*width) + 5 , height+11);
+            } else {
+                UI.drawString( weekDayToString(0) , (i*width) + 5 , height+11);
+            }
+        }
+        
+        //Draw dates
+        
+        //Find the year and month of the last month
+        int lastMonth_month = month - 1;
+        int lastMonth_year = year;
+        if (month < 1)
+        {
+            month = 12;
+            lastMonth_year--;
+        }
+        //Find how many days of last month is needed
+        int numOfLastMonth = findDay(1,month,year);
+        switch (numOfLastMonth)
+        {
+            //Sunday
+            case(0):
+                numOfLastMonth = 6;
+                break;
+            //All other days
+            default:
+                numOfLastMonth--;
+                break;
+        }
+        
+        //Find the year and month of the next month
+        int nextMonth_month = month + 1;
+        int nextMonth_year = year;
+        if (month > 12)
+        {
+            month = 1;
+            lastMonth_year++;
+        }
+        //Find how many days of next month is needed
+        int numOfNextMonth = findDay( lengthOfMonth(month,year) ,month,year);
+        switch (numOfLastMonth)
+        {
+            //Sunday
+            case(0):
+                numOfNextMonth = 0;
+                break;
+            //All other days
+            default:
+                numOfNextMonth--;
+                numOfNextMonth = 6 - numOfNextMonth;
+                break;
+        }
+        
+        //Start date
+        int Date = lengthOfMonth(lastMonth_month, lastMonth_year) - numOfLastMonth +1 ;
+        boolean thisMonth = false;
+        int base_x = 0;
+        int base_y = 80;
+        for (int rows = 0; rows < 6; rows++)
+        {
+            int y = base_y + rows*height;
+            for (int cell = 0; cell < 7; cell++)
+            {
+                int x = base_x + cell*width;
+                if (thisMonth && Date == day)
+                {
+                    UI.setColor(Color.green);
+                    UI.fillRect(x, y, width, height);
+                }
+                UI.setColor(Color.black);
+                UI.drawRect(x, y, width, height);
+                
+                if (thisMonth){
+                    UI.setFontSize(12);
+                    UI.setColor(Color.black);
+                }else{
+                    UI.setFontSize(11);
+                    UI.setColor(Color.gray);
+                }
+                
+                UI.drawString("" + Date, x + 5 , y +12);
+                
+                Date++;
+                if (Date > lengthOfMonth(lastMonth_month, lastMonth_year) && thisMonth == false)
+                {
+                    Date = 1;
+                    thisMonth = true;
+                }
+                if (Date > lengthOfMonth(month, year) && thisMonth == true)
+                {
+                    Date = 1;
+                    thisMonth = false;
+                }
+            }
+        }
+        
+        //Show the Calender
+        UI.repaintGraphics();
     }
     
     // Main
