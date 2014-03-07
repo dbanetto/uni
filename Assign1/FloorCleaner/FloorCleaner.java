@@ -40,7 +40,12 @@ public class FloorCleaner{
      * cleanFloor is the main simulation loop.
      */
     /*# YOUR CODE HERE */
-
+    public void cleanFloor()
+    {
+        
+    }
+    
+    
     // Main
     /** Create a new FloorCleaner object and call cleanFloor.   */
     public static void main(String[] arguments){
