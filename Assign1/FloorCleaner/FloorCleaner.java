@@ -3,9 +3,9 @@
 // You may not distribute it in any other way without permission.
 
 /* Code for COMP112 Assignment 1  
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
  */
 
 //import java.util.*;
@@ -55,8 +55,8 @@ public class FloorCleaner{
         UI.fillRect(0,0,width, height);
         
         UI.setColor(Color.RED);
-        x = 10;
-        y = 10;
+        x = 100;
+        y = 240;
         dir = -Math.PI / 2;
         
         while (true)
@@ -96,10 +96,9 @@ public class FloorCleaner{
                 chanageDir(3);
             }
             
-            //FIX ME!
             int x_dot = 0, y_dot = 0;
-            x_dot =(int)Math.floor( (Math.cos(this.dir) * radius)); //- (Math.sin(this.dir) * radius-5) );
-            y_dot =(int)Math.floor( (Math.sin(this.dir) * radius)); // + (Math.cos(this.dir) * radius-5) );
+            x_dot =(int)Math.floor( (Math.cos(this.dir) * radius-1)); //- (Math.sin(this.dir) * radius-5) );
+            y_dot =(int)Math.floor( (Math.sin(this.dir) * radius-1)); // + (Math.cos(this.dir) * radius-5) );
             
             //Render main ball
             UI.setColor(Color.red);
@@ -117,6 +116,7 @@ public class FloorCleaner{
     
     private void move()
     {
+        this.dir = this.dir % (Math.PI*2);
         this.x += Math.cos(this.dir) * 1;
         this.y += Math.sin(this.dir) * 1;
     }
