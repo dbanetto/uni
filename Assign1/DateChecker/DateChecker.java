@@ -71,9 +71,18 @@ public class DateChecker {
      * Asks user for a date, then produces the required output
      */
     public void processADate(){
-        int day   = UI.askInt("Enter the Day : ");
-        int month = UI.askInt("Enter the Month : ");
-        int year  = UI.askInt("Enter the Year : ");
+        String[] out = UI.askString("Enter a date (dd/mm/yyyy) :").split("/");
+        int day = 0, month = 0, year = 0;
+        if (out.length == 3)
+        {
+            day = Integer.parseInt(out[0]);
+            month = Integer.parseInt(out[1]);
+            year = Integer.parseInt(out[2]);
+        } else {
+            UI.println("Invalid date");
+            return;
+        }
+
         
         if (isValidDate(day , month , year))
         {
@@ -328,7 +337,7 @@ public class DateChecker {
         }
         
         //Start date
-        int Date = lengthOfMonth(lastMonth_month, lastMonth_year) - numOfLastMonth +1 ;
+        int Date = lengthOfMonth(lastMonth_month, lastMonth_year) - numOfLastMonth + 1;
         boolean thisMonth = false;
         int base_x = 0;
         int base_y = 80;

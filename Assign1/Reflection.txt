@@ -5,23 +5,26 @@ Questions for reflection.
 Java, say which language, and identify some significant differences
 between it and Java.
 
-I have program before in C++, C# and Python. There are no major differance with C++ and C# with Java expect how the API's are laied out and standard libraries. Python however is vastly different with dynamic whitespace
+I have program before in C++, C# and Python. There are no major difference with C++ and C# with Java expect how the API's are lied out and standard libraries. Python however is vastly different with dynamic white space
 
 2.  Which part of the two programs did you find the trickiest, and
 why?
+
+I found getting used to the new API and re-adjusting to Java the hardest parts of the two programs.
 
 3. Identify all the editing and debugging tools in BlueJ that you have
 found that you think will be helpful while programming and debugging.
 Are there any tools that you have used in other languages that you
 wish you had in BlueJ? Why?
 
+The editing and debugging I found in BlueJ are the source file editor and the debugger panel that comes up on break points or Ctrl+D. There is not much missing from BlueJ expect having all the windows in-one instead of its multi-windowed approach.
+
 4. List a brief summary of the key Java programming constructs (eg if
 statements, while loops, method headers...) that you have used so far.
+
+I have used : if, if else, else, switch, while and for statements
 
 5. Identify any important concepts about programming or Computer
 Science in general that you have learned so far in the course.
 
-
-
-
-
+In the course so far, I have re-enforced what I had learnt before.

@@ -45,6 +45,7 @@ public class FloorCleaner{
     private final double radius = 20;
     private final int width = 600 , height = 480;
     
+    
     /*# YOUR CODE HERE */
     public void cleanFloor()
     {
@@ -95,10 +96,11 @@ public class FloorCleaner{
                 //Change direction
                 chanageDir(3);
             }
-            
+        
+            //Find the x,y co-ordients of the line to show direction of ball
             int x_dot = 0, y_dot = 0;
-            x_dot =(int)Math.floor( (Math.cos(this.dir) * radius-1)); //- (Math.sin(this.dir) * radius-5) );
-            y_dot =(int)Math.floor( (Math.sin(this.dir) * radius-1)); // + (Math.cos(this.dir) * radius-5) );
+            x_dot =(int)Math.round( (Math.cos(this.dir) * radius-1)); //- (Math.sin(this.dir) * radius-5) );
+            y_dot =(int)Math.round( (Math.sin(this.dir) * radius-1)); // + (Math.cos(this.dir) * radius-5) );
             
             //Render main ball
             UI.setColor(Color.red);
@@ -108,7 +110,7 @@ public class FloorCleaner{
             UI.setColor(Color.green);
             UI.drawLine(x+radius,         y+radius,
                         x+radius + x_dot, y+radius + y_dot);
-            
+            //PAINT!
             UI.repaintGraphics();
             UI.sleep(15);
         }
