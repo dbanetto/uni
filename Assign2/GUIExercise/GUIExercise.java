@@ -43,7 +43,7 @@ public class GUIExercise implements UIButtonListener, UIMouseListener, UITextFie
      *  In all cases, the listener will be 'this' object (the one that is being constructed)
     */
     public GUIExercise(){
-        /*# YOUR CODE HERE */
+        
     }
 
 

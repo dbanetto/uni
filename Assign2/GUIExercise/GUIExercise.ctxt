@@ -1,0 +1,16 @@
+#BlueJ class context
+comment0.params=
+comment0.target=GUIExercise()
+comment0.text=\ Construct\ a\ new\ GUIExercise\ object\ and\ set\ up\ the\ GUI\:\n\ \ -\ set\ the\ mouse\ listener\n\ \ -\ add\ a\ button\n\ \ -\ add\ a\ text\ field\n\ \ In\ all\ cases,\ the\ listener\ will\ be\ 'this'\ object\ (the\ one\ that\ is\ being\ constructed)\n
+comment1.params=button
+comment1.target=void\ buttonPerformed(java.lang.String)
+comment1.text=\n\ The\ class\ is\ a\ UBButtonListener,\ so\ it\ must\ respond\ to\ buttons\n
+comment2.params=action\ x\ y
+comment2.target=void\ mousePerformed(java.lang.String,\ double,\ double)
+comment2.text=\ The\ class\ is\ a\ UIMouseListener\ so\ it\ must\ respond\ to\ mouse\ events.\n\ This\ program\ only\ does\ something\ on\ a\ released\ action\ -\ it\ draws\ \n\ the\ current\ image\ at\ the\ position\ the\ mouse\ was\ released\n
+comment3.params=field\ value
+comment3.target=void\ textFieldPerformed(java.lang.String,\ java.lang.String)
+comment3.text=\ The\ class\ is\ a\ UITextFieldListener,\ so\ it\ must\ respond\ to\ TextField\ events.\n\ Stores\ the\ name\ of\ the\ image\ in\ the\ field.\n
+comment4.params=arguments
+comment4.target=void\ main(java.lang.String[])
+numComments=5

@@ -12,6 +12,7 @@ import ecs100.*;
 import java.util.*;
 import java.io.*;
 import java.awt.Color;
+import java.awt.Point;
 import javax.swing.JColorChooser;
 
 
@@ -48,26 +49,60 @@ public class Tracer implements UIButtonListener, UIMouseListener{
     // (negative if there was no previous point), and the length of the line
 
     /*# YOUR CODE HERE */
-
-
+    
+    
+    private List<Point> lines = new ArrayList<Point>();
+    
     // Constructor
     /** 
      *  Construct a new Tracer object and set up the GUI
      */
     public Tracer(){
-        /*# YOUR CODE HERE */
+        UI.initialise();
+        UI.addButton("Total Length", this);
+        UI.addButton("Clear", this);
+        UI.setMouseMotionListener(this);
+        
+        lines.clear();
+        
+        //First draw
+        draw();
+        
     }
 
     // GUI Methods
 
     /** Respond to button presses */
     public void buttonPerformed(String button){
-        /*# YOUR CODE HERE */
+        switch (button)
+        {
+            case ("Clear"):
+                this.lines.clear();
+                this.draw();
+                break;
+            case("Total Length"):
+                UI.println ("Total length = " + this.totalLength());    
+                break;
+            default:
+                UI.println(button);
+        }
     }
 
     /** Respond to mouse events, particularly to "released" */
     public void mousePerformed(String action, double x, double y) {
-        /*# YOUR CODE HERE */
+        
+        //Note this requires Java7+
+        switch (action)
+        {
+            case("pressed"):
+                break;
+            case ("released"):
+                break;
+           case ("clicked"):
+                UI.println(action + " : " + x + "," + y);
+                this.lines.add(new Point((int)x , (int)y));
+                draw();
+        }
     }
 
 
@@ -80,7 +115,35 @@ public class Tracer implements UIButtonListener, UIMouseListener{
     private void startLine(){
         /*# YOUR CODE HERE */
     }
+    
+    private double totalLength()
+    {
+        double total = 0;
+        for (int i = 1; i < this.lines.size(); i++)
+        {
+            total += Math.hypot(this.lines.get(i-1).getX()-this.lines.get(i).getX(),
+                                this.lines.get(i-1).getY()-this.lines.get(i).getY());
+        }
+        return total;
+    }
+    
+    
+    private void draw()
+    {
+        UI.clearGraphics(false);
+        UI.drawImage(this.imageName , 0, 0 , true);
+        for (int i = 1; i < this.lines.size(); i++)
+        {
+            UI.setLineWidth(1);
+            UI.setColor(Color.green);
+            UI.drawLine(this.lines.get(i-1).getX(), this.lines.get(i-1).getY()
+                        ,this.lines.get(i).getX(), this.lines.get(i).getY());
 
+        }
+        
+        UI.repaintGraphics();
+    }
+    
     /*# END OF YOUR CODE */
 
     // Main
