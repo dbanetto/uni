@@ -63,7 +63,7 @@ public class Tracer implements UIButtonListener, UIMouseListener{
         UI.addButton("Start Line",this);
         UI.addButton("Total Length", this);
         UI.addButton("Clear", this);
-        UI.addButton("Open Image", this);
+        UI.addButton("Choose Image", this);
         UI.setMouseMotionListener(this);
         
         lines.clear();
@@ -86,13 +86,14 @@ public class Tracer implements UIButtonListener, UIMouseListener{
             case("Total Length"):
                 UI.println ("Total length = " + this.totalLength());    
                 break;
-            case ("Open Image"):
+            case ("Choose Image"):
                 this.imageName = UIFileChooser.open();
                 this.lines.clear();
                 this.draw();
                 break;
             case ("Start Line"):
                 startLine = true;
+                this.draw();
                 break;
             default:
                 UI.println(button);
@@ -121,7 +122,7 @@ public class Tracer implements UIButtonListener, UIMouseListener{
                 if (this.startLine) {
                     //Check if the mouse click is on the image
                     if (x > 0 && y > 0 
-                    && x < UI.getCanvasWidth() && x < UI.getCanvasHeight())
+                    && x < 512 && x < 512)
                     {   
                         this.lines.add(new Point((int)x , (int)y));
                     }
