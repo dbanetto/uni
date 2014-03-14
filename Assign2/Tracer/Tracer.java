@@ -52,15 +52,18 @@ public class Tracer implements UIButtonListener, UIMouseListener{
     
     
     private List<Point> lines = new ArrayList<Point>();
-    
+    private boolean startLine = false;
+    private boolean mouseDown = false;
     // Constructor
     /** 
      *  Construct a new Tracer object and set up the GUI
      */
     public Tracer(){
         UI.initialise();
+        UI.addButton("Start Line",this);
         UI.addButton("Total Length", this);
         UI.addButton("Clear", this);
+        UI.addButton("Open Image", this);
         UI.setMouseMotionListener(this);
         
         lines.clear();
@@ -83,6 +86,14 @@ public class Tracer implements UIButtonListener, UIMouseListener{
             case("Total Length"):
                 UI.println ("Total length = " + this.totalLength());    
                 break;
+            case ("Open Image"):
+                this.imageName = UIFileChooser.open();
+                this.lines.clear();
+                this.draw();
+                break;
+            case ("Start Line"):
+                startLine = true;
+                break;
             default:
                 UI.println(button);
         }
@@ -95,13 +106,28 @@ public class Tracer implements UIButtonListener, UIMouseListener{
         switch (action)
         {
             case("pressed"):
+                mouseDown = true;     
                 break;
-            case ("released"):
+           case ("dragged"):
+                if (this.startLine && mouseDown == true) {    
+                    this.lines.add(new Point((int)x , (int)y));
+                    draw();
+                    this.lines.remove(this.lines.size() - 1);
+                }
                 break;
-           case ("clicked"):
+           case ("released"):
+                mouseDown = false;
                 UI.println(action + " : " + x + "," + y);
-                this.lines.add(new Point((int)x , (int)y));
-                draw();
+                if (this.startLine) {
+                    //Check if the mouse click is on the image
+                    if (x > 0 && y > 0 
+                    && x < UI.getCanvasWidth() && x < UI.getCanvasHeight())
+                    {   
+                        this.lines.add(new Point((int)x , (int)y));
+                    }
+                    draw();
+                }
+                break;
         }
     }
 
@@ -131,14 +157,19 @@ public class Tracer implements UIButtonListener, UIMouseListener{
     private void draw()
     {
         UI.clearGraphics(false);
+        UI.setImmediateRepaint(false);
         UI.drawImage(this.imageName , 0, 0 , true);
+        UI.setLineWidth(1);
+        UI.setColor(Color.green);
         for (int i = 1; i < this.lines.size(); i++)
         {
-            UI.setLineWidth(1);
-            UI.setColor(Color.green);
             UI.drawLine(this.lines.get(i-1).getX(), this.lines.get(i-1).getY()
                         ,this.lines.get(i).getX(), this.lines.get(i).getY());
 
+        }
+        if (this.lines.size() == 1)
+        {
+            UI.drawOval(this.lines.get(0).getX(), this.lines.get(0).getY(), 1, 1);
         }
         
         UI.repaintGraphics();
