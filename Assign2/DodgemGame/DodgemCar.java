@@ -5,6 +5,7 @@
 import ecs100.*;
 import java.awt.Color;
 import java.util.*;
+import java.awt.Point;
 
 /** DodgemCar
  * Represents a single DodgemCar that can move around in the arena
@@ -50,7 +51,10 @@ public class DodgemCar{
   
     // fields for the state of the car
     /*# YOUR CODE HERE */
-
+    private Point position;
+    private double direction;
+    
+    private double life = 100;
     //Constructor 
     /** 
      * The parameters specify the initial position and direction
@@ -120,6 +124,7 @@ public class DodgemCar{
     /** @return whether this car is touching the other car */
     public boolean checkCollideCar(DodgemCar other){
         /*# YOUR CODE HERE */
+        return false;
     }
 
     /**
@@ -127,6 +132,7 @@ public class DodgemCar{
      */
     public double life(){
     /*# YOUR CODE HERE */
+        return life;
     }
 
 
@@ -137,7 +143,7 @@ public class DodgemCar{
      * Assumes that you called the fields x, y, and direction; you could change it.
      */
     public String toString(){
-        return String.format("Car@(%.0f,%.0f)->%s", this.x, this.y, this.direction);
+        return String.format("Car@(%.0f,%.0f)->%s", this.position.getX(), this.position.getY(), this.direction);
     }
 
 

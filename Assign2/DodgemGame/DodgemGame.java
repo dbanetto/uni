@@ -76,6 +76,7 @@ public class DodgemGame implements UIKeyListener{
     public DodgemGame(){
         UI.setImmediateRepaint(false);
         /*# YOUR CODE HERE */
+        UI.setKeyListener(this);
         UI.repaintGraphics();
     }
 
@@ -89,6 +90,13 @@ public class DodgemGame implements UIKeyListener{
      */
     public void keyPerformed(String key){
     /*# YOUR CODE HERE */
+        switch (key)
+        {
+            case("Sapce"):
+                this.run();
+                break;
+        }
+        UI.println(key);
     }
 
     /** Run the game
@@ -105,6 +113,10 @@ public class DodgemGame implements UIKeyListener{
      */
     private void run(){
         /*# YOUR CODE HERE */
+        while (true)
+        {
+            /*# PLAY GAME!*/
+        }
     }
 
 
