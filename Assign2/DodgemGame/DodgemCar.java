@@ -48,7 +48,7 @@ import java.awt.Point;
 public class DodgemCar{
     // Constants: Geometry and other parameters
     /*# YOUR CODE HERE */
-  
+	private static final double turnrate = 0.1; 
     // fields for the state of the car
     /*# YOUR CODE HERE */
     private Point position;
@@ -61,6 +61,8 @@ public class DodgemCar{
      */
     public DodgemCar(double x, double y, double dir)  {
      /*# YOUR CODE HERE */
+	this.position = new Point((int)x,(int)y);
+	this.direction = dir;
     }
     
     // other methods, eg for turning left & right, drawing, checking collisions, etc
@@ -72,6 +74,7 @@ public class DodgemCar{
      */
     public void turnLeft(){
         /*# YOUR CODE HERE */
+	this.direction += turnrate;
     }
 
     /**
@@ -81,6 +84,7 @@ public class DodgemCar{
     */
     public void turnRight(){
         /*# YOUR CODE HERE */
+	this.direction -= turnrate;
     }
 
 
@@ -99,6 +103,8 @@ public class DodgemCar{
     /** draw the car */
     public void draw() {
         /*# YOUR CODE HERE */
+	UI.drawOval(this.position.getX(),this.position.getY(),
+			10, 10);
     }
 
     /**
@@ -145,11 +151,5 @@ public class DodgemCar{
     public String toString(){
         return String.format("Car@(%.0f,%.0f)->%s", this.position.getX(), this.position.getY(), this.direction);
     }
-
-
-
-
-
-
 }
 

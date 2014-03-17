@@ -14,7 +14,7 @@ import java.util.*;
 import java.io.*;
 
 
-/** DodgemGame
+/** DodgemGam
  *  Game with two dodgem cars whose steering is controlled by the players
  *  (uses keys: player 1: S/D for left/right;  player 2: K/L for left/right)
  *  Cars run around at a constant speed in an arena with an enclosing wall and
@@ -67,7 +67,7 @@ public class DodgemGame implements UIKeyListener{
     /*# YOUR CODE HERE */
 
 
-
+    private List<DodgemCar> carlist = new ArrayList<DodgemCar>();
 
     /** Constructor
      * Set up the GUI,
@@ -92,7 +92,7 @@ public class DodgemGame implements UIKeyListener{
     /*# YOUR CODE HERE */
         switch (key)
         {
-            case("Sapce"):
+            case("Space"):
                 this.run();
                 break;
         }
@@ -112,10 +112,18 @@ public class DodgemGame implements UIKeyListener{
      *  - redraw the game (cars, arena, and life status)
      */
     private void run(){
-        /*# YOUR CODE HERE */
+	this.carlist.clear();
+	//Add Player one
+	this.carlist.add(new DodgemCar (10,10 , 0));
+        //Add Player two
+	this.carlist.add(new DodgemCar(10, 400 , 0));
+	/*# YOUR CODE HERE */
+	UI.println("Started Game Loop");
         while (true)
         {
-            /*# PLAY GAME!*/
+	/*# PLAY GAME!*/
+	UI.sleep(this.Delay);
+	break;
         }
     }
 
@@ -148,7 +156,6 @@ public class DodgemGame implements UIKeyListener{
 
     public static void main(String[] arguments){
        DodgemGame game = new DodgemGame();
-       game.run();
     }   
 
 
