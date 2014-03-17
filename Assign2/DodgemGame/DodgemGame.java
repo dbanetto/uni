@@ -13,7 +13,6 @@ import java.awt.Color;
 import java.util.*;
 import java.io.*;
 
-
 /** DodgemGam
  *  Game with two dodgem cars whose steering is controlled by the players
  *  (uses keys: player 1: S/D for left/right;  player 2: K/L for left/right)
@@ -55,20 +54,18 @@ public class DodgemGame implements UIKeyListener{
     public static final int RightWall = 30+ArenaSize;
     public static final int TopWall = 50;
     public static final int BotWall = TopWall+ArenaSize;
-    
+
     public static final int ObstSize = 80;
     public static final int ObstRad = ObstSize/2;
     public static final int ObstX = LeftWall + ArenaSize/2;
     public static final int ObstY = TopWall + ArenaSize/2;
 
     public static final int Delay = 20;  // milliseconds to delay each step.
-
+    private boolean isplaying = false; 
     // Fields to store the two cars 
     /*# YOUR CODE HERE */
 
-
     private List<DodgemCar> carlist = new ArrayList<DodgemCar>();
-
     /** Constructor
      * Set up the GUI,
      * Draw the arena
@@ -76,27 +73,53 @@ public class DodgemGame implements UIKeyListener{
     public DodgemGame(){
         UI.setImmediateRepaint(false);
         /*# YOUR CODE HERE */
+        UI.initialise();
         UI.setKeyListener(this);
         UI.repaintGraphics();
     }
 
-
     // GUI Methods
-
     /**
      * Respond to keys.
      * the space key should reset the game to have two new cars
      * the s/d/k/l keys should make the appropriate car turn to the left or right
      */
     public void keyPerformed(String key){
-    /*# YOUR CODE HERE */
+        /*# YOUR CODE HERE */
         switch (key)
         {
             case("Space"):
-                this.run();
+                isplaying = true;
+                this.resetGame();
+                break;
+          //Player 1 Controls
+          case("a"):
+                if (isplaying)
+                {
+                    this.carlist.get(0).turnLeft();
+                }
+                break;
+          case("d"):
+                if (isplaying)
+                {
+                    this.carlist.get(0).turnRight();
+                }
+                break;
+          //Player 2 Controls
+          case("k"):
+                if (isplaying)
+                {
+                    this.carlist.get(1).turnLeft();
+                }
+                break;
+          case("l"):
+                if (isplaying)
+                {
+                    this.carlist.get(1).turnRight();
+                }
                 break;
         }
-        UI.println(key);
+        //UI.println(key);
     }
 
     /** Run the game
@@ -112,21 +135,32 @@ public class DodgemGame implements UIKeyListener{
      *  - redraw the game (cars, arena, and life status)
      */
     private void run(){
-	this.carlist.clear();
-	//Add Player one
-	this.carlist.add(new DodgemCar (10,10 , 0));
-        //Add Player two
-	this.carlist.add(new DodgemCar(10, 400 , 0));
-	/*# YOUR CODE HERE */
-	UI.println("Started Game Loop");
-        while (true)
+        this.resetGame();
+        
+        UI.println("Started Game Loop");
+        
+        //Dirty trick to keep the main thread alive
+        //PLEASE FIX ME
+        do {UI.sleep(Delay);} while(!isplaying);
+        
+        while (isplaying)
         {
-	/*# PLAY GAME!*/
-	UI.sleep(this.Delay);
-	break;
+            UI.clearGraphics(false);
+            /*# PLAY GAME!*/
+            drawArena();
+            for (DodgemCar car : this.carlist)
+            {
+                //Render
+                car.draw();
+                //Update
+                car.move();
+                UI.println(car.toString());
+            }
+            UI.repaintGraphics();
+            UI.sleep(Delay);
         }
+        UI.println("Game Loop Ended");
     }
-
 
     // other methods, eg, resetting game, and drawing the game state.
     /**
@@ -134,7 +168,11 @@ public class DodgemGame implements UIKeyListener{
      * ie, create two new DodgemCar objects and assign to car1 and car2
      */
     private void resetGame(){
-        /*# YOUR CODE HERE */
+        this.carlist.clear();
+        //Add Player one
+        this.carlist.add(new DodgemCar (10,10 , 0 , Color.red));
+        //Add Player two
+        this.carlist.add(new DodgemCar(10, 400 , 0, Color.green));
     }
 
     /**
@@ -148,6 +186,20 @@ public class DodgemGame implements UIKeyListener{
     private void redraw(){
         /*# YOUR CODE HERE */
     }
+    
+    private void drawArena()
+    {
+        UI.setColor(Color.blue);
+        //Left Wall
+        UI.fillRect(0, 0 , LeftWall, ArenaSize);
+        //Right Wall
+        UI.fillRect(ArenaSize, 0 , LeftWall, ArenaSize);
+        //Top wall
+        UI.fillRect(0, 0 , ArenaSize, TopWall);
+        //Bottom wall
+        UI.fillRect(0, ArenaSize , ArenaSize+30, TopWall);
+        
+    }
 
     /**
      * Create a new DodgemGame object (which will set up the interface)
@@ -155,11 +207,9 @@ public class DodgemGame implements UIKeyListener{
      */
 
     public static void main(String[] arguments){
-       DodgemGame game = new DodgemGame();
+        DodgemGame game = new DodgemGame();
+        game.run();
     }   
 
-
 }
-
-
 

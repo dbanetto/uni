@@ -44,27 +44,29 @@ import java.awt.Point;
  *   being bumped on the side should have a different effect from
  *   being bumped in the front or the back.
  *   
-*/
+ */
 public class DodgemCar{
     // Constants: Geometry and other parameters
     /*# YOUR CODE HERE */
-	private static final double turnrate = 0.1; 
+    private static final double turnrate = 0.1; 
     // fields for the state of the car
     /*# YOUR CODE HERE */
     private Point position;
     private double direction;
-    
+
     private double life = 100;
+    private Color colour;
     //Constructor 
     /** 
      * The parameters specify the initial position and direction
      */
-    public DodgemCar(double x, double y, double dir)  {
-     /*# YOUR CODE HERE */
-	this.position = new Point((int)x,(int)y);
-	this.direction = dir;
+    public DodgemCar(double x, double y, double dir, Color Colour)  {
+        /*# YOUR CODE HERE */
+        this.position = new Point((int)x,(int)y);
+        this.direction = dir;
+        this.colour = Colour;
     }
-    
+
     // other methods, eg for turning left & right, drawing, checking collisions, etc
 
     /**
@@ -74,19 +76,20 @@ public class DodgemCar{
      */
     public void turnLeft(){
         /*# YOUR CODE HERE */
-	this.direction += turnrate;
+        this.direction -= turnrate;
+        this.direction %= Math.PI*2;
     }
 
     /**
      * Turn the steering wheel one step more to the right (positive angle)
      * This governs how much the car turns on each move
      * Steering wheel can't turn more than 45 degrees to left or right
-    */
+     */
     public void turnRight(){
         /*# YOUR CODE HERE */
-	this.direction -= turnrate;
+        this.direction += turnrate;
+        this.direction %= Math.PI*2;
     }
-
 
     /**
      * Moves the car 1 unit forward
@@ -95,16 +98,18 @@ public class DodgemCar{
      * Then moves forward by 1 unit
      */
     public void move() {
-        /*# YOUR CODE HERE */
+        //Vector conversion to x,y
+        this.position.setLocation(this.position.getX() + Math.cos(this.direction),
+                                  this.position.getY() + Math.sin(this.direction));
     }
-    
 
 
     /** draw the car */
     public void draw() {
         /*# YOUR CODE HERE */
-	UI.drawOval(this.position.getX(),this.position.getY(),
-			10, 10);
+        UI.setColor(this.colour);
+        UI.fillOval(this.position.getX(),this.position.getY(),
+            10, 10);
     }
 
     /**
@@ -115,7 +120,7 @@ public class DodgemCar{
     public void checkCollideWall(){
         /*# YOUR CODE HERE */
     }        
-        
+
     /**
      * Check whether the car has collided with the obstacle. (Completion)
      * if so, move it back so it isn't overlapping the obstacle, and
@@ -124,7 +129,6 @@ public class DodgemCar{
     public void checkCollideObstacle(){
         /*# YOUR CODE HERE */
     }
-
 
 
     /** @return whether this car is touching the other car */
@@ -137,10 +141,9 @@ public class DodgemCar{
      * Returns the amount of life left of this car (needed for Completion)
      */
     public double life(){
-    /*# YOUR CODE HERE */
+        /*# YOUR CODE HERE */
         return life;
     }
-
 
     /**
      * Useful method for debugging: 
