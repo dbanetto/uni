@@ -164,6 +164,9 @@ public class DodgemGame implements UIKeyListener{
                 
                 this.carlist.get(0).moveBack();
                 this.carlist.get(1).moveBack();
+                double car1 = this.carlist.get(0).getDir();
+                this.carlist.get(0).setDir(this.carlist.get(1).getDir());
+                this.carlist.get(1).setDir(car1);
             }
             
             UI.repaintGraphics();
@@ -210,10 +213,10 @@ public class DodgemGame implements UIKeyListener{
         UI.fillRect(0, ArenaSize , ArenaSize+(LeftWall*2), TopWall);
         
         UI.setFontSize(11);
-        UI.setColor(Color.green);
-        UI.drawString(this.carlist.get(0).life(), 0, 0);
         UI.setColor(Color.red);
-        UI.drawString( "Play" + this.carlist.get(1).life(), 0, 12);
+        UI.drawString("Player 1 : " + this.carlist.get(0).life(), 0, 12);
+        UI.setColor(Color.green);
+        UI.drawString("Player 2 : " + this.carlist.get(1).life(), 0, 24);
         
     }
 

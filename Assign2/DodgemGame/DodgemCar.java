@@ -63,7 +63,7 @@ public class DodgemCar{
     
     // Constants: Geometry and other parameters
     /*# YOUR CODE HERE */
-    private static final double turnrate = (10/180 * Math.PI); 
+    private static final double turnrate = 0.314; 
     private static final double diameter = 25;
     // fields for the state of the car
     /*# YOUR CODE HERE */
@@ -124,7 +124,11 @@ public class DodgemCar{
         this.position.setLocation(this.position.getX() - Math.cos(this.direction),
                                   this.position.getY() - Math.sin(this.direction));
     }
-
+    public void turnAround()
+    {
+        this.direction += Math.PI;
+        this.direction %= Math.PI*2;
+    }
 
     /** draw the car */
     public void draw() {
@@ -145,22 +149,26 @@ public class DodgemCar{
         {
             //Left Wall
             this.moveBack();
+            this.turnAround();
             this.life--;
         } else if (this.position.getX()+diameter > RightWall)
         {
             //Right Wall
             this.moveBack();
+            this.turnAround();
             this.life--;
         }
                 if (this.position.getY() < TopWall)
         {
             //Left Wall
             this.moveBack();
+            this.turnAround();
             this.life--;
         } else if (this.position.getY()+diameter > ArenaSize)
         {
             //Right Wall
             this.moveBack();
+            this.turnAround();
             this.life--;
         }
     }        
@@ -199,6 +207,13 @@ public class DodgemCar{
     {
         this.life--;
     }
+    
+    public double getDir()
+    {return this.direction;}
+    
+    public void setDir(double angle)
+    { this.direction = angle % Math.PI*2;}
+    
     /**
      * Useful method for debugging: 
      * Returns a String rendering of the DodgemCar Object
