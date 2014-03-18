@@ -12,6 +12,7 @@ import ecs100.*;
 import java.awt.Color;
 import java.util.*;
 import java.io.*;
+import java.awt.Point;
 
 /** DodgemGam
  *  Game with two dodgem cars whose steering is controlled by the players
@@ -57,11 +58,12 @@ public class DodgemGame implements UIKeyListener{
 
     public static final int ObstSize = 80;
     public static final int ObstRad = ObstSize/2;
-    public static final int ObstX = LeftWall + ArenaSize/2;
-    public static final int ObstY = TopWall + ArenaSize/2;
+    public static final Point Obst = new Point (LeftWall + ArenaSize/2 , TopWall + ArenaSize/2);
 
     public static final int Delay = 20;  // milliseconds to delay each step.
     private boolean isplaying = false; 
+    private int P1_wins = 0;
+    private int P2_wins = 0;
     // Fields to store the two cars 
     /*# YOUR CODE HERE */
 
@@ -139,7 +141,7 @@ public class DodgemGame implements UIKeyListener{
         
         UI.println("Started Game Loop");
         
-        //Dirty trick to keep the main thread alive
+        //Dirty trick to keep the main thread alive :(
         //PLEASE FIX ME
         do {UI.sleep(Delay);} while(!isplaying);
         
@@ -148,6 +150,7 @@ public class DodgemGame implements UIKeyListener{
             UI.clearGraphics(false);
             /*# PLAY GAME!*/
             drawArena();
+            drawObst();
             for (DodgemCar car : this.carlist)
             {
                 //Render
@@ -155,6 +158,7 @@ public class DodgemGame implements UIKeyListener{
                 //Update
                 car.move();
                 car.checkCollideWall();
+                car.checkCollideObstacle();
             }
             
             if (this.carlist.get(0).checkCollideCar(this.carlist.get(1)))            
@@ -169,10 +173,35 @@ public class DodgemGame implements UIKeyListener{
                 this.carlist.get(1).setDir(car1);
             }
             
+            if (this.carlist.get(0).life() < 1)
+            {
+                //Player 2 Wins!
+                isplaying = false;
+                P2_wins++;
+                UI.clearGraphics(false);
+                UI.setFontSize(72);
+                UI.setColor(Color.black);
+                UI.drawString("Player 2 wins!",100, 100);
+                UI.repaintGraphics();
+                break;
+            } else if (this.carlist.get(1).life() < 1)
+            {
+                //Player 1 Wins!
+                isplaying = false;
+                P1_wins++;
+                UI.clearGraphics(false);
+                UI.setFontSize(72);
+                UI.setColor(Color.black);
+                UI.drawString("Player 1 wins!",100, 100);
+                UI.repaintGraphics();
+                break;
+            }
+            
             UI.repaintGraphics();
             UI.sleep(Delay);
         }
         UI.println("Game Loop Ended");
+        this.run();
     }
 
     // other methods, eg, resetting game, and drawing the game state.
@@ -214,10 +243,22 @@ public class DodgemGame implements UIKeyListener{
         
         UI.setFontSize(11);
         UI.setColor(Color.red);
-        UI.drawString("Player 1 : " + this.carlist.get(0).life(), 0, 12);
+        UI.drawString("Player 1 : " + (int)this.carlist.get(0).life(), 0, 12);
         UI.setColor(Color.green);
-        UI.drawString("Player 2 : " + this.carlist.get(1).life(), 0, 24);
+        UI.drawString("Player 2 : " + (int)this.carlist.get(1).life(), 0, 24);
         
+        UI.setFontSize(11);
+        UI.setColor(Color.red);
+        UI.drawString("Player 1 wins : " + (int)P1_wins, 350, 12);
+        UI.setColor(Color.green);
+        UI.drawString("Player 2 wins : " + (int)P2_wins, 350, 24);
+        
+    }
+    
+    private void drawObst()
+    {
+        UI.setColor(Color.blue);
+        UI.fillOval(Obst.getX() , Obst.getY() , ObstSize, ObstSize);
     }
 
     /**

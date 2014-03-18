@@ -6,7 +6,7 @@ import ecs100.*;
 import java.awt.Color;
 import java.util.*;
 import java.awt.Point;
-
+import java.awt.Rectangle;
 /** DodgemCar
  * Represents a single DodgemCar that can move around in the arena
  * 
@@ -57,8 +57,7 @@ public class DodgemCar{
 
     public static final int ObstSize = 80;
     public static final int ObstRad = ObstSize/2;
-    public static final int ObstX = LeftWall + ArenaSize/2;
-    public static final int ObstY = TopWall + ArenaSize/2;
+    public static final Point Obst = new Point ( LeftWall + ArenaSize/2 , TopWall + ArenaSize/2 );
     
     
     // Constants: Geometry and other parameters
@@ -70,7 +69,7 @@ public class DodgemCar{
     private Point position;
     private double direction;
 
-    private double life = 100;
+    private double life = 10;
     private Color colour;
     //Constructor 
     /** 
@@ -136,6 +135,11 @@ public class DodgemCar{
         UI.setColor(this.colour);
         UI.fillOval(this.position.getX(),this.position.getY(),
             diameter, diameter);
+        UI.setColor(Color.black);
+        
+        UI.drawLine(this.position.getX() + diameter/2, this.position.getY() + diameter/2,
+         Math.cos(this.direction)*diameter/2 + this.position.getX() + diameter/2 ,
+         Math.sin(this.direction)*diameter/2 + this.position.getY() + diameter/2);
     }
 
     /**
@@ -180,6 +184,18 @@ public class DodgemCar{
      */
     public void checkCollideObstacle(){
         /*# YOUR CODE HERE */
+        //Get the center poitns of both cirlces
+        Point tmpObst = new Point ((int)Obst.getX() + ObstRad,
+                                    (int)Obst.getY() + ObstRad);
+        Point tmpCar = new Point ((int)(this.position.getX() + diameter/2),
+                                  (int)(this.position.getY() + diameter/2));
+        //If the distance between the centers are less or equal to the sum of the radi they are touching
+        if (tmpObst.distance(tmpCar) <= (diameter/2 + ObstRad))
+        {
+            this.moveBack();
+            this.turnAround();
+            this.life--;
+        }
     }
 
 
