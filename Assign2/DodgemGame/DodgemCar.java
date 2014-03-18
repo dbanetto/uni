@@ -46,9 +46,25 @@ import java.awt.Point;
  *   
  */
 public class DodgemCar{
+    // Constants for the Geometry of the game.
+    // (You may change or add to these if you wish)
+
+    public static final int ArenaSize = 400;
+    public static final int LeftWall = 30;
+    public static final int RightWall = 30+ArenaSize;
+    public static final int TopWall = 50;
+    public static final int BotWall = TopWall+ArenaSize;
+
+    public static final int ObstSize = 80;
+    public static final int ObstRad = ObstSize/2;
+    public static final int ObstX = LeftWall + ArenaSize/2;
+    public static final int ObstY = TopWall + ArenaSize/2;
+    
+    
     // Constants: Geometry and other parameters
     /*# YOUR CODE HERE */
-    private static final double turnrate = 0.1; 
+    private static final double turnrate = (10/180 * Math.PI); 
+    private static final double diameter = 25;
     // fields for the state of the car
     /*# YOUR CODE HERE */
     private Point position;
@@ -102,6 +118,12 @@ public class DodgemCar{
         this.position.setLocation(this.position.getX() + Math.cos(this.direction),
                                   this.position.getY() + Math.sin(this.direction));
     }
+    /** Same as move but backwards */
+    public void moveBack() {
+        //Vector conversion to x,y
+        this.position.setLocation(this.position.getX() - Math.cos(this.direction),
+                                  this.position.getY() - Math.sin(this.direction));
+    }
 
 
     /** draw the car */
@@ -109,7 +131,7 @@ public class DodgemCar{
         /*# YOUR CODE HERE */
         UI.setColor(this.colour);
         UI.fillOval(this.position.getX(),this.position.getY(),
-            10, 10);
+            diameter, diameter);
     }
 
     /**
@@ -119,6 +141,28 @@ public class DodgemCar{
      */
     public void checkCollideWall(){
         /*# YOUR CODE HERE */
+        if (this.position.getX() < LeftWall)
+        {
+            //Left Wall
+            this.moveBack();
+            this.life--;
+        } else if (this.position.getX()+diameter > RightWall)
+        {
+            //Right Wall
+            this.moveBack();
+            this.life--;
+        }
+                if (this.position.getY() < TopWall)
+        {
+            //Left Wall
+            this.moveBack();
+            this.life--;
+        } else if (this.position.getY()+diameter > ArenaSize)
+        {
+            //Right Wall
+            this.moveBack();
+            this.life--;
+        }
     }        
 
     /**
@@ -134,9 +178,16 @@ public class DodgemCar{
     /** @return whether this car is touching the other car */
     public boolean checkCollideCar(DodgemCar other){
         /*# YOUR CODE HERE */
+        if (this.position.distance(other.getPosition()) <= diameter )
+        {
+            return true;
+        }
         return false;
     }
-
+    public Point getPosition()
+    {
+        return this.position;
+    }
     /**
      * Returns the amount of life left of this car (needed for Completion)
      */
@@ -144,7 +195,10 @@ public class DodgemCar{
         /*# YOUR CODE HERE */
         return life;
     }
-
+    public void hurt()
+    {
+        this.life--;
+    }
     /**
      * Useful method for debugging: 
      * Returns a String rendering of the DodgemCar Object

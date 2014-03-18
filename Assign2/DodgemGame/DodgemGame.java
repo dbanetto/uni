@@ -154,8 +154,18 @@ public class DodgemGame implements UIKeyListener{
                 car.draw();
                 //Update
                 car.move();
-                UI.println(car.toString());
+                car.checkCollideWall();
             }
+            
+            if (this.carlist.get(0).checkCollideCar(this.carlist.get(1)))            
+            {
+                this.carlist.get(0).hurt();
+                this.carlist.get(1).hurt();
+                
+                this.carlist.get(0).moveBack();
+                this.carlist.get(1).moveBack();
+            }
+            
             UI.repaintGraphics();
             UI.sleep(Delay);
         }
@@ -170,9 +180,9 @@ public class DodgemGame implements UIKeyListener{
     private void resetGame(){
         this.carlist.clear();
         //Add Player one
-        this.carlist.add(new DodgemCar (10,10 , 0 , Color.red));
+        this.carlist.add(new DodgemCar (60,60 , 0 , Color.red));
         //Add Player two
-        this.carlist.add(new DodgemCar(10, 400 , 0, Color.green));
+        this.carlist.add(new DodgemCar(200, 200 , 0, Color.green));
     }
 
     /**
@@ -193,11 +203,17 @@ public class DodgemGame implements UIKeyListener{
         //Left Wall
         UI.fillRect(0, 0 , LeftWall, ArenaSize);
         //Right Wall
-        UI.fillRect(ArenaSize, 0 , LeftWall, ArenaSize);
+        UI.fillRect(ArenaSize+LeftWall, 0 , LeftWall, ArenaSize+LeftWall);
         //Top wall
-        UI.fillRect(0, 0 , ArenaSize, TopWall);
+        UI.fillRect(0, 0 , ArenaSize+LeftWall, TopWall);
         //Bottom wall
-        UI.fillRect(0, ArenaSize , ArenaSize+30, TopWall);
+        UI.fillRect(0, ArenaSize , ArenaSize+(LeftWall*2), TopWall);
+        
+        UI.setFontSize(11);
+        UI.setColor(Color.green);
+        UI.drawString(this.carlist.get(0).life(), 0, 0);
+        UI.setColor(Color.red);
+        UI.drawString( "Play" + this.carlist.get(1).life(), 0, 12);
         
     }
 
