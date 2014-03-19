@@ -173,6 +173,7 @@ public class DodgemGame implements UIKeyListener{
                 this.carlist.get(1).setDir(car1);
             }
             
+            //Show winner screen
             if (this.carlist.get(0).life() < 1)
             {
                 //Player 2 Wins!

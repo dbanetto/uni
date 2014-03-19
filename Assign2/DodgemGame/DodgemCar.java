@@ -62,13 +62,13 @@ public class DodgemCar{
     
     // Constants: Geometry and other parameters
     /*# YOUR CODE HERE */
-    private static final double turnrate = 0.314; 
+    private static final double turnrate = 0.001; 
     private static final double diameter = 25;
     // fields for the state of the car
     /*# YOUR CODE HERE */
     private Point position;
     private double direction;
-
+    private double turn;
     private double life = 10;
     private Color colour;
     //Constructor 
@@ -91,8 +91,8 @@ public class DodgemCar{
      */
     public void turnLeft(){
         /*# YOUR CODE HERE */
-        this.direction -= turnrate;
-        this.direction %= Math.PI*2;
+        this.turn -= turnrate;
+        this.turn %= Math.PI*2;
     }
 
     /**
@@ -102,8 +102,8 @@ public class DodgemCar{
      */
     public void turnRight(){
         /*# YOUR CODE HERE */
-        this.direction += turnrate;
-        this.direction %= Math.PI*2;
+        this.turn += turnrate;
+        this.turn %= Math.PI*2;
     }
 
     /**
@@ -114,12 +114,17 @@ public class DodgemCar{
      */
     public void move() {
         //Vector conversion to x,y
+        /*BUG: Car looks like it only moves in one drirecton
+         * This is due to rounding of sin and cos
+          */
+        this.direction += turn;
         this.position.setLocation(this.position.getX() + Math.cos(this.direction),
                                   this.position.getY() + Math.sin(this.direction));
     }
     /** Same as move but backwards */
     public void moveBack() {
         //Vector conversion to x,y
+        this.direction -= turn;
         this.position.setLocation(this.position.getX() - Math.cos(this.direction),
                                   this.position.getY() - Math.sin(this.direction));
     }
