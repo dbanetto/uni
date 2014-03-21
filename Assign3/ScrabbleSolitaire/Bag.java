@@ -3,9 +3,9 @@
 // You may not distribute it in any other way without permission.
 
 /* Code for Assignment 7
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
  */
 
 import ecs100.*;
@@ -29,5 +29,52 @@ import java.awt.Color;
 
 public class Bag{
     /*# YOUR CODE HERE */
-
+    private List<Tile> tiles = new ArrayList<Tile>();
+    
+    public Bag()
+    {
+    }
+    
+    public void load(String file)
+    {
+        
+        try 
+        {
+            //Example code from: http://stackoverflow.com/questions/5868369/how-to-read-a-large-text-file-line-by-line-using-java
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            UI.println("Loading tiles from " + file);
+            while ((line = br.readLine()) != null) {
+               int value = 0;
+               String name= "";
+                
+               String[] bits = line.split(" ");
+               try {
+                   value = Integer.parseInt(bits[1]);
+                   name = bits[0];
+                   this.tiles.add(new Tile(name, value));
+                   UI.println("Tile loaded : " + name + " " + value);
+               } catch (Exception ex)
+               {
+                   UI.println("Error while reading : " + line + "\n" + ex.toString());
+               }
+            }
+            UI.println("Completed loading tiles");
+            br.close();
+        } catch (FileNotFoundException ex)
+        {
+            UI.println("File not found " + file);
+        } catch (IOException ex)
+        {
+            UI.println("IO Error");
+        }
+    }
+    
+    public Tile takeTile()
+    {
+        int rnd = (int)(Math.random() * this.tiles.size());
+        Tile out = tiles.get(rnd);
+        this.tiles.remove(rnd);
+        return out;
+    }
 }

@@ -28,7 +28,34 @@ import java.io.*;
 */
 
 public class Tile{
-
     /*# YOUR CODE HERE */
-
+    private String letter;
+    private int value;
+    
+    public static final int width = 25;
+    public static final int height = 25;
+    
+    public Tile (String in , int value)
+    {
+        this.value = value;
+        this.letter = in;
+    }
+    
+    public int getValue()
+    {
+        return this.value;
+    }
+    
+    public void draw(double x , double y)
+    {
+        UI.setColor(Color.black);
+        UI.drawRect(x, y, width, height);
+        
+        UI.setFontSize(14);
+        UI.drawString(( this.letter.equals("blank") ? "" : this.letter), x + 5, y + 16);
+        
+        UI.setFontSize(8);
+        UI.drawString(""+this.value, x + width - 5, y + 10);
+        
+    }
 }

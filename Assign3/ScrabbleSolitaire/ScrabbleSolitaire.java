@@ -59,12 +59,20 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
 
     // fields to hold the bag, rack and board, and the tile in the hand
     /*# YOUR CODE HERE */
-
+    private Board board;
+    private Rack rack;
+    private Bag bag;
+    
     /**
      * Set up the GUI (buttons and mouse listener) and restart the game
      */
     public ScrabbleSolitaire(){
         /*# YOUR CODE HERE */
+        UI.setMouseListener(this);
+        UI.addButton("Commit", this);
+        UI.addButton("Reset", this);
+        
+        this.restart();
     }
 
     /**
@@ -84,6 +92,10 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
      */
     public void buttonPerformed(String button){
         /*# YOUR CODE HERE */
+        if (button.equals("Reset"))
+        {
+            this.restart();
+        }
     }
 
 
@@ -95,6 +107,12 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
     */
     public void restart(){
         /*# YOUR CODE HERE */
+        this.board = new Board();
+        this.bag   = new Bag();
+        this.bag.load("tile-bag.txt");
+        this.rack  = new Rack();
+        this.rack.fill(this.bag);
+        
     }
 
     /**

@@ -12,7 +12,7 @@ import ecs100.*;
 import java.awt.Color;
 import java.util.*;
 import java.io.*;
-
+import java.awt.Point;
 
 /**
    Scrabble Board
@@ -33,7 +33,10 @@ import java.io.*;
  */
 
 public class Board{
-
+    
+    //Point is the row , col position
+    private HashMap<Point,Tile> board;
+    
     /*# YOUR CODE HERE */
     /** Construct a new Board object */
     public Board(){
@@ -43,6 +46,13 @@ public class Board{
     /** Is the position (x,y) on the board */
     public boolean on(double x, double y){
         /*# YOUR CODE HERE */
+        if (this.board.containsKey(new Point((int)x,(int)y)))
+        {
+            return true;
+        } else 
+        {
+            return false;
+        }
     }
 
 
@@ -51,6 +61,7 @@ public class Board{
      */
     public int[] rowCol(double x, double y){
         /*# YOUR CODE HERE */
+        return null;
     }
 
     /**
@@ -59,6 +70,7 @@ public class Board{
      */
     public Tile pickup(int row, int col){
         /*# YOUR CODE HERE */
+        return null;
     }
 
     /**
@@ -66,6 +78,7 @@ public class Board{
      */
     public boolean place(Tile tile, int row, int col){
         /*# YOUR CODE HERE */
+        return false;
     }
 
     /**
@@ -86,6 +99,7 @@ public class Board{
      */
     public boolean validPlay(){
         /*# YOUR CODE HERE */
+        return false;
     }
                 
             

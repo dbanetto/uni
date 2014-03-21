@@ -35,7 +35,53 @@ import java.awt.Color;
  */
 
 public class Rack{
-
     /*# YOUR CODE HERE */
+    private ArrayList<Tile> tiles = new ArrayList<Tile>();
+    
+    public Rack ()
+    {
+    }
+    
+    public boolean on (double x , double y)
+    {
+        return false;
+    }
+    
+    public int index (double x , double y)
+    {
+        return 0;
+    }
+    
+    public Tile pickup (int pos)
+    {
+        return null;
+    }
+    
+    public boolean place(Tile tile, int pos)
+    {
+        return false;
+    }
+    
+    public void fill (Bag bag)
+    {
+        while (this.tiles.size() < 7)
+        {
+            this.tiles.add(bag.takeTile());
+        }
+    }
 
+    public void draw()
+    {
+        int n = 0;
+        for (Tile t : tiles )
+        {
+            t.draw(n*Tile.width , n*Tile.height);
+            n++;
+        }
+    }
+    
+    public void reset()
+    {
+        this.tiles.clear();
+    }
 }
