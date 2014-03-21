@@ -1,0 +1,17 @@
+Questions for Reflection.
+=========================
+
+1.  For the Scrabble game, we recommended using arrays for the rack and the
+board, but ArrayList for the bag.  Why? Compare the strengths and weaknesses of arrays vs ArrayLists.
+
+2. There are many different ways that you could have done the checking for a
+valid play in the scrabble game (ie, checking that the working tiles were in a
+row or column with no gaps and connected to the previous tiles).  What would be a good way of going about the design of a tricky method like this?
+
+3. Last week you constructed a list of the key Java programming
+constructs that you used.  Add the important new constructs you used
+this week to that list, with a very brief note about each one.
+
+4. If you learned any more important concepts about programming or Computer
+Science, add them to your list from last week.
+
