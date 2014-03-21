@@ -36,9 +36,9 @@ public class Board{
     
     //Point is the row , col position
     private Tile[][] board = new Tile[15][15];
+    private Map<Point,Tile> tmpboard = new HashMap<Point,Tile>();
     
-    
-    private static final int board_x_offset = 10;
+    private static final int board_x_offset = 20;
     private static final int board_y_offset = 10;
     
     /*# YOUR CODE HERE */
@@ -98,6 +98,15 @@ public class Board{
      */
     public Tile pickup(int row, int col){
         /*# YOUR CODE HERE */
+        Point pt = new Point(row,col);
+        
+        if (this.tmpboard.containsKey(pt))
+        {
+            Tile tmp = this.tmpboard.get(pt);
+            this.tmpboard.remove(pt);
+            return tmp;
+        }
+        
         return null;
     }
 
@@ -105,8 +114,20 @@ public class Board{
      * Place the tile on the board, if the board position is empty
      */
     public boolean place(Tile tile, int row, int col){
-        /*# YOUR CODE HERE */
-        return false;
+        Point pt = new Point(row,col);
+        //Check if tile is already in the tmp board
+        if (this.tmpboard.containsKey(pt))
+        {
+            return false;
+        }
+        
+        if (this.board[row][col] != null)
+        {
+            return false;
+        }
+        
+        this.tmpboard.put(pt, tile);
+        return true;
     }
 
     /**
@@ -114,6 +135,11 @@ public class Board{
      */
     public void commit(){
         /*# YOUR CODE HERE */
+        for (Point pt :  this.tmpboard.keySet())
+        {
+           this.board[(int)pt.getX()][(int)pt.getY()] = this.tmpboard.get(pt);
+        }
+        this.tmpboard.clear();
     }
 
     /**
@@ -138,17 +164,26 @@ public class Board{
         /*# YOUR CODE HERE */
         for (int row = 0; row < 15; row++)
         {
+            UI.drawString(""+row,   board_x_offset - 15 , board_y_offset + row*Tile.height - 10);
             for (int col = 0; col < 15; col++)
             {   
              if (col == 0)
              {
                  UI.setColor(Color.black);
-                 UI.drawString(""+ Character.toChars(row + 65)[0], board_x_offset + row*Tile.width, board_y_offset + col*Tile.height);
+                 UI.setFontSize(10);
+                 UI.drawString(""+ Character.toChars(row + 65)[0], board_x_offset + row*Tile.width, board_y_offset + col*Tile.height - 1);
+                 
              }
                 UI.setColor(Color.black);
                 UI.drawRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
                     , Tile.width, Tile.height);
             }   
+        }
+        UI.drawString("15",   board_x_offset - 15 , board_y_offset + 15*Tile.height - 10);
+        
+        for (Point pt :  this.tmpboard.keySet())
+        {
+           this.tmpboard.get(pt).draw(board_x_offset + pt.getX()*Tile.width , board_y_offset + pt.getY()*Tile.height);
         }
     }
 

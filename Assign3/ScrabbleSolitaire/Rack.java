@@ -77,11 +77,18 @@ public class Rack{
     
     public Tile pickup (int pos)
     {
-        return this.tiles[pos];
+        Tile out = this.tiles[pos];
+        this.tiles[pos] = null;
+        return out;
     }
     
     public boolean place(Tile tile, int pos)
     {
+        if (this.tiles[pos] == null)
+        {
+            this.tiles[pos] = tile;
+            return true;
+        }
         return false;
     }
     
@@ -102,6 +109,10 @@ public class Rack{
             UI.setColor(Color.black);
             UI.drawRect(n*Tile.width + rack_x_offset + 2*n , Tile.height + rack_y_offset - 1
                         , Tile.width + 2, Tile.height + 2);
+            
+            if (this.tiles[n] == null)
+                continue;
+                        
             tiles[n].draw(n*Tile.width + rack_x_offset + 2*n + 1, Tile.height + rack_y_offset);
         }
     }
