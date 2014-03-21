@@ -51,9 +51,14 @@ public class Tile{
         return this.value;
     }
     
+    public String getFile()
+    {
+        return "tiles/" + this.letter + ".jpg";
+    }
+    
     public void draw(double x , double y)
     {
-        UI.drawImage("tiles/" + letter + ".jpg", x, y);
+        UI.drawImage(this.getFile(), x, y);
         
     }
 }

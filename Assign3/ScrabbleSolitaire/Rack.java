@@ -94,7 +94,7 @@ public class Rack{
     
     public void fill (Bag bag)
     {
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 7 && bag.isEmpty() == false; i++)
         {
             if (tiles[i] == null) {
                 this.tiles[i] = bag.takeTile();
@@ -116,6 +116,7 @@ public class Rack{
             tiles[n].draw(n*Tile.width + rack_x_offset + 2*n + 1, Tile.height + rack_y_offset);
         }
     }
+    
     
     public void reset()
     {

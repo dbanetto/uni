@@ -70,6 +70,11 @@ public class Bag{
         }
     }
     
+    public boolean isEmpty()
+    {
+        return (this.tiles.size() == 0 ? true : false );
+    }
+    
     public Tile takeTile()
     {
         int rnd = (int)(Math.random() * this.tiles.size());

@@ -110,8 +110,10 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
             {
                 if (this.hand != null)
                 {
-                    this.board.place(this.hand, indexb[0], indexb[1]);
-                    this.hand = null;
+                    if (this.board.place(this.hand, indexb[0], indexb[1]))
+                    {
+                        this.hand = null;
+                    }
                 } else {
                     this.hand = this.board.pickup(indexb[0], indexb[1]);
                 }
@@ -130,6 +132,14 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         if (button.equals("Reset"))
         {
             this.restart();
+        }
+        if (button.equals("Commit"))
+        {
+            if (this.board.commit())
+            {
+                this.rack.fill(this.bag);
+                this.draw();
+            }
         }
     }
 

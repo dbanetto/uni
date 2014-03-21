@@ -41,6 +41,8 @@ public class Board{
     private static final int board_x_offset = 20;
     private static final int board_y_offset = 10;
     
+    private boolean firstplay = true;
+    
     /*# YOUR CODE HERE */
     /** Construct a new Board object */
     public Board(){
@@ -133,13 +135,19 @@ public class Board{
     /**
      * Commit all the workingTiles to the board
      */
-    public void commit(){
+    public Boolean commit(){
         /*# YOUR CODE HERE */
+        if (validPlay() == false)
+        {
+            UI.println("Invalid Play");
+            return false;
+        }
         for (Point pt :  this.tmpboard.keySet())
         {
            this.board[(int)pt.getX()][(int)pt.getY()] = this.tmpboard.get(pt);
         }
         this.tmpboard.clear();
+        return true;
     }
 
     /**
@@ -153,7 +161,174 @@ public class Board{
      */
     public boolean validPlay(){
         /*# YOUR CODE HERE */
-        return false;
+        int isHor = -1;
+        Point inital = null;
+        Point min = null;
+        Point max = null;
+        for (Point pt :  this.tmpboard.keySet())
+        {
+           //Get 1st block
+           if (inital == null) {
+                inital = new Point(pt);
+                max = new Point(pt);
+                min = new Point(pt);
+                continue;
+           }
+           
+           if (min.getX() > pt.getX())
+           {
+               min.setLocation(pt.getX(), min.getY());
+           }
+           if (min.getY() > pt.getY())
+           {
+               min.setLocation(min.getX(), pt.getY());
+           }
+           
+           if (max.getX() < pt.getX())
+           {
+               max.setLocation(pt.getX(), max.getY());
+           }
+           if (max.getY() < pt.getY())
+           {
+               max.setLocation(max.getX(), pt.getY());
+           }
+           
+           
+           if (isHor == -1)
+           {
+               //Check if the X's changed 
+               if (pt.getX() != inital.getX())
+               {
+                   isHor = 1;
+               }
+               
+               //Y's 
+               if (pt.getY() != inital.getY())
+               {
+                   //Make sure they are not doubling up in delta rows/coll
+                   if (isHor != -1)
+                   {
+                       return false;
+                   }
+                   isHor = 2;
+               }
+               continue;
+           }
+           //Check if the Y's changed
+           if (isHor == 1)
+           {
+               if (pt.getY() != inital.getY())
+                   {
+                       return false;
+                   }
+           }
+           //Check if the X's has changes
+           if (isHor == 2)
+           {
+               if (pt.getX() != inital.getX())
+               {
+                   return false;
+               }
+           }
+        }
+        //No changes
+        if (inital == null)
+        {
+            return false;
+        }
+        
+        //Line checks
+        //Check a horizontal line
+        boolean touchesExisiting = false;
+        if (isHor == 1)
+        {
+            if (min.getY() != max.getY())
+                return false;
+            int y = (int)min.getY();
+            int pre = (int)min.getX() - 1;
+            int post = (int)max.getX() + 1;
+            for ( int i = pre; i < post; i++ )
+            {
+                if (i < 0 || i > 15)
+                    continue;
+                
+                if ((this.tmpboard.containsKey(new Point(i,y)) == true || this.board[i][y] != null ) == false )
+                {
+                    if ( (i == pre || i == post) == false ) {
+                        return false;
+                    }
+                }
+                if (this.board[i][y] != null)
+                {
+                    touchesExisiting = true;
+                }
+                if (y-1 > 0)
+                {
+                    if (this.board[i][y-1] != null)
+                    {
+                        touchesExisiting = true;
+                    }
+                }
+                if (y+1 < 15)
+                {
+                    if (this.board[i][y+1] != null)
+                    {
+                        touchesExisiting = true;
+                    }
+                }
+            }
+
+        }
+        //Check a virtal line
+        if (isHor == 2)
+        {
+            if (min.getX() != max.getX())
+                return false;
+            int x = (int)min.getX();
+            int pre = (int)min.getY() - 1;
+            int post = (int)max.getY() + 1;
+            for ( int i =  pre; i < post; i++ )
+            {
+                if (i < 0 || i > 15)
+                    continue;
+                
+                if ( (this.tmpboard.containsKey(new Point(x,i)) == true || this.board[x][i] != null ) == false )
+                {
+                    if ((i == pre || i == post) == false) {
+                        return false;
+                    }
+                }
+                if (this.board[x][i] != null)
+                {
+                    touchesExisiting = true;
+                }
+                
+                if (x-1 > 0)
+                {
+                    if (this.board[x-1][i] != null)
+                    {
+                        touchesExisiting = true;
+                    }
+                }
+                if (x+1 < 15)
+                {
+                    if (this.board[x+1][i] != null)
+                    {
+                        touchesExisiting = true;
+                    }
+                }
+            }
+        }
+        
+        if (this.firstplay == false && touchesExisiting == false)
+        {
+            return false;
+        }
+        if (this.firstplay)
+            this.firstplay = false;
+        
+        UI.println("Valid Play");
+        return true;
     }
 
     /**
@@ -177,6 +352,9 @@ public class Board{
                 UI.setColor(Color.black);
                 UI.drawRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
                     , Tile.width, Tile.height);
+                if (this.board[row][col] != null) {
+                    this.board[row][col].draw( board_x_offset + row*Tile.width, board_y_offset + col*Tile.height );
+               }
             }   
         }
         UI.drawString("15",   board_x_offset - 15 , board_y_offset + 15*Tile.height - 10);
@@ -189,6 +367,7 @@ public class Board{
 
     public void reset(){
         /*# YOUR CODE HERE */
+        firstplay = true;
     }
 
 
