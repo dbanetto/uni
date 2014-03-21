@@ -101,9 +101,6 @@ public class Board{
         /*# YOUR CODE HERE */
         return false;
     }
-                
-            
-
 
     /**
      * Draw the board.

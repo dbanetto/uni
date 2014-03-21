@@ -36,7 +36,11 @@ import java.awt.Color;
 
 public class Rack{
     /*# YOUR CODE HERE */
-    private ArrayList<Tile> tiles = new ArrayList<Tile>();
+    private Tile[] tiles = new Tile[7];
+    
+    //Offsets for drawing the Rack on screen
+    private static final int rack_x_offset = 10;
+    private static final int rack_y_offset = 360;
     
     public Rack ()
     {
@@ -44,17 +48,36 @@ public class Rack{
     
     public boolean on (double x , double y)
     {
-        return false;
+        return index(x,y) != -1;
     }
     
     public int index (double x , double y)
     {
-        return 0;
+        UI.println("Finding Index @ " + x + " " + y);
+        //Check if there is a chance if they could find an index
+        if (y < rack_y_offset && x < rack_x_offset)
+        {
+            return -1;
+        }
+        
+        for (int n = 0; n < 7; n++)
+        {
+           double posX = n*Tile.width + rack_x_offset + 2*n ;
+           double posY = Tile.height + rack_y_offset - 1;
+           double posXM = posX + Tile.width + 2;
+           double posYM = posY + Tile.height + 2;
+           
+           if ( x > posX && x < posXM && y > posY && y < posYM )
+           {
+               return n;
+           }
+        }
+        return -1;
     }
     
     public Tile pickup (int pos)
     {
-        return null;
+        return this.tiles[pos];
     }
     
     public boolean place(Tile tile, int pos)
@@ -64,24 +87,27 @@ public class Rack{
     
     public void fill (Bag bag)
     {
-        while (this.tiles.size() < 7)
+        for (int i = 0; i < 7; i++)
         {
-            this.tiles.add(bag.takeTile());
+            if (tiles[i] == null) {
+                this.tiles[i] = bag.takeTile();
+           }
         }
     }
 
     public void draw()
     {
-        int n = 0;
-        for (Tile t : tiles )
+        for (int n = 0; n < 7; n++)
         {
-            t.draw(n*Tile.width , n*Tile.height);
-            n++;
+            UI.setColor(Color.black);
+            UI.drawRect(n*Tile.width + rack_x_offset + 2*n , Tile.height + rack_y_offset - 1
+                        , Tile.width + 2, Tile.height + 2);
+            tiles[n].draw(n*Tile.width + rack_x_offset + 2*n + 1, Tile.height + rack_y_offset);
         }
     }
     
     public void reset()
     {
-        this.tiles.clear();
+        this.tiles = new Tile[7];
     }
 }

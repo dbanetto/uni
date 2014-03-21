@@ -83,6 +83,17 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
      */
     public void mousePerformed(String action, double x, double y){
         /*# YOUR CODE HERE */
+        if (action.equals("clicked"))
+        {
+            int index = rack.index(x, y);
+            UI.println("Rack Index : " + index);
+            //Make sure it is a valid index
+            if (index != -1)
+            {
+                Tile t = rack.pickup(index);
+                UI.println("Letter : " + t.getLetter() + " Value : " + t.getValue());
+            }
+        }
     }
 
 
@@ -113,6 +124,8 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         this.rack  = new Rack();
         this.rack.fill(this.bag);
         
+        draw();
+        
     }
 
     /**
@@ -121,6 +134,7 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
     public void draw(){
         UI.clearGraphics();
         /*# YOUR CODE HERE */
+        this.rack.draw();
         UI.repaintGraphics();
     }
 

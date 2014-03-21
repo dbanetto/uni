@@ -32,13 +32,18 @@ public class Tile{
     private String letter;
     private int value;
     
-    public static final int width = 25;
-    public static final int height = 25;
+    public static final int width = 40;
+    public static final int height = 40;
     
     public Tile (String in , int value)
     {
         this.value = value;
         this.letter = in;
+    }
+    
+    public String getLetter()
+    {
+        return this.letter;
     }
     
     public int getValue()
@@ -48,14 +53,7 @@ public class Tile{
     
     public void draw(double x , double y)
     {
-        UI.setColor(Color.black);
-        UI.drawRect(x, y, width, height);
-        
-        UI.setFontSize(14);
-        UI.drawString(( this.letter.equals("blank") ? "" : this.letter), x + 5, y + 16);
-        
-        UI.setFontSize(8);
-        UI.drawString(""+this.value, x + width - 5, y + 10);
+        UI.drawImage("tiles/" + letter + ".jpg", x, y);
         
     }
 }
