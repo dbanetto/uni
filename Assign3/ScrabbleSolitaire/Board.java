@@ -35,7 +35,11 @@ import java.awt.Point;
 public class Board{
     
     //Point is the row , col position
-    private HashMap<Point,Tile> board;
+    private Tile[][] board = new Tile[15][15];
+    
+    
+    private static final int board_x_offset = 10;
+    private static final int board_y_offset = 10;
     
     /*# YOUR CODE HERE */
     /** Construct a new Board object */
@@ -45,14 +49,15 @@ public class Board{
     
     /** Is the position (x,y) on the board */
     public boolean on(double x, double y){
-        /*# YOUR CODE HERE */
-        if (this.board.containsKey(new Point((int)x,(int)y)))
+        if (x > board_x_offset && y > board_y_offset)
         {
-            return true;
-        } else 
-        {
-            return false;
+            if (x < board_x_offset + 15*Tile.width && x < board_y_offset + 15*Tile.height)
+            {
+                return true;
+            }
         }
+        
+        return false;
     }
 
 
@@ -60,8 +65,30 @@ public class Board{
      * Return the row/col corresponding to the point x,y.
      */
     public int[] rowCol(double x, double y){
+        if (on(x,y) == false)
+        {
+            return new int[] {-1 , -1};
+        }
+        
+        for (int row = 0; row < 15; row++)
+        {
+            for (int col = 0; col < 15; col++)
+            {
+             double posX = board_x_offset + row*Tile.width;
+             double posY = board_y_offset + col*Tile.height;
+             double posXM = posX + Tile.width;
+             double posYM = posY + Tile.height;
+             
+             if (x > posX && y > posY && x < posXM && y < posYM)
+             {
+                 int[] pos = new int[] { row , col };
+                 return pos;
+             }
+            }
+        }
+        
         /*# YOUR CODE HERE */
-        return null;
+        return new int[] {-1 , -1};
     }
 
     /**
@@ -108,6 +135,15 @@ public class Board{
      */
     public void draw(){
         /*# YOUR CODE HERE */
+        for (int row = 0; row < 15; row++)
+        {
+            for (int col = 0; col < 15; col++)
+            {   
+                UI.setColor(Color.black);
+                UI.drawRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
+                    , Tile.width, Tile.height);
+            }   
+        }
     }
 
     public void reset(){

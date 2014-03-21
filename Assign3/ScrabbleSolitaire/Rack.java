@@ -40,7 +40,7 @@ public class Rack{
     
     //Offsets for drawing the Rack on screen
     private static final int rack_x_offset = 10;
-    private static final int rack_y_offset = 360;
+    private static final int rack_y_offset = 620;
     
     public Rack ()
     {

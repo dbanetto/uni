@@ -86,6 +86,8 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         if (action.equals("clicked"))
         {
             int index = rack.index(x, y);
+            int[] indexb = this.board.rowCol(x , y);
+            UI.println("Board Index : " + indexb[0] + "," + indexb[1]);
             UI.println("Rack Index : " + index);
             //Make sure it is a valid index
             if (index != -1)
@@ -135,6 +137,7 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         UI.clearGraphics();
         /*# YOUR CODE HERE */
         this.rack.draw();
+        this.board.draw();
         UI.repaintGraphics();
     }
 
