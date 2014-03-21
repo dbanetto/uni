@@ -72,6 +72,7 @@ public class Board{
         
         for (int row = 0; row < 15; row++)
         {
+            
             for (int col = 0; col < 15; col++)
             {
              double posX = board_x_offset + row*Tile.width;
@@ -139,6 +140,11 @@ public class Board{
         {
             for (int col = 0; col < 15; col++)
             {   
+             if (col == 0)
+             {
+                 UI.setColor(Color.black);
+                 UI.drawString(""+ Character.toChars(row + 65)[0], board_x_offset + row*Tile.width, board_y_offset + col*Tile.height);
+             }
                 UI.setColor(Color.black);
                 UI.drawRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
                     , Tile.width, Tile.height);
