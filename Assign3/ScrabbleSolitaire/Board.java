@@ -38,6 +38,8 @@ public class Board{
     private Tile[][] board = new Tile[15][15];
     private Map<Point,Tile> tmpboard = new HashMap<Point,Tile>();
     
+    private Map<Point,Integer> specialTiles = new HashMap<Point,Integer>();    
+    
     private static final int board_x_offset = 20;
     private static final int board_y_offset = 10;
     
@@ -47,6 +49,7 @@ public class Board{
     /** Construct a new Board object */
     public Board(){
         /*# YOUR CODE HERE */
+        reset();
     }
     
     /** Is the position (x,y) on the board */
@@ -349,12 +352,33 @@ public class Board{
                  UI.drawString(""+ Character.toChars(row + 65)[0], board_x_offset + row*Tile.width, board_y_offset + col*Tile.height - 1);
                  
              }
-                UI.setColor(Color.black);
-                UI.drawRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
-                    , Tile.width, Tile.height);
+                
+                Color color = Color.black;
+                UI.setColor(color);
                 if (this.board[row][col] != null) {
                     this.board[row][col].draw( board_x_offset + row*Tile.width, board_y_offset + col*Tile.height );
-               }
+                }
+                
+                if (specialTiles.containsKey(new Point(row,col)))
+                {
+                    int mutli = specialTiles.get(new Point(row,col));
+                    switch (mutli)
+                    {
+                        case (3):
+                            color = Color.red;
+                            break;
+                        case (2):
+                            color = Color.blue;
+                            break;
+                    }
+                    UI.setColor(color);
+                    UI.fillRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
+                    , Tile.width, Tile.height);
+                } else {
+                    UI.drawRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
+                        , Tile.width, Tile.height);
+                }
+               
             }   
         }
         UI.drawString("15",   board_x_offset - 15 , board_y_offset + 15*Tile.height - 10);
@@ -368,6 +392,80 @@ public class Board{
     public void reset(){
         /*# YOUR CODE HERE */
         firstplay = true;
+        
+        //Add Special tiles
+        //3 times
+        specialTiles.put(new Point(0,0) , 3);
+        specialTiles.put(new Point(7,0) , 3);
+        specialTiles.put(new Point(14,0) , 3);
+        
+        specialTiles.put(new Point(0,7) , 3);
+        
+        specialTiles.put(new Point(5,1) , 3);
+        specialTiles.put(new Point(9,1) , 3);
+        
+        specialTiles.put(new Point(1,5) , 3);
+        specialTiles.put(new Point(5,5) , 3);
+        specialTiles.put(new Point(9,5) , 3);
+        specialTiles.put(new Point(13,5), 3);
+        //Line of reflection
+        
+        //Line of reflection
+        specialTiles.put(new Point(1,9) , 3);
+        specialTiles.put(new Point(5,9) , 3);
+        specialTiles.put(new Point(9,9) , 3);
+        specialTiles.put(new Point(13,9), 3);
+        
+        specialTiles.put(new Point(5,13) , 3);
+        specialTiles.put(new Point(9,13) , 3);
+        
+        specialTiles.put(new Point(14,7) , 3);
+        
+        specialTiles.put(new Point(0,14) , 3);
+        specialTiles.put(new Point(7,14) , 3);
+        specialTiles.put(new Point(14,14) , 3);
+        
+        //2 Times
+        specialTiles.put(new Point(7,7) , 2);
+        
+        specialTiles.put(new Point(3,0) , 2);
+        specialTiles.put(new Point(11,0) , 2);
+        
+        specialTiles.put(new Point(0,3) , 2);
+        specialTiles.put(new Point(0,11) , 2);
+        
+        specialTiles.put(new Point(3,14) , 2);
+        specialTiles.put(new Point(11,14) , 2);
+        
+        specialTiles.put(new Point(14,3) , 2);
+        specialTiles.put(new Point(14,11) , 2);
+        
+        for (int i = 0; i < 4; i++)
+        {
+            specialTiles.put(new Point(1+i,1+i) , 2);
+            specialTiles.put(new Point(1+i,13-i) , 2);
+            specialTiles.put(new Point(13-i,1+i) , 2);
+            specialTiles.put(new Point(13-i,13-i) , 2);
+        }
+        
+        //Center Block
+        specialTiles.put(new Point(6,6) , 2);
+        specialTiles.put(new Point(8,6) , 2);
+        specialTiles.put(new Point(6,8) , 2);
+        specialTiles.put(new Point(8,8) , 2);
+        
+        //Tessilate The arrow bit
+        //tans[0] is  the same as cos(angle)
+        //trans[1] is the same as sin(angle)
+        for (int[] trans : new int[][] 
+            { new int[] { 1 , 0} , new int[] { 0 , 1} , new int[] { -1 , 0} , new int[] { 0 , -1 }  }
+            )
+        {
+            specialTiles.put(new Point(7 + (int)( 4*trans[0] ), 7 + (int)( 4*trans[1] ) ) , 2);
+            specialTiles.put(new Point(7 + (int)( 5*trans[0] + 1*trans[1] ), 7 + (int)( 5*trans[1] - 1*trans[0] ) ) , 2);
+            specialTiles.put(new Point(7 + (int)( 5*trans[0] - 1*trans[1] ), 7 + (int)( 5*trans[1] + 1*trans[0] ) ) , 2);
+        }
+        
     }
 
 
