@@ -342,6 +342,7 @@ public class Board{
         /*# YOUR CODE HERE */
         for (int row = 0; row < 15; row++)
         {
+            UI.setColor(Color.black);
             UI.drawString(""+row,   board_x_offset - 15 , board_y_offset + row*Tile.height - 10);
             for (int col = 0; col < 15; col++)
             {   
@@ -355,9 +356,6 @@ public class Board{
                 
                 Color color = Color.black;
                 UI.setColor(color);
-                if (this.board[row][col] != null) {
-                    this.board[row][col].draw( board_x_offset + row*Tile.width, board_y_offset + col*Tile.height );
-                }
                 
                 if (specialTiles.containsKey(new Point(row,col)))
                 {
@@ -379,8 +377,12 @@ public class Board{
                         , Tile.width, Tile.height);
                 }
                
+                if (this.board[row][col] != null) {
+                    this.board[row][col].draw( board_x_offset + row*Tile.width, board_y_offset + col*Tile.height );
+                }
             }   
         }
+        UI.setColor(Color.black);
         UI.drawString("15",   board_x_offset - 15 , board_y_offset + 15*Tile.height - 10);
         
         for (Point pt :  this.tmpboard.keySet())
