@@ -150,6 +150,10 @@ public class Board{
            this.board[(int)pt.getX()][(int)pt.getY()] = this.tmpboard.get(pt);
         }
         this.tmpboard.clear();
+        
+        if (firstplay)
+            firstplay = false;
+        
         return true;
     }
 
@@ -211,6 +215,7 @@ public class Board{
                    //Make sure they are not doubling up in delta rows/coll
                    if (isHor != -1)
                    {
+                       UI.println("second tile is Diagonal");
                        return false;
                    }
                    isHor = 2;
@@ -222,6 +227,7 @@ public class Board{
            {
                if (pt.getY() != inital.getY())
                    {
+                       UI.println("Not all tiles are along the Y axis pt:" + pt.getY() + " int:" + inital.getY());
                        return false;
                    }
            }
@@ -230,6 +236,7 @@ public class Board{
            {
                if (pt.getX() != inital.getX())
                {
+                   UI.println("Not all tiles are along the X axis");
                    return false;
                }
            }
@@ -258,6 +265,7 @@ public class Board{
                 if ((this.tmpboard.containsKey(new Point(i,y)) == true || this.board[i][y] != null ) == false )
                 {
                     if ( (i == pre || i == post) == false ) {
+                        UI.println("Only one tile");
                         return false;
                     }
                 }
@@ -327,8 +335,6 @@ public class Board{
         {
             return false;
         }
-        if (this.firstplay)
-            this.firstplay = false;
         
         UI.println("Valid Play");
         return true;
@@ -576,7 +582,6 @@ public class Board{
         b.place(t, 6, 10);
         b.place(t, 6, 11);
         if (!b.validPlay()) {System.out.println("6/9,10,11 should be valid, given 5/10");}
-
 
 
         System.out.println("Testing column spanning fixed tiles");
