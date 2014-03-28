@@ -147,7 +147,7 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
             } else {
                 if (this.hand != null)
                 {
-                    Tile backup = rack.pickup(index);
+                    Tile backup = backup = rack.pickup(index);
                     rack.place(this.hand, index);   
                     if ( backup != null) {
                         this.rack.place(backup,index);

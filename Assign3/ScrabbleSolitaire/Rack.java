@@ -77,27 +77,35 @@ public class Rack{
     
     public Tile pickup (int pos)
     {
-        Tile out = this.tiles[pos];
-        this.tiles[pos] = null;
-        return out;
+        try {
+        
+            Tile out = this.tiles[pos];
+            this.tiles[pos] = null;
+            return out;
+        } catch (ArrayIndexOutOfBoundsException ex)
+        {}
+        return null;
     }
     
     public boolean place(Tile tile, int pos)
     {
-        if (this.tiles[pos] == null)
-        {
-            this.tiles[pos] = tile;
-            return true;
-        } else {
-            for (int i = 0; i < this.tiles.length; i++)
+        try {
+            if (this.tiles[pos] == null)
             {
-                if (this.tiles[i] == null)
-                {
-                    this.tiles[i] = tile;
-                    return true;
-                }
+                this.tiles[pos] = tile;
+                return true;
+            }
+        } catch (ArrayIndexOutOfBoundsException ex)
+        {}
+        for (int i = 0; i < this.tiles.length; i++)
+        {
+            if (this.tiles[i] == null)
+            {
+                this.tiles[i] = tile;
+                return true;
             }
         }
+        
         return false;
     }
     
