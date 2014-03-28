@@ -111,7 +111,7 @@ public class Board{
             this.tmpboard.remove(pt);
             return tmp;
         }
-        
+        System.out.println("Nope. Did not pick anything @ " + row + "," + col);
         return null;
     }
 
@@ -123,11 +123,13 @@ public class Board{
         //Check if tile is already in the tmp board
         if (this.tmpboard.containsKey(pt))
         {
+            System.out.println("Nope. Placing onto another tile @ " + row + "," + col);
             return false;
         }
         
         if (this.board[row][col] != null)
         {
+            System.out.println("Nope. Placing onto another tile @ " + row + "," + col);
             return false;
         }
         
@@ -140,11 +142,6 @@ public class Board{
      */
     public Boolean commit(){
         /*# YOUR CODE HERE */
-        if (validPlay() == false)
-        {
-            UI.println("Invalid Play");
-            return false;
-        }
         for (Point pt :  this.tmpboard.keySet())
         {
            this.board[(int)pt.getX()][(int)pt.getY()] = this.tmpboard.get(pt);
@@ -172,6 +169,13 @@ public class Board{
         Point inital = null;
         Point min = null;
         Point max = null;
+        
+        if (firstplay && this.tmpboard.size() < 2)
+        {
+            System.out.println("On the first turn put down more than one");
+            return false;
+        }
+        
         for (Point pt :  this.tmpboard.keySet())
         {
            //Get 1st block
@@ -215,7 +219,7 @@ public class Board{
                    //Make sure they are not doubling up in delta rows/coll
                    if (isHor != -1)
                    {
-                       UI.println("second tile is Diagonal");
+                       System.out.println("second tile is Diagonal");
                        return false;
                    }
                    isHor = 2;
@@ -227,7 +231,7 @@ public class Board{
            {
                if (pt.getY() != inital.getY())
                    {
-                       UI.println("Not all tiles are along the Y axis pt:" + pt.getY() + " int:" + inital.getY());
+                       System.out.println("Not all tiles are along the Y axis pt:" + pt.getY() + " int:" + inital.getY());
                        return false;
                    }
            }
@@ -236,7 +240,7 @@ public class Board{
            {
                if (pt.getX() != inital.getX())
                {
-                   UI.println("Not all tiles are along the X axis");
+                   System.out.println("Not all tiles are along the X axis");
                    return false;
                }
            }
@@ -244,6 +248,7 @@ public class Board{
         //No changes
         if (inital == null)
         {
+            System.out.println("No changes found");
             return false;
         }
         
@@ -257,15 +262,16 @@ public class Board{
             int y = (int)min.getY();
             int pre = (int)min.getX() - 1;
             int post = (int)max.getX() + 1;
-            for ( int i = pre; i < post; i++ )
+            
+            for ( int i = pre; i <= post; i++ )
             {
                 if (i < 0 || i > 15)
                     continue;
                 
-                if ((this.tmpboard.containsKey(new Point(i,y)) == true || this.board[i][y] != null ) == false )
+                if ( (this.tmpboard.containsKey(new Point(i,y)) == false && this.board[i][y] == null ) )
                 {
-                    if ( (i == pre || i == post) == false ) {
-                        UI.println("Only one tile");
+                    if (i != pre && i != post) {
+                        System.out.println("Found a gap at " + i + "," + y + " pre:" + pre + " post:" + post );
                         return false;
                     }
                 }
@@ -273,6 +279,7 @@ public class Board{
                 {
                     touchesExisiting = true;
                 }
+                 //Search for connections with old commits
                 if (y-1 > 0)
                 {
                     if (this.board[i][y-1] != null)
@@ -298,22 +305,23 @@ public class Board{
             int x = (int)min.getX();
             int pre = (int)min.getY() - 1;
             int post = (int)max.getY() + 1;
-            for ( int i =  pre; i < post; i++ )
+            for ( int i =  pre; i <= post; i++ )
             {
                 if (i < 0 || i > 15)
                     continue;
-                
-                if ( (this.tmpboard.containsKey(new Point(x,i)) == true || this.board[x][i] != null ) == false )
+                if ( (this.tmpboard.containsKey(new Point(x,i)) == false && this.board[x][i] == null )  )
                 {
-                    if ((i == pre || i == post) == false) {
+                    if (i != pre && i != post) {
+                        System.out.println("Found a gap at " + x + "," + i + " pre:" + pre + " post:" + post);
                         return false;
                     }
                 }
+                
                 if (this.board[x][i] != null)
                 {
                     touchesExisiting = true;
                 }
-                
+                //Search for connections with old commits
                 if (x-1 > 0)
                 {
                     if (this.board[x-1][i] != null)
@@ -333,6 +341,7 @@ public class Board{
         
         if (this.firstplay == false && touchesExisiting == false)
         {
+            System.out.println("Not touching another word");
             return false;
         }
         
@@ -400,6 +409,9 @@ public class Board{
     public void reset(){
         /*# YOUR CODE HERE */
         firstplay = true;
+        
+        this.tmpboard.clear();
+        board = new Tile[15][15];
         
         //Add Special tiles
         //3 times
@@ -473,7 +485,7 @@ public class Board{
             specialTiles.put(new Point(7 + (int)( 5*trans[0] + 1*trans[1] ), 7 + (int)( 5*trans[1] - 1*trans[0] ) ) , 2);
             specialTiles.put(new Point(7 + (int)( 5*trans[0] - 1*trans[1] ), 7 + (int)( 5*trans[1] + 1*trans[0] ) ) , 2);
         }
-        
+        System.out.println("Board Reset");
     }
 
 
