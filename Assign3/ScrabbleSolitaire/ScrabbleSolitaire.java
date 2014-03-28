@@ -64,6 +64,8 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
     private Bag bag;
     
     private Tile hand = null;
+    private int score = 0;
+    private int lastscore = 0;
     
     /**
      * Set up the GUI (buttons and mouse listener) and restart the game
@@ -176,6 +178,10 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
             {
                 this.board.commit();
                 this.rack.fill(this.bag);
+                
+                this.lastscore = this.board.score();
+                this.score += this.lastscore;
+                
                 this.draw();
             }
         }
@@ -213,6 +219,11 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         {
             this.hand.draw(520,660);
         }
+        UI.setColor(Color.black);
+        UI.setFontSize(16);
+        //last score is the score for the last word score
+        UI.drawString("Score : " + score + " (+" + this.lastscore + ")", 15, 650);
+        
         UI.repaintGraphics();
     }
 

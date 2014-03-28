@@ -135,6 +135,19 @@ public class Rack{
     }
     
     
+    public int getNumberOnRack()
+    {
+        int out = 0;
+        for (int n = 0; n < 7; n++)
+        {
+            if (this.tiles[n] != null)
+            {
+                out++;
+            }
+        }
+        return out;
+    }
+    
     public void reset()
     {
         this.tiles = new Tile[7];

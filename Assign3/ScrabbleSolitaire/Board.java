@@ -339,16 +339,189 @@ public class Board{
             }
         }
         
-        if (this.firstplay == false && touchesExisiting == false)
+        if (isHor == 1)
         {
-            UI.println("Not touching another word");
+            if (min.getY() != max.getY())
+                return false;
+            int y = (int)min.getY();
+            int pre = (int)min.getX() - 1;
+            int post = (int)max.getX() + 1;
+            
+            for ( int i = pre; i <= post; i++ )
+            {
+                if (i < 0 || i > 15)
+                    continue;
+                
+                if ( (this.tmpboard.containsKey(new Point(i,y)) == false && this.board[i][y] == null ) )
+                {
+                    if (i != pre && i != post) {
+                        UI.println("Found a gap at " + i + "," + y + " pre:" + pre + " post:" + post );
+                        return false;
+                    }
+                }
+                if (this.board[i][y] != null)
+                {
+                    touchesExisiting = true;
+                }
+                 //Search for connections with old commits
+                if (y-1 > 0)
+                {
+                    if (this.board[i][y-1] != null)
+                    {
+                        touchesExisiting = true;
+                    }
+                }
+                if (y+1 < 15)
+                {
+                    if (this.board[i][y+1] != null)
+                    {
+                        touchesExisiting = true;
+                    }
+                }
+            }
+
+        }
+        //Check a virtal line
+        if (isHor == 2)
+        {
+            if (min.getX() != max.getX())
+                return false;
+            int x = (int)min.getX();
+            int pre = (int)min.getY() - 1;
+            int post = (int)max.getY() + 1;
+            for ( int i =  pre; i <= post; i++ )
+            {
+                if (i < 0 || i > 15)
+                    continue;
+                if ( (this.tmpboard.containsKey(new Point(x,i)) == false && this.board[x][i] == null )  )
+                {
+                    if (i != pre && i != post) {
+                        System.out.println("Found a gap at " + x + "," + i + " pre:" + pre + " post:" + post);
+                        return false;
+                    }
+                }
+                
+                if (this.board[x][i] != null)
+                {
+                    score += 
+                }
+                //Search for connections with old commits
+                if (x-1 > 0 || x+1 < 15)
+                {
+                    if (this.board[x-1][i] != null)
+                    {
+                        int sub_word_score = 0;
+                        //Search for new word
+                    }
+                }
+                if ()
+                {
+                    if (this.board[x+1][i] != null)
+                    {
+                        int sub_word_score = 0;
+                        //Search for new word
+                    }
+                }
+            }
+        }
+        
+        
+        return true;
+    }
+    
+    
+    //Assumes vaild play
+    public int score()
+    {
+        int score = 0;
+        
+        int isHor = -1;
+        Point inital = null;
+        Point min = null;
+        Point max = null;
+        
+        if (firstplay && this.tmpboard.size() < 2)
+        {
+            UI.println("On the first turn put down more than one");
             return false;
         }
         
-        UI.println("Valid Play");
-        return true;
+        for (Point pt :  this.tmpboard.keySet())
+        {
+           //Get 1st block
+           if (inital == null) {
+                inital = new Point(pt);
+                max = new Point(pt);
+                min = new Point(pt);
+                continue;
+           }
+           
+           if (min.getX() > pt.getX())
+           {
+               min.setLocation(pt.getX(), min.getY());
+           }
+           if (min.getY() > pt.getY())
+           {
+               min.setLocation(min.getX(), pt.getY());
+           }
+           
+           if (max.getX() < pt.getX())
+           {
+               max.setLocation(pt.getX(), max.getY());
+           }
+           if (max.getY() < pt.getY())
+           {
+               max.setLocation(max.getX(), pt.getY());
+           }
+           
+           
+           if (isHor == -1)
+           {
+               //Check if the X's changed 
+               if (pt.getX() != inital.getX())
+               {
+                   isHor = 1;
+               }
+               
+               //Y's 
+               if (pt.getY() != inital.getY())
+               {
+                   //Make sure they are not doubling up in delta rows/coll
+                   if (isHor != -1)
+                   {
+                       UI.println("second tile is Diagonal");
+                       return false;
+                   }
+                   isHor = 2;
+               }
+               continue;
+           }
+           //Check if the Y's changed
+           if (isHor == 1)
+           {
+               if (pt.getY() != inital.getY())
+                   {
+                       UI.println("Not all tiles are along the Y axis pt:" + pt.getY() + " int:" + inital.getY());
+                       return false;
+                   }
+           }
+           //Check if the X's has changes
+           if (isHor == 2)
+           {
+               if (pt.getX() != inital.getX())
+               {
+                   UI.println("Not all tiles are along the X axis");
+                   return false;
+               }
+           }
+        }
+        
+        
+        
+        return score;
     }
-
+    
+    
     /**
      * Draw the board.
      * Assumes that the graphics pane has been cleared
@@ -375,22 +548,41 @@ public class Board{
                 if (specialTiles.containsKey(new Point(row,col)))
                 {
                     int mutli = specialTiles.get(new Point(row,col));
+                    String out = "";
                     switch (mutli)
                     {
+                        //Words Scores
                         case (3):
                             color = Color.red;
+                            out = "3xWS";
                             break;
                         case (2):
+                            color = Color.pink;
+                            out = "2xWS";
+                            break;
+                        //Letter Scores
+                        case (6):
+                            color = Color.cyan;
+                            out = "2xLS";
+                            break;
+                        case (7):
                             color = Color.blue;
+                            out = "3xLS";
                             break;
                     }
                     UI.setColor(color);
-                    UI.fillRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
-                    , Tile.width, Tile.height);
-                } else {
-                    UI.drawRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
-                        , Tile.width, Tile.height);
+                    UI.fillRect(board_x_offset + row*Tile.width+1, board_y_offset + col*Tile.height+1
+                    , Tile.width-1, Tile.height-1);
+                    
+                    UI.setColor(Color.white);
+                    UI.setFontSize(12);
+                    UI.drawString( out , board_x_offset + row*Tile.width + 4, board_y_offset + col*Tile.height + 16);
+                    
                 }
+                UI.setColor(Color.black);
+                UI.drawRect(board_x_offset + row*Tile.width, board_y_offset + col*Tile.height
+                    , Tile.width, Tile.height);
+                
                
                 if (this.board[row][col] != null) {
                     this.board[row][col].draw( board_x_offset + row*Tile.width, board_y_offset + col*Tile.height );
@@ -409,10 +601,16 @@ public class Board{
     public void reset(){
         /*# YOUR CODE HERE */
         firstplay = true;
-        
+        // TODO RE DO THIS WITH TRANSLATION!
         //Reset the boards
         this.tmpboard.clear();
         board = new Tile[15][15];
+        
+        //Key:
+        // 3 - 011 - triple word score
+        // 2 - 010 - double world score
+        // 7 - 111 - triple letter score
+        // 6 - 110 - double letter score
         
         //Add Special tiles
         //3 times
@@ -422,23 +620,23 @@ public class Board{
         
         specialTiles.put(new Point(0,7) , 3);
         
-        specialTiles.put(new Point(5,1) , 3);
-        specialTiles.put(new Point(9,1) , 3);
+        specialTiles.put(new Point(5,1) , 7);
+        specialTiles.put(new Point(9,1) , 7);
         
-        specialTiles.put(new Point(1,5) , 3);
-        specialTiles.put(new Point(5,5) , 3);
-        specialTiles.put(new Point(9,5) , 3);
-        specialTiles.put(new Point(13,5), 3);
+        specialTiles.put(new Point(1,5) , 7);
+        specialTiles.put(new Point(5,5) , 7);
+        specialTiles.put(new Point(9,5) , 7);
+        specialTiles.put(new Point(13,5), 7);
         //Line of reflection
         
         //Line of reflection
-        specialTiles.put(new Point(1,9) , 3);
-        specialTiles.put(new Point(5,9) , 3);
-        specialTiles.put(new Point(9,9) , 3);
-        specialTiles.put(new Point(13,9), 3);
+        specialTiles.put(new Point(1,9) , 7);
+        specialTiles.put(new Point(5,9) , 7);
+        specialTiles.put(new Point(9,9) , 7);
+        specialTiles.put(new Point(13,9), 7);
         
-        specialTiles.put(new Point(5,13) , 3);
-        specialTiles.put(new Point(9,13) , 3);
+        specialTiles.put(new Point(5,13) , 7);
+        specialTiles.put(new Point(9,13) , 7);
         
         specialTiles.put(new Point(14,7) , 3);
         
@@ -449,17 +647,17 @@ public class Board{
         //2 Times
         specialTiles.put(new Point(7,7) , 2);
         
-        specialTiles.put(new Point(3,0) , 2);
-        specialTiles.put(new Point(11,0) , 2);
+        specialTiles.put(new Point(3,0) , 6);
+        specialTiles.put(new Point(11,0) , 6);
         
-        specialTiles.put(new Point(0,3) , 2);
-        specialTiles.put(new Point(0,11) , 2);
+        specialTiles.put(new Point(0,3) , 6);
+        specialTiles.put(new Point(0,11) , 6);
         
-        specialTiles.put(new Point(3,14) , 2);
-        specialTiles.put(new Point(11,14) , 2);
+        specialTiles.put(new Point(3,14) , 6);
+        specialTiles.put(new Point(11,14) , 6);
         
-        specialTiles.put(new Point(14,3) , 2);
-        specialTiles.put(new Point(14,11) , 2);
+        specialTiles.put(new Point(14,3) , 6);
+        specialTiles.put(new Point(14,11) , 6);
         
         for (int i = 0; i < 4; i++)
         {
@@ -470,10 +668,10 @@ public class Board{
         }
         
         //Center Block
-        specialTiles.put(new Point(6,6) , 2);
-        specialTiles.put(new Point(8,6) , 2);
-        specialTiles.put(new Point(6,8) , 2);
-        specialTiles.put(new Point(8,8) , 2);
+        specialTiles.put(new Point(6,6) , 6);
+        specialTiles.put(new Point(8,6) , 6);
+        specialTiles.put(new Point(6,8) , 6);
+        specialTiles.put(new Point(8,8) , 6);
         
         //Tessilate The arrow bit
         //tans[0] is  the same as cos(angle)
@@ -482,9 +680,9 @@ public class Board{
             { new int[] { 1 , 0} , new int[] { 0 , 1} , new int[] { -1 , 0} , new int[] { 0 , -1 }  }
             )
         {
-            specialTiles.put(new Point(7 + (int)( 4*trans[0] ), 7 + (int)( 4*trans[1] ) ) , 2);
-            specialTiles.put(new Point(7 + (int)( 5*trans[0] + 1*trans[1] ), 7 + (int)( 5*trans[1] - 1*trans[0] ) ) , 2);
-            specialTiles.put(new Point(7 + (int)( 5*trans[0] - 1*trans[1] ), 7 + (int)( 5*trans[1] + 1*trans[0] ) ) , 2);
+            specialTiles.put(new Point(7 + (int)( 4*trans[0] ), 7 + (int)( 4*trans[1] ) ) , 6);
+            specialTiles.put(new Point(7 + (int)( 5*trans[0] + 1*trans[1] ), 7 + (int)( 5*trans[1] - 1*trans[0] ) ) , 6);
+            specialTiles.put(new Point(7 + (int)( 5*trans[0] - 1*trans[1] ), 7 + (int)( 5*trans[1] + 1*trans[0] ) ) , 6);
         }
         UI.println("Board Reset");
     }
