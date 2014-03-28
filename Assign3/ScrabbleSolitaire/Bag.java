@@ -53,7 +53,7 @@ public class Bag{
                    value = Integer.parseInt(bits[1]);
                    name = bits[0];
                    this.tiles.add(new Tile(name, value));
-                   UI.println("Tile loaded : " + name + " " + value);
+                   //UI.println("Tile loaded : " + name + " " + value);
                } catch (Exception ex)
                {
                    UI.println("Error while reading : " + line + "\n" + ex.toString());

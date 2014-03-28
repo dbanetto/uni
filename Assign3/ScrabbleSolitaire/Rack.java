@@ -88,6 +88,15 @@ public class Rack{
         {
             this.tiles[pos] = tile;
             return true;
+        } else {
+            for (int i = 0; i < this.tiles.length; i++)
+            {
+                if (this.tiles[i] == null)
+                {
+                    this.tiles[i] = tile;
+                    return true;
+                }
+            }
         }
         return false;
     }

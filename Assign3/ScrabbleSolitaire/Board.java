@@ -111,7 +111,7 @@ public class Board{
             this.tmpboard.remove(pt);
             return tmp;
         }
-        System.out.println("Nope. Did not pick anything @ " + row + "," + col);
+        UI.println("Nope. Did not pick anything @ " + row + "," + col);
         return null;
     }
 
@@ -123,13 +123,13 @@ public class Board{
         //Check if tile is already in the tmp board
         if (this.tmpboard.containsKey(pt))
         {
-            System.out.println("Nope. Placing onto another tile @ " + row + "," + col);
+            UI.println("Nope. Placing onto another tile @ " + row + "," + col);
             return false;
         }
         
         if (this.board[row][col] != null)
         {
-            System.out.println("Nope. Placing onto another tile @ " + row + "," + col);
+            UI.println("Nope. Placing onto another tile @ " + row + "," + col);
             return false;
         }
         
@@ -172,7 +172,7 @@ public class Board{
         
         if (firstplay && this.tmpboard.size() < 2)
         {
-            System.out.println("On the first turn put down more than one");
+            UI.println("On the first turn put down more than one");
             return false;
         }
         
@@ -219,7 +219,7 @@ public class Board{
                    //Make sure they are not doubling up in delta rows/coll
                    if (isHor != -1)
                    {
-                       System.out.println("second tile is Diagonal");
+                       UI.println("second tile is Diagonal");
                        return false;
                    }
                    isHor = 2;
@@ -231,7 +231,7 @@ public class Board{
            {
                if (pt.getY() != inital.getY())
                    {
-                       System.out.println("Not all tiles are along the Y axis pt:" + pt.getY() + " int:" + inital.getY());
+                       UI.println("Not all tiles are along the Y axis pt:" + pt.getY() + " int:" + inital.getY());
                        return false;
                    }
            }
@@ -240,7 +240,7 @@ public class Board{
            {
                if (pt.getX() != inital.getX())
                {
-                   System.out.println("Not all tiles are along the X axis");
+                   UI.println("Not all tiles are along the X axis");
                    return false;
                }
            }
@@ -248,7 +248,7 @@ public class Board{
         //No changes
         if (inital == null)
         {
-            System.out.println("No changes found");
+            UI.println("No changes found");
             return false;
         }
         
@@ -271,7 +271,7 @@ public class Board{
                 if ( (this.tmpboard.containsKey(new Point(i,y)) == false && this.board[i][y] == null ) )
                 {
                     if (i != pre && i != post) {
-                        System.out.println("Found a gap at " + i + "," + y + " pre:" + pre + " post:" + post );
+                        UI.println("Found a gap at " + i + "," + y + " pre:" + pre + " post:" + post );
                         return false;
                     }
                 }
@@ -341,7 +341,7 @@ public class Board{
         
         if (this.firstplay == false && touchesExisiting == false)
         {
-            System.out.println("Not touching another word");
+            UI.println("Not touching another word");
             return false;
         }
         
@@ -410,6 +410,7 @@ public class Board{
         /*# YOUR CODE HERE */
         firstplay = true;
         
+        //Reset the boards
         this.tmpboard.clear();
         board = new Tile[15][15];
         
@@ -485,7 +486,7 @@ public class Board{
             specialTiles.put(new Point(7 + (int)( 5*trans[0] + 1*trans[1] ), 7 + (int)( 5*trans[1] - 1*trans[0] ) ) , 2);
             specialTiles.put(new Point(7 + (int)( 5*trans[0] - 1*trans[1] ), 7 + (int)( 5*trans[1] + 1*trans[0] ) ) , 2);
         }
-        System.out.println("Board Reset");
+        UI.println("Board Reset");
     }
 
 

@@ -85,38 +85,75 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
      */
     public void mousePerformed(String action, double x, double y){
         /*# YOUR CODE HERE */
-        if (action.equals("clicked"))
+        if (action.equals("pressed"))
         {
             int index = rack.index(x, y);
+            UI.println("Rack Index : " + index);
+            
             int[] indexb = this.board.rowCol(x , y);
             UI.println("Board Index : " + indexb[0] + "," + indexb[1]);
-            UI.println("Rack Index : " + index);
+            
             //Make sure it is a valid index
             if (index != -1)
-            {
-                Tile backup = this.hand;
+            {   
                 this.hand = rack.pickup(index);
-                if (backup != null)
-                {
-                    rack.place(backup, index);
-                }
-                
                 if (this.hand != null) {
                     UI.println("Letter : " + hand.getLetter() + " Value : " + hand.getValue());
                 }
                 draw();
             }
+            
             if (indexb[0] != -1)
             {
+                //Swap with tile below
                 if (this.hand != null)
+                {
+                    Tile backup = this.board.pickup(indexb[0], indexb[1]);
+                    this.board.place(this.hand , indexb[0], indexb[1]);
+                    this.rack.place(backup, 0);
+                    this.hand = null;
+                } else if (this.hand == null)
+                {
+                    this.hand = this.board.pickup(indexb[0], indexb[1]);
+                }
+                this.draw();
+            }
+            
+        }
+        if (action.equals("released") && this.hand != null)
+        {
+            int index = rack.index(x, y);
+            UI.println("Rack Index : " + index);
+            
+            int[] indexb = this.board.rowCol(x , y);
+            UI.println("Board Index : " + indexb[0] + "," + indexb[1]);
+            if (indexb[0] != -1)
+            {
+                 if (this.hand != null)
                 {
                     if (this.board.place(this.hand, indexb[0], indexb[1]))
                     {
+                        this.hand = null;
+                    } else {
+                        Tile backup = this.board.pickup(indexb[0], indexb[1]);
+                        this.board.place(this.hand , indexb[0], indexb[1]);
+                        this.rack.place(backup, 0);
                         this.hand = null;
                     }
                 } else {
                     this.hand = this.board.pickup(indexb[0], indexb[1]);
                 }
+                this.draw();
+            } else {
+                if (this.hand != null)
+                {
+                    Tile backup = rack.pickup(index);
+                    rack.place(this.hand, index);   
+                    if ( backup != null) {
+                        this.rack.place(backup,index);
+                    }
+                }
+                this.hand = null;
                 this.draw();
             }
         }
@@ -174,7 +211,7 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         this.board.draw();
         if (this.hand != null)
         {
-            this.hand.draw(0,0);
+            this.hand.draw(520,660);
         }
         UI.repaintGraphics();
     }
