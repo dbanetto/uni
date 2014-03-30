@@ -3,9 +3,9 @@
 // You may not distribute it in any other way without permission.
 
 /* Code for COMP112 Assignment
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
  */
 
 import ecs100.*;
@@ -163,16 +163,16 @@ public class Board{
      * At least one of the moveable tiles must be adjacent to a fixed tile,
      * unless it is the very first turn, in which case there are no fixed tiles.
      */
-    public boolean validPlay(){
+       public boolean validPlay(){
         /*# YOUR CODE HERE */
         int isHor = -1;
         Point inital = null;
         Point min = null;
         Point max = null;
         
-        if (firstplay && this.tmpboard.size() < 2)
+        if (firstplay && this.tmpboard.size() < 3)
         {
-            UI.println("On the first turn put down more than one");
+            UI.println("On the first turn put down more than two letters");
             return false;
         }
         
@@ -252,6 +252,11 @@ public class Board{
             return false;
         }
         
+        if (isHor == -1)
+        {
+            isHor = 1;
+        }
+        
         //Line checks
         //Check a horizontal line
         boolean touchesExisiting = false;
@@ -265,9 +270,10 @@ public class Board{
             
             for ( int i = pre; i <= post; i++ )
             {
-                if (i < 0 || i > 15)
+                if (i < 0 || i >= 15)
                     continue;
                 
+                UI.println( "Checking " + i + "," + y);
                 if ( (this.tmpboard.containsKey(new Point(i,y)) == false && this.board[i][y] == null ) )
                 {
                     if (i != pre && i != post) {
@@ -307,8 +313,10 @@ public class Board{
             int post = (int)max.getY() + 1;
             for ( int i =  pre; i <= post; i++ )
             {
-                if (i < 0 || i > 15)
+                if (i < 0 || i >= 15)
                     continue;
+                
+                UI.println( "Checking " + x + "," + i);    
                 if ( (this.tmpboard.containsKey(new Point(x,i)) == false && this.board[x][i] == null )  )
                 {
                     if (i != pre && i != post) {
@@ -339,45 +347,251 @@ public class Board{
             }
         }
         
+        if (this.firstplay == false && touchesExisiting == false)
+        {
+            UI.println("Not touching another word");
+            return false;
+        }
+        
+        UI.println("Valid Play");
+        return true;
+    }
+    
+    
+    public int score()
+    {
+        int score = 0;
+
+        int isHor = -1;
+        Point inital = null;
+        Point min = null;
+        Point max = null;
+
+        for (Point pt :  this.tmpboard.keySet())
+        {
+            //Get 1st block
+            if (inital == null) {
+                inital = new Point(pt);
+                max = new Point(pt);
+                min = new Point(pt);
+                continue;
+            }
+
+            if (min.getX() > pt.getX())
+            {
+                min.setLocation(pt.getX(), min.getY());
+            }
+            if (min.getY() > pt.getY())
+            {
+                min.setLocation(min.getX(), pt.getY());
+            }
+
+            if (max.getX() < pt.getX())
+            {
+                max.setLocation(pt.getX(), max.getY());
+            }
+            if (max.getY() < pt.getY())
+            {
+                max.setLocation(max.getX(), pt.getY());
+            }
+
+            if (isHor == -1)
+            {
+                //Check if the X's changed 
+                if (pt.getX() != inital.getX())
+                {
+                    isHor = 1;
+                }
+
+                //Y's 
+                if (pt.getY() != inital.getY())
+                {
+                    //Make sure they are not doubling up in delta rows/coll
+                    if (isHor != -1)
+                    {
+                        UI.println("second tile is Diagonal");
+                        return 0;
+                    }
+                    isHor = 2;
+                }
+                continue;
+            }
+
+            if (isHor == 1)
+            {
+                if (pt.getY() != inital.getY())
+                {
+                    UI.println("Not all tiles are along the Y axis pt:" + pt.getY() + " int:" + inital.getY());
+                    return 0;
+                }
+            }
+            //Check if the X's has changes
+            if (isHor == 2)
+            {
+                if (pt.getX() != inital.getX())
+                {
+                    UI.println("Not all tiles are along the X axis");
+                    return 0;
+                }
+            }
+        }
+
+        //Extend the word if there is trail or letters before the new word
+        if (isHor == 1)
+        {
+            for (int i = (int)min.getY(); i < 0; i--)
+            {
+                if (this.board[(int)min.getX()][i] != null)
+                {
+                    min.setLocation(min.getX(), i);
+                } else {
+                    break;
+                }
+            }
+
+            for (int i = (int)max.getY(); i > 15; i++)
+            {
+                if (this.board[(int)min.getX()][i] != null)
+                {
+                    max.setLocation(min.getX(), i);
+                } else {
+                    break;
+                }
+            }
+        }
+        //Check if the X's has changes
+        if (isHor == 2)
+        {
+            for (int i = (int)min.getX(); i < 0; i--)
+            {
+                if (this.board[i][(int)min.getY()] != null)
+                {
+                    min.setLocation(i, min.getY());
+                } else {
+                    break;
+                }
+            }
+
+            for (int i = (int)max.getX(); i > 15; i++)
+            {
+                if (this.board[i][(int)min.getY()] != null)
+                {
+                    max.setLocation(i, min.getY());
+                } else {
+                    break;
+                }
+            }
+        }
+
         if (isHor == 1)
         {
             if (min.getY() != max.getY())
-                return false;
+                return 0;
             int y = (int)min.getY();
             int pre = (int)min.getX() - 1;
             int post = (int)max.getX() + 1;
-            
-            for ( int i = pre; i <= post; i++ )
+
+            int line_score = 0;
+            int line_multi = 1;
+
+            for ( int i = Math.max(pre,0); i < Math.min(post,15); i++ )
             {
-                if (i < 0 || i > 15)
+                if (i < 0 || i >= 15)
                     continue;
-                
-                if ( (this.tmpboard.containsKey(new Point(i,y)) == false && this.board[i][y] == null ) )
+
+                if ( this.tmpboard.containsKey(new Point(i,y)) == true )
                 {
-                    if (i != pre && i != post) {
-                        UI.println("Found a gap at " + i + "," + y + " pre:" + pre + " post:" + post );
-                        return false;
+
+                    int letter_score = this.tmpboard.get(new Point(i,y)).getValue();
+
+                    if (this.isSpeicalTile(i,y))
+                    {
+                        if (isLetterScore(i,y))
+                        {
+                            letter_score *= (this.specialTiles.get(new Point(i,y)) & 4);
+                        } else {
+                            line_multi *= this.specialTiles.get(new Point(i,y));
+                        }
                     }
-                }
-                if (this.board[i][y] != null)
+                    line_score += letter_score;
+                } else if (this.board[i][y] != null)
                 {
-                    touchesExisiting = true;
+                    int letter_score = this.board[i][y].getValue();
+
+                    if (this.isSpeicalTile(i,y))
+                    {
+                        if (isLetterScore(i,y))
+                        {
+                            letter_score *= (this.specialTiles.get(new Point(i,y)) & 4);
+                        } else {
+                            line_multi *= this.specialTiles.get(new Point(i,y));
+                        }
+                    }
+                    line_score += letter_score;
                 }
-                 //Search for connections with old commits
+
+                score += line_score * line_multi;
+
+                //Search for connections with old commits
+                boolean wordAltPos = false;
+                boolean wordAltNeg = false;
                 if (y-1 > 0)
                 {
                     if (this.board[i][y-1] != null)
                     {
-                        touchesExisiting = true;
+                        wordAltNeg = true;
                     }
                 }
                 if (y+1 < 15)
                 {
                     if (this.board[i][y+1] != null)
                     {
-                        touchesExisiting = true;
+                        wordAltPos = true;
                     }
                 }
+                int word_score = 0;
+                int word_mutli = 1;
+                for (int n = i; n < 15 && wordAltPos; ++n)
+                {
+                    if (this.board[i][n] != null)
+                    {
+                        int letter_score = this.board[i][n].getValue();
+
+                        if (this.isSpeicalTile(i,n))
+                        {
+                            if (isLetterScore(i,n))
+                            {
+                                letter_score *= (this.specialTiles.get(new Point(i,n)) & 4);
+                            } else {
+                                word_mutli *= this.specialTiles.get(new Point(i,n));
+                            }
+                        }
+                        word_score += letter_score;
+                    } else {
+                        break;
+                    }
+                }
+                for (int n = i; n > 0 && wordAltNeg; --n)
+                {
+                    if (this.board[i][n] != null)
+                    {
+                        int letter_score = this.board[i][n].getValue();
+
+                        if (this.isSpeicalTile(i,n))
+                        {
+                            if (isLetterScore(i,n))
+                            {
+                                letter_score *= (this.specialTiles.get(new Point(i,n)) & 4);
+                            } else {
+                                word_mutli *= this.specialTiles.get(new Point(i,n));
+                            }
+                        }
+                        word_score += letter_score;
+                    } else {
+                        break;
+                    }
+                }
+                score += word_score * word_mutli;
             }
 
         }
@@ -385,140 +599,135 @@ public class Board{
         if (isHor == 2)
         {
             if (min.getX() != max.getX())
-                return false;
+                return 0;
             int x = (int)min.getX();
             int pre = (int)min.getY() - 1;
             int post = (int)max.getY() + 1;
-            for ( int i =  pre; i <= post; i++ )
+
+            int line_score = 0;
+            int line_multi = 1;
+
+            for ( int i = Math.max(pre,0); i < Math.min(post,15); i++ )
             {
-                if (i < 0 || i > 15)
+                if (i < 0 || i >= 15)
                     continue;
-                if ( (this.tmpboard.containsKey(new Point(x,i)) == false && this.board[x][i] == null )  )
+                if ( this.tmpboard.containsKey(new Point(x,i)) == true )
                 {
-                    if (i != pre && i != post) {
-                        System.out.println("Found a gap at " + x + "," + i + " pre:" + pre + " post:" + post);
-                        return false;
+
+                    int letter_score = this.tmpboard.get(new Point(x,i)).getValue();
+
+                    if (this.isSpeicalTile(x,i))
+                    {
+                        if (isLetterScore(x,i))
+                        {
+                            letter_score *= (this.specialTiles.get(new Point(x,i)) & 4);
+                        } else {
+                            line_multi *= this.specialTiles.get(new Point(x,i));
+                        }
                     }
-                }
-                
-                if (this.board[x][i] != null)
+                    line_score += letter_score;
+                } else if (this.board[x][i] != null)
                 {
-                    score += 
+                    int letter_score = this.board[x][i].getValue();
+
+                    if (this.isSpeicalTile(x,i))
+                    {
+                        if (isLetterScore(x,i))
+                        {
+                            letter_score *= (this.specialTiles.get(new Point(x,i)) & 4);
+                        } else {
+                            line_multi *= this.specialTiles.get(new Point(x,i));
+                        }
+                    }
+                    line_score += letter_score;
                 }
+
+                score += line_score * line_multi;
+
                 //Search for connections with old commits
-                if (x-1 > 0 || x+1 < 15)
+                boolean wordAltPos = false;
+                boolean wordAltNeg = false;
+                if (x-1 > 0)
                 {
                     if (this.board[x-1][i] != null)
                     {
-                        int sub_word_score = 0;
-                        //Search for new word
+                        wordAltNeg = true;
                     }
                 }
-                if ()
+                if (x+1 < 15)
                 {
                     if (this.board[x+1][i] != null)
                     {
-                        int sub_word_score = 0;
-                        //Search for new word
+                        wordAltPos = true;
                     }
                 }
+                int word_score = 0;
+                int word_mutli = 1;
+                for (int n = i; n < 15 && wordAltPos; ++n)
+                {
+                    if (this.board[n][i] != null)
+                    {
+                        int letter_score = this.board[n][i].getValue();
+
+                        if (this.isSpeicalTile(n,i))
+                        {
+                            if (isLetterScore(n,i))
+                            {
+                                letter_score *= (this.specialTiles.get(new Point(n,i)) & 4);
+                            } else {
+                                word_mutli *= this.specialTiles.get(new Point(n,i));
+                            }
+                        }
+                        word_score += letter_score;
+                    } else {
+                        break;
+                    }
+                }
+                for (int n = i; n > 0 && wordAltNeg; --n)
+                {
+                    if (this.board[i][n] != null)
+                    {
+                        int letter_score = this.board[n][i].getValue();
+
+                        if (this.isSpeicalTile(n,i))
+                        {
+                            if (isLetterScore(n,i))
+                            {
+                                letter_score *= (this.specialTiles.get(new Point(n,i)) & 4);
+                            } else {
+                                word_mutli *= this.specialTiles.get(new Point(n,i));
+                            }
+                        }
+                        word_score += letter_score;
+                    } else {
+                        break;
+                    }
+                }
+                score += word_score * word_mutli;
+
             }
         }
         
-        
-        return true;
+        //Whole rack bonus
+        if (this.tmpboard.size() == 7)
+        {
+            score += 50;
+        }
+        return score;
     }
     
     
-    //Assumes vaild play
-    public int score()
+    private boolean isSpeicalTile(int row, int col)
     {
-        int score = 0;
-        
-        int isHor = -1;
-        Point inital = null;
-        Point min = null;
-        Point max = null;
-        
-        if (firstplay && this.tmpboard.size() < 2)
-        {
-            UI.println("On the first turn put down more than one");
-            return false;
+        return this.specialTiles.containsKey(new Point(row,col));
+    }
+    
+    private boolean isLetterScore(int row, int col)
+    {
+        if (isSpeicalTile(row,col)) {
+            return (this.specialTiles.get(new Point(row, col)) & 4) != 0;
         }
-        
-        for (Point pt :  this.tmpboard.keySet())
-        {
-           //Get 1st block
-           if (inital == null) {
-                inital = new Point(pt);
-                max = new Point(pt);
-                min = new Point(pt);
-                continue;
-           }
-           
-           if (min.getX() > pt.getX())
-           {
-               min.setLocation(pt.getX(), min.getY());
-           }
-           if (min.getY() > pt.getY())
-           {
-               min.setLocation(min.getX(), pt.getY());
-           }
-           
-           if (max.getX() < pt.getX())
-           {
-               max.setLocation(pt.getX(), max.getY());
-           }
-           if (max.getY() < pt.getY())
-           {
-               max.setLocation(max.getX(), pt.getY());
-           }
-           
-           
-           if (isHor == -1)
-           {
-               //Check if the X's changed 
-               if (pt.getX() != inital.getX())
-               {
-                   isHor = 1;
-               }
-               
-               //Y's 
-               if (pt.getY() != inital.getY())
-               {
-                   //Make sure they are not doubling up in delta rows/coll
-                   if (isHor != -1)
-                   {
-                       UI.println("second tile is Diagonal");
-                       return false;
-                   }
-                   isHor = 2;
-               }
-               continue;
-           }
-           //Check if the Y's changed
-           if (isHor == 1)
-           {
-               if (pt.getY() != inital.getY())
-                   {
-                       UI.println("Not all tiles are along the Y axis pt:" + pt.getY() + " int:" + inital.getY());
-                       return false;
-                   }
-           }
-           //Check if the X's has changes
-           if (isHor == 2)
-           {
-               if (pt.getX() != inital.getX())
-               {
-                   UI.println("Not all tiles are along the X axis");
-                   return false;
-               }
-           }
-        }
-        
-        
-        
-        return score;
+        return false;
     }
     
     

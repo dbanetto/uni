@@ -176,12 +176,12 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         {
             if (this.board.validPlay())
             {
-                this.board.commit();
+                
                 this.rack.fill(this.bag);
                 
                 this.lastscore = this.board.score();
                 this.score += this.lastscore;
-                
+                this.board.commit();
                 this.draw();
             }
         }
