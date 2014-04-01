@@ -432,30 +432,43 @@ public class Board{
                 }
             }
         }
-        
+
         if (isHor == -1)
         {
-            isHor = 1;
+            try {
+                if ( this.board[(int)min.getX() + 1][(int)min.getY()] != null || this.board[(int)min.getX() - 1][(int)min.getY()] != null)
+                {
+                    isHor = 1;
+                }
+
+                if ( this.board[(int)min.getX()][(int)min.getY()+1] != null || this.board[(int)min.getX()][(int)min.getY()-1] != null)
+                {
+                    isHor= 2;
+                }
+            } catch (Exception ex)
+            {
+                
+            }
         }
-        
+
         //Extend the word if there is trail or letters before the new word
         if (isHor == 1)
         {
-            for (int i = (int)min.getY(); i < 0; i--)
+            for (int i = (int)min.getX() - 1; i > 0; --i)
             {
-                if (this.board[(int)min.getX()][i] != null)
+                if (this.board[i][(int)min.getY()] != null)
                 {
-                    min.setLocation(min.getX(), i);
+                    min.setLocation(i , min.getY());
                 } else {
                     break;
                 }
             }
 
-            for (int i = (int)max.getY(); i > 15; i++)
+            for (int i = (int)max.getX() +1; i < 15; ++i)
             {
-                if (this.board[(int)min.getX()][i] != null)
+                if (this.board[i][(int)min.getY()] != null)
                 {
-                    max.setLocation(min.getX(), i);
+                    max.setLocation(i , min.getY());
                 } else {
                     break;
                 }
@@ -464,21 +477,21 @@ public class Board{
         //Check if the X's has changes
         if (isHor == 2)
         {
-            for (int i = (int)min.getX(); i < 0; i--)
+            for (int i = (int)min.getY() -1; i > 0; --i)
             {
-                if (this.board[i][(int)min.getY()] != null)
+                if (this.board[(int)min.getX()][i] != null)
                 {
-                    min.setLocation(i, min.getY());
+                    min.setLocation(min.getX() , i);
                 } else {
                     break;
                 }
             }
 
-            for (int i = (int)max.getX(); i > 15; i++)
+            for (int i = (int)max.getY() +1; i < 15; ++i)
             {
-                if (this.board[i][(int)min.getY()] != null)
+                if (this.board[(int)min.getX()][i] != null)
                 {
-                    max.setLocation(i, min.getY());
+                    max.setLocation(min.getX() , i);
                 } else {
                     break;
                 }
@@ -555,7 +568,7 @@ public class Board{
                 }
                 int word_score = letter_score;
                 int word_mutli = getWordScore(i,y);
-                for (int n = i; n < 15 && wordAltPos; ++n)
+                for (int n = y+1; n < 15 && wordAltPos; ++n)
                 {
                     if (this.board[i][n] != null)
                     {
@@ -576,7 +589,7 @@ public class Board{
                     }
                 }
 
-                for (int n = i; n > 0 && wordAltNeg; --n)
+                for (int n = y-1; n > 0 && wordAltNeg; --n)
                 {
                     if (this.board[i][n] != null)
                     {
@@ -671,7 +684,7 @@ public class Board{
                 }
                 int word_score = letter_score;
                 int word_mutli = getLetterScore(x,i);
-                for (int n = i+1; n < 15 && wordAltPos; ++n)
+                for (int n = x+1; n < 15 && wordAltPos; ++n)
                 {
                     if (this.board[n][i] != null)
                     {
@@ -692,7 +705,7 @@ public class Board{
                     }
                 }
 
-                for (int n = i-1; n > 0 && wordAltNeg; --n)
+                for (int n = x-1; n > 0 && wordAltNeg; --n)
                 {
                     if (this.board[i][n] != null)
                     {
