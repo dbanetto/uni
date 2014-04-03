@@ -1,0 +1,23 @@
+Briefly describe your scheme for representing the state of the board.
+Was it efficient in file size?
+  If so, explain why.
+     Would it still be efficient when there were 100 tiles on the board? 
+  If not, explain why not and suggest a more efficient scheme.
+
+Explain how run-length coding could reduce the size of the 
+pbm image below.  What sorts of images would it work badly on? Is it
+possible to make a compression scheme that could reduce the size of any possible
+image?
+
+P1
+10 10
+1 1 1 1 1 1 1 1 1 1
+1 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 1 1 1 1
+1 0 0 0 0 1 1 1 1 1
+1 0 0 0 1 1 1 1 1 1
+1 0 0 0 0 0 0 0 0 1
+1 0 1 0 1 0 1 0 1 1
+1 0 0 0 0 0 0 0 0 1
+1 1 1 1 1 1 1 1 1 1
