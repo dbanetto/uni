@@ -25,7 +25,7 @@ public class ImageRenderer implements UIButtonListener{
     public static final int pixelSize = 2;  
     
     private String fname;
-    
+    private List<BaseImage> images = new ArrayList<BaseImage>();
     public ImageRenderer(){
         UI.initialise();
         UI.addButton("Render", this);
@@ -66,18 +66,28 @@ public class ImageRenderer implements UIButtonListener{
     */
     public void renderImage(String fname){
         /*# YOUR CODE HERE */
-        List<BaseImage> ims = ImageReader.LoadImages(fname);
-        if (ims.size() > 0 && ims.get(0) != null)
-            ims.get(0).Draw(20,20);
-        UI.repaintGraphics();
+         images = ImageReader.LoadImages(fname);
     }
-
+    
+    
+    public void Draw()
+    {
+        while (true) {
+             UI.setColor(Color.white);
+             UI.clearGraphics(false);
+            for (BaseImage i : images) {
+                i.Draw(20,20);
+                UI.repaintGraphics();
+                UI.sleep(100);
+            }
+        }
+    }
     
     public static void main(String[] args){
         UI.setImmediateRepaint(false);
         ImageRenderer im = new ImageRenderer();
         im.renderImage("image-bee.ppm");   // this is useful for testing.
-        
+        im.Draw();
     }
 } 
 

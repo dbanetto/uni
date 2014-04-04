@@ -22,7 +22,7 @@ public class ImageReader
 
         try {
 
-            BufferedReader br = new BufferedReader(new FileReader(filename));
+            BufferedReader br = new BufferedReader(new FileReader(filename  ));
             String line = "";
 
             int bitdepth = 0;
@@ -36,6 +36,8 @@ public class ImageReader
             while ( (line = br.readLine()) != null )
             {
                 //Remove the comments from the lines
+                if (line.equals(""))
+                    continue;
                 line = line.split("#")[0].trim();
                 if (line.equals(""))
                     continue;
@@ -77,31 +79,37 @@ public class ImageReader
                 }
 
                 data += line + " ";
-                width_count += line.length() - line.replace(" ", "").length();
-                if (width_count > width*height*bytes)
+                width_count += line.split(" ").length;
+                /*if (width_count > width*height*bytes)
                 {
                     int index = nthOccurrence(data, ' ', width*bytes);
                     String out = data.substring(0,index).trim();
-                    String keep = data.substring(index +1 , data.length());
+                    String keep = data.substring(index, data.length());
                     
-                    data = out;
+                    assert (out.split(" ").length == width*height*bytes) : "Not correct amount of bytes. Given:"
+                        +   out.split(" ").length + "(" + width_count + ")" + " Expected : " + width*height*bytes;
+                    
                     images.add(LoadImage(type, bitdepth ,
                             width , height , 
-                            data)
+                            out)
                     );
+                    
                     data = keep;
-                    width_count = keep.length() - keep.replace(" ", "").length();
-                } else if ( width_count == width*height*bytes) {
+                    width_count = keep.split(" ").length;
+                    UI.println("End of Image load. remaining width:" + width_count );
+                } else */if ( width_count == width*height*bytes) {
                     images.add(LoadImage(type, bitdepth ,
                             width , height , 
                             data)
                     );
+                    
+                    UI.println("End of Image load. remaining width: 0." );
                     data = "";
                     width_count = 0;
+                    lineNum = 0;
+                    assert (width_count == 0) : "wat";
                 }
                 
-                //Note Comments do not count to the line number
-                lineNum++;
             }
             
             if (data != "")

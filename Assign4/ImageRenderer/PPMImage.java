@@ -20,8 +20,10 @@ public class PPMImage extends BaseImage
     {
         try {
             String[] pixels = Data.split(" ");
+            UI.println(pixels.length);
             for (int y = 0; y < height; y++)
             {
+                UI.println( y*width*3 + " to " + ((y+1)*width*3 - 1) );
                 for (int x = 0; x < width; x++)
                 {
                     int r = Integer.parseInt(pixels[x*3 + y*width*3]);
@@ -39,10 +41,13 @@ public class PPMImage extends BaseImage
                         float scaleb = 255.0f * ( (float)b / (float)bitdepth );
                         b = Math.round( scaleb );
                     }
-                    Color out = new Color( r , g , b );
+                    Color out = new Color( 
+                        Math.min(r , 255) , 
+                        Math.min(g , 255) , 
+                        Math.min(b , 255) );
 
                     this.setPixel(x, y, out);
-                    UI.println(x+ ","  + y + " = " + r + "," + g  + ","+ b );
+                    //UI.println(x+ ","  + y + " = " + r + "," + g  + ","+ b );
                 }
             }
         } catch (Exception ex)
