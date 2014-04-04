@@ -77,6 +77,9 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         UI.addButton("Commit", this);
         UI.addButton("Reset", this);
         
+        UI.addButton("Load", this);
+        UI.addButton("save", this);
+        
         this.restart();
     }
 
@@ -172,17 +175,15 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         if (button.equals("Reset"))
         {
             this.restart();
-        }
-        if (button.equals("Commit"))
+        }else if (button.equals("Commit"))
         {
-            if (this.board.validPlay())
+            commit();
+        } else if (button.equals("Load"))
+        {
+            String file = UIFileChooser.open();
+            if (file != null)
             {
-                
-                this.rack.fill(this.bag);
-                
-                this.lastscore = this.board.score();
-                this.score += this.lastscore;
-                this.board.commit(this.logger);
+                Load.Load( file , this );
                 this.draw();
             }
         }
@@ -232,7 +233,50 @@ public class ScrabbleSolitaire implements UIMouseListener, UIButtonListener{
         
         UI.repaintGraphics();
     }
-
+    
+    public void commit()
+    {
+                    if (this.board.validPlay())
+            {
+                
+                this.rack.fill(this.bag);
+                
+                this.lastscore = this.board.score();
+                this.score += this.lastscore;
+                this.board.commit(this.logger);
+                this.draw();
+            }
+    }
+    
+    public void setBoard(Board inBoard)
+    {
+        this.board = inBoard;
+    }
+    
+        public void setRack(Rack inRack)
+    {
+        this.rack = inRack;
+    }
+    
+        public void setBag(Bag inBag)
+    {
+        this.bag = inBag;
+    }
+    
+        public Board getBoard()
+    {
+        return this.board;
+    }
+    
+        public Rack getRack()
+    {
+        return this.rack;
+    }
+    
+        public Bag getBag()
+    {
+        return this.bag;
+    }
 
     public static void main(String[] args){
         ScrabbleSolitaire obj = new ScrabbleSolitaire();

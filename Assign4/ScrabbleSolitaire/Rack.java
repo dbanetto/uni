@@ -87,6 +87,23 @@ public class Rack{
         return null;
     }
     
+    public Tile pickup (String name)
+    {
+        for (int i = 0; i < this.tiles.length; i++)
+        {
+            if (this.tiles[i] != null)
+            {
+               if (this.tiles[i].getLetter().equals(name))
+               {
+                    Tile out = this.tiles[i];
+                    this.tiles[i] = null;
+                    return out;
+               }
+            }
+        }
+        return null;
+    }
+    
     public boolean place(Tile tile, int pos)
     {
         try {
