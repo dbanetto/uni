@@ -33,6 +33,7 @@ public class ImageReader
             int bytes = 1;
             int width_count = 0;
             String data = "";
+            StringBuilder dataBuilder = new StringBuilder();
             while ( (line = br.readLine()) != null )
             {
                 //Remove the comments from the lines
@@ -46,6 +47,7 @@ public class ImageReader
                 if (line.startsWith("P"))
                 {
                     type = line;
+                    dataBuilder = new StringBuilder();
                     if (type.equals("P3") || type.equals("P6"))
                         bytes = 3;
                     //Reset line number count
@@ -78,26 +80,10 @@ public class ImageReader
                     }
                 }
 
-                data += line + " ";
+                dataBuilder.append( line + " ");
                 width_count += line.split(" ").length;
-                /*if (width_count > width*height*bytes)
-                {
-                    int index = nthOccurrence(data, ' ', width*bytes);
-                    String out = data.substring(0,index).trim();
-                    String keep = data.substring(index, data.length());
-                    
-                    assert (out.split(" ").length == width*height*bytes) : "Not correct amount of bytes. Given:"
-                        +   out.split(" ").length + "(" + width_count + ")" + " Expected : " + width*height*bytes;
-                    
-                    images.add(LoadImage(type, bitdepth ,
-                            width , height , 
-                            out)
-                    );
-                    
-                    data = keep;
-                    width_count = keep.split(" ").length;
-                    UI.println("End of Image load. remaining width:" + width_count );
-                } else */if ( width_count == width*height*bytes) {
+                if ( width_count == width*height*bytes) {
+                    data = dataBuilder.toString();
                     images.add(LoadImage(type, bitdepth ,
                             width , height , 
                             data)
@@ -112,6 +98,7 @@ public class ImageReader
                 
             }
             
+            data = dataBuilder.toString();
             if (data != "")
             {
                 images.add(LoadImage(type, bitdepth ,
