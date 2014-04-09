@@ -4,6 +4,16 @@ Was it efficient in file size?
      Would it still be efficient when there were 100 tiles on the board? 
   If not, explain why not and suggest a more efficient scheme.
 
+To represent the state of the board I used a base random seed.
+I take the seed from the save file and set up the board to the state it once was
+with all the commits that happened during the saved game.
+
+This system was efficient in loading the board, rack and bag with a single 
+integer but may be lacking in the processing of commits as it relies on
+separator characters like ":" and ";". Also the use of full English
+words like "commit" and "seed" could be replaced with "c" or "s" respectfully
+to optimise the save file even more.  
+
 Explain how run-length coding could reduce the size of the 
 pbm image below.  What sorts of images would it work badly on? Is it
 possible to make a compression scheme that could reduce the size of any possible
@@ -21,3 +31,19 @@ P1
 1 0 1 0 1 0 1 0 1 1
 1 0 0 0 0 0 0 0 0 1
 1 1 1 1 1 1 1 1 1 1
+
+Run-length compression would reduce the file size of the above file
+because all the consecutive (same) values will compress into a 
+fraction of the original size.
+
+eg. 1 1 1 1 would compress to 4x1
+
+The type of images that this would work badly on would be a ppm
+or the colour version of the pbm format. This is because
+even if there is a repeating colour the numbers in the file will
+not be consecutive (unless it is a shade of grey) as each part of 
+the colour is different. This could be improved by using a pattern
+of multiple digits in a row instead of a singular number. This would
+allow for repeating patterns like an alternating colour or a single
+colour could compress down. This could be applied in all 3 formats of
+p(b,g,p)m's down easily. 
