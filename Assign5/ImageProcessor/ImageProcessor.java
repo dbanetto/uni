@@ -35,12 +35,18 @@ The program should include
 public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISliderListener, UITextFieldListener{
     /*# YOUR CODE HERE */
     
-    private Image img;
+    private Image base_img = null;
+    private Image render_img = null;
+    
+    private String filename = "";
     
     public ImageProcessor()
     {
-        UI.addSlider("Brush Size" , 0 , 100 , this);
         UI.addButton("Open" , this);
+        
+        UI.addSlider("Brightness" , -100 , 100 , this);
+        UI.addButton("Blur" , this);
+       
         UI.addTextField("Text", this);
     }
 
@@ -48,8 +54,14 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
     {
         if (name.equals("Open"))
         {
-            img = new Image (UIFileChooser.open());
-            img.Draw(0, 0);
+            filename = UIFileChooser.open();;
+            base_img = new Image (filename);
+            render_img = new Image (filename);
+            this.Draw();
+        } else if (name.equals("Blur"))
+        {
+            render_img = Image.applyBlur(base_img);
+            this.Draw();
         }
     }
 
@@ -60,7 +72,14 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
     
     public void sliderPerformed(String name, double value)
     {
+        if (name.equals("Brightness") && render_img != null)
+        {
+            render_img = Image.applyBrightness(base_img , (value)/100);
+            this.Draw();
+        } else if (name.equals("Constrast") && render_img != null)
+        {
 
+        }
     }
 
     public void textFieldPerformed(String name, String newText)
@@ -68,9 +87,19 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         
         UI.println(name + ":" + newText );
     }
+    
+    public void Draw()
+    {
+        UI.clearGraphics(false);
+        render_img.Draw(0, 0);
+        base_img.Draw(render_img.getWidth(), 0);
+        UI.repaintGraphics();
+    }
+    
     public static void main (String[] args)
     {
         ImageProcessor imagesProc = new ImageProcessor();
+        UI.setImmediateRepaint(false);
     }
 
 }
