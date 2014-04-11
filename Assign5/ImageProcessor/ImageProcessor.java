@@ -3,9 +3,9 @@
 // You may not distribute it in any other way without permission.
 
 /* Code for COMP 102 Assignment 9 
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
  */
 
 import ecs100.*;
@@ -34,7 +34,43 @@ The program should include
  */
 public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISliderListener, UITextFieldListener{
     /*# YOUR CODE HERE */
+    
+    private Image img;
+    
+    public ImageProcessor()
+    {
+        UI.addSlider("Brush Size" , 0 , 100 , this);
+        UI.addButton("Open" , this);
+        UI.addTextField("Text", this);
+    }
 
+    public void buttonPerformed (String name)
+    {
+        if (name.equals("Open"))
+        {
+            img = new Image (UIFileChooser.open());
+            img.Draw(0, 0);
+        }
+    }
 
+    public void mousePerformed (String action , double x, double y)
+    {
+
+    }
+    
+    public void sliderPerformed(String name, double value)
+    {
+
+    }
+
+    public void textFieldPerformed(String name, String newText)
+    {
+        
+        UI.println(name + ":" + newText );
+    }
+    public static void main (String[] args)
+    {
+        ImageProcessor imagesProc = new ImageProcessor();
+    }
 
 }
