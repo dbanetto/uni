@@ -46,7 +46,9 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         
         UI.addSlider("Brightness" , -100 , 100 , this);
         UI.addButton("Blur" , this);
-       
+        
+        UI.addButton("Commit" , this);
+        
         UI.addTextField("Text", this);
     }
 
@@ -61,6 +63,10 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         } else if (name.equals("Blur"))
         {
             render_img = Image.applyBlur(base_img);
+            this.Draw();
+        } else if (name.equals("Commit"))
+        {
+            base_img = render_img;
             this.Draw();
         }
     }

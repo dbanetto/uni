@@ -210,30 +210,42 @@ public class Image
                     }; 
 
                 float[] outpixel = new float[3];
-
+                double prec_applied = 0;
                 for (int n = x-1; n < width && n <= x+1; n++)
                 {
 
                     for (int j = y-1; j <= y+1; j++)
                     {
+                        // FIX ME : The right border has a grey line to it
                         int nn = n;
                         int jj = j;
                         if (n < 0)
-                            nn = x;
+                            nn = 0;
                         if (n >= width)
-                            nn =x;
+                            nn = width-1;
                         if (j < 0)
-                            jj = y;
+                            jj = 0;
                         if (j >= height)
-                            jj = y;
+                            jj = height-1;
 
                         outpixel[0] += pixels[nn][jj][0]*blur3x3[n-x+1][j-y+1];
                         outpixel[1] += pixels[nn][jj][1]*blur3x3[n-x+1][j-y+1];
                         outpixel[2] += pixels[nn][jj][2]*blur3x3[n-x+1][j-y+1];
-
+                        
+                        prec_applied += blur3x3[n-x+1][j-y+1];
                     }
                 }
-
+                
+                if (prec_applied < 1.0)
+                {
+                    double diff = 1.0 - prec_applied;
+                    
+                    outpixel[0] += pixels[x][y][0]*diff;
+                    outpixel[1] += pixels[x][y][1]*diff;
+                    outpixel[2] += pixels[x][y][2]*diff;
+                    
+                }
+                
                 outpixel[0] = Math.min(Math.max(outpixel[0] , 0f),1f);
                 outpixel[1] = Math.min(Math.max(outpixel[1] , 0f),1f);
                 outpixel[2] = Math.min(Math.max(outpixel[2] , 0f),1f);
