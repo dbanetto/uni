@@ -172,18 +172,14 @@ public class Image
                 float[] hsb = Color.RGBtoHSB((int)(pixels[x][y][0]*255) , 
                         (int)(pixels[x][y][1]*255) ,
                         (int)(pixels[x][y][2]*255), null );
-                        
+
                 float brightness = hsb[2];
-                if (perc > 0)
-                {
-                    brightness += (1-brightness)*perc;
-                } else if (perc < 0)
-                {
-                    brightness += brightness*perc;
-                }
                 
-                //brightness = (float)Math.max(Math.min(brightness , 1.0f) , 0f );
-                int brightpixel = Color.HSBtoRGB(hsb[0] , hsb[1] , (float)Math.max(Math.min(  hsb[2] -perc , 1.0f) , 0f ));
+                brightness = (float)Math.pow( (double)(brightness) , (double)(perc));
+                
+                brightness = Math.max (Math.min(brightness , 0.999f) , 0.001f);
+                
+                int brightpixel = Color.HSBtoRGB(hsb[0] , hsb[1] , brightness );
 
                 pixels[x][y] = Image.PixelIntToFloat(brightpixel);
             }
@@ -214,8 +210,7 @@ public class Image
                     }; 
 
                 float[] outpixel = new float[3];
-               
-                
+
                 for (int n = x-1; n < width && n <= x+1; n++)
                 {
 
@@ -231,18 +226,18 @@ public class Image
                             jj = y;
                         if (j >= height)
                             jj = y;
-                        
+
                         outpixel[0] += pixels[nn][jj][0]*blur3x3[n-x+1][j-y+1];
                         outpixel[1] += pixels[nn][jj][1]*blur3x3[n-x+1][j-y+1];
                         outpixel[2] += pixels[nn][jj][2]*blur3x3[n-x+1][j-y+1];
 
                     }
                 }
-                
+
                 outpixel[0] = Math.min(Math.max(outpixel[0] , 0f),1f);
                 outpixel[1] = Math.min(Math.max(outpixel[1] , 0f),1f);
                 outpixel[2] = Math.min(Math.max(outpixel[2] , 0f),1f);
-                
+
                 pixels[x][y] = outpixel;
             }
         }

@@ -74,7 +74,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
     {
         if (name.equals("Brightness") && render_img != null)
         {
-            render_img = Image.applyBrightness(base_img , (value)/100);
+            render_img = Image.applyBrightness(base_img , 100/(value+100));
             this.Draw();
         } else if (name.equals("Constrast") && render_img != null)
         {
