@@ -10,7 +10,7 @@ public class Image
     private float[][][] pixels = new float[1][1][3];
     private int width = -1;
     private int height = -1;
-
+    
     public Image(int width, int height , Color color)
     {
         assert height > 0 : "Height has to be greater than 0";
@@ -26,9 +26,9 @@ public class Image
                 int pixelARGB = color.getRGB();
 
                 //Load the values as floats
-                this.pixels[x][y][0] = ((pixelARGB >> 16))/255f;
+                this.pixels[x][y][0] = ((pixelARGB >> 16) & 255)/255f;
                 this.pixels[x][y][1] = ((pixelARGB >>  8) & 255)/255f;
-                this.pixels[x][y][2] = (pixelARGB        & 255 )/255f;
+                this.pixels[x][y][2] = ( pixelARGB        & 255)/255f;
             }
         }
     }
@@ -37,6 +37,9 @@ public class Image
     {
         assert height > 0 : "Height has to be greater than 0";
         assert width > 0 : "Width has to be greater than 0";
+
+        assert width == pixels.length : "Width is not the same as width of pixels";
+        assert height == pixels[0].length : "Height is not the same as height of pixels";
 
         this.width = width;
         this.height = height;
@@ -190,12 +193,25 @@ public class Image
     }
 
     /*=============== Blur =====================*/
-    public static Image applyBlur(Image in)
+    public static Image applyBlur3x3(Image in)
     {
-        return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() );
+        return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() ,
+             new float[][] {{0.1f, 0.2f, 0.1f},
+                            {0.2f, 0.4f, 0.2f},
+                            {0.1f, 0.2f, 0.1f}} );
     }
 
-    public static Image applyBlur(Image in, int xoffset, int yoffset, int width , int height)
+    public static Image applyBlur5x5(Image in)
+    {
+        return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() ,
+             new float[][] {{0.05f, 0.1f, 0.2f, 0.1f, 0.05f},
+                            {0.1f, 0.3f, 0.3f, 0.3f, 0.1f},
+                            {0.2f, 0.3f, 0.5f, 0.3f, 0.2f},
+                            {0.1f, 0.3f, 0.3f, 0.3f, 0.1f},
+                            {0.05f, 0.1f, 0.2f, 0.1f, 0.05f}} );
+    }
+
+    public static Image applyBlur(Image in, int xoffset, int yoffset, int width , int height , float[][] blurMatrix)
     {
         float[][][] pixels = Image.Copy(width , height,in.getPixels() , xoffset , yoffset);
 
@@ -203,20 +219,16 @@ public class Image
         {
             for (int y = 0; y < height; y++)
             {
-                float[][] blur3x3 =  { 
-                        {0.05f , 0.15f , 0.05f},
-                        {0.15f , 0.2f ,  0.15f},
-                        {0.05f , 0.15f , 0.05f}
-                    }; 
 
                 float[] outpixel = new float[3];
                 double prec_applied = 0;
-                for (int n = x-1; n < width && n <= x+1; n++)
+                int noffset = blurMatrix.length/2;
+                for (int n = x-noffset; n < width && n <= x+noffset; n++)
                 {
+                    int joffset = blurMatrix[0].length/2;
 
-                    for (int j = y-1; j <= y+1; j++)
+                    for (int j = y-(joffset); j <= y+(joffset); j++)
                     {
-                        // FIX ME : The right border has a grey line to it
                         int nn = n;
                         int jj = j;
                         if (n < 0)
@@ -228,15 +240,15 @@ public class Image
                         if (j >= height)
                             jj = height-1;
 
-                        outpixel[0] += pixels[nn][jj][0]*blur3x3[n-x+1][j-y+1];
-                        outpixel[1] += pixels[nn][jj][1]*blur3x3[n-x+1][j-y+1];
-                        outpixel[2] += pixels[nn][jj][2]*blur3x3[n-x+1][j-y+1];
+                        outpixel[0] += pixels[nn][jj][0]*blurMatrix[n-x+noffset][j-y+joffset];
+                        outpixel[1] += pixels[nn][jj][1]*blurMatrix[n-x+noffset][j-y+joffset];
+                        outpixel[2] += pixels[nn][jj][2]*blurMatrix[n-x+noffset][j-y+joffset];
                         
-                        prec_applied += blur3x3[n-x+1][j-y+1];
+                        prec_applied += blurMatrix[n-x+1][j-y+1];
                     }
                 }
                 
-                if (prec_applied < 1.0)
+                if (prec_applied != 1.0)
                 {
                     double diff = 1.0 - prec_applied;
                     
@@ -255,6 +267,51 @@ public class Image
         }
 
         Image out = new Image(width , height , pixels );
+        return out;
+    }
+    
+    /* ============================ Horizontal flip ========================================== */
+    public static Image applyHorizontalFlip(Image in)
+    {
+        int width  = in.getWidth();
+        int height  = in.getHeight();
+        
+        
+        float[][][] inpixels = in.getPixels();
+        float[][][] outpixels = new float[width][height][3];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                int horzX =  (width-1) - x;
+                outpixels[x][y] =  Arrays.copyOf( inpixels[horzX][y] , 3);
+            }
+        }
+
+        Image out = new Image(width , height , outpixels );
+        return out;
+    }
+    
+     /* ============================ 90 deg flip ========================================== */
+    public static Image apply90degFlip(Image in)
+    {
+        int width  = in.getWidth();
+        int height  = in.getHeight();
+        
+        
+        float[][][] inpixels = in.getPixels();
+        float[][][] outpixels = new float[height][width][3];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                outpixels[y][x] =  Arrays.copyOf( inpixels[x][y] , 3);
+            }
+        }
+
+        Image out = new Image(height , width , outpixels );
         return out;
     }
 }

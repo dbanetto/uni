@@ -40,13 +40,17 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
     
     private String filename = "";
     
+    private boolean thread_lock = false;
+
     public ImageProcessor()
     {
         UI.addButton("Open" , this);
         
         UI.addSlider("Brightness" , -100 , 100 , this);
         UI.addButton("Blur" , this);
-        
+        UI.addButton("Flip Horizontal" , this);
+        UI.addButton("Blur" , this);
+        UI.addButton("Flip 90 deg" , this);
         UI.addButton("Commit" , this);
         
         UI.addTextField("Text", this);
@@ -54,37 +58,62 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
 
     public void buttonPerformed (String name)
     {
+    	if (thread_lock)
+    		return;
+
         if (name.equals("Open"))
         {
+            thread_lock = true;
             filename = UIFileChooser.open();;
             base_img = new Image (filename);
             render_img = new Image (filename);
             this.Draw();
+            thread_lock = false;
+        }else if (name.equals("Commit"))
+        {
+            thread_lock = true;
+            base_img =  render_img;
+            this.Draw();
+            thread_lock = false;
         } else if (name.equals("Blur"))
         {
-            render_img = Image.applyBlur(base_img);
+            thread_lock = true;
+            render_img = Image.applyBlur5x5(base_img);
             this.Draw();
-        } else if (name.equals("Commit"))
+            thread_lock = false;
+        } else if (name.equals("Flip Horizontal"))
         {
-            base_img = render_img;
+            thread_lock = true;
+            render_img = Image.applyHorizontalFlip(base_img);
             this.Draw();
+            thread_lock = false;
+        } else if (name.equals("Flip 90 deg"))
+        {
+            thread_lock = true;
+            render_img = Image.apply90degFlip(base_img);
+            this.Draw();
+            thread_lock = false;
+
         }
     }
 
     public void mousePerformed (String action , double x, double y)
     {
-
+    	if (thread_lock)
+    		return;
     }
     
     public void sliderPerformed(String name, double value)
     {
+        if (thread_lock)
+    		return;
+
         if (name.equals("Brightness") && render_img != null)
         {
+        	thread_lock = true;
             render_img = Image.applyBrightness(base_img , 100/(value+100));
             this.Draw();
-        } else if (name.equals("Constrast") && render_img != null)
-        {
-
+            thread_lock = false;
         }
     }
 
