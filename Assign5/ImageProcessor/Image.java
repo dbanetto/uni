@@ -201,6 +201,14 @@ public class Image
                             {0.1f, 0.2f, 0.1f}} );
     }
 
+    public static Image applySharpen3x3(Image in)
+    {
+        return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() ,
+             new float[][] {{-0.05f, -0.2f, -0.05f},
+                            {-0.1f,   1.6f, -0.2f},
+                            {-0.05f, -0.2f, -0.05f}} );
+    }
+
     public static Image applyBlur5x5(Image in)
     {
         return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() ,
@@ -244,7 +252,7 @@ public class Image
                         outpixel[1] += pixels[nn][jj][1]*blurMatrix[n-x+noffset][j-y+joffset];
                         outpixel[2] += pixels[nn][jj][2]*blurMatrix[n-x+noffset][j-y+joffset];
                         
-                        prec_applied += blurMatrix[n-x+1][j-y+1];
+                        prec_applied += blurMatrix[n-x+noffset][j-y+joffset];
                     }
                 }
                 

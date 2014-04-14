@@ -49,7 +49,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         UI.addSlider("Brightness" , -100 , 100 , this);
         UI.addButton("Blur" , this);
         UI.addButton("Flip Horizontal" , this);
-        UI.addButton("Blur" , this);
+        UI.addButton("Sharpen" , this);
         UI.addButton("Flip 90 deg" , this);
         UI.addButton("Commit" , this);
         
@@ -78,7 +78,13 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         } else if (name.equals("Blur"))
         {
             thread_lock = true;
-            render_img = Image.applyBlur5x5(base_img);
+            render_img = Image.applyBlur3x3(base_img);
+            this.Draw();
+            thread_lock = false;
+        } else if (name.equals("Sharpen"))
+        {
+            thread_lock = true;
+            render_img = Image.applySharpen3x3(base_img);
             this.Draw();
             thread_lock = false;
         } else if (name.equals("Flip Horizontal"))
