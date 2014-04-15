@@ -18,16 +18,16 @@ import javax.swing.JColorChooser;
 
 /** ImageProcessor allows the user to load, display, modify, and save an image in a number of ways.
 The program should include
- - Load, commit, save. (Core)
- - Brightness adjustment (Core)
- - Horizontal flip and 90 degree rotation. (Core)
+ - Load [X], commit[X], save. (Core)
+ - Brightness adjustment [X] (Core)
+ - Horizontal flip[X] and 90 degree rotation.[X] (Core)
  - Merge  (Core)
- - Crop&Zoom  (Core)
- - Blur (3x3 filter)  (Core)
+ - Crop & Zoom  (Core)
+ - Blur (3x3 filter) [X]  (Core)
 
  - Rotate arbitrary angle (Completion)
  - Pour (spread-fill)  (Completion)
- - General Convolution Filter  (Completion)
+ - General Convolution Filter [X](Completion)
 
  - Red-eye detection and removal (Challenge)
  - Filter brush (Challenge)
@@ -37,7 +37,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
     
     private Image base_img = null;
     private Image render_img = null;
-    
+    private Image merge_img = null;
     private String filename = "";
     
     private boolean thread_lock = false;
@@ -51,6 +51,10 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         UI.addButton("Flip Horizontal" , this);
         UI.addButton("Sharpen" , this);
         UI.addButton("Flip 90 deg" , this);
+        
+        UI.addButton("Merge" , this);
+        UI.addSlider("Merge" , 0 , 100 , this);
+
         UI.addButton("Commit" , this);
         
         UI.addTextField("Text", this);
@@ -58,13 +62,14 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
 
     public void buttonPerformed (String name)
     {
+    	//Discard 
     	if (thread_lock)
     		return;
 
         if (name.equals("Open"))
         {
             thread_lock = true;
-            filename = UIFileChooser.open();;
+            filename = UIFileChooser.open();
             base_img = new Image (filename);
             render_img = new Image (filename);
             this.Draw();
@@ -99,7 +104,12 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
             render_img = Image.apply90degFlip(base_img);
             this.Draw();
             thread_lock = false;
-
+        } else if (name.equals("Merge"))
+        {
+            thread_lock = true;
+            merge_img = new Image( UIFileChooser.open());
+            this.Draw();
+            thread_lock = false;
         }
     }
 
@@ -111,13 +121,19 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
     
     public void sliderPerformed(String name, double value)
     {
-        if (thread_lock)
+        if (thread_lock || render_img == null || base_img == null)
     		return;
 
-        if (name.equals("Brightness") && render_img != null)
+        if (name.equals("Brightness"))
         {
         	thread_lock = true;
             render_img = Image.applyBrightness(base_img , 100/(value+100));
+            this.Draw();
+            thread_lock = false;
+        } else if (name.equals("Merge") && merge_img != null)
+        {
+        	thread_lock = true;
+            render_img = Image.applyMerge(base_img , merge_img , value/100.0);
             this.Draw();
             thread_lock = false;
         }

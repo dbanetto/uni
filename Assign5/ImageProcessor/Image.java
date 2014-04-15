@@ -205,7 +205,7 @@ public class Image
     {
         return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() ,
              new float[][] {{-0.05f, -0.2f, -0.05f},
-                            {-0.1f,   1.6f, -0.2f},
+                            {-0.1f,   1.6f, -0.2f },
                             {-0.05f, -0.2f, -0.05f}} );
     }
 
@@ -320,6 +320,36 @@ public class Image
         }
 
         Image out = new Image(height , width , outpixels );
+        return out;
+    }
+
+    /*======================== Merge ================================*/
+    public static Image applyMerge(Image base , Image merge , double prec)
+    {
+        int width  = base.getWidth();
+        int height  = base.getHeight();
+        
+        
+        float[][][] inmerge = merge.getPixels();
+        float[][][] inbase  = base.getPixels();
+        float[][][] outpixels = new float[width][height][3];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (x >= merge.getWidth() || y >= merge.getHeight())
+                {
+                    outpixels[x][y] = Arrays.copyOf( inbase[x][y] , 3);
+                } else {
+                    outpixels[x][y][0] = inbase[x][y][0]*(1.0f-(float)prec) + inmerge[x][y][0]*(float)prec;
+                    outpixels[x][y][1] = inbase[x][y][1]*(1.0f-(float)prec) + inmerge[x][y][1]*(float)prec; 
+                    outpixels[x][y][2] = inbase[x][y][2]*(1.0f-(float)prec) + inmerge[x][y][2]*(float)prec;
+                }
+            }
+        }
+
+        Image out = new Image(width , height , outpixels );
         return out;
     }
 }
