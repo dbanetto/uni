@@ -2,15 +2,16 @@ import java.awt.Color;
 import ecs100.*;
 import java.util.*;
 import java.io.*;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import javax.imageio.*;
+import javax.imageio.stream.*;
+import java.awt.image.*;
 
 public class Image
 {
     private float[][][] pixels = new float[1][1][3];
     private int width = -1;
     private int height = -1;
-    
+
     public Image(int width, int height , Color color)
     {
         assert height > 0 : "Height has to be greater than 0";
@@ -64,7 +65,6 @@ public class Image
                     this.pixels[x][y] = PixelIntToFloat(image.getRGB(x,y));
                 }
             }
-
         } catch (IOException ex)
         {
             UI.println(ex.toString());
@@ -85,6 +85,31 @@ public class Image
                         pixels[x][y][2]  ));
                 UI.drawRect(x + xpos, y + ypos, 1, 1);
             }
+        }
+    }
+
+    public void Save(String fname)
+    {
+        try {
+            BufferedImage image = new BufferedImage(this.width , this.height , BufferedImage.TYPE_INT_ARGB );
+            for (int x = 0; x < pixels.length; x++)
+            {
+                for (int y = 0; y < pixels[x].length; y++)
+                {
+                    image.setRGB(  x , y , Image.FloatToIntARGB(this.pixels[x][y]));
+                }
+            }
+            
+            String extension = "";
+            int i = fname.lastIndexOf('.');
+            if (i > 0) { 
+                extension = fname.substring(i+1);
+            } 
+            
+            ImageIO.write(image, "png" , new File(fname+".png"));
+        } catch (IOException ex)
+        {
+            UI.println(ex.toString());
         }
     }
 
@@ -132,6 +157,15 @@ public class Image
         return out;
     }
 
+    public static int FloatToIntARGB(float[] pixel)
+    {
+        int out = (int)(pixel[2]*255);
+        out +=    (int)(pixel[1]*255) << 8;
+        out +=    (int)(pixel[0]*255) << 16;
+        out +=    255 << 24; //Alpha Channel
+        return out;
+    }
+
     public static float[][][] Copy(int width, int height, float[][][] InputImage)
     {
         return Copy(width,height,InputImage,0,0);
@@ -139,18 +173,18 @@ public class Image
 
     public static float[][][] Copy(int width, int height, float[][][] InputImage , int xoffset, int yoffset)
     {
-        if (InputImage.length + xoffset > width)
-            UI.println("Warning! Copying an image that will not fully fit on the destination image");
-        if (InputImage[0].length + yoffset > height)
-            UI.println("Warning! Copying an image that will not fully fit on the destination image");
+        if (InputImage.length < width + xoffset)
+            UI.println("Warning! Image being copied to will not be fully copied. target width and x offset greater than input image width");
+        if (InputImage[0].length < height + yoffset)
+            UI.println("Warning! Image being copied to will not be fully copied. target height and y offset greater than input image height");
 
         float[][][] output = new float[width][height][3];
 
-        for (int x = 0; x < InputImage.length; x++)
+        for (int x = xoffset; x-xoffset < width && x < InputImage.length; x++)
         {
-            for (int y = 0; y < InputImage[x].length; y++)
+            for (int y = yoffset; y-yoffset < height && y < InputImage[x].length; y++)
             {
-                output[x+xoffset][y+yoffset] = Arrays.copyOf(InputImage[x][y] , InputImage[x][y].length ); 
+                output[x-xoffset][y-yoffset] = Arrays.copyOf(InputImage[x][y] , InputImage[x][y].length ); 
             }       
         }
         return output;
@@ -177,11 +211,11 @@ public class Image
                         (int)(pixels[x][y][2]*255), null );
 
                 float brightness = hsb[2];
-                
-                brightness = (float)Math.pow( (double)(brightness) , (double)(perc));
-                
-                brightness = Math.max (Math.min(brightness , 0.999f) , 0.001f);
-                
+
+                brightness = (float)Math.pow( (double)(brightness) , (double)(perc) );
+
+                brightness = Math.max (Math.min(brightness , 1f) , 0f);
+
                 int brightpixel = Color.HSBtoRGB(hsb[0] , hsb[1] , brightness );
 
                 pixels[x][y] = Image.PixelIntToFloat(brightpixel);
@@ -195,31 +229,13 @@ public class Image
     /*=============== Blur =====================*/
     public static Image applyBlur3x3(Image in)
     {
-        return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() ,
-             new float[][] {{0.1f, 0.2f, 0.1f},
-                            {0.2f, 0.4f, 0.2f},
-                            {0.1f, 0.2f, 0.1f}} );
+        return applyFilter(in, 0,0 , in.getWidth() , in.getHeight() ,
+            new float[][] {{0.1f, 0.2f, 0.1f},
+                {0.2f, 0.4f, 0.2f},
+                {0.1f, 0.2f, 0.1f}} );
     }
 
-    public static Image applySharpen3x3(Image in)
-    {
-        return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() ,
-             new float[][] {{-0.05f, -0.2f, -0.05f},
-                            {-0.1f,   1.6f, -0.2f },
-                            {-0.05f, -0.2f, -0.05f}} );
-    }
-
-    public static Image applyBlur5x5(Image in)
-    {
-        return applyBlur(in, 0,0 , in.getWidth() , in.getHeight() ,
-             new float[][] {{0.05f, 0.1f, 0.2f, 0.1f, 0.05f},
-                            {0.1f, 0.3f, 0.3f, 0.3f, 0.1f},
-                            {0.2f, 0.3f, 0.5f, 0.3f, 0.2f},
-                            {0.1f, 0.3f, 0.3f, 0.3f, 0.1f},
-                            {0.05f, 0.1f, 0.2f, 0.1f, 0.05f}} );
-    }
-
-    public static Image applyBlur(Image in, int xoffset, int yoffset, int width , int height , float[][] blurMatrix)
+    public static Image applyFilter(Image in, int xoffset, int yoffset, int width , int height , float[][] blurMatrix)
     {
         float[][][] pixels = Image.Copy(width , height,in.getPixels() , xoffset , yoffset);
 
@@ -251,21 +267,21 @@ public class Image
                         outpixel[0] += pixels[nn][jj][0]*blurMatrix[n-x+noffset][j-y+joffset];
                         outpixel[1] += pixels[nn][jj][1]*blurMatrix[n-x+noffset][j-y+joffset];
                         outpixel[2] += pixels[nn][jj][2]*blurMatrix[n-x+noffset][j-y+joffset];
-                        
+
                         prec_applied += blurMatrix[n-x+noffset][j-y+joffset];
                     }
                 }
-                
+
                 if (prec_applied != 1.0)
                 {
                     double diff = 1.0 - prec_applied;
-                    
+
                     outpixel[0] += pixels[x][y][0]*diff;
                     outpixel[1] += pixels[x][y][1]*diff;
                     outpixel[2] += pixels[x][y][2]*diff;
-                    
+
                 }
-                
+
                 outpixel[0] = Math.min(Math.max(outpixel[0] , 0f),1f);
                 outpixel[1] = Math.min(Math.max(outpixel[1] , 0f),1f);
                 outpixel[2] = Math.min(Math.max(outpixel[2] , 0f),1f);
@@ -277,14 +293,13 @@ public class Image
         Image out = new Image(width , height , pixels );
         return out;
     }
-    
+
     /* ============================ Horizontal flip ========================================== */
     public static Image applyHorizontalFlip(Image in)
     {
         int width  = in.getWidth();
         int height  = in.getHeight();
-        
-        
+
         float[][][] inpixels = in.getPixels();
         float[][][] outpixels = new float[width][height][3];
 
@@ -300,14 +315,13 @@ public class Image
         Image out = new Image(width , height , outpixels );
         return out;
     }
-    
-     /* ============================ 90 deg flip ========================================== */
+
+    /* ============================ 90 deg flip ========================================== */
     public static Image apply90degFlip(Image in)
     {
         int width  = in.getWidth();
         int height  = in.getHeight();
-        
-        
+
         float[][][] inpixels = in.getPixels();
         float[][][] outpixels = new float[height][width][3];
 
@@ -323,13 +337,42 @@ public class Image
         return out;
     }
 
+    /* ============================ Rotate ========================================== */
+    //(x,y)cor = Center of Rotation
+    public static Image applyRotate(Image in , int xcor ,int ycor , int angle)
+    {
+        int width  = in.getWidth();
+        int height  = in.getHeight();
+
+        float[][][] inpixels = in.getPixels();
+        float[][][] outpixels = new float[width][height][3];
+        double anglerads = angle/180.0 * Math.PI;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                int oldx = (int)( Math.cos(anglerads)*(double)(x-xcor) - Math.sin(anglerads)*(double)(y-ycor) ) + xcor;
+                int oldy = (int)( Math.sin(anglerads)*(double)(x-xcor) + Math.cos(anglerads)*(double)(y-ycor) ) + ycor;
+                
+                if (oldx > 0 && oldx < width && oldy > 0 && oldy < height) {
+                    outpixels[x][y] =  Arrays.copyOf( inpixels[oldx][oldy] , 3);
+                } else {
+                    outpixels[x][y] = new float[] {1.0f,1.0f,1.0f};
+                }
+            }
+        }
+
+        Image out = new Image(width , height , outpixels );
+        return out;
+    }
+
     /*======================== Merge ================================*/
     public static Image applyMerge(Image base , Image merge , double prec)
     {
         int width  = base.getWidth();
         int height  = base.getHeight();
-        
-        
+
         float[][][] inmerge = merge.getPixels();
         float[][][] inbase  = base.getPixels();
         float[][][] outpixels = new float[width][height][3];
@@ -350,6 +393,50 @@ public class Image
         }
 
         Image out = new Image(width , height , outpixels );
+        return out;
+    }
+
+    /*========================= Zoom =====================================*/
+    public static Image applyZoom(Image base , double prec)
+    {
+        int width   = (int)(base.getWidth()*prec);
+        int height  = (int)(base.getHeight()*prec);
+
+        int oldwidth   = base.getWidth();
+        int oldheight  = base.getHeight();
+
+        float[][][] inpixels = base.getPixels();
+        float[][][] outpixels = new float[width][height][3];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                int ex = (int)(x/prec);
+                int ey = (int)(y/prec);
+
+                if (ex >= oldwidth)
+                {
+                    ex = oldwidth-1;
+                }
+                if (ey >= oldheight)
+                {
+                    ey = oldheight-1;
+                }
+
+                outpixels[x][y] = Arrays.copyOf(inpixels[ex][ey] , 3);
+            }
+        }
+
+        Image out = new Image(width , height , outpixels );
+        return out;
+    }
+
+    /*====================== Crop ===========================*/
+    public static Image applyCrop(Image base , int x, int y , int w, int h)
+    {
+
+        Image out = new Image(w , h , Image.Copy(w, h, base.getPixels(), x, y) );
         return out;
     }
 }

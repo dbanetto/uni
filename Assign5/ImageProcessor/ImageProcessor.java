@@ -15,69 +15,113 @@ import java.awt.Color;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import javax.swing.JColorChooser;
+import java.awt.Point;
 
 /** ImageProcessor allows the user to load, display, modify, and save an image in a number of ways.
 The program should include
- - Load [X], commit[X], save. (Core)
- - Brightness adjustment [X] (Core)
- - Horizontal flip[X] and 90 degree rotation.[X] (Core)
- - Merge  (Core)
- - Crop & Zoom  (Core)
- - Blur (3x3 filter) [X]  (Core)
+- Load [X], commit[X], save [X]. (Core)
+- Brightness adjustment [X] (Core)
+- Horizontal flip [X] and 90 degree rotation.[X] (Core)
+- Merge [X] (Core)
+- Crop [X] & Zoom [X]  (Core)
+- Blur (3x3 filter) [X]  (Core)
 
- - Rotate arbitrary angle (Completion)
- - Pour (spread-fill)  (Completion)
- - General Convolution Filter [X](Completion)
+- Rotate arbitrary angle [X] (Completion)
+- Pour (spread-fill)  (Completion)
+- General Convolution Filter (Completion)
 
- - Red-eye detection and removal (Challenge)
- - Filter brush (Challenge)
+- Red-eye detection and removal (Challenge)
+- Filter brush (Challenge)
  */
 public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISliderListener, UITextFieldListener{
     /*# YOUR CODE HERE */
-    
+
     private Image base_img = null;
     private Image render_img = null;
     private Image merge_img = null;
     private String filename = "";
-    
+
     private boolean thread_lock = false;
 
     public ImageProcessor()
     {
         UI.addButton("Open" , this);
-        
+
         UI.addSlider("Brightness" , -100 , 100 , this);
         UI.addButton("Blur" , this);
         UI.addButton("Flip Horizontal" , this);
-        UI.addButton("Sharpen" , this);
+        UI.addButton("Convolution Filter" , this);
         UI.addButton("Flip 90 deg" , this);
-        
+
         UI.addButton("Merge" , this);
         UI.addSlider("Merge" , 0 , 100 , this);
 
+        UI.addSlider("Zoom" , 1 , 200 , this);
+
+        UI.addTextField("Crop : x,y,w,h", this);
+        UI.addTextField("Rotate : x,y,angle", this);
+
+        UI.addButton("Save" , this);
         UI.addButton("Commit" , this);
-        
-        UI.addTextField("Text", this);
+
+        UI.setMouseMotionListener(this);
     }
 
     public void buttonPerformed (String name)
     {
-    	//Discard 
-    	if (thread_lock)
-    		return;
+        //Discard 
+        if (thread_lock)
+            return;
 
         if (name.equals("Open"))
         {
             thread_lock = true;
             filename = UIFileChooser.open();
+            if (filename == null)
+            {
+                thread_lock = false;
+                return;
+            }
             base_img = new Image (filename);
             render_img = new Image (filename);
             this.Draw();
             thread_lock = false;
-        }else if (name.equals("Commit"))
+        }
+        
+        if ( base_img == null)
+            return;
+            
+        if (name.equals("Commit"))
         {
             thread_lock = true;
             base_img =  render_img;
+            this.Draw();
+            thread_lock = false;
+        }else if (name.equals("Save"))
+        {
+            thread_lock = true;
+            String fout = UIFileChooser.save();
+            if (fout == null)
+            {
+                thread_lock = false;
+                return;
+            }
+            
+            base_img.Save(fout);
+            thread_lock = false;
+        } else if (name.equals("Merge"))
+        {
+            thread_lock = true;
+            String merge_fname = UIFileChooser.open("Open Anotehr image");
+            if (merge_fname == null)
+            {
+                thread_lock = false;
+                return;
+            }
+            merge_img = new Image( merge_fname );
+            UI.println("Opened " + merge_fname + " for merging.");
+            //Display merge
+            render_img = Image.applyMerge(base_img , merge_img , 0.5);
             this.Draw();
             thread_lock = false;
         } else if (name.equals("Blur"))
@@ -86,11 +130,20 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
             render_img = Image.applyBlur3x3(base_img);
             this.Draw();
             thread_lock = false;
-        } else if (name.equals("Sharpen"))
+        }else if (name.equals("Convolution Filter"))
         {
             thread_lock = true;
-            render_img = Image.applySharpen3x3(base_img);
-            this.Draw();
+            String filter_name = UIFileChooser.open("Pick a *.filter");
+            if (filter_name == null)
+            {
+                thread_lock = false;
+                return;
+            }
+            float[][] filtermatrix = loadFilter(filter_name);
+            if (filtermatrix != null) {
+                render_img = Image.applyFilter(base_img , 0 , 0 , base_img.getWidth() , base_img.getHeight() , filtermatrix);
+                this.Draw();
+            }
             thread_lock = false;
         } else if (name.equals("Flip Horizontal"))
         {
@@ -104,36 +157,64 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
             render_img = Image.apply90degFlip(base_img);
             this.Draw();
             thread_lock = false;
-        } else if (name.equals("Merge"))
-        {
-            thread_lock = true;
-            merge_img = new Image( UIFileChooser.open());
-            this.Draw();
-            thread_lock = false;
-        }
+
+        } 
     }
+
+    private Point selection_pt = new Point(0,0) , startpoint = new Point(0,0);
+    private double selection_w = 0, selection_h = 0;
 
     public void mousePerformed (String action , double x, double y)
     {
-    	if (thread_lock)
-    		return;
+        if (thread_lock)
+            return;
+
+        if (action.equals("pressed"))
+        {
+            selection_pt = new Point((int)x,(int)y);
+            startpoint   = new Point((int)x,(int)y);
+        } else if (action.equals("dragged"))
+        {
+            this.Draw();
+            UI.setColor(Color.red);
+
+            selection_w = Math.abs(startpoint.getX() - x);
+            selection_h = Math.abs(startpoint.getY() - y);
+
+            selection_pt = new Point ( (int)Math.min( selection_pt.getX() , x ) , 
+                (int)Math.min( selection_pt.getY() , y ) ) ;
+
+            UI.drawRect(selection_pt.getX(), selection_pt.getY(), selection_w, selection_h);
+            UI.repaintGraphics();
+        } else if (action.equals("released"))
+        {
+
+            this.Draw();
+            //Do thigns with the selection
+        }
     }
-    
+
     public void sliderPerformed(String name, double value)
     {
         if (thread_lock || render_img == null || base_img == null)
-    		return;
+            return;
 
         if (name.equals("Brightness"))
         {
-        	thread_lock = true;
+            thread_lock = true;
             render_img = Image.applyBrightness(base_img , 100/(value+100));
             this.Draw();
             thread_lock = false;
         } else if (name.equals("Merge") && merge_img != null)
         {
-        	thread_lock = true;
+            thread_lock = true;
             render_img = Image.applyMerge(base_img , merge_img , value/100.0);
+            this.Draw();
+            thread_lock = false;
+        } else if (name.equals("Zoom"))
+        {
+            thread_lock = true;
+            render_img = Image.applyZoom(base_img , value/100.0);
             this.Draw();
             thread_lock = false;
         }
@@ -141,22 +222,146 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
 
     public void textFieldPerformed(String name, String newText)
     {
-        
-        UI.println(name + ":" + newText );
+        if (thread_lock || render_img == null || base_img == null)
+            return;
+
+        if (name.equals("Crop : x,y,w,h"))
+        {
+
+            String[] paras = newText.split(",");
+            if (paras.length != 4)
+            {
+                UI.println("Invalid input.\nNot Enough parameters\nRequires a string of postive integers seperated by commas\n eg: 5,5,5,5");
+                return;
+            }
+            try {
+                int x = Integer.parseInt(paras[0]);
+                int y = Integer.parseInt(paras[1]);
+                int w = Integer.parseInt(paras[2]);
+                int h = Integer.parseInt(paras[3]);
+
+                if (x < 0 || y < 0 || w < 0 || h < 0)
+                {
+                    UI.println("Invalid input.\nAll values must be postive\nRequires a string of postive integers seperated by commas\n eg: 5,5,5,5");
+                    return;
+                }
+
+                thread_lock = true;
+                render_img = Image.applyCrop(base_img , x, y,w, h);
+                this.Draw();
+                thread_lock = false;
+            } catch (NumberFormatException ex)
+            {
+                UI.println("Number Format Exception : " + ex.toString());
+                return;
+            }
+
+        } else if (name.equals("Rotate : x,y,angle"))
+        {
+
+            String[] paras = newText.split(",");
+            if (paras.length != 3)
+            {
+                UI.println("Invalid input.\nNot Enough parameters\nRequires a string of postive integers seperated by commas\n eg: 5,5,5");
+                return;
+            }
+            try {
+                int x = Integer.parseInt(paras[0]);
+                int y = Integer.parseInt(paras[1]);
+                int a = Integer.parseInt(paras[2]);
+
+                if (x < 0 || y < 0 || a < 0)
+                {
+                    UI.println("Invalid input.\nAll values must be postive\nRequires a string of postive integers seperated by commas\n eg: 5,5,5,5");
+                    return;
+                }
+
+                thread_lock = true;
+                render_img = Image.applyRotate(base_img , x, y, a);
+                this.Draw();
+                thread_lock = false;
+            } catch (NumberFormatException ex)
+            {
+                UI.println("Number Format Exception : " + ex.toString());
+                return;
+            }
+        }
     }
-    
+
     public void Draw()
     {
         UI.clearGraphics(false);
-        render_img.Draw(0, 0);
-        base_img.Draw(render_img.getWidth(), 0);
+        if (render_img != null && base_img != null)
+        {
+            render_img.Draw(0, 0);
+            base_img.Draw(render_img.getWidth(), 0);
+        }
         UI.repaintGraphics();
     }
-    
-    public static void main (String[] args)
+
+    public static float[][] loadFilter (String fname)
     {
-        ImageProcessor imagesProc = new ImageProcessor();
-        UI.setImmediateRepaint(false);
+        float[][] out = null;
+        try {
+
+            BufferedReader br = new BufferedReader(new FileReader(fname));
+            int width = 0, height = 0;
+            String line = "";
+            int lineNum = 0;
+
+            int x = 0, y= 0 ;
+            while ( (line = br.readLine()) != null )
+            {
+                if (line.equals(""))
+                    continue;
+                line = line.split("#")[0].trim();
+
+                if (line.equals(""))
+                    continue;
+
+                if (lineNum == 0)
+                {
+                    String[] dimension = line.split(",");
+
+                    assert (dimension.length == 2 ) : "Invaild Dimension in " + fname + 
+                    ". Expected two ints, got " + dimension.length;
+
+                    width = Integer.parseInt(dimension[0]);
+                    height = Integer.parseInt(dimension[1]);
+
+                    out = new float[width][height];
+
+                    assert (width > 1) : "Width is less than zero";
+                    assert (height > 1) : "Height is less than zero";
+                    lineNum++;
+                    continue;
+                } else {
+                    String[] ln = line.split(",");
+                    x = 0;
+                    for (String val : ln)
+                    {
+                        out[x][y] = Float.parseFloat(val);
+                        x++;
+                        if(x > width)
+                            break;
+                    }
+                    y++;
+                }
+            }
+        } catch (IOException ex)
+        {
+            UI.println(ex.toString());
+        }
+        return out;
     }
 
+    public static void main (String[] args)
+    {
+        int post = Image.FloatToIntARGB( Image.PixelIntToFloat( Color.blue.getRGB() ) );
+        assert Color.blue.getRGB() == post : "Float to Int does not work properly normal("+Color.blue.getRGB()+") Image("+post+")";
+
+        ImageProcessor imagesProc = new ImageProcessor();
+        UI.setImmediateRepaint(false);
+
+    }
 }
