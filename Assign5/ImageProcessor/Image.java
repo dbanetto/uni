@@ -237,7 +237,8 @@ public class Image
 
     public static Image applyFilter(Image in, int xoffset, int yoffset, int width , int height , float[][] blurMatrix)
     {
-        float[][][] pixels = Image.Copy(width , height,in.getPixels() , xoffset , yoffset);
+        float[][][] pixels = Image.Copy( width , height , in.getPixels() , xoffset , yoffset );
+        float[][][] outpixels = new float[width][height][3];
 
         for (int x = 0; x < width; x++)
         {
@@ -274,11 +275,11 @@ public class Image
 
                 if (prec_applied != 1.0)
                 {
-                    double diff = 1.0 - prec_applied;
+                    double diff = 1.0 / prec_applied;
 
-                    outpixel[0] += pixels[x][y][0]*diff;
-                    outpixel[1] += pixels[x][y][1]*diff;
-                    outpixel[2] += pixels[x][y][2]*diff;
+                    outpixel[0] *= diff;
+                    outpixel[1] *= diff;
+                    outpixel[2] *= diff;
 
                 }
 
@@ -286,11 +287,11 @@ public class Image
                 outpixel[1] = Math.min(Math.max(outpixel[1] , 0f),1f);
                 outpixel[2] = Math.min(Math.max(outpixel[2] , 0f),1f);
 
-                pixels[x][y] = outpixel;
+                outpixels[x][y] = Arrays.copyOf(outpixel , 3);
             }
         }
 
-        Image out = new Image(width , height , pixels );
+        Image out = new Image(width , height , outpixels );
         return out;
     }
 

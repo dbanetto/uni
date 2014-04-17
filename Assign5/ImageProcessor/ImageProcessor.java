@@ -28,7 +28,7 @@ The program should include
 
 - Rotate arbitrary angle [X] (Completion)
 - Pour (spread-fill)  (Completion)
-- General Convolution Filter (Completion)
+- General Convolution Filter [X] (Completion)
 
 - Red-eye detection and removal (Challenge)
 - Filter brush (Challenge)
@@ -112,7 +112,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         } else if (name.equals("Merge"))
         {
             thread_lock = true;
-            String merge_fname = UIFileChooser.open("Open Anotehr image");
+            String merge_fname = UIFileChooser.open("Open Another image");
             if (merge_fname == null)
             {
                 thread_lock = false;
@@ -173,7 +173,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         {
             selection_pt = new Point((int)x,(int)y);
             startpoint   = new Point((int)x,(int)y);
-        } else if (action.equals("dragged"))
+        } else if (action.equals("released"))
         {
             this.Draw();
             UI.setColor(Color.red);
@@ -186,11 +186,6 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
 
             UI.drawRect(selection_pt.getX(), selection_pt.getY(), selection_w, selection_h);
             UI.repaintGraphics();
-        } else if (action.equals("released"))
-        {
-
-            this.Draw();
-            //Do thigns with the selection
         }
     }
 
