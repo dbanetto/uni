@@ -14,9 +14,8 @@ import java.io.*;
 import java.awt.Color;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import javax.swing.JColorChooser;
-import java.awt.Point;
 
+import java.awt.Point;
 /** ImageProcessor allows the user to load, display, modify, and save an image in a number of ways.
 The program should include
 - Load [X], commit[X], save [X]. (Core)
@@ -41,23 +40,43 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
     private Image merge_img = null;
     private String filename = "";
 
+    /*
+     * Area Selectors flag
+     * 0 - Do nothing
+     * 1 - Crop
+     * 2 - Zoom
+     * 
+     * Point Selection Flags
+     * 10 - Pout
+     * 
+     * Brush Selction Flags
+     * 20 - Brush
+     */
+    private int SELECTOR_MODE = 0;
+    private Color pourColour = Color.white;
     private boolean thread_lock = false;
+    private float pourTolernace = 0.01f;
 
     public ImageProcessor()
     {
-        UI.addButton("Open" , this);
 
+        UI.addButton("Open" , this);
         UI.addSlider("Brightness" , -100 , 100 , this);
         UI.addButton("Blur" , this);
         UI.addButton("Flip Horizontal" , this);
         UI.addButton("Convolution Filter" , this);
         UI.addButton("Flip 90 deg" , this);
-
+        
+        UI.addButton("Pour" , this);
+        UI.addSlider("Pour Tolerance" , 0 , 50 , this);
+        
         UI.addButton("Merge" , this);
         UI.addSlider("Merge" , 0 , 100 , this);
 
+        UI.addButton("Zoom" , this);
         UI.addSlider("Zoom" , 1 , 200 , this);
 
+        UI.addButton("Crop" , this);
         UI.addTextField("Crop : x,y,w,h", this);
         UI.addTextField("Rotate : x,y,angle", this);
 
@@ -73,6 +92,10 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         if (thread_lock)
             return;
 
+        //Clear Flag
+        if (SELECTOR_MODE != 0)
+            SELECTOR_MODE = 0;
+
         if (name.equals("Open"))
         {
             thread_lock = true;
@@ -87,10 +110,10 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
             this.Draw();
             thread_lock = false;
         }
-        
+
         if ( base_img == null)
             return;
-            
+
         if (name.equals("Commit"))
         {
             thread_lock = true;
@@ -106,7 +129,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
                 thread_lock = false;
                 return;
             }
-            
+
             base_img.Save(fout);
             thread_lock = false;
         } else if (name.equals("Merge"))
@@ -157,8 +180,33 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
             render_img = Image.apply90degFlip(base_img);
             this.Draw();
             thread_lock = false;
-
-        } 
+        }else if (name.equals("Pour"))
+        {
+            thread_lock = true;
+            SELECTOR_MODE = 10;
+            UI.println("Selector entered Pour Mode.");
+            UI.println("Click on a pixel to start the pour with "+ pourTolernace*100 + "% Tolerance.");
+            this.Draw();
+            thread_lock = false;
+        } else if (name.equals("Crop"))
+        {
+            thread_lock = true;
+            render_img = Image.Copy( base_img );
+            SELECTOR_MODE = 1;
+            UI.println("Selector entered Crop Mode.");
+            UI.println("Click and drag on the image to select an area");
+            this.Draw();
+            thread_lock = false;
+        }else if (name.equals("Zoom"))
+        {
+            thread_lock = true;
+            render_img = Image.Copy( base_img );
+            SELECTOR_MODE = 2;
+            UI.println("Selector entered Zoom Mode.");
+            UI.println("Click and drag on the image to select an area");
+            this.Draw();
+            thread_lock = false;
+        }
     }
 
     private Point selection_pt = new Point(0,0) , startpoint = new Point(0,0);
@@ -166,26 +214,68 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
 
     public void mousePerformed (String action , double x, double y)
     {
-        if (thread_lock)
+        if (thread_lock || base_img == null || render_img == null || SELECTOR_MODE == 0)
             return;
 
-        if (action.equals("pressed"))
-        {
-            selection_pt = new Point((int)x,(int)y);
-            startpoint   = new Point((int)x,(int)y);
-        } else if (action.equals("released"))
-        {
-            this.Draw();
-            UI.setColor(Color.red);
+        if (SELECTOR_MODE == 1 || SELECTOR_MODE == 2) {
+            if (action.equals("pressed"))
+            {
+                selection_pt = new Point((int)x,(int)y);
+                startpoint   = new Point((int)x,(int)y);
+                selection_w = 0;
+                selection_h = 0;
+            }else if (action.equals("dragged"))
+            {
+                UI.invertRect(selection_pt.getX(), selection_pt.getY(), selection_w, selection_h);
 
-            selection_w = Math.abs(startpoint.getX() - x);
-            selection_h = Math.abs(startpoint.getY() - y);
+                selection_w = Math.abs( startpoint.getX() - Math.max( x , 0) );
+                selection_h = Math.abs( startpoint.getY() - Math.max( y , 0) );
 
-            selection_pt = new Point ( (int)Math.min( selection_pt.getX() , x ) , 
-                (int)Math.min( selection_pt.getY() , y ) ) ;
+                selection_pt = new Point ( (int)Math.min(Math.min( startpoint.getX() , Math.max( x , 0) ), render_img.getWidth()  ), 
+                                           (int)Math.min(Math.min( startpoint.getY() , Math.max( y , 0) ), render_img.getHeight() ) );
+                                           
+                selection_w = (int)Math.max(Math.min( selection_w + selection_pt.getX() ,render_img.getWidth() ) - selection_pt.getX()  , 0);
+                selection_h = (int)Math.max(Math.min( selection_h + selection_pt.getY() ,render_img.getHeight() ) - selection_pt.getY() , 0);                           
 
-            UI.drawRect(selection_pt.getX(), selection_pt.getY(), selection_w, selection_h);
-            UI.repaintGraphics();
+                UI.invertRect(selection_pt.getX(), selection_pt.getY(), selection_w, selection_h);
+                UI.repaintGraphics();
+            }
+            else if (action.equals("released"))
+            {
+                if (selection_w > 0 && selection_h > 0)
+                {
+                    switch (SELECTOR_MODE)
+                    {
+                        //Crop
+                        case (1):
+                        render_img = Image.applyCrop(base_img , (int)selection_pt.getX(), (int)selection_pt.getY(),
+                            (int)selection_w, (int)selection_h);
+                        break;
+                        case (2):
+                        double precx = (double)base_img.getWidth() / selection_w;
+                        double precy = (double)base_img.getHeight() / selection_h;
+                        render_img = Image.applyZoom(base_img , precx , precy ,  (int)selection_pt.getX(), (int)selection_pt.getY(),
+                            base_img.getWidth(), base_img.getHeight());
+                        break;
+                        default:
+                        UI.println("Unsupported SELECTOR_MODE used : " + SELECTOR_MODE);
+                    }
+                }
+                //Clean up flag
+                SELECTOR_MODE = 0;
+                this.Draw();
+            }
+        }
+
+        if (SELECTOR_MODE == 10)
+        {   
+            if (action.equals("released"))
+            {
+                thread_lock = true;
+                render_img =  Image.applyPour(base_img, (int)x, (int)y, this.pourColour , pourTolernace);
+                this.Draw();
+                thread_lock = false;
+            }
         }
     }
 
@@ -211,6 +301,11 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
             thread_lock = true;
             render_img = Image.applyZoom(base_img , value/100.0);
             this.Draw();
+            thread_lock = false;
+        } else if (name.equals("Pour Tolerance"))
+        {
+            thread_lock = true;
+            pourTolernace = (float)(value/100.0);
             thread_lock = false;
         }
     }
@@ -337,7 +432,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
                     {
                         out[x][y] = Float.parseFloat(val);
                         x++;
-                        if(x > width)
+                        if(x == width)
                             break;
                     }
                     y++;

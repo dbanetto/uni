@@ -5,6 +5,8 @@ import java.io.*;
 import javax.imageio.*;
 import javax.imageio.stream.*;
 import java.awt.image.*;
+import java.awt.Point;
+import java.lang.*;
 
 public class Image
 {
@@ -165,7 +167,12 @@ public class Image
         out +=    255 << 24; //Alpha Channel
         return out;
     }
-
+    
+    public static Image Copy (Image in)
+    {
+        return new Image ( in.getWidth() , in.getHeight() , Image.Copy(in.getWidth() , in.getHeight() , in.getPixels()));
+    }
+    
     public static float[][][] Copy(int width, int height, float[][][] InputImage)
     {
         return Copy(width,height,InputImage,0,0);
@@ -189,7 +196,36 @@ public class Image
         }
         return output;
     }
-
+    
+    public static boolean PixelEquals (float[] pixelA , float[] pixelB , float tollerance)
+    {
+        assert pixelA.length == 3 : "Invalid number of floats in pixel A (" + pixelA.length + ")";
+        assert pixelB.length == 3 : "Invalid number of floats in pixel B (" + pixelB.length + ")";
+        for (int i = 0; i < pixelA.length; i++)
+        {
+            float diff = Math.abs( pixelA[i] - pixelB[i]);
+            if ( diff > tollerance)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean PixelEquals (float[] pixelA , float[] pixelB)
+    {
+        assert pixelA.length == 3 : "Invalid number of floats in pixel A (" + pixelA.length + ")";
+        assert pixelB.length == 3 : "Invalid number of floats in pixel B (" + pixelB.length + ")";
+        for (int i = 0; i < pixelA.length; i++)
+        {
+            if ( Float.compare( pixelA[i], pixelB[i]) != 0 )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     /*===================== Image Minplulation ============================*/
 
     /*=============== Brightness ======================= */
@@ -213,7 +249,7 @@ public class Image
                 float brightness = hsb[2];
 
                 brightness = (float)Math.pow( (double)(brightness) , (double)(perc) );
-
+                
                 brightness = Math.max (Math.min(brightness , 1f) , 0f);
 
                 int brightpixel = Color.HSBtoRGB(hsb[0] , hsb[1] , brightness );
@@ -248,10 +284,15 @@ public class Image
                 float[] outpixel = new float[3];
                 double prec_applied = 0;
                 int noffset = blurMatrix.length/2;
+                int blury = 0;
                 for (int n = x-noffset; n < width && n <= x+noffset; n++)
                 {
                     int joffset = blurMatrix[0].length/2;
-
+                    int blurx = 0;
+                    
+                    if (blury >= blurMatrix[0].length)
+                            break;
+                    
                     for (int j = y-(joffset); j <= y+(joffset); j++)
                     {
                         int nn = n;
@@ -264,13 +305,18 @@ public class Image
                             jj = 0;
                         if (j >= height)
                             jj = height-1;
-
-                        outpixel[0] += pixels[nn][jj][0]*blurMatrix[n-x+noffset][j-y+joffset];
-                        outpixel[1] += pixels[nn][jj][1]*blurMatrix[n-x+noffset][j-y+joffset];
-                        outpixel[2] += pixels[nn][jj][2]*blurMatrix[n-x+noffset][j-y+joffset];
+                        
+                        if (blurx >= blurMatrix.length)
+                            break;
+                        
+                        outpixel[0] += pixels[nn][jj][0]*blurMatrix[blurx][blury];
+                        outpixel[1] += pixels[nn][jj][1]*blurMatrix[blurx][blury];
+                        outpixel[2] += pixels[nn][jj][2]*blurMatrix[blurx][blury];
 
                         prec_applied += blurMatrix[n-x+noffset][j-y+joffset];
+                        blurx++;
                     }
+                    blury++;
                 }
 
                 if (prec_applied != 1.0)
@@ -398,11 +444,13 @@ public class Image
     }
 
     /*========================= Zoom =====================================*/
-    public static Image applyZoom(Image base , double prec)
+    public static Image applyZoom(Image base , double prec )
     {
-        int width   = (int)(base.getWidth()*prec);
-        int height  = (int)(base.getHeight()*prec);
-
+        return applyZoom(base , prec , prec , 0 ,0 , (int)(base.getWidth()*prec) , (int)(base.getHeight()*prec) );
+    }
+    
+    public static Image applyZoom(Image base , double precx , double precy , int xoffet , int yoffset , int width , int height)
+    {
         int oldwidth   = base.getWidth();
         int oldheight  = base.getHeight();
 
@@ -413,8 +461,8 @@ public class Image
         {
             for (int y = 0; y < height; y++)
             {
-                int ex = (int)(x/prec);
-                int ey = (int)(y/prec);
+                int ex = (int)(x/precx) + xoffet;
+                int ey = (int)(y/precy) + yoffset;
 
                 if (ex >= oldwidth)
                 {
@@ -440,4 +488,72 @@ public class Image
         Image out = new Image(w , h , Image.Copy(w, h, base.getPixels(), x, y) );
         return out;
     }
+    
+    /*================= Pour ===================*/
+    public static Image applyPour(Image base, int x , int y , Color ncolour , float tolerance)
+    {
+        
+        
+        int width = base.getWidth();
+        int height = base.getHeight();
+        
+        float[][][] pixels = Image.Copy( width , height, base.getPixels() , 0 , 0);
+        
+        //Points to fill
+        List<Point> points = new ArrayList<Point>();
+        points.add(new Point(x, y));
+        
+        final float[] oldcolour = Arrays.copyOf( pixels[x][y] , 3 );
+        final float[] newcolour = Image.PixelIntToFloat(ncolour.getRGB());
+        
+        if ( Arrays.equals(oldcolour , newcolour) )
+        {
+            UI.println("Cannot Pour onto the same Colour");
+            return new Image(width , height , pixels );
+        }
+        int itrs = 0;
+        while (points.size() > 0)
+        {
+            Point pt = points.remove(0);
+            int ptx = (int)pt.getX();
+            int pty = (int)pt.getY();
+            
+            //Set Pxiel
+            pixels[ptx][pty] = Arrays.copyOf( newcolour , 3 );
+            
+            //Check Others if tehy should be changed
+            if (ptx+1 < width)
+            {
+                if ( PixelEquals( pixels[ptx+1][pty] , oldcolour , tolerance ) && !points.contains(new Point(ptx+1, pty)) )
+                {
+                    points.add(new Point(ptx+1, pty));
+                }
+            }
+            if (ptx-1 >= 0)
+            {
+                if ( PixelEquals( pixels[ptx-1][pty] , oldcolour , tolerance ) && !points.contains(new Point(ptx-1, pty)) )
+                {
+                    points.add(new Point(ptx-1, pty));
+                }
+            }
+            
+            if (pty+1 < height)
+            {
+                if ( PixelEquals( pixels[ptx][pty+1] , oldcolour , tolerance ) && !points.contains(new Point(ptx, pty+1)) )
+                {
+                    points.add(new Point(ptx, pty+1));
+                }
+            }
+            if (pty-1 >= 0)
+            {
+                if ( PixelEquals( pixels[ptx][pty-1] , oldcolour , tolerance ) && !points.contains(new Point(ptx, pty-1)) )
+                {
+                    points.add(new Point(ptx, pty-1));
+                }
+            }
+        }
+        Image out = new Image(width , height , pixels );
+        return out;
+    }
+    
 }
