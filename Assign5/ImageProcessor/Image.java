@@ -556,4 +556,86 @@ public class Image
         return out;
     }
     
+    /*========================= Brush Filter ============================================*/
+    public static Image applyBrushFilter(Image in, int xoffset, int yoffset, int brushsize , float[][] blurMatrix)
+    {
+        int width = in.getWidth();
+        int height = in.getHeight();
+        float[][][] pixels = Image.Copy( width , height ,  in.getPixels() );
+        float[][][] outpixels = Image.Copy( width , height ,  in.getPixels() );
+        
+        int radius = brushsize/2;
+        
+        for (int x = xoffset - radius; x < width && x < xoffset+(radius-1); x++)
+        {
+            if (x < 0)
+                continue;
+            for (int y = yoffset - radius; y < height && y < yoffset+(radius-1); y++)
+            {
+                if (y < 0)
+                    continue;
+                    
+                double distance = Math.sqrt(  Math.pow((double)(xoffset-x) , 2 ) + Math.pow((double)(yoffset-y) , 2 ) );
+                if (distance > radius)
+                    continue;
+                
+                float[] outpixel = new float[3];
+                double prec_applied = 0;
+                int noffset = blurMatrix.length/2;
+                int blury = 0;
+                for (int n = x-noffset; n < width && n <= x+noffset; n++)
+                {
+                    int joffset = blurMatrix[0].length/2;
+                    int blurx = 0;
+                    
+                    if (blury >= blurMatrix[0].length)
+                            break;
+                    
+                    for (int j = y-(joffset); j <= y+(joffset); j++)
+                    {
+                        int nn = n;
+                        int jj = j;
+                        if (n < 0)
+                            nn = 0;
+                        if (n >= width)
+                            nn = width-1;
+                        if (j < 0)
+                            jj = 0;
+                        if (j >= height)
+                            jj = height-1;
+                        
+                        if (blurx >= blurMatrix.length)
+                            break;
+                        
+                        outpixel[0] += pixels[nn][jj][0]*blurMatrix[blurx][blury];
+                        outpixel[1] += pixels[nn][jj][1]*blurMatrix[blurx][blury];
+                        outpixel[2] += pixels[nn][jj][2]*blurMatrix[blurx][blury];
+
+                        prec_applied += blurMatrix[n-x+noffset][j-y+joffset];
+                        blurx++;
+                    }
+                    blury++;
+                }
+
+                if (prec_applied != 1.0)
+                {
+                    double diff = 1.0 / prec_applied;
+
+                    outpixel[0] *= diff;
+                    outpixel[1] *= diff;
+                    outpixel[2] *= diff;
+
+                }
+
+                outpixel[0] = Math.min(Math.max(outpixel[0] , 0f),1f);
+                outpixel[1] = Math.min(Math.max(outpixel[1] , 0f),1f);
+                outpixel[2] = Math.min(Math.max(outpixel[2] , 0f),1f);
+
+                outpixels[x][y] = Arrays.copyOf(outpixel , 3);
+            }
+        }
+
+        Image out = new Image(width , height , outpixels );
+        return out;
+    }
 }

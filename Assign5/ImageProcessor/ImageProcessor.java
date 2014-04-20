@@ -26,7 +26,7 @@ The program should include
 - Blur (3x3 filter) [X]  (Core)
 
 - Rotate arbitrary angle [X] (Completion)
-- Pour (spread-fill)  (Completion)
+- Pour (spread-fill) [/]  (Completion)
 - General Convolution Filter [X] (Completion)
 
 - Red-eye detection and removal (Challenge)
@@ -55,7 +55,9 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
     private int SELECTOR_MODE = 0;
     private Color pourColour = Color.white;
     private boolean thread_lock = false;
-    private float pourTolernace = 0.01f;
+    private float pourTolernace = 0.25f;
+    private double brushsize = 125;
+    private float[][] brushfilter = null;
 
     public ImageProcessor()
     {
@@ -65,6 +67,9 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         UI.addButton("Blur" , this);
         UI.addButton("Flip Horizontal" , this);
         UI.addButton("Convolution Filter" , this);
+        
+        UI.addButton("Convolution Filter Brush" , this);
+        UI.addSlider("Brush Size" , 0 , 250 , this);
         UI.addButton("Flip 90 deg" , this);
         
         UI.addButton("Pour" , this);
@@ -168,7 +173,33 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
                 this.Draw();
             }
             thread_lock = false;
-        } else if (name.equals("Flip Horizontal"))
+        } else if (name.equals("Convolution Filter Brush"))
+        {
+            thread_lock = true;
+            String filter_name = UIFileChooser.open("Pick a *.filter");
+            if (filter_name == null)
+            {
+                thread_lock = false;
+                return;
+            }
+            brushfilter = loadFilter(filter_name);
+            if (brushfilter != null) {
+                SELECTOR_MODE = 20;
+                
+                //Decrease Filter to 1%
+                for (int x = 0; x < brushfilter.length; x++)
+                {
+                    for (int y = 0; y < brushfilter[0].length; y++)
+                    {
+                        brushfilter[x][y] *= 0.01f;
+                    }
+                }
+                render_img = Image.Copy( base_img );
+                this.Draw();
+            }
+            thread_lock = false;
+        }
+        else if (name.equals("Flip Horizontal"))
         {
             thread_lock = true;
             render_img = Image.applyHorizontalFlip(base_img);
@@ -184,6 +215,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         {
             thread_lock = true;
             SELECTOR_MODE = 10;
+            render_img = Image.Copy( base_img );
             UI.println("Selector entered Pour Mode.");
             UI.println("Click on a pixel to start the pour with "+ pourTolernace*100 + "% Tolerance.");
             this.Draw();
@@ -211,7 +243,9 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
 
     private Point selection_pt = new Point(0,0) , startpoint = new Point(0,0);
     private double selection_w = 0, selection_h = 0;
-
+    private double old_x = 0 , old_y = 0;
+    private double last_applied_x = 0 , last_applied_y = 0;
+    
     public void mousePerformed (String action , double x, double y)
     {
         if (thread_lock || base_img == null || render_img == null || SELECTOR_MODE == 0)
@@ -277,6 +311,36 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
                 thread_lock = false;
             }
         }
+        
+        if (SELECTOR_MODE == 20)
+        {   
+            UI.invertOval(old_x - brushsize/2, old_y - brushsize/2, brushsize, brushsize);
+            UI.invertOval(x - brushsize/2, y - brushsize/2, brushsize, brushsize);
+            if (action.equals("dragged"))
+            {
+                thread_lock = true;
+                
+                double distance = Math.sqrt(  Math.pow((double)(last_applied_x-x) , 2 ) + Math.pow((double)(last_applied_y-y) , 2 ) );
+                
+                if (distance > brushsize/10)
+                 {   
+                    render_img =  Image.applyBrushFilter(render_img, (int)x, (int)y, (int)brushsize , brushfilter);
+                
+                    last_applied_x = x;
+                    last_applied_y = y;
+                }
+                thread_lock = false;
+            }
+            if (action.equals("released"))
+            {
+                SELECTOR_MODE = 0;
+                this.Draw();
+            }
+            UI.repaintGraphics();
+        }
+        
+        old_x = x;
+        old_y = y;
     }
 
     public void sliderPerformed(String name, double value)
@@ -306,6 +370,11 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         {
             thread_lock = true;
             pourTolernace = (float)(value/100.0);
+            thread_lock = false;
+        } else if (name.equals("Brush Size"))
+        {
+            thread_lock = true;
+            brushsize = value;
             thread_lock = false;
         }
     }
@@ -439,6 +508,9 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
                 }
             }
         } catch (IOException ex)
+        {
+            UI.println(ex.toString());
+        } catch (Exception ex)
         {
             UI.println(ex.toString());
         }
