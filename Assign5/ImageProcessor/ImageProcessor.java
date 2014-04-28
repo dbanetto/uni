@@ -476,18 +476,18 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
                     continue;
                 line = line.split("#")[0].trim();
 
-                if (line.equals(""))
+                if (line.equals("") || line.length() == 1)
                     continue;
 
                 if (lineNum == 0)
                 {
-                    String[] dimension = line.split(",");
+                    String[] dimension = line.trim().split(",");
 
                     assert (dimension.length == 2 ) : "Invaild Dimension in " + fname + 
                     ". Expected two ints, got " + dimension.length;
 
-                    width = Integer.parseInt(dimension[0]);
-                    height = Integer.parseInt(dimension[1]);
+                    width = Integer.parseInt(dimension[0].trim());
+                    height = Integer.parseInt(dimension[1].trim());
 
                     out = new float[width][height];
                     
