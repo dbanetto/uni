@@ -14,7 +14,7 @@ import java.io.*;
 import java.awt.Color;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-
+import javax.swing.JColorChooser;
 import java.awt.Point;
 /** ImageProcessor allows the user to load, display, modify, and save an image in a number of ways.
 The program should include
@@ -30,7 +30,7 @@ The program should include
 - General Convolution Filter [X] (Completion)
 
 - Red-eye detection and removal (Challenge)
-- Filter brush (Challenge)
+- Filter brush [X] (Challenge)
  */
 public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISliderListener, UITextFieldListener{
     /*# YOUR CODE HERE */
@@ -215,6 +215,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
         {
             thread_lock = true;
             SELECTOR_MODE = 10;
+            pourColour = JColorChooser.showDialog(null, "Pick a Color", Color.GREEN);
             render_img = Image.Copy( base_img );
             UI.println("Selector entered Pour Mode.");
             UI.println("Click on a pixel to start the pour with "+ pourTolernace*100 + "% Tolerance.");
@@ -489,7 +490,7 @@ public class ImageProcessor implements UIButtonListener, UIMouseListener,  UISli
                     height = Integer.parseInt(dimension[1]);
 
                     out = new float[width][height];
-
+                    
                     assert (width > 1) : "Width is less than zero";
                     assert (height > 1) : "Height is less than zero";
                     lineNum++;
