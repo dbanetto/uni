@@ -3,43 +3,46 @@
 // You may not distribute it in any other way without permission.
 
 /* Code for COMP 112 Assignment
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: barnda
+ * ID: 300313764
  */
 
 import ecs100.*;
 import java.io.*;
+import java.lang.*;
 import java.net.Socket;
-import java.util.*; 
- 
+import java.util.*;
+import java.net.Socket;
+import java.io.*;
+
 /**
- * Basic IRC Chat Client 
+ * Basic IRC Chat Client
  */
 
 public class ChatClient implements UIButtonListener, UITextFieldListener {
     private String server = "irc.ecs.vuw.ac.nz";  // default IRC server for testing.
-    private static final int IRC_PORT = 6667;     // The standard IRC port number.
-
-    /*# YOUR CODE HERE */
-
+    private int port = 6667;     // The standard IRC port number.
+    private String username = "";
+    private String realname = "";
+    private IRCClient client;
     /**
      * main: construct a new ChatClient
      */
     public static void main(String[] args) throws IOException {
-        new ChatClient();
+        new ChatClient( "irc.ecs.vuw.ac.nz" , 6667 );
     }
 
-    /* 
+    /*
      * Sets up the user interface.
      */
-    public ChatClient (){ 
+    public ChatClient ( String server , int port ){
         UI.addButton("Connect", this);
         /*# YOUR CODE HERE */
-
-
+        this.server = server;
+        this.port = port;
     }
-    
+
 
     /**
      * Respond to the buttons
@@ -53,13 +56,20 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 
     }
 
+    /**
+     * Respond to the text feild
+     */
+    public void textFieldPerformed(String name , String text){
+        /*# YOUR CODE HERE */
 
+
+    }
 
     /**
      * If there is currently an active socket, it should close the
      *  connection and set the socket to null.
-     * Creates a socket connected to the server. 
-     * Creates a Scanner on the input stream of the socket, 
+     * Creates a socket connected to the server.
+     * Creates a Scanner on the input stream of the socket,
      *  and a PrintStream on the output stream of the socket.
      * Logs in to the server (calling the loginToServer Message)
      * Once login is successful, starts a separate thread to
@@ -67,8 +77,8 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      */
     public void connect(){
         /*# YOUR CODE HERE */
-
-
+        this.client = new IRCClient ( this.username , this.realname );
+        this.client.connect(this.server , this.port );
     }
 
     /*
@@ -80,32 +90,21 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      *  (For debugging, at least, print out all lines from the server)
      */
     private boolean login(){
-        String username = UI.askToken("Enter your usercode: ");
-        String realname = UI.askString("Enter your real name: ");
+        this.username = UI.askToken("Enter your usercode: ");
+        this.realname = UI.askString("Enter your real name: ");
         /*# YOUR CODE HERE */
 
+        boolean status = this.send (String.format ( "USER 0 unused %s %s" , this.username , this.realname ));
 
+        return status;
     }
 
 
-    /**
-     * Send a message to the current server:
-     *  - check that the socket and the serverOut are not null
-     *  - print the message with a \r\n at the end to serverOut
-     *  - flush serverOut (to ensure the message is sent)
-     */
-    private void send(String msg){
-        /*# YOUR CODE HERE */
-
-
-    }
-
-     
     /**
      * Method run in the the thread that is listening to the server.
      * Loop as long as there is anything in the serverIn scanner:
      *   Get and process the next line of input from the scanner
-     *   Simple version: 
+     *   Simple version:
      *    prints the line out for the user
      *    Checks if the line contains "SQUIT",
      *       if so, close the socket, set serverIn and serverOut set the quit the program.
@@ -119,7 +118,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         /*# YOUR CODE HERE */
 
     }
-                
+
     /**
      * Close the connection:
      *  - close the socket,
@@ -132,6 +131,6 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 
     }
 
-    // Other methods 
+    // Other methods
 
 }

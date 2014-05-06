@@ -15,7 +15,7 @@ public class Replies{
 
     /** 002 Your host is <servername>, running version <ver>
         The server sends replies 001 to 004 to a user upon successful registration. */
-    public static final int IRC_RPL_YOURHOST   002;
+    public static final int IRC_RPL_YOURHOST = 002;
 
     /** 003 This server was created <date>
         The server sends replies 001 to 004 to a user upon successful registration. */
