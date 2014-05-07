@@ -61,7 +61,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     }
 
     /**
-     * Respond to the text feild
+     * Respond to the text field
      */
     public void textFieldPerformed(String name , String text){
         /*# YOUR CODE HERE */

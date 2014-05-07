@@ -123,16 +123,28 @@ public class IRCClient implements Runnable {
 							continue;
 						
 						parts.add(word);
-						System.out.println("ARG: " + word);
+						
 					}
 					if (last.length() > 1 && last.charAt(0) == ':')
 						last = last.substring(1);
+					
 					parts.add(last);
-					System.out.println("ARG: " + last);
 					
 				    if (this.commands.containsKey(cmd))
 				    {
-				    	this.commands.get(cmd).command( this.owners.get(cmd) , this, (String[])parts.toArray());
+				    	try {
+				    		String[] arg = new String[parts.size()];
+				    		parts.toArray(arg);
+				    		for (String s : arg)
+				    		{
+				    			System.out.println("ARG: " + s);
+				    		}
+				    		this.commands.get(cmd).command( (Object)this.owners.get(cmd) , this, arg );
+				    	} catch (Exception ex)
+				    	{
+				    		System.out.println("ERROR : " + ex.toString());
+				    		ex.printStackTrace();
+				    	}
 				    }
 				}
 				
@@ -145,8 +157,15 @@ public class IRCClient implements Runnable {
 			
 			public void command(Object owner, IRCClient client, String[] args) {
 				// TODO Auto-generated method stub
-				System.out.println(String.format("Mode now set to %s" 
-						, new Object[] { args[0] } ));
+				System.out.println(String.format("Mode now set to " + args[1] ));
+			}
+		});
+		
+		this.addCommand( this , "042", new IRCCommand() {
+			
+			public void command(Object owner, IRCClient client, String[] args) {
+				// TODO Auto-generated method stub
+				System.out.println(String.format("ID " + args[1] ));
 			}
 		});
 		
