@@ -10,13 +10,12 @@ public class IRCClient implements Runnable {
 	private Socket client = null;
 	private PrintStream outstream = null;
 	private Scanner instream = null;
-
 	private String nickname = "nick";
 	private String realname = "IRC Client";
 	private String servername = "";
-	
+
 	private Hashtable< String , IRCCommand > commands;
-	
+
 	private boolean send_lock = false;
 
 	public IRCClient(String Nickname, String Realname) {
@@ -32,11 +31,11 @@ public class IRCClient implements Runnable {
 				UI.println("Connected");
 				this.outstream = new PrintStream(client.getOutputStream(), true, "UTF-8");
 				this.instream = new Scanner(client.getInputStream(), "UTF-8");
-				this.servername = hostname; // This not always going to be true  
+				this.servername = hostname; // This not always going to be true
 				// Send Request for Nick Name
-				this.send(String.format("NICK %s", 
+				this.send(String.format("NICK %s",
 						new Object[] { this.nickname }) );
-				this.send(String.format("USER 0 unused %s :%s", 
+				this.send(String.format("USER 0 unused %s :%s",
 										new Object[] { this.nickname, this.realname }) );
 			}
 		} catch (Exception ex) {
@@ -61,13 +60,13 @@ public class IRCClient implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// Stop other send commands
 		send_lock = true;
 
 		try {
 			this.outstream.print(msg);
-			System.out.println(msg);
+			System.out.println("SENT: " + msg);
 			this.outstream.print("\r\n");
 			this.outstream.flush();
 		} catch (Exception ex) {
@@ -76,7 +75,7 @@ public class IRCClient implements Runnable {
 			send_lock = false;
 			return false;
 		}
-		
+
 		// Allow another Send command
 		send_lock = false;
 		return true;
@@ -98,15 +97,32 @@ public class IRCClient implements Runnable {
 		while (this.client.isConnected()) {
 			if (this.instream.hasNext()) {
 				String line = this.instream.nextLine();
-				System.out.println(line);
-				String[] parts = line.split(":*.[:^]"); //Regex for semi-colon to end of line
+				System.out.println("REV: " + line);
+				List<String> parts = new ArrayList<String>();
 				
-				Pattern p = Pattern.compile(":* .[0-9]. ");
-				Matcher m = p.matcher(line);
-
+				Pattern comPattern = Pattern.compile(" [A-Z]* ");
+				Matcher m = comPattern.matcher(line);
+				
+				
+				
 				if (m.find()) {
-				    this.commands.get(m.group(0).trim()).command(this, parts);
+					String cmd = m.group(0).trim();
+					String argss = line.substring( line.indexOf( cmd ) + cmd.length() );
+					
+					
+					String last = argss.substring( argss.indexOf(':') );
+					for (String word : argss.replace( last , "" ).split(" ") )
+					{
+						parts.add(word);
+					}
+					
+				    if (this.commands.contains(cmd))
+				    {
+				    	System.out.println("CMD: " + cmd);
+				    	this.commands.get(cmd).command(this, (String[])parts.toArray());
+				    }
 				}
+				
 			}
 		}
 	}
@@ -116,17 +132,17 @@ public class IRCClient implements Runnable {
 		if (this.client.isConnected())
 			this.listen();
 	}
-	
+
 	public void disconnect ()
 	{
 		this.send("QUIT :Bye bye");
-		
+
 		try {
 			this.client.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		this.outstream = null;
 		this.instream = null;
 		this.client = null;
@@ -138,7 +154,7 @@ public class IRCClient implements Runnable {
 		else
 			return false;
 	}
-	
+
 	public void addCommand (String Command , IRCCommand logic)
 	{
 	    if (!this.commands.containsKey(Command))

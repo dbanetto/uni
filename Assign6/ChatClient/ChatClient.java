@@ -9,6 +9,7 @@
  */
 
 import ecs100.*;
+
 import java.io.*;
 import java.lang.*;
 import java.net.Socket;
@@ -26,6 +27,8 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     private String username = "";
     private String realname = "";
     private IRCClient client;
+    private Thread listner;
+
     /**
      * main: construct a new ChatClient
      */
@@ -41,6 +44,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         /*# YOUR CODE HERE */
         this.server = server;
         this.port = port;
+        this.login();
     }
 
 
@@ -75,10 +79,16 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      * Once login is successful, starts a separate thread to
      *  listen to the server and process the messages from it.
      */
-    public void connect(){
+    public void connect()
+    {
         /*# YOUR CODE HERE */
+
         this.client = new IRCClient ( this.username , this.realname );
         this.client.connect(this.server , this.port );
+        this.listner = new Thread ( this.client );
+        this.initListners();
+        this.listner.run();
+        
     }
 
     /*
@@ -89,14 +99,10 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      *   a message containing 433 (failure - nickname in use)
      *  (For debugging, at least, print out all lines from the server)
      */
-    private boolean login(){
+    private void login()
+    {
         this.username = UI.askToken("Enter your usercode: ");
         this.realname = UI.askString("Enter your real name: ");
-        /*# YOUR CODE HERE */
-
-        boolean status = this.send (String.format ( "USER 0 unused %s %s" , this.username , this.realname ));
-
-        return status;
     }
 
 
@@ -118,7 +124,17 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         /*# YOUR CODE HERE */
 
     }
-
+    
+    private void initListners()
+    {
+    	this.client.addCommand("PING", new IRCCommand() {
+			
+			public void command(IRCClient client, String[] args) {
+				client.send( String.format( "PONG :%s" , new Object[] { args[0] } ) );
+			}
+		});
+    }
+    
     /**
      * Close the connection:
      *  - close the socket,
