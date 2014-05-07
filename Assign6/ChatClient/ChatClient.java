@@ -127,10 +127,19 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     
     private void initListners()
     {
-    	this.client.addCommand("PING", new IRCCommand() {
+    	this.client.addCommand( this ,"PING", new IRCCommand() {
 			
-			public void command(IRCClient client, String[] args) {
+			public void command(Object owner , IRCClient client, String[] args) {
 				client.send( String.format( "PONG :%s" , new Object[] { args[0] } ) );
+			}
+		});
+    	
+    	this.client.addCommand(this , "433", new IRCCommand() {
+			
+			public void command(Object owner, IRCClient client, String[] args) {
+				// TODO Auto-generated method stub
+				ChatClient ui = (ChatClient)(owner);
+				ui.setUsername(UI.askToken("Enter your usercode: "), true);
 			}
 		});
     }
@@ -143,10 +152,15 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      */
     public void closeConnection(){
         /*# YOUR CODE HERE */
-
-
     }
 
-    // Other methods
+    public void setUsername (String newNick , boolean tellServer)
+    {
+    	if (tellServer) {
+    		client.send(String.format("NICK %s",
+				new Object[] { newNick }) );
+    	}
+    	this.username = newNick;
+    }
 
 }
