@@ -29,6 +29,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     private IRCClient client;
     private Thread listner;
     private ChatWindow chatwindow;
+    private Hashtable<String , ChatWindow > windows = new Hashtable<String , ChatWindow>();
     /**
      * main: construct a new ChatClient
      */
@@ -89,7 +90,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         
     	new Thread ( new Runnable() {
 			public void run() {
-				 chatwindow = new ChatWindow(client , "#barndatest");
+				windows.put( "#barndatest" , new ChatWindow( client ,"#barndatest" ) );
 			}
 		}).start();
         
@@ -142,15 +143,37 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     {
     	this.client.addCommand( "PING", new IRCCommand() {
 			
-			public void command(IRCClient client, String[] args) {
+			public void command(IRCClient client, String cmd, String[] args) {
 				client.send( String.format( "PONG :%s" , new Object[] { args[0] } ) );
 			}
 		});
     	
     	this.client.addCommand( "433", new IRCCommand() {
 			
-			public void command(IRCClient client, String[] args) {
+			public void command(IRCClient client, String cmd, String[] args) {
 				setUsername(UI.askToken("Enter your usercode: "), true);
+			}
+		});
+    	
+    	this.client.addCommand( "*", new IRCCommand() {
+			
+			public void command(IRCClient client, String cmd, String[] args) {
+				UI.print( cmd );
+				for (String a : args)
+				{
+					UI.print( " " +  a );
+				}
+				UI.println("");
+			}
+		});
+    	
+    	this.client.addCommand( "PRIVMSG", new IRCCommand() {
+			
+			public void command(IRCClient client, String command, String[] args) {
+				if (!windows.contains(args[1].trim()))
+				{
+					windows.put( args[1].trim() , new ChatWindow( client , args[1].trim() ) );
+				}
 			}
 		});
     }

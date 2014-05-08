@@ -15,6 +15,7 @@ public class IRCClient implements Runnable {
 	private String servername = "";
 
 	private Hashtable<String, List<IRCCommand>> commands;
+	private List<IRCCommand> allcommands; //IRCCommands that listen to ALL commands that come through
 	private Hashtable< String , Object > owners;
 	
 	private boolean send_lock = false;
@@ -23,6 +24,7 @@ public class IRCClient implements Runnable {
 		this.nickname = Nickname;
 		this.realname = Realname;
 		this.commands = new Hashtable<String, List<IRCCommand> >();
+		this.allcommands = new ArrayList<IRCCommand>();
 	}
 
 	public boolean connect(String hostname, int port) {
@@ -129,24 +131,27 @@ public class IRCClient implements Runnable {
 						last = last.substring(1);
 					
 					parts.add(last);
+					String[] arg = new String[parts.size()];
+		    		parts.toArray(arg);
+		    		for (String s : arg)
+		    		{
+		    			System.out.println("ARG: " + s);
+		    		}
 					
 				    if (this.commands.containsKey(cmd))
 				    {
 				    	try {
-				    		String[] arg = new String[parts.size()];
-				    		parts.toArray(arg);
-				    		for (String s : arg)
-				    		{
-				    			System.out.println("ARG: " + s);
-				    		}
+				    		
 				    		for (IRCCommand c : this.commands.get(cmd))
-				    			c.command( this, arg );
+				    			c.command( this, cmd ,  arg );
 				    	} catch (Exception ex)
 				    	{
 				    		System.out.println("ERROR : " + ex.toString());
 				    		ex.printStackTrace();
 				    	}
 				    }
+				    for (IRCCommand c : this.allcommands)
+		    			c.command( this, cmd ,  arg );
 				}
 			}
 		}
@@ -155,7 +160,7 @@ public class IRCClient implements Runnable {
 	public void run() {
 		this.addCommand( "MODE", new IRCCommand() {
 			
-			public void command(IRCClient client, String[] args) {
+			public void command(IRCClient client , String cmd , String[] args) {
 				// TODO Auto-generated method stub
 				System.out.println(String.format("Mode now set to " + args[1] ));
 			}
@@ -163,7 +168,7 @@ public class IRCClient implements Runnable {
 		
 		this.addCommand( "042", new IRCCommand() {
 			
-			public void command(IRCClient client, String[] args) {
+			public void command(IRCClient client, String cmd , String[] args) {
 				// TODO Auto-generated method stub
 				System.out.println(String.format("ID " + args[1] ));
 			}
@@ -202,6 +207,11 @@ public class IRCClient implements Runnable {
 	
 	public void addCommand ( String Command , IRCCommand logic)
 	{
+		if (Command.equals("*"))
+		{
+			this.allcommands.add(logic);
+		}
+		
 	    if (!this.commands.containsKey(Command))
 	    {
 	        this.commands.put(Command , new ArrayList<IRCCommand>());

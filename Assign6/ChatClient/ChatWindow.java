@@ -29,7 +29,7 @@ public class ChatWindow {
 	
 	private void init()
 	{
-		window = new JFrame("Output");    // make a frame
+		window = new JFrame("Talking on " + this.channel );    // make a frame
 		window.setSize(200,300);// set its size
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // make it close properly
      
@@ -79,7 +79,7 @@ public class ChatWindow {
         
         this.client.addCommand( "PRIVMSG", new IRCCommand() {
 			
-			public void command(IRCClient client, String[] args) {
+			public void command(IRCClient client , String cmd , String[] args) {
 				if (args.length >= 3)
 				{
 					if (args[1].equals(channel))
