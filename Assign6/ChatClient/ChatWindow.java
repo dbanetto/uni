@@ -6,6 +6,8 @@ import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 
 public class ChatWindow {
@@ -35,6 +37,14 @@ public class ChatWindow {
      
         log = new JTextArea(40,60);  // text area (lines, chars per line)
         msg = new JTextArea(2,60);  // text area (lines, chars per line)
+        
+        log.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				window.repaint();
+				
+			}
+		});
         
         msg.addKeyListener( new KeyListener() {
 			
@@ -76,35 +86,23 @@ public class ChatWindow {
         window.pack();                                        // pack things in to the frame
         window.setVisible(true); // make it visible.
         
-        
         this.client.addCommand( "PRIVMSG", new IRCCommand() {
 			
 			public void command(IRCClient client , String cmd , String[] args) {
 				if (args.length >= 3)
 				{
-					if (args[1].equals(channel))
+					final String sender = ( args[1].charAt(0) == '#' ? args[1] : args[0].substring(1 , args[0].indexOf('!')) ).trim();
+	    			if (sender.equals(channel))
 					{
-						log.append( args[0].substring( 1 , args[0].indexOf('!')) + " : " +  args[2].substring(0) + "\n" );
+	    				appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " : " +  args[2].substring(0) + "\n" );
 					}
 				}
 			}
 		});
 	}
-
-	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 	
-	
+	public void appendLog (String msg)
+	{
+		log.setText( log.getText() + msg );
+	}
 }

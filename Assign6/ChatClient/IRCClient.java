@@ -96,6 +96,7 @@ public class IRCClient implements Runnable {
 	 * optional, and params may be empty) Then deals with the message
 	 * appropriately.
 	 */
+	private boolean command_lock = false;
 	private void listen() {
 		while (this.client.isConnected()) {
 			if (this.instream.hasNext()) {
@@ -133,6 +134,7 @@ public class IRCClient implements Runnable {
 					parts.add(last);
 					String[] arg = new String[parts.size()];
 		    		parts.toArray(arg);
+		    		
 		    		for (String s : arg)
 		    		{
 		    			System.out.println("ARG: " + s);
@@ -142,16 +144,41 @@ public class IRCClient implements Runnable {
 				    {
 				    	try {
 				    		
+				    		while (command_lock)
+				    		{	
+				    			try {
+				    				Thread.sleep(1);
+				    			} catch (InterruptedException e) {
+				    				// TODO Auto-generated catch block
+				    				e.printStackTrace();
+				    			}
+				    		}
+				    		
+				    		command_lock = true;
 				    		for (IRCCommand c : this.commands.get(cmd))
-				    			c.command( this, cmd ,  arg );
+				    		{	c.command( this, cmd ,  arg ); }
+				    		command_lock = false;
 				    	} catch (Exception ex)
 				    	{
 				    		System.out.println("ERROR : " + ex.toString());
 				    		ex.printStackTrace();
 				    	}
 				    }
+				    
+				    while (command_lock)
+					{	
+						try {
+							Thread.sleep(1);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				    
+				    command_lock = true;
 				    for (IRCCommand c : this.allcommands)
-		    			c.command( this, cmd ,  arg );
+				    {	c.command( this, cmd ,  arg ); }
+				    command_lock = false;
 				}
 			}
 		}
@@ -207,6 +234,15 @@ public class IRCClient implements Runnable {
 	
 	public void addCommand ( String Command , IRCCommand logic)
 	{
+		while (command_lock)
+		{	
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		command_lock = true;
 		if (Command.equals("*"))
 		{
 			this.allcommands.add(logic);
@@ -219,5 +255,6 @@ public class IRCClient implements Runnable {
 	    } else {
 	    	this.commands.get(Command).add(logic);
 	    }
+	    command_lock = false;
 	}
 }

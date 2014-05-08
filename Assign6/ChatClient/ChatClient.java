@@ -96,13 +96,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         
         this.listner = new Thread ( this.client );
         this.initListners();
-        this.listner.run();
-        
-        
-        
-        
-        
-       
+        this.listner.start();
     }
 
     /*
@@ -167,12 +161,18 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 			}
 		});
     	
-    	this.client.addCommand( "PRIVMSG", new IRCCommand() {
-			
-			public void command(IRCClient client, String command, String[] args) {
-				if (!windows.contains(args[1].trim()))
+    	this.client.addCommand( "PRIVMSG", new IRCCommand() {	
+    		public void command(final IRCClient client, String command, final String[] args) {
+				final String sender = ( args[1].charAt(0) == '#' ? args[1] : args[0].substring(1 , args[0].indexOf('!')) ).trim();
+    			if ( !windows.containsKey(sender) )
 				{
-					windows.put( args[1].trim() , new ChatWindow( client , args[1].trim() ) );
+					System.out.println("Creating window for " + sender );
+					new Thread ( new Runnable() {
+						public void run() {
+							windows.put( sender , new ChatWindow( client , sender ) );
+							windows.get( sender ).appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " : " +  args[2].substring(0) + "\n" );
+						}
+					}).start();
 				}
 			}
 		});
