@@ -82,13 +82,26 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     public void connect()
     {
         /*# YOUR CODE HERE */
-
+    	
+    	
         this.client = new IRCClient ( this.username , this.realname );
         this.client.connect(this.server , this.port );
+        
+    	new Thread ( new Runnable() {
+			public void run() {
+				 chatwindow = new ChatWindow(client , "#barndatest");
+			}
+		}).start();
+        
         this.listner = new Thread ( this.client );
         this.initListners();
         this.listner.run();
-        chatwindow = new ChatWindow(client);
+        
+        
+        
+        
+        
+       
     }
 
     /*
@@ -127,19 +140,17 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     
     private void initListners()
     {
-    	this.client.addCommand( this ,"PING", new IRCCommand() {
+    	this.client.addCommand( "PING", new IRCCommand() {
 			
-			public void command(Object owner , IRCClient client, String[] args) {
+			public void command(IRCClient client, String[] args) {
 				client.send( String.format( "PONG :%s" , new Object[] { args[0] } ) );
 			}
 		});
     	
-    	this.client.addCommand(this , "433", new IRCCommand() {
+    	this.client.addCommand( "433", new IRCCommand() {
 			
-			public void command(Object owner, IRCClient client, String[] args) {
-				// TODO Auto-generated method stub
-				ChatClient ui = (ChatClient)(owner);
-				ui.setUsername(UI.askToken("Enter your usercode: "), true);
+			public void command(IRCClient client, String[] args) {
+				setUsername(UI.askToken("Enter your usercode: "), true);
 			}
 		});
     }

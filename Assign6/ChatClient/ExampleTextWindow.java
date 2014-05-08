@@ -44,7 +44,8 @@ public class ExampleTextWindow{
      * The text area will have scroll bars around it.
      * Other methods can then write to the JTextArea using the append(...) method
      */
-    public JTextArea createNewFrame(){
+    public JTextArea createNewFrame()
+    {
         JFrame frame = new JFrame("Output");    // make a frame
         frame.setSize(200,300);// set its size
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // make it close properly
@@ -55,7 +56,7 @@ public class ExampleTextWindow{
         frame.pack();                                        // pack things in to the frame
         frame.setVisible(true);                              // make it visible.
         return textA;
-        }
+    }
 
 
     /** Copy every line the user types to the text pane */

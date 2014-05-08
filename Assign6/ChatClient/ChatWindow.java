@@ -8,19 +8,23 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 
-public class ChatWindow implements KeyListener {
+public class ChatWindow {
 	
 	JFrame window = null;
 	JTextArea log;
 	JTextArea msg;
 	IRCClient client;
 	JScrollPane logscroll;
+	private String channel;
 	
-	public ChatWindow (IRCClient client)
+	public ChatWindow (IRCClient client , String channel)
 	{
 		//Create UI
 		this.client = client;
+		this.channel = channel;
 		this.init();
+		if (channel.charAt(0) == '#')
+			this.client.send( "JOIN " + channel );
 	}
 	
 	private void init()
@@ -32,15 +36,59 @@ public class ChatWindow implements KeyListener {
         log = new JTextArea(40,60);  // text area (lines, chars per line)
         msg = new JTextArea(2,60);  // text area (lines, chars per line)
         
-        msg.addKeyListener( this );
+        msg.addKeyListener( new KeyListener() {
+			
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+				{
+						String msgout = msg.getText();
+						if (msgout.length() == 0)
+							return;
+						
+						if (msgout.charAt(0) == '/')
+						{
+							msgout = msgout.substring(1);
+						} else {
+							log.append( client.getUsername() + " : " + msgout.trim() + "\n");
+							msgout = "PRIVMSG " + channel + " :" + msgout;
+						}
+					
+						client.send( msgout.trim() );
+						msg.setText("");
+				}
+			}
+			
+			public void keyPressed(KeyEvent e) {
+				return;
+				
+			}
+		} );
         
         logscroll = new JScrollPane(log); // put scrollbars around it
         window.add(logscroll, BorderLayout.NORTH);              // add it to the frame.
         window.add(msg, BorderLayout.SOUTH);                    // add it to the frame.
         
         window.pack();                                        // pack things in to the frame
-        window.setVisible(true);                             // make it visible.
-
+        window.setVisible(true); // make it visible.
+        
+        
+        this.client.addCommand( "PRIVMSG", new IRCCommand() {
+			
+			public void command(IRCClient client, String[] args) {
+				if (args.length >= 3)
+				{
+					if (args[1].equals(channel))
+					{
+						log.append( args[0].substring( 1 , args[0].indexOf('!')) + " : " +  args[2].substring(0) + "\n" );
+					}
+				}
+			}
+		});
 	}
 
 	public void keyPressed(KeyEvent arg0) {
@@ -50,14 +98,7 @@ public class ChatWindow implements KeyListener {
 
 	public void keyReleased(KeyEvent arg0) {
 		// TODO Auto-generated method stub
-		if (arg0.getKeyCode() == arg0.VK_ENTER)
-		{
-			if (this.msg.equals( arg0.getComponent() ) )
-			{
-				this.client.send( this.msg.getText() );
-				this.msg.setText("");
-			}
-		}
+		
 	}
 
 	public void keyTyped(KeyEvent arg0) {

@@ -14,7 +14,7 @@ public class IRCClient implements Runnable {
 	private String realname = "IRC Client";
 	private String servername = "";
 
-	private Hashtable< String , IRCCommand > commands;
+	private Hashtable<String, List<IRCCommand>> commands;
 	private Hashtable< String , Object > owners;
 	
 	private boolean send_lock = false;
@@ -22,8 +22,7 @@ public class IRCClient implements Runnable {
 	public IRCClient(String Nickname, String Realname) {
 		this.nickname = Nickname;
 		this.realname = Realname;
-		this.commands = new Hashtable<String,IRCCommand>();
-		this.owners = new Hashtable<String , Object>();
+		this.commands = new Hashtable<String, List<IRCCommand> >();
 	}
 
 	public boolean connect(String hostname, int port) {
@@ -110,6 +109,7 @@ public class IRCClient implements Runnable {
 				if (m.find()) {
 					String cmd = m.group(0).trim();
 					String argss = line.substring( line.indexOf( cmd ) + cmd.length() );
+					parts.add( line.substring( 0 , line.indexOf( cmd ))); //src
 					System.out.println("CMD: " + cmd);
 					
 					int index;
@@ -139,7 +139,8 @@ public class IRCClient implements Runnable {
 				    		{
 				    			System.out.println("ARG: " + s);
 				    		}
-				    		this.commands.get(cmd).command( (Object)this.owners.get(cmd) , this, arg );
+				    		for (IRCCommand c : this.commands.get(cmd))
+				    			c.command( this, arg );
 				    	} catch (Exception ex)
 				    	{
 				    		System.out.println("ERROR : " + ex.toString());
@@ -152,17 +153,17 @@ public class IRCClient implements Runnable {
 	}
 
 	public void run() {
-		this.addCommand( this , "MODE", new IRCCommand() {
+		this.addCommand( "MODE", new IRCCommand() {
 			
-			public void command(Object owner, IRCClient client, String[] args) {
+			public void command(IRCClient client, String[] args) {
 				// TODO Auto-generated method stub
 				System.out.println(String.format("Mode now set to " + args[1] ));
 			}
 		});
 		
-		this.addCommand( this , "042", new IRCCommand() {
+		this.addCommand( "042", new IRCCommand() {
 			
-			public void command(Object owner, IRCClient client, String[] args) {
+			public void command(IRCClient client, String[] args) {
 				// TODO Auto-generated method stub
 				System.out.println(String.format("ID " + args[1] ));
 			}
@@ -193,13 +194,20 @@ public class IRCClient implements Runnable {
 		else
 			return false;
 	}
-
-	public void addCommand ( Object owner , String Command , IRCCommand logic)
+	
+	public String getUsername()
+	{
+		return this.nickname;
+	}
+	
+	public void addCommand ( String Command , IRCCommand logic)
 	{
 	    if (!this.commands.containsKey(Command))
 	    {
-	        this.commands.put(Command, (IRCCommand)logic);
-	        this.owners.put(Command, owner);
+	        this.commands.put(Command , new ArrayList<IRCCommand>());
+	        this.commands.get(Command).add(logic);
+	    } else {
+	    	this.commands.get(Command).add(logic);
 	    }
 	}
 }
