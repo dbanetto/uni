@@ -57,7 +57,7 @@ public class IRCClient implements Runnable {
 		// Wait for the a send on another thread to finish
 		while (send_lock) {
 			try {
-				Thread.sleep(10);
+				Thread.sleep(1);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -147,7 +147,6 @@ public class IRCClient implements Runnable {
 				    	}
 				    }
 				}
-				
 			}
 		}
 	}

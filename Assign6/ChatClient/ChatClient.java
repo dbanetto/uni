@@ -28,12 +28,12 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     private String realname = "";
     private IRCClient client;
     private Thread listner;
-
+    private ChatWindow chatwindow;
     /**
      * main: construct a new ChatClient
      */
     public static void main(String[] args) throws IOException {
-        new ChatClient( "irc.ecs.vuw.ac.nz" , 6667 );
+        new ChatClient( "irc.ecs.vuw.ac.nz" , 6667 ); //Brackets for Pondy
     }
 
     /*
@@ -88,7 +88,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         this.listner = new Thread ( this.client );
         this.initListners();
         this.listner.run();
-        
+        chatwindow = new ChatWindow(client);
     }
 
     /*
