@@ -186,6 +186,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      */
     public void closeConnection(){
         /*# YOUR CODE HERE */
+    	this.client.disconnect();
     }
 
     public void setUsername (String newNick , boolean tellServer)

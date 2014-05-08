@@ -94,7 +94,26 @@ public class ChatWindow {
 					final String sender = ( args[1].charAt(0) == '#' ? args[1] : args[0].substring(1 , args[0].indexOf('!')) ).trim();
 	    			if (sender.equals(channel))
 					{
-	    				appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " : " +  args[2].substring(0) + "\n" );
+	    				appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " : " +  args[2].substring(0) );
+					}
+				}
+			}
+		});
+        
+        this.client.addCommand ( "JOIN" , new IRCCommand() {
+			public void command(IRCClient client, String command, String[] args) {
+				// TODO Auto-generated method stub
+				if (args[1].charAt(0) != '#')
+					return;
+					
+				if ( args[1].equals(channel))
+				{
+					if (args[0].equals(client.getUsername()))
+					{
+						appendLog( "You have joined " + channel );
+						
+					} else {
+						appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " has joined " + channel);
 					}
 				}
 			}
@@ -103,6 +122,6 @@ public class ChatWindow {
 	
 	public void appendLog (String msg)
 	{
-		log.setText( log.getText() + msg );
+		log.setText( log.getText() + msg + "\n" );
 	}
 }
