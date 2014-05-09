@@ -131,6 +131,7 @@ public class ChatWindow {
 
         window.pack();                                        // pack things in to the frame
         window.setVisible(true); // make it visible.
+        window.setResizable(false); //If not Things break bad UI-wise
 
         this.client.addCommand( "PRIVMSG", new IRCCommand() {
 
@@ -201,5 +202,10 @@ public class ChatWindow {
 	public void appendLog (String msg)
 	{
 		log.setText( log.getText() + msg + "\n" );
+	}
+
+	public void setVisable (boolean val)
+	{
+		this.window.setVisible(val);
 	}
 }

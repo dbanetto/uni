@@ -51,6 +51,9 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     public ChatClient ( String server , int port ){
         UI.addButton("Connect", this);
         UI.addButton("Connect to Channel", this);
+        UI.addButton("Private Message", this);
+
+        UI.addButton("Disconnect", this);
         /*# YOUR CODE HERE */
         this.server = server;
         this.port = port;
@@ -64,6 +67,8 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     public void buttonPerformed(String button){
         if (button.equals("Connect")) {
             this.connect();
+        }else if (button.equals("Disconnect")) {
+            this.closeConnection();
         } else if (button.equals("Connect to Channel"))
         {
         	final JDialog dialog = new JDialog();
@@ -118,6 +123,55 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 			dialog.setSize( 200 , 150);
 			dialog.setResizable(false);
 			dialog.setVisible(true);
+		} else if (button.equals("Private Message"))
+		{
+        	final JDialog dialog = new JDialog();
+			final JTextField to = new JTextField("To");
+			final JTextField mesg = new JTextField("Message");
+			JButton commit = new JButton("Send");
+
+			commit.addMouseListener( new MouseListener() {
+
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					// TODO Auto-generated method stub
+					client.send( "PRIVMSG " + to.getText() + " :" + mesg.getText());
+					dialog.setVisible(false);
+				}
+			});
+
+			dialog.add( to , BorderLayout.NORTH);
+			dialog.add( mesg , BorderLayout.CENTER);
+
+			dialog.add (commit , BorderLayout.SOUTH);
+
+			dialog.setSize( 200 , 150);
+			dialog.setResizable(false);
+			dialog.setVisible(true);
 		}
         /*# YOUR CODE HERE */
 
@@ -151,11 +205,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         this.client = new IRCClient ( this.username , this.realname );
         this.client.connect(this.server , this.port );
 
-    	new Thread ( new Runnable() {
-			public void run() {
-				windows.put( "#barndatest" , new ChatWindow( client ,"#barndatest" ) );
-			}
-		}).start();
+    	this.client.send("JOIN #barndatest"); //Default
 
         this.listner = new Thread ( this.client );
         this.initListners();
@@ -286,6 +336,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 			}
 		});
 
+
     	this.client.addCommand("JOIN", new IRCCommand() {
 
 			@Override
@@ -300,6 +351,8 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 							windows.get( sender ).appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " has joined." );
 						}
 					}).start();
+				} else {
+					windows.get(sender).setVisable(true);
 				}
 			}
 		});
