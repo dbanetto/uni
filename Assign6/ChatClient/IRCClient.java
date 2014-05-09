@@ -17,7 +17,7 @@ public class IRCClient implements Runnable {
 	private Hashtable<String, List<IRCCommand>> commands;
 	private List<IRCCommand> allcommands; //IRCCommands that listen to ALL commands that come through
 	private Hashtable< String , Object > owners;
-	
+
 	private boolean send_lock = false;
 
 	public IRCClient(String Nickname, String Realname) {
@@ -103,49 +103,49 @@ public class IRCClient implements Runnable {
 				String line = this.instream.nextLine();
 				System.out.println("REV: " + line);
 				List<String> parts = new ArrayList<String>();
-				
+
 				Pattern comPattern = Pattern.compile(" [A-Z0-9]* ");
 				Matcher m = comPattern.matcher(line);
-				
-				
-				
+
+
+
 				if (m.find()) {
 					String cmd = m.group(0).trim();
 					String argss = line.substring( line.indexOf( cmd ) + cmd.length() );
 					parts.add( line.substring( 0 , line.indexOf( cmd ))); //src
 					System.out.println("CMD: " + cmd);
-					
+
 					int index;
 					String last= "";
 					if ( (index = argss.indexOf(':')) > 0)
 						last = argss.substring( index );
 					for (String word : argss.replace( last , "" ).split(" ") )
-					{	
+					{
 						word = word.trim();
 						if (word.equals(""))
 							continue;
-						
+
 						parts.add(word);
-						
+
 					}
 					if (last.length() > 1 && last.charAt(0) == ':')
 						last = last.substring(1);
-					
+
 					parts.add(last);
 					String[] arg = new String[parts.size()];
 		    		parts.toArray(arg);
-		    		
+
 		    		for (String s : arg)
 		    		{
 		    			System.out.println("ARG: " + s);
 		    		}
-					
+
 				    if (this.commands.containsKey(cmd))
 				    {
 				    	try {
-				    		
+
 				    		while (command_lock)
-				    		{	
+				    		{
 				    			try {
 				    				Thread.sleep(1);
 				    			} catch (InterruptedException e) {
@@ -153,10 +153,12 @@ public class IRCClient implements Runnable {
 				    				e.printStackTrace();
 				    			}
 				    		}
-				    		
+
 				    		command_lock = true;
-				    		for (IRCCommand c : this.commands.get(cmd))
-				    		{	c.command( this, cmd ,  arg ); }
+				    		for (final IRCCommand c : this.commands.get(cmd))
+				    		{
+				    			c.command( this , cmd ,  arg );
+				    		}
 				    		command_lock = false;
 				    	} catch (Exception ex)
 				    	{
@@ -164,17 +166,16 @@ public class IRCClient implements Runnable {
 				    		ex.printStackTrace();
 				    	}
 				    }
-				    
+
 				    while (command_lock)
-					{	
+					{
 						try {
 							Thread.sleep(1);
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
-				    
+
 				    command_lock = true;
 				    for (IRCCommand c : this.allcommands)
 				    {	c.command( this, cmd ,  arg ); }
@@ -186,21 +187,21 @@ public class IRCClient implements Runnable {
 
 	public void run() {
 		this.addCommand( "MODE", new IRCCommand() {
-			
+
 			public void command(IRCClient client , String cmd , String[] args) {
 				// TODO Auto-generated method stub
-				System.out.println(String.format("Mode now set to " + args[1] ));
+				System.out.println(String.format("Mode now set to " + args[2] ));
 			}
 		});
-		
+
 		this.addCommand( "042", new IRCCommand() {
-			
+
 			public void command(IRCClient client, String cmd , String[] args) {
 				// TODO Auto-generated method stub
-				System.out.println(String.format("ID " + args[1] ));
+				System.out.println(String.format("ID " + args[2] ));
 			}
 		});
-		
+
 		if (this.client.isConnected())
 			this.listen();
 	}
@@ -226,16 +227,16 @@ public class IRCClient implements Runnable {
 		else
 			return false;
 	}
-	
+
 	public String getUsername()
 	{
 		return this.nickname;
 	}
-	
+
 	public void addCommand ( String Command , IRCCommand logic)
 	{
 		while (command_lock)
-		{	
+		{
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
@@ -247,7 +248,7 @@ public class IRCClient implements Runnable {
 		{
 			this.allcommands.add(logic);
 		}
-		
+
 	    if (!this.commands.containsKey(Command))
 	    {
 	        this.commands.put(Command , new ArrayList<IRCCommand>());

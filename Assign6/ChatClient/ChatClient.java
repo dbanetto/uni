@@ -10,12 +10,20 @@
 
 import ecs100.*;
 
+import java.awt.BorderLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.*;
 import java.lang.*;
 import java.net.Socket;
 import java.util.*;
 import java.net.Socket;
 import java.io.*;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 /**
  * Basic IRC Chat Client
@@ -42,6 +50,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      */
     public ChatClient ( String server , int port ){
         UI.addButton("Connect", this);
+        UI.addButton("Connect to Channel", this);
         /*# YOUR CODE HERE */
         this.server = server;
         this.port = port;
@@ -55,7 +64,61 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     public void buttonPerformed(String button){
         if (button.equals("Connect")) {
             this.connect();
-        }
+        } else if (button.equals("Connect to Channel"))
+        {
+        	final JDialog dialog = new JDialog();
+			JLabel label = new JLabel("Enter Channel: ");
+			final JTextField channel = new JTextField();
+			JButton commit = new JButton("Join");
+
+			commit.addMouseListener( new MouseListener() {
+
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					// TODO Auto-generated method stub
+					String ch = channel.getText();
+					if (ch.charAt(0) != '#')
+					{
+						ch = "#" + ch;
+					}
+					client.send( "JOIN " + ch);
+					dialog.setVisible(false);
+				}
+			});
+
+			dialog.add( label , BorderLayout.NORTH);
+			dialog.add( channel , BorderLayout.CENTER);
+
+			dialog.add (commit , BorderLayout.SOUTH);
+
+			dialog.setSize( 200 , 150);
+			dialog.setResizable(false);
+			dialog.setVisible(true);
+		}
         /*# YOUR CODE HERE */
 
 
@@ -83,17 +146,17 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     public void connect()
     {
         /*# YOUR CODE HERE */
-    	
-    	
+
+
         this.client = new IRCClient ( this.username , this.realname );
         this.client.connect(this.server , this.port );
-        
+
     	new Thread ( new Runnable() {
 			public void run() {
 				windows.put( "#barndatest" , new ChatWindow( client ,"#barndatest" ) );
 			}
 		}).start();
-        
+
         this.listner = new Thread ( this.client );
         this.initListners();
         this.listner.start();
@@ -132,25 +195,71 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         /*# YOUR CODE HERE */
 
     }
-    
+
     private void initListners()
     {
     	this.client.addCommand( "PING", new IRCCommand() {
-			
+
 			public void command(IRCClient client, String cmd, String[] args) {
-				client.send( String.format( "PONG :%s" , new Object[] { args[0] } ) );
+				client.send( "PONG :" + args[1] );
 			}
 		});
-    	
+
     	this.client.addCommand( "433", new IRCCommand() {
-			
+
 			public void command(IRCClient client, String cmd, String[] args) {
-				setUsername(UI.askToken("Enter your usercode: "), true);
+				final JDialog dialog = new JDialog();
+				JLabel label = new JLabel("Enter new Username: ");
+				final JTextField name = new JTextField();
+				JButton commit = new JButton("Commit");
+
+				commit.addMouseListener( new MouseListener() {
+
+					@Override
+					public void mouseReleased(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mousePressed(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mouseExited(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mouseEntered(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						// TODO Auto-generated method stub
+						setUsername( name.getText() , true );
+						dialog.setVisible(false);
+					}
+				});
+
+				dialog.add( label , BorderLayout.NORTH);
+				dialog.add( name , BorderLayout.CENTER);
+
+				dialog.add (commit , BorderLayout.SOUTH);
+
+				dialog.setSize( 200 , 150);
+				dialog.setResizable(false);
+				dialog.setVisible(true);
 			}
 		});
-    	
+
     	this.client.addCommand( "*", new IRCCommand() {
-			
+
 			public void command(IRCClient client, String cmd, String[] args) {
 				UI.print( cmd );
 				for (String a : args)
@@ -160,8 +269,8 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 				UI.println("");
 			}
 		});
-    	
-    	this.client.addCommand( "PRIVMSG", new IRCCommand() {	
+
+    	this.client.addCommand( "PRIVMSG", new IRCCommand() {
     		public void command(final IRCClient client, String command, final String[] args) {
 				final String sender = ( args[1].charAt(0) == '#' ? args[1] : args[0].substring(1 , args[0].indexOf('!')) ).trim();
     			if ( !windows.containsKey(sender) )
@@ -176,8 +285,26 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 				}
 			}
 		});
+
+    	this.client.addCommand("JOIN", new IRCCommand() {
+
+			@Override
+			public void command(final IRCClient client, String command, final String[] args) {
+				final String sender = ( args[1].charAt(0) == '#' ? args[1] : args[0].substring(1 , args[0].indexOf('!')) ).trim();
+    			if ( !windows.containsKey(sender) )
+				{
+					System.out.println("Creating window for " + sender );
+					new Thread ( new Runnable() {
+						public void run() {
+							windows.put( sender , new ChatWindow( client , sender ) );
+							windows.get( sender ).appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " has joined." );
+						}
+					}).start();
+				}
+			}
+		});
     }
-    
+
     /**
      * Close the connection:
      *  - close the socket,
