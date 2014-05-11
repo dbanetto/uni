@@ -3,6 +3,22 @@ COMP112 Assignment 6:  Reflection.
 
 Briefly list the features that you implemented in your Chat Client.
 
+PART
+Display and send parting messages when leavign a channel
+
+432
+Request for a new nickname like 433,
+but it is due to a bad nick not an already used
+
+332 (TOPIC)
+On entry of a channel the client queries for the topic
+and displays it on a 332 response (successful)
+
+042
+Client gets its ID
+
+MODE
+Client gets the mode it is in
 
 Describe how you tested your program, and discuss how much confidence you have
 that your testing shows that the program works correctly. 

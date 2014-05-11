@@ -1,19 +1,23 @@
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Random;
 
 
 public class ChatWindow {
@@ -35,7 +39,9 @@ public class ChatWindow {
 		this.channel = channel;
 		this.init();
 		if (channel.charAt(0) == '#')
-			this.client.send( "JOIN " + channel );
+		{	this.client.send( "JOIN " + channel ); 
+			this.client.send("NAMES " + channel );
+		}
 	}
 
 	private void init()
@@ -44,10 +50,10 @@ public class ChatWindow {
 		window.setSize(200,300);// set its size
         window.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE); // make it close properly
 
-        log = new JTextArea(40,80);  // text area (lines, chars per line)
+        log = new JTextArea(40,80);;  // text area (lines, chars per line)
         msg = new JTextArea(2,80);  // text area (lines, chars per line)
         users = new JTextArea(40,8);
-
+        
         if (channel.charAt(0) == '#')
         {
 	    	btnPrivateMsg = new JButton("Part Channel");
@@ -98,7 +104,7 @@ public class ChatWindow {
 						{
 							msgout = msgout.substring(1);
 						} else {
-							log.append( client.getUsername() + " : " + msgout.trim() + "\n");
+							logMessage( client.getUsername(), msgout.trim());
 							msgout = "PRIVMSG " + channel + " :" + msgout;
 						}
 
@@ -141,7 +147,7 @@ public class ChatWindow {
 					final String sender = ( args[1].charAt(0) == '#' ? args[1] : args[0].substring(1 , args[0].indexOf('!')) ).trim();
 	    			if (sender.equals(channel))
 					{
-	    				appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " : " +  args[2].substring(0) );
+	    				logMessage( args[0].substring( 1 , args[0].indexOf('!')) ,  args[2].substring(0) );
 					}
 				}
 			}
@@ -157,17 +163,31 @@ public class ChatWindow {
 				{
 					if (args[0].trim().equals(client.getUsername()))
 					{
-						appendLog( "You have joined " + channel );
+						logAppend( "You have joined " + channel );
 
 					} else {
-						appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " has joined " + channel);
+						logAppend( args[0].substring( 1 , args[0].indexOf('!')) + " has joined " + channel);
 						users.append( args[0].substring( 1 , args[0].indexOf('!')) + "\n" );
 						client.send("NAMES " + channel);
 					}
 				}
 			}
 		});
+        
+        this.client.addCommand("PART", new IRCCommand() {
+			
+			@Override
+			public void command(IRCClient client, String command, String[] args) {
+				// TODO Auto-generated method stub
+				if (args[1].charAt(0) != '#')
+					return;
 
+				if ( args[1].equals(channel))
+				{
+					logAppend( args[0].substring( 1 , args[0].indexOf('!')) + " has left " + channel + " : " + args[2]);
+				}
+			}
+		});
 
         this.client.addCommand("353", new IRCCommand() {
 
@@ -197,13 +217,39 @@ public class ChatWindow {
 				newList = true;
 			}
 		});
+        
+        this.client.addCommand("332", new IRCCommand() {
+			
+			@Override
+			public void command(IRCClient client, String command, String[] args) {
+				if (!args[2].equals(channel))
+					return;
+				
+				logAppend("Channel Topic" + args[args.length - 1]);
+			}
+		});
 	}
 
-	public void appendLog (String msg)
+	public void logMessage (String name  , String msg)
 	{
-		log.setText( log.getText() + msg + "\n" );
-	}
+		//log.setText( log.getText() + name + " : " + msg + "\n" );
+		Random rnd = new Random(name.hashCode());
+		Color c = new Color( rnd.nextInt(128) , rnd.nextInt(128)  , rnd.nextInt(128) , 255);
+		
+		log.append("<font>");
+		log.append(name);
+		log.append("</font>");
 
+		
+		log.append(" : " + msg + "\n");
+		
+	}
+	
+	public void logAppend (String text)
+	{
+		log.setText( log.getText() + text + "\n" );
+	}
+	
 	public void setVisable (boolean val)
 	{
 		this.window.setVisible(val);

@@ -23,6 +23,8 @@ import java.io.*;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
@@ -36,13 +38,11 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     private String realname = "";
     private IRCClient client;
     private Thread listner;
-    private ChatWindow chatwindow;
     private Hashtable<String , ChatWindow > windows = new Hashtable<String , ChatWindow>();
-    /**
-     * main: construct a new ChatClient
-     */
+
+    
     public static void main(String[] args) throws IOException {
-        new ChatClient( "irc.ecs.vuw.ac.nz" , 6667 ); //Brackets for Pondy
+        new ChatClient( "irc.ecs.vuw.ac.nz" , (((((((6667)))))))); //Brakcets for Pondy
     }
 
     /*
@@ -65,15 +65,20 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      * Respond to the buttons
      */
     public void buttonPerformed(String button){
-        if (button.equals("Connect")) {
+        if (button.equals("Connect") && (client == null || !client.isConnected()) ) {
             this.connect();
-        }else if (button.equals("Disconnect")) {
+        }else if (button.equals("Disconnect") && client.isConnected()) {
             this.closeConnection();
-        } else if (button.equals("Connect to Channel"))
+        } else if (button.equals("Connect to Channel") && client.isConnected())
         {
         	final JDialog dialog = new JDialog();
 			JLabel label = new JLabel("Enter Channel: ");
 			final JTextField channel = new JTextField();
+			final JTextArea channellist = new JTextArea(32,8);
+			channellist.setText("Channel List\n");
+			channellist.setEditable(false);
+			JScrollPane scoll = new JScrollPane(channellist);
+			scoll.setSize(80, 160);
 			JButton commit = new JButton("Join");
 
 			commit.addMouseListener( new MouseListener() {
@@ -117,17 +122,32 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 
 			dialog.add( label , BorderLayout.NORTH);
 			dialog.add( channel , BorderLayout.CENTER);
-
+			dialog.add ( scoll , BorderLayout.EAST);
 			dialog.add (commit , BorderLayout.SOUTH);
-
-			dialog.setSize( 200 , 150);
+			
+			dialog.setSize( 480 , 160);
 			dialog.setResizable(false);
 			dialog.setVisible(true);
-		} else if (button.equals("Private Message"))
+			
+			client.addCommand("322", new IRCCommand() {
+				
+				@Override
+				public void command(IRCClient client, String command, String[] args) {
+					channellist.append(args[2] + " (" + args[3] + ")\n");
+				}
+			});
+			client.send("LIST");
+			
+		} else if (button.equals("Private Message") && client.isConnected())
 		{
+			//Create A dialog to send a message to someone
         	final JDialog dialog = new JDialog();
 			final JTextField to = new JTextField("To");
 			final JTextField mesg = new JTextField("Message");
+			final JTextArea userlist = new JTextArea(32,8);
+			userlist.setText("User List");
+			userlist.setEditable(false);
+			JScrollPane scoll = new JScrollPane(userlist);
 			JButton commit = new JButton("Send");
 
 			commit.addMouseListener( new MouseListener() {
@@ -166,16 +186,15 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 
 			dialog.add( to , BorderLayout.NORTH);
 			dialog.add( mesg , BorderLayout.CENTER);
-
+			dialog.add( userlist , BorderLayout.EAST);
 			dialog.add (commit , BorderLayout.SOUTH);
-
-			dialog.setSize( 200 , 150);
+			
+			
+			
+			dialog.setSize( 480 , 160);
 			dialog.setResizable(false);
 			dialog.setVisible(true);
 		}
-        /*# YOUR CODE HERE */
-
-
     }
 
     /**
@@ -187,7 +206,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 
     }
 
-    /**
+    /*
      * If there is currently an active socket, it should close the
      *  connection and set the socket to null.
      * Creates a socket connected to the server.
@@ -199,19 +218,32 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      */
     public void connect()
     {
-        /*# YOUR CODE HERE */
-
-
+    	if (this.client != null && this.client.isConnected())
+    		this.closeConnection();
+    	
         this.client = new IRCClient ( this.username , this.realname );
         this.client.connect(this.server , this.port );
-
-    	this.client.send("JOIN #barndatest"); //Default
-
+        windows = new Hashtable<String , ChatWindow>();
+        
         this.listner = new Thread ( this.client );
         this.initListners();
         this.listner.start();
     }
-
+    
+    /*
+     * Method run in the the thread that is listening to the server.
+     * Loop as long as there is anything in the serverIn scanner:
+     *   Get and process the next line of input from the scanner
+     *   Simple version:
+     *    prints the line out for the user
+     *    Checks if the line contains "SQUIT",
+     *       if so, close the socket, set serverIn and serverOut set the quit the program.
+     *      if the line contains "PING", send a PONG message back
+     *        (must be identical to the line, but with "PING" replaced by "PONG")
+     *   Better version parses the line into source, command, params, finalParam
+     *    (where the source and finalParam are optional, and params may be empty)
+     *    Then deals with the message appropriately.
+     */
     /*
      * Attempt to log in to the Server and return true if successful, false if not.
      *  Ask user for username and real name
@@ -226,85 +258,22 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         this.realname = UI.askString("Enter your real name: ");
     }
 
-
-    /**
-     * Method run in the the thread that is listening to the server.
-     * Loop as long as there is anything in the serverIn scanner:
-     *   Get and process the next line of input from the scanner
-     *   Simple version:
-     *    prints the line out for the user
-     *    Checks if the line contains "SQUIT",
-     *       if so, close the socket, set serverIn and serverOut set the quit the program.
-     *      if the line contains "PING", send a PONG message back
-     *        (must be identical to the line, but with "PING" replaced by "PONG")
-     *   Better version parses the line into source, command, params, finalParam
-     *    (where the source and finalParam are optional, and params may be empty)
-     *    Then deals with the message appropriately.
-     */
-    private void listenToServer() {
-        /*# YOUR CODE HERE */
-
-    }
-
     private void initListners()
     {
-    	this.client.addCommand( "PING", new IRCCommand() {
-
-			public void command(IRCClient client, String cmd, String[] args) {
-				client.send( "PONG :" + args[1] );
-			}
-		});
-
+    	//Open Dialog to ask for a new username
     	this.client.addCommand( "433", new IRCCommand() {
 
 			public void command(IRCClient client, String cmd, String[] args) {
-				final JDialog dialog = new JDialog();
-				JLabel label = new JLabel("Enter new Username: ");
-				final JTextField name = new JTextField();
-				JButton commit = new JButton("Commit");
-
-				commit.addMouseListener( new MouseListener() {
-
-					@Override
-					public void mouseReleased(MouseEvent e) {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void mousePressed(MouseEvent e) {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void mouseExited(MouseEvent e) {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void mouseEntered(MouseEvent e) {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						// TODO Auto-generated method stub
-						setUsername( name.getText() , true );
-						dialog.setVisible(false);
-					}
-				});
-
-				dialog.add( label , BorderLayout.NORTH);
-				dialog.add( name , BorderLayout.CENTER);
-
-				dialog.add (commit , BorderLayout.SOUTH);
-
-				dialog.setSize( 200 , 150);
-				dialog.setResizable(false);
-				dialog.setVisible(true);
+				getNewUsername();
+			}
+		});
+    	
+    	this.client.addCommand("432", new IRCCommand() {
+			
+			@Override
+			public void command(IRCClient client, String command, String[] args) {
+				// TODO Auto-generated method stub
+				getNewUsername();
 			}
 		});
 
@@ -329,7 +298,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 					new Thread ( new Runnable() {
 						public void run() {
 							windows.put( sender , new ChatWindow( client , sender ) );
-							windows.get( sender ).appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " : " +  args[2].substring(0) + "\n" );
+							windows.get( sender ).logMessage( args[0].substring( 1 , args[0].indexOf('!')),  args[2].substring(0) );
 						}
 					}).start();
 				}
@@ -348,7 +317,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 					new Thread ( new Runnable() {
 						public void run() {
 							windows.put( sender , new ChatWindow( client , sender ) );
-							windows.get( sender ).appendLog( args[0].substring( 1 , args[0].indexOf('!')) + " has joined." );
+							windows.get( sender ).logAppend( args[0].substring( 1 , args[0].indexOf('!')) + " has joined." );
 						}
 					}).start();
 				} else {
@@ -365,7 +334,6 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      *  - print a message to the user
      */
     public void closeConnection(){
-        /*# YOUR CODE HERE */
     	this.client.disconnect();
     }
 
@@ -376,6 +344,57 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 				new Object[] { newNick }) );
     	}
     	this.username = newNick;
+    }
+    
+    private void getNewUsername()
+    {
+    	final JDialog dialog = new JDialog();
+		JLabel label = new JLabel("Enter new Username: ");
+		final JTextField name = new JTextField();
+		JButton commit = new JButton("Commit");
+
+		commit.addMouseListener( new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				setUsername( name.getText() , true );
+				dialog.setVisible(false);
+			}
+		});
+
+		dialog.add( label , BorderLayout.NORTH);
+		dialog.add( name , BorderLayout.CENTER);
+
+		dialog.add (commit , BorderLayout.SOUTH);
+
+		dialog.setSize( 200 , 150);
+		dialog.setResizable(false);
+		dialog.setVisible(true);
     }
 
 }

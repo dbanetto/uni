@@ -12,11 +12,10 @@ public class IRCClient implements Runnable {
 	private Scanner instream = null;
 	private String nickname = "nick";
 	private String realname = "IRC Client";
-	private String servername = "";
 
+	private boolean loginComplete = false;
 	private Hashtable<String, List<IRCCommand>> commands;
 	private List<IRCCommand> allcommands; //IRCCommands that listen to ALL commands that come through
-	private Hashtable< String , Object > owners;
 
 	private boolean send_lock = false;
 
@@ -31,10 +30,9 @@ public class IRCClient implements Runnable {
 		try {
 			this.client = new Socket(hostname, port);
 			if (this.client.isConnected()) {
-				UI.println("Connected");
+				loginComplete = false;
 				this.outstream = new PrintStream(client.getOutputStream(), true, "UTF-8");
 				this.instream = new Scanner(client.getInputStream(), "UTF-8");
-				this.servername = hostname; // This not always going to be true
 				// Send Request for Nick Name
 				this.send(String.format("NICK %s",
 						new Object[] { this.nickname }) );
@@ -98,7 +96,10 @@ public class IRCClient implements Runnable {
 	 */
 	private boolean command_lock = false;
 	private void listen() {
-		while (this.client.isConnected()) {
+		while (this != null || this.client.isConnected()) {
+			if (this.instream == null || this.outstream == null || this.client == null)
+				break;
+			
 			if (this.instream.hasNext()) {
 				String line = this.instream.nextLine();
 				System.out.println("REV: " + line);
@@ -113,7 +114,6 @@ public class IRCClient implements Runnable {
 					String cmd = m.group(0).trim();
 					String argss = line.substring( line.indexOf( cmd ) + cmd.length() );
 					parts.add( line.substring( 0 , line.indexOf( cmd ))); //src
-					System.out.println("CMD: " + cmd);
 
 					int index;
 					String last= "";
@@ -135,11 +135,6 @@ public class IRCClient implements Runnable {
 					String[] arg = new String[parts.size()];
 		    		parts.toArray(arg);
 
-		    		for (String s : arg)
-		    		{
-		    			System.out.println("ARG: " + s);
-		    		}
-
 				    if (this.commands.containsKey(cmd))
 				    {
 				    	try {
@@ -149,7 +144,6 @@ public class IRCClient implements Runnable {
 				    			try {
 				    				Thread.sleep(1);
 				    			} catch (InterruptedException e) {
-				    				// TODO Auto-generated catch block
 				    				e.printStackTrace();
 				    			}
 				    		}
@@ -157,7 +151,12 @@ public class IRCClient implements Runnable {
 				    		command_lock = true;
 				    		for (final IRCCommand c : this.commands.get(cmd))
 				    		{
-				    			c.command( this , cmd ,  arg );
+				    			try {
+				    				c.command( this , cmd ,  arg );
+				    			} catch (Exception ex)
+				    			{
+				    				System.out.println(ex);
+				    			}
 				    		}
 				    		command_lock = false;
 				    	} catch (Exception ex)
@@ -201,7 +200,22 @@ public class IRCClient implements Runnable {
 				System.out.println(String.format("ID " + args[2] ));
 			}
 		});
+		
 
+    	this.addCommand( "PING", new IRCCommand() {
+			public void command(IRCClient client, String cmd, String[] args) {
+				client.send( "PONG :" + args[1] );
+			}
+		});
+    	
+    	this.addCommand("005", new IRCCommand() {
+			
+			@Override
+			public void command(IRCClient client, String command, String[] args) {
+				loginComplete = true;
+			}
+		});
+    	
 		if (this.client.isConnected())
 			this.listen();
 	}
@@ -223,7 +237,7 @@ public class IRCClient implements Runnable {
 
 	public boolean isConnected() {
 		if (this.client != null)
-			return this.client.isConnected();
+			return this.client.isConnected() && loginComplete;
 		else
 			return false;
 	}
