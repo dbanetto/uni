@@ -32,17 +32,17 @@ import javax.swing.JTextField;
  */
 
 public class ChatClient implements UIButtonListener, UITextFieldListener {
-    private String server = "irc.ecs.vuw.ac.nz";  // default IRC server for testing.
+    private String server = "irc.ecs.vuw.ac.nz";  // ecs best server
     private int port = 6667;     // The standard IRC port number.
     private String username = "";
     private String realname = "";
     private IRCClient client;
     private Thread listner;
     private Hashtable<String , ChatWindow > windows = new Hashtable<String , ChatWindow>();
+    private boolean newList = true;
 
-    
     public static void main(String[] args) throws IOException {
-        new ChatClient( "irc.ecs.vuw.ac.nz" , (((((((6667)))))))); //Brakcets for Pondy
+        new ChatClient( "irc.ecs.vuw.ac.nz" , (((((((((((((((((6667)))))))))))))))))); //Brackets for Pondy
     }
 
     /*
@@ -72,6 +72,7 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
         } else if (button.equals("Connect to Channel") && client.isConnected())
         {
         	final JDialog dialog = new JDialog();
+        	dialog.setTitle("Choose a Channel");
 			JLabel label = new JLabel("Enter Channel: ");
 			final JTextField channel = new JTextField();
 			final JTextArea channellist = new JTextArea(32,8);
@@ -124,28 +125,33 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 			dialog.add( channel , BorderLayout.CENTER);
 			dialog.add ( scoll , BorderLayout.EAST);
 			dialog.add (commit , BorderLayout.SOUTH);
-			
+
 			dialog.setSize( 480 , 160);
 			dialog.setResizable(false);
 			dialog.setVisible(true);
-			
+
 			client.addCommand("322", new IRCCommand() {
-				
+
 				@Override
 				public void command(IRCClient client, String command, String[] args) {
 					channellist.append(args[2] + " (" + args[3] + ")\n");
 				}
 			});
 			client.send("LIST");
-			
+
 		} else if (button.equals("Private Message") && client.isConnected())
 		{
 			//Create A dialog to send a message to someone
+			// NOTE Due to the design of the NAMES command
+			// This dialog will only list the users that are currently
+			// in the same channels as this client
         	final JDialog dialog = new JDialog();
+        	dialog.setTitle("Send a Private Message");
 			final JTextField to = new JTextField("To");
 			final JTextField mesg = new JTextField("Message");
 			final JTextArea userlist = new JTextArea(32,8);
-			userlist.setText("User List");
+			userlist.setText("User List\n");
+			this.client.send("NAMES");
 			userlist.setEditable(false);
 			JScrollPane scoll = new JScrollPane(userlist);
 			JButton commit = new JButton("Send");
@@ -184,13 +190,40 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 				}
 			});
 
+			//Start of Client list
+	    	this.client.addCommand("353", new IRCCommand() {
+
+				@Override
+				public void command(IRCClient client, String command, String[] args) {
+					if ( newList ) {
+						userlist.setText("User List\n");
+						newList = false;
+					}
+
+					for ( String usr :  args[4].split(" ") )
+					{
+						if (!usr.equals(client.getUsername()))
+							userlist.append(usr + "\n");
+					}
+				}
+			});
+
+	    	//End of list
+	        this.client.addCommand("366", new IRCCommand() {
+
+				@Override
+				public void command(IRCClient client, String command, String[] args) {
+					newList = true;
+				}
+			});
+
 			dialog.add( to , BorderLayout.NORTH);
 			dialog.add( mesg , BorderLayout.CENTER);
 			dialog.add( userlist , BorderLayout.EAST);
 			dialog.add (commit , BorderLayout.SOUTH);
-			
-			
-			
+
+
+
 			dialog.setSize( 480 , 160);
 			dialog.setResizable(false);
 			dialog.setVisible(true);
@@ -220,16 +253,16 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     {
     	if (this.client != null && this.client.isConnected())
     		this.closeConnection();
-    	
+
         this.client = new IRCClient ( this.username , this.realname );
         this.client.connect(this.server , this.port );
         windows = new Hashtable<String , ChatWindow>();
-        
+
         this.listner = new Thread ( this.client );
         this.initListners();
         this.listner.start();
     }
-    
+
     /*
      * Method run in the the thread that is listening to the server.
      * Loop as long as there is anything in the serverIn scanner:
@@ -267,9 +300,9 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 				getNewUsername();
 			}
 		});
-    	
+
     	this.client.addCommand("432", new IRCCommand() {
-			
+
 			@Override
 			public void command(IRCClient client, String command, String[] args) {
 				// TODO Auto-generated method stub
@@ -325,6 +358,17 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
 				}
 			}
 		});
+
+    	//Get told to QUIT
+    	this.client.addCommand("QUIT", new IRCCommand() {
+
+			@Override
+			public void command(IRCClient client, String command, String[] args) {
+				String sender = ( args[1].charAt(0) == '#' ? args[1] : args[0].substring(1 , args[0].indexOf('!')) ).trim();
+				if (sender.equals(client.getUsername()))
+						closeConnection();
+			}
+		});
     }
 
     /**
@@ -334,7 +378,12 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
      *  - print a message to the user
      */
     public void closeConnection(){
+    	for (ChatWindow w : windows.values())
+    	{
+    		w.setVisable(false);
+    	}
     	this.client.disconnect();
+    	windows.clear();
     }
 
     public void setUsername (String newNick , boolean tellServer)
@@ -345,10 +394,11 @@ public class ChatClient implements UIButtonListener, UITextFieldListener {
     	}
     	this.username = newNick;
     }
-    
+
     private void getNewUsername()
     {
     	final JDialog dialog = new JDialog();
+    	dialog.setTitle("Enter a new Username");
 		JLabel label = new JLabel("Enter new Username: ");
 		final JTextField name = new JTextField();
 		JButton commit = new JButton("Commit");

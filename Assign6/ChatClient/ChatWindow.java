@@ -1,3 +1,12 @@
+// This program is copyright VUW.
+// You are granted permission to use it to construct your answer to a COMP112 assignment.
+// You may not distribute it in any other way without permission.
+
+/* Code for COMP 112 Assignment
+ * Name: David Barnett
+ * Usercode: barnda
+ * ID: 300313764
+ */
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -39,24 +48,27 @@ public class ChatWindow {
 		this.channel = channel;
 		this.init();
 		if (channel.charAt(0) == '#')
-		{	this.client.send( "JOIN " + channel ); 
+		{	this.client.send( "JOIN " + channel );
 			this.client.send("NAMES " + channel );
 		}
 	}
 
 	private void init()
 	{
-		window = new JFrame("Talking on " + this.channel );    // make a frame
+		if (channel.charAt(0) == '#')
+			window = new JFrame("Talking on " + this.channel );    //Channel
+		else
+			window = new JFrame("Talking to " + this.channel ); //A Person
 		window.setSize(200,300);// set its size
         window.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE); // make it close properly
 
         log = new JTextArea(40,80);;  // text area (lines, chars per line)
         msg = new JTextArea(2,80);  // text area (lines, chars per line)
-        users = new JTextArea(40,8);
-        
+
         if (channel.charAt(0) == '#')
         {
-	    	btnPrivateMsg = new JButton("Part Channel");
+        	users = new JTextArea(40,8);
+	    	btnPrivateMsg = new JButton("Leave Channel");
 	    	final JFrame fwindow = window;
 	        btnPrivateMsg.addMouseListener(new MouseListener() {
 
@@ -124,15 +136,22 @@ public class ChatWindow {
         logscroll = new JScrollPane(log); // put scrollbars around it
 
         log.setEditable(false);
-        users.setEditable(false);
 
-        window.add(logscroll , BorderLayout.WEST);              // add it to the frame.
+
+
         window.add(new JScrollPane(users) , BorderLayout.EAST);
         window.add(msg , BorderLayout.SOUTH);                    // add it to the frame.
 
-        if (channel.charAt(0) == '#')
+        if (channel.charAt(0) == '#') {
+        	users.setEditable(false);
+        	window.add(logscroll , BorderLayout.WEST);
         	window.add(btnPrivateMsg, BorderLayout.NORTH );
-
+        	window.add(new JScrollPane(users) , BorderLayout.EAST);
+            window.add(msg , BorderLayout.SOUTH);
+        } else {
+        	window.add(logscroll , BorderLayout.CENTER);
+            window.add(msg , BorderLayout.SOUTH);
+        }
 
 
         window.pack();                                        // pack things in to the frame
@@ -153,6 +172,7 @@ public class ChatWindow {
 			}
 		});
 
+        //Display JOIN commands
         this.client.addCommand ( "JOIN" , new IRCCommand() {
 			public void command(IRCClient client, String command, String[] args) {
 				// TODO Auto-generated method stub
@@ -173,9 +193,10 @@ public class ChatWindow {
 				}
 			}
 		});
-        
+
+        //Display part messages
         this.client.addCommand("PART", new IRCCommand() {
-			
+
 			@Override
 			public void command(IRCClient client, String command, String[] args) {
 				// TODO Auto-generated method stub
@@ -189,6 +210,7 @@ public class ChatWindow {
 			}
 		});
 
+        //List of Users in a channel
         this.client.addCommand("353", new IRCCommand() {
 
 			@Override
@@ -207,6 +229,7 @@ public class ChatWindow {
 			}
 		});
 
+        //End of list
         this.client.addCommand("366", new IRCCommand() {
 
 			@Override
@@ -217,14 +240,15 @@ public class ChatWindow {
 				newList = true;
 			}
 		});
-        
+
+        //Channel Topic
         this.client.addCommand("332", new IRCCommand() {
-			
+
 			@Override
 			public void command(IRCClient client, String command, String[] args) {
 				if (!args[2].equals(channel))
 					return;
-				
+
 				logAppend("Channel Topic" + args[args.length - 1]);
 			}
 		});
@@ -232,24 +256,22 @@ public class ChatWindow {
 
 	public void logMessage (String name  , String msg)
 	{
-		//log.setText( log.getText() + name + " : " + msg + "\n" );
-		Random rnd = new Random(name.hashCode());
-		Color c = new Color( rnd.nextInt(128) , rnd.nextInt(128)  , rnd.nextInt(128) , 255);
-		
-		log.append("<font>");
-		log.append(name);
-		log.append("</font>");
+		//Get a colour for the User that sent the message
+		//Random rnd = new Random(name.hashCode());
+		//Color c = new Color( rnd.nextInt(128) , rnd.nextInt(128)  , rnd.nextInt(128) , 255);
 
-		
+		log.append(name);
+
+
 		log.append(" : " + msg + "\n");
-		
+
 	}
-	
+
 	public void logAppend (String text)
 	{
 		log.setText( log.getText() + text + "\n" );
 	}
-	
+
 	public void setVisable (boolean val)
 	{
 		this.window.setVisible(val);

@@ -1,3 +1,13 @@
+// This program is copyright VUW.
+// You are granted permission to use it to construct your answer to a COMP112 assignment.
+// You may not distribute it in any other way without permission.
+
+/* Code for COMP 112 Assignment
+ * Name: David Barnett
+ * Usercode: barnda
+ * ID: 300313764
+ */
+
 import java.net.Socket;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -99,13 +109,18 @@ public class IRCClient implements Runnable {
 		while (this != null || this.client.isConnected()) {
 			if (this.instream == null || this.outstream == null || this.client == null)
 				break;
-			
+
 			if (this.instream.hasNext()) {
 				String line = this.instream.nextLine();
 				System.out.println("REV: " + line);
 				List<String> parts = new ArrayList<String>();
 
-				Pattern comPattern = Pattern.compile(" [A-Z0-9]* ");
+				Pattern comPattern;
+				if (line.startsWith(":"))
+					 comPattern = Pattern.compile(" [A-Z0-9]* ");
+				else
+					comPattern = Pattern.compile("[A-Z0-9]* ");
+
 				Matcher m = comPattern.matcher(line);
 
 
@@ -200,22 +215,22 @@ public class IRCClient implements Runnable {
 				System.out.println(String.format("ID " + args[2] ));
 			}
 		});
-		
+
 
     	this.addCommand( "PING", new IRCCommand() {
 			public void command(IRCClient client, String cmd, String[] args) {
 				client.send( "PONG :" + args[1] );
 			}
 		});
-    	
+
     	this.addCommand("005", new IRCCommand() {
-			
+
 			@Override
 			public void command(IRCClient client, String command, String[] args) {
 				loginComplete = true;
 			}
 		});
-    	
+
 		if (this.client.isConnected())
 			this.listen();
 	}
