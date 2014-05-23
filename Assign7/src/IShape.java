@@ -2,8 +2,11 @@ import java.awt.*;
 
 public interface IShape {
 	
+	//ID System
+	int getID();
+	
 	//Render to UI
-	void draw ( );
+	void draw ( int x_camera , int y_camera );
 	
 	//Detect if the mouse has clicked it
 	boolean select (int x ,int y);
@@ -14,8 +17,21 @@ public interface IShape {
 	Point getCenter ();
 	
 	void setPosition(Point pt);
+	Point getPosition ();
+	
+	void setWidth (int w);
+	void setHeight (int h);
+	
+	Color getFill();
+	Color getBorder();
+	
+	void setFill(Color fill);
+	void setBorder(Color border);
 	
 	//Set/Get Visability
 	void setVisability(boolean vis);
 	boolean getVisability();
+	
+	void dispose();
+	boolean disposed ();
 }
