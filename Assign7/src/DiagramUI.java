@@ -17,6 +17,7 @@ public class DiagramUI {
 	
 	private Color fill = Color.white;
 	private Color border = Color.black;
+	private Color fontcolour = Color.black;
 	
 	private int id_counter = 0;
 	
@@ -53,7 +54,14 @@ public class DiagramUI {
 				// TODO Auto-generated method stub
 				while (render)
 				{
-					draw( );
+					try {
+						draw();
+					} catch (NullPointerException ex)
+					{
+						// The Graphics pane in the UI class
+						// Become null at one point ( most likely during clears )
+						// This is catching that oddity
+					}
 					UI.sleep(10);
 				}
 			}
@@ -108,6 +116,7 @@ public class DiagramUI {
 			{
 				shape.draw( (int)camera.getX() , (int)camera.getY() );
 			}
+			
 			UI.repaintGraphics();
 			UI.drawString("Camera : " + (int)camera.getX() + ", " + (int)camera.getY(), 0, 11);
 			shape_delta = false;
@@ -170,10 +179,10 @@ public class DiagramUI {
 			public void buttonPerformed(String name) {
 				if (validSeclection())
 				{
-					selected.setFill( JColorChooser.showDialog(null, "Select Fill Colour", selected.getFill() )  );
+					selected.setFill( JColorChooser.showDialog(null, "Select Shape's Fill Colour", selected.getFill() )  );
 					shape_delta = true;
 				} else
-					fill = JColorChooser.showDialog(null, "Select Fill Colour", fill);
+					fill = JColorChooser.showDialog(null, "Select Default Fill Colour", fill);
 			}
 		});
 		
@@ -183,10 +192,22 @@ public class DiagramUI {
 			public void buttonPerformed(String name) {
 				if (validSeclection())
 				{
-					selected.setBorder( JColorChooser.showDialog(null, "Select Border Colour", selected.getBorder() )  );
+					selected.setBorder( JColorChooser.showDialog(null, "Select Shape's Border Colour", selected.getBorder() )  );
 					shape_delta = true;
 				} else
-					border = JColorChooser.showDialog(null, "Select Fill Colour", border);
+					border = JColorChooser.showDialog(null, "Select Default Fill Colour", border);
+			}
+		});
+		
+		UI.addButton("Font Colour", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				if (validSeclection())
+				{
+					selected.getText().setColor( JColorChooser.showDialog(null, "Select Shape's Font Colour", selected.getBorder() )  );
+					shape_delta = true;
+				} else
+					fontcolour = JColorChooser.showDialog(null, "Select Default Font Colour", fontcolour);
 			}
 		});
 		
@@ -251,6 +272,8 @@ public class DiagramUI {
 					if (mouse_mode == 10)
 					{
 						shapes.add(new Rectangle( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, border , fill));
+						shapes.get( shapes.size() - 1 ).getText().setColor( fontcolour );
+						shapes.get( shapes.size() - 1 ).setText("WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS ");
 						if (!sticky_mode)
 							mouse_mode = 0;
 					}

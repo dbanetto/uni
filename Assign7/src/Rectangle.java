@@ -12,7 +12,7 @@ public class Rectangle implements IShape {
 	private boolean visable = true;
 	private boolean disposed = false;
 	private int id;
-	
+	private Text text;
 	
 	public Rectangle( int ID , int x, int y, int w, int h , Color border , Color fill )
 	{
@@ -23,6 +23,7 @@ public class Rectangle implements IShape {
 		this.h = h;
 		this.border = border;
 		this.fill = fill;
+		text = new Text( "" , this);
 	}
 	
 	@Override
@@ -33,6 +34,8 @@ public class Rectangle implements IShape {
 		UI.fillRect(this.x - x_camera, this.y - y_camera, this.w , this.h);
 		UI.setColor(border);
 		UI.drawRect(this.x - x_camera, this.y - y_camera, this.w , this.h );
+		if (text != null)
+			text.draw(this.x - x_camera + this.w / 2 , this.y - y_camera + this.h / 2 );
 	}
 
 	@Override
@@ -50,9 +53,8 @@ public class Rectangle implements IShape {
 	}
 
 	@Override
-	public void setText(String text) {
-		// TODO Auto-generated method stub
-		
+	public void setText(String txt) {
+		this.text = new Text( txt , this);
 	}
 
 	@Override
@@ -87,12 +89,16 @@ public class Rectangle implements IShape {
 	void setWidth (int w)
 	{
 		this.w = w;
+		if (text != null)
+			text.updateSegments();
 	}
 	
 	@Override
 	public void setHeight (int h)
 	{
 		this.h = h;
+		if (text != null)
+			text.updateSegments();
 	}
 	
 	@Override
@@ -135,4 +141,23 @@ public class Rectangle implements IShape {
 	{
 		return this.id;
 	}
+	
+	@Override
+	public int getWidth()
+	{
+		return this.w;
+	}
+	
+	@Override
+	public int getHeight()
+	{
+		return this.h;
+	}
+	
+	@Override
+	public Text getText()
+	{
+		return this.text;
+	}
+	
 }

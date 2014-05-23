@@ -22,8 +22,13 @@ public interface IShape {
 	void setWidth (int w);
 	void setHeight (int h);
 	
+	int getWidth();
+	int getHeight();
+	
 	Color getFill();
 	Color getBorder();
+	
+	Text getText();
 	
 	void setFill(Color fill);
 	void setBorder(Color border);
