@@ -74,24 +74,22 @@ public class Text {
 				}
 				//Cut the line at the last space in the line
 				int last_word = set - 1;
-				while (text.charAt(last_word) != ' ')
+				while (last_word > 0 && text.charAt(last_word) != ' ')
 				{
 					last_word--;
-					if (last_word < 0)
-						break;
 				}
 				//If the last_word found the last word, set that as the set size
 				// if not go with the set's length it is going to be full of text :( not pretty
 				set = ( last_word < 0 ? set : last_word );
-				
-				segments.add( text.substring(0, set - 1 ).trim() );
-				text = text.substring(set).trim() ;
+
+				segments.add( text.substring(0, set ).trim() );
+				text = text.substring(set ).trim() ;
 			}
 		}
 		segments.add(text);
 		
 		x_offset = -(int)(x_offset / 2);
-		y_offset = -(int)(font_height * 0.5 * segments.size() );
+		y_offset = -(int)(font_height * 0.5 * (segments.size() - 1) );
 	}
 	
 	public Color getColour()

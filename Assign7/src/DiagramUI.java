@@ -14,10 +14,12 @@ public class DiagramUI {
 	private boolean sticky_mode = false;
 	private int width = 256 , height = 256;
 	private boolean shape_delta = false;
+	private boolean fast_draw = false;
 	
 	private Color fill = Color.white;
 	private Color border = Color.black;
 	private Color fontcolour = Color.black;
+	private Color linecolour = Color.black;
 	
 	private int id_counter = 0;
 	
@@ -25,10 +27,11 @@ public class DiagramUI {
 	
 	/**
 	 * Mouse Modes
-	 * 0 - Select
-	 *-1 - Delete
-	 * 5 - Line Select 1st Object
-	 * 6 - Line Select Shape to attach to
+	 *  0 - Select
+	 * -1 - Delete Shape
+	 *-10 - Delete Line
+	 *  5 - Line Select 1st Object
+	 *  6 - Line Select Shape to attach to
 	 * 10 - Create Rectangle
 	 */
 	private int mouse_mode = 0;
@@ -54,14 +57,7 @@ public class DiagramUI {
 				// TODO Auto-generated method stub
 				while (render)
 				{
-					try {
-						draw();
-					} catch (NullPointerException ex)
-					{
-						// The Graphics pane in the UI class
-						// Become null at one point ( most likely during clears )
-						// This is catching that oddity
-					}
+					draw();
 					UI.sleep(10);
 				}
 			}
@@ -121,6 +117,12 @@ public class DiagramUI {
 			UI.drawString("Camera : " + (int)camera.getX() + ", " + (int)camera.getY(), 0, 11);
 			shape_delta = false;
 		}
+		if (fast_draw)
+		{
+			UI.repaintGraphics();
+			fast_draw = false;
+		}
+		
 		old_lines_length = lines.size();
 		old_shapes_length = shapes.size();
 	}
@@ -211,6 +213,25 @@ public class DiagramUI {
 			}
 		});
 		
+		UI.addButton("Line Colour", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				if (validSeclection())
+				{
+					Color tmp = JColorChooser.showDialog(null, "Select Line Colour for all Connected to this shape", linecolour);
+					for (Line line : lines)
+					{
+						if (line.connectsTo(selected))
+						{
+							line.setColor(tmp);
+						}
+					}
+					shape_delta = true;
+				} else
+					linecolour = JColorChooser.showDialog(null, "Select Default Line Colour", linecolour);
+			}
+		});
+		
 		// HACK : Terrible UI Name get a better one
 		UI.addButton("Toggle Sticky Shape", new UIButtonListener() {
 			@Override
@@ -237,11 +258,19 @@ public class DiagramUI {
 			}
 		});
 		
-		UI.addButton("Delete", new UIButtonListener() {
+		UI.addButton("Delete Shape", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
 				// TODO Auto-generated method stub
 				mouse_mode = -1;
+			}
+		});
+		
+		UI.addButton("Delete Line", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				// TODO Auto-generated method stub
+				mouse_mode = -10;
 			}
 		});
 		
@@ -288,6 +317,13 @@ public class DiagramUI {
 							mouse_mode = 0;
 					}
 					
+					if (mouse_mode == -10)
+					{
+						//Try to select a Line ( give it some area then check if mouse is in it )
+						if (!sticky_mode)
+							mouse_mode = 0;
+					}
+					
 				} else if (action.equals("pressed"))
 				{
 					if (mouse_mode == 0)
@@ -326,7 +362,7 @@ public class DiagramUI {
 						
 						selected.draw( (int)camera.getX(), (int)camera.getY() );
 						last_mouse.setLocation( x , y );
-						UI.repaintGraphics();
+						fast_draw = true;
 					}
 				} else if (action.equals("released") )
 				{
@@ -336,13 +372,13 @@ public class DiagramUI {
 						UI.invertLine( press_start.getX()   ,  press_start.getY()  
 								, last_mouse.getX()   , last_mouse.getY()  );
 						selected.draw( (int)camera.getX(), (int)camera.getY() );
-						UI.repaintGraphics();
+						fast_draw = true;
 						
 						IShape old_selected = selected;
 						select((int)cam_x , (int)cam_y );
 						
 						if (validSeclection()) {
-							lines.add(new Line( old_selected , selected )  );
+							lines.add(new Line( old_selected , selected , linecolour )  );
 							selected = null;
 						}
 						
