@@ -6,13 +6,13 @@ import ecs100.UI;
 
 public class Rectangle implements IShape {
 	
-	private int x , y , w , h;
-	private Color border;
-	private Color fill;
-	private boolean visable = true;
-	private boolean disposed = false;
-	private int id;
-	private Text text;
+	protected int x , y , w , h;
+	protected Color border;
+	protected Color fill;
+	protected boolean visable = true;
+	protected boolean disposed = false;
+	protected int id;
+	protected Text text;
 	
 	public Rectangle( int ID , int x, int y, int w, int h , Color border , Color fill )
 	{

@@ -13,11 +13,11 @@ public class DiagramUI {
 	private List<IShape> shapes;
 	private boolean sticky_mode = false;
 	private int width = 256 , height = 256;
-	private boolean shape_delta = false;
+	private boolean shape_changed = false;
 	private boolean fast_draw = false;
 	
-	private Color fill = Color.white;
-	private Color border = Color.black;
+	private Color fillcolour = Color.white;
+	private Color bordercolour = Color.black;
 	private Color fontcolour = Color.black;
 	private Color linecolour = Color.black;
 	
@@ -33,6 +33,7 @@ public class DiagramUI {
 	 *  5 - Line Select 1st Object
 	 *  6 - Line Select Shape to attach to
 	 * 10 - Create Rectangle
+	 * 11 - Create Oval
 	 */
 	private int mouse_mode = 0;
 	
@@ -88,7 +89,7 @@ public class DiagramUI {
 			//Move the Selected to the top of the draw stack
 			shapes.remove(selected);
 			shapes.add(shapes.size(), selected);
-			shape_delta = true;
+			shape_changed = true;
 		}
 	}
 	
@@ -97,7 +98,7 @@ public class DiagramUI {
 	private int old_shapes_length = 0;
 	private void draw()
 	{
-		if (shapes.size() != old_shapes_length || lines.size() != old_lines_length || shape_delta )
+		if (shapes.size() != old_shapes_length || lines.size() != old_lines_length || shape_changed )
 		{
 			UI.clearGraphics(false);
 			for (int i = 0; i < lines.size(); i++)
@@ -115,7 +116,7 @@ public class DiagramUI {
 			
 			UI.repaintGraphics();
 			UI.drawString("Camera : " + (int)camera.getX() + ", " + (int)camera.getY(), 0, 11);
-			shape_delta = false;
+			shape_changed = false;
 		}
 		if (fast_draw)
 		{
@@ -152,14 +153,20 @@ public class DiagramUI {
 				mouse_mode = 10;
 			}
 		});
-		
+		//Ui Option to go into Oval creation mode
+		UI.addButton("Add Oval", new UIButtonListener() {
+					@Override
+					public void buttonPerformed(String name) {
+						mouse_mode = 11;
+					}
+				});
 		UI.addSlider("Width (px)", 1, 512, new UISliderListener() {
 			@Override
 			public void sliderPerformed(String name, double value) {
 				width = (int)value;
 				if (validSeclection()) {
 					selected.setWidth((int)value);
-					shape_delta = true;
+					shape_changed = true;
 				}
 			}
 		});
@@ -170,7 +177,7 @@ public class DiagramUI {
 				height = (int)value;
 				if (validSeclection()) {
 					selected.setHeight((int)value);
-					shape_delta = true;
+					shape_changed = true;
 				}
 				
 			}
@@ -182,9 +189,9 @@ public class DiagramUI {
 				if (validSeclection())
 				{
 					selected.setFill( JColorChooser.showDialog(null, "Select Shape's Fill Colour", selected.getFill() )  );
-					shape_delta = true;
+					shape_changed = true;
 				} else
-					fill = JColorChooser.showDialog(null, "Select Default Fill Colour", fill);
+					fillcolour = JColorChooser.showDialog(null, "Select Default Fill Colour", fillcolour);
 			}
 		});
 		
@@ -195,9 +202,9 @@ public class DiagramUI {
 				if (validSeclection())
 				{
 					selected.setBorder( JColorChooser.showDialog(null, "Select Shape's Border Colour", selected.getBorder() )  );
-					shape_delta = true;
+					shape_changed = true;
 				} else
-					border = JColorChooser.showDialog(null, "Select Default Fill Colour", border);
+					bordercolour = JColorChooser.showDialog(null, "Select Default Fill Colour", bordercolour);
 			}
 		});
 		
@@ -207,7 +214,7 @@ public class DiagramUI {
 				if (validSeclection())
 				{
 					selected.getText().setColor( JColorChooser.showDialog(null, "Select Shape's Font Colour", selected.getBorder() )  );
-					shape_delta = true;
+					shape_changed = true;
 				} else
 					fontcolour = JColorChooser.showDialog(null, "Select Default Font Colour", fontcolour);
 			}
@@ -226,7 +233,7 @@ public class DiagramUI {
 							line.setColor(tmp);
 						}
 					}
-					shape_delta = true;
+					shape_changed = true;
 				} else
 					linecolour = JColorChooser.showDialog(null, "Select Default Line Colour", linecolour);
 			}
@@ -300,12 +307,19 @@ public class DiagramUI {
 				{
 					if (mouse_mode == 10)
 					{
-						shapes.add(new Rectangle( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, border , fill));
+						shapes.add(new Rectangle( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, bordercolour , fillcolour));
 						shapes.get( shapes.size() - 1 ).getText().setColor( fontcolour );
-						shapes.get( shapes.size() - 1 ).setText("WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS WORDS ");
 						if (!sticky_mode)
 							mouse_mode = 0;
 					}
+					if (mouse_mode == 11)
+					{
+						shapes.add(new Oval( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, bordercolour , fillcolour));
+						shapes.get( shapes.size() - 1 ).getText().setColor( fontcolour );
+						if (!sticky_mode)
+							mouse_mode = 0;
+					}
+					
 					if (mouse_mode == -1)
 					{
 						select((int)cam_x , (int)cam_y);
@@ -395,13 +409,13 @@ public class DiagramUI {
 					{
 						selected.setPosition(new Point( (int)(cam_x - offset.getX())  ,
 														(int)(cam_y - offset.getY()) ));
-						shape_delta = true;
+						shape_changed = true;
 					}
 				} else {
 					if (action.equals("dragged") && mouse_mode == 0) {
 						camera.move( (int)(camera_start.getX() -  (x - press_start.getX()) ) , 
 									 (int)(camera_start.getY() -  (y - press_start.getY()) ) );
-						shape_delta = true;
+						shape_changed = true;
 					}
 				}
 				
