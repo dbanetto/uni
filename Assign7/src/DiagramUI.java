@@ -94,6 +94,37 @@ public class DiagramUI {
 		}
 	}
 	
+	public void addShape (IShape shape)
+	{
+		this.shapes.add(shape);
+		if ( shape.getID() > this.id_counter)
+		{
+			this.id_counter = shape.getID() + 1;
+		}
+	}
+	
+	public void addLine(Line line)
+	{
+		this.lines.add(line);
+	}
+	
+	public List<Line> getLines()
+	{
+		return this.lines;
+	}
+	
+	public List<IShape> getShapes()
+	{
+		return this.shapes;
+	}
+	
+	public void Clear()
+	{
+		this.shapes.clear();
+		this.lines.clear();
+		this.id_counter = 0;
+	}
+	
 	private Line select_line( int x , int y)
 	{
 		for (Line line : lines)
@@ -274,7 +305,6 @@ public class DiagramUI {
 		UI.addButton("Center Camera", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				// TODO Auto-generated method stub
 				camera.setLocation(0,0);
 			}
 		});
@@ -282,7 +312,6 @@ public class DiagramUI {
 		UI.addButton("Delete Shape", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				// TODO Auto-generated method stub
 				mouse_mode = -1;
 			}
 		});
@@ -290,15 +319,29 @@ public class DiagramUI {
 		UI.addButton("Delete Line", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				// TODO Auto-generated method stub
 				mouse_mode = -2;
+			}
+		});
+		
+		final DiagramUI _this = this;
+		UI.addButton("Save", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				Loader.Save("test_save.txt", _this );
+			}
+		});
+		
+		UI.addButton("Load", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				// TODO Auto-generated method stub
+				Loader.Load("test.txt", _this );
 			}
 		});
 		
 		UI.addButton("Clear", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				// TODO Auto-generated method stub
 				shapes.clear();
 				lines.clear();
 			}

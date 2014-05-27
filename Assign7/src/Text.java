@@ -45,6 +45,12 @@ public class Text {
 		updateSegments();
 	}
 	
+	public String getText()
+	{
+		return this.Text;
+	}
+	
+	
 	public void updateSegments()
 	{
 		FontMetrics fnt = UI.getGraphics().getFontMetrics();

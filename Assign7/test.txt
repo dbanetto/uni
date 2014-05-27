@@ -1,0 +1,4 @@
+shape:0,0,100,100,0,rect,Hello World,#ffff00,#ff00ff,#00ffff
+shape:0,100,100,100,1,rect,Hello World,#f0fef0,#fef0fe,#f0f0f0
+
+line:0,1,#000000

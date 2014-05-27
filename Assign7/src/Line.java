@@ -54,17 +54,30 @@ public class Line {
 		this.colour = colour;
 	}
 	
+	public IShape[] getShapes()
+	{
+		return this.shapes;
+	}
+	
 	public boolean select ( int x , int y )
 	{
 		Point a = this.shapes[0].getCenter();
 		Point b = this.shapes[1].getCenter();
 		
+		// y = mx + c
 		double m = ( a.getY() - b.getY() ) / ( a.getX() - b.getX() );
 		double c = -m*a.getX() + a.getY(); 
 		
-		double diff = (m*x + c) - y;
+		// x = ny + d
+		double n = ( a.getX() - b.getX() ) / ( a.getY() - b.getY() );
+		double d = -n*a.getY() + a.getX(); 
 		
-		if ( Math.abs( diff ) < 24 )
+		// The difference between the expected and actual position
+		double diffx = (m*x + c) - y;
+		double diffy = (n*y + d) - x;
+		
+		//Allow an error of +/-16px
+		if ( Math.abs( diffx ) < 16 || Math.abs( diffy ) < 16  )
 		{
 			return true;
 		}
