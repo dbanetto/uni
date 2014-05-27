@@ -27,7 +27,8 @@ public class DiagramUI {
 	
 	/**
 	 * Mouse Modes
-	 *  0 - Select
+	 *  0 - Select Shape
+	 *  1 - Select Line
 	 * -1 - Delete Shape
 	 *-10 - Delete Line
 	 *  5 - Line Select 1st Object
@@ -71,7 +72,7 @@ public class DiagramUI {
 		return (selected != null && selected.getVisability());
 	}
 	
-	private void select( int x , int y)
+	private void select_shape( int x , int y)
 	{
 		boolean selected_one = false;
 		for (IShape shape : shapes)
@@ -91,6 +92,19 @@ public class DiagramUI {
 			shapes.add(shapes.size(), selected);
 			shape_changed = true;
 		}
+	}
+	
+	private Line select_line( int x , int y)
+	{
+		for (Line line : lines)
+		{
+			if ( line.select(x, y) )
+			{
+				UI.println( "Line : " + line.toString() );
+				return line;
+			}
+		}
+		return null;
 	}
 	
 	//UI Rendering
@@ -277,7 +291,7 @@ public class DiagramUI {
 			@Override
 			public void buttonPerformed(String name) {
 				// TODO Auto-generated method stub
-				mouse_mode = -10;
+				mouse_mode = -2;
 			}
 		});
 		
@@ -322,7 +336,7 @@ public class DiagramUI {
 					
 					if (mouse_mode == -1)
 					{
-						select((int)cam_x , (int)cam_y);
+						select_shape((int)cam_x , (int)cam_y);
 						if (validSeclection()) {
 							selected.dispose();
 							shapes.remove(selected);
@@ -331,8 +345,14 @@ public class DiagramUI {
 							mouse_mode = 0;
 					}
 					
-					if (mouse_mode == -10)
+					if (mouse_mode == -2)
 					{
+						Line l = select_line((int)cam_x, (int)cam_y);
+						if ( l != null )
+						{
+							lines.remove(l);
+						}
+						
 						//Try to select a Line ( give it some area then check if mouse is in it )
 						if (!sticky_mode)
 							mouse_mode = 0;
@@ -342,16 +362,19 @@ public class DiagramUI {
 				{
 					if (mouse_mode == 0)
 					{
-						select((int)cam_x , (int)cam_y);
+						select_shape((int)cam_x , (int)cam_y);
 						if (validSeclection()) {
 							Point selected_pos = selected.getPosition();
 							offset.setLocation( cam_x - selected_pos.getX() , cam_y - selected_pos.getY() );
 						}
 						press_start.setLocation(x , y);
 						camera_start.setLocation(camera);
+					} else if (mouse_mode == 1)
+					{
+						
 					} else if (mouse_mode == 5)
 					{
-						select((int)cam_x , (int)cam_y);
+						select_shape((int)cam_x , (int)cam_y);
 						if (validSeclection()) {
 							mouse_mode = 6;
 							last_mouse.setLocation( x , y );
@@ -389,7 +412,7 @@ public class DiagramUI {
 						fast_draw = true;
 						
 						IShape old_selected = selected;
-						select((int)cam_x , (int)cam_y );
+						select_shape((int)cam_x , (int)cam_y );
 						
 						if (validSeclection()) {
 							lines.add(new Line( old_selected , selected , linecolour )  );

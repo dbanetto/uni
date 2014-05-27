@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.awt.Point;
+
 import ecs100.*;
 
 public class Line {
@@ -50,5 +52,22 @@ public class Line {
 	public void setColor(Color colour)
 	{
 		this.colour = colour;
+	}
+	
+	public boolean select ( int x , int y )
+	{
+		Point a = this.shapes[0].getCenter();
+		Point b = this.shapes[1].getCenter();
+		
+		double m = ( a.getY() - b.getY() ) / ( a.getX() - b.getX() );
+		double c = -m*a.getX() + a.getY(); 
+		
+		double diff = (m*x + c) - y;
+		
+		if ( Math.abs( diff ) < 24 )
+		{
+			return true;
+		}
+		return false;
 	}
 }
