@@ -87,7 +87,6 @@ public class DiagramUI {
 			if ( shape.select(x, y) )
 			{
 				selected = shape;
-				UI.println( "Shape : " + shape.getPosition().toString() );
 				selected_one = true;
 			}
 		}
@@ -139,7 +138,6 @@ public class DiagramUI {
 		{
 			if ( line.select(x, y) )
 			{
-				UI.println( "Line : " + line.toString() );
 				return line;
 			}
 		}
@@ -173,7 +171,7 @@ public class DiagramUI {
 			}
 						
 			UI.repaintGraphics();
-			UI.drawString("Camera : " + (int)camera.getX() + ", " + (int)camera.getY(), 0, 11);
+			UI.printMessage("Camera Position : " + (int)camera.getX() + ", " + (int)camera.getY());
 			shape_changed = false;
 		}
 		if (fast_draw)
@@ -340,15 +338,22 @@ public class DiagramUI {
 		UI.addButton("Save", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				Loader.Save("test_save.txt", _this );
+				String save = UIFileChooser.save("Save the Diagram");
+				if (save != null)
+				{
+					Loader.Save(save, _this );
+				}
 			}
 		});
 		
 		UI.addButton("Load", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				// TODO Auto-generated method stub
-				Loader.Load("test.txt", _this );
+				String load = UIFileChooser.open("Open a Diagram");
+				if (load != null)
+				{
+					Loader.Load(load, _this );
+				}
 			}
 		});
 		
