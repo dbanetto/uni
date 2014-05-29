@@ -4,7 +4,7 @@ import java.awt.Point;
 import ecs100.UI;
 
 
-public class Oval extends Rectangle {
+public class Oval extends Shape {
 	public Oval( int ID , int x, int y, int w, int h , Color border , Color fill )
 	{
 		super (ID , x ,y ,w ,h , border , fill );
@@ -20,10 +20,17 @@ public class Oval extends Rectangle {
 		if (text != null)
 			text.draw(this.x - x_camera + this.w / 2 , this.y - y_camera + this.h / 2 );
 	}
-
+	
+	@Override
+	public void draw_outline ( int x_camera , int y_camera )
+	{
+		UI.invertOval(this.x - x_camera -1 , this.y - y_camera - 1, this.w  + 2, this.h +2);
+	}
+	
 	@Override
 	public boolean select(int x, int y) {
-		if (super.select(x, y))
+		if ( x > this.x && x < this.x + this.w && 
+			 y > this.y && y < this.y + this.h	)
 		{
 			return ( Math.pow(x - this.getCenter().getX() , 2) / ((w/2)*(w/2)) + Math.pow(y - this.getCenter().getY() , 2) / ((h/2)*(h/2)) < 1 );
 		}

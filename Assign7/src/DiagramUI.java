@@ -59,7 +59,14 @@ public class DiagramUI {
 				// TODO Auto-generated method stub
 				while (render)
 				{
-					draw();
+					try {
+						if (UI.getGraphics() != null)
+							draw();
+					} catch (NullPointerException ex)
+					{
+						//Graphics Panel turns null during a re-draw
+						//This thread sometimes get caught out
+					}
 					UI.sleep(10);
 				}
 			}
@@ -86,6 +93,7 @@ public class DiagramUI {
 		}
 		if (!selected_one) {
 			selected = null;
+			shape_changed = true;
 		} else {
 			//Move the Selected to the top of the draw stack
 			shapes.remove(selected);
@@ -159,6 +167,11 @@ public class DiagramUI {
 				shape.draw( (int)camera.getX() , (int)camera.getY() );
 			}
 			
+			if ( validSeclection() )
+			{
+				selected.draw_outline((int)camera.getX() , (int)camera.getY());
+			}
+						
 			UI.repaintGraphics();
 			UI.drawString("Camera : " + (int)camera.getX() + ", " + (int)camera.getY(), 0, 11);
 			shape_changed = false;
