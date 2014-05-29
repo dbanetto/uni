@@ -130,6 +130,7 @@ public class DiagramUI {
 		this.shapes.clear();
 		this.lines.clear();
 		this.id_counter = 0;
+		selected = null;
 	}
 	
 	private Line select_line( int x , int y)
@@ -165,7 +166,7 @@ public class DiagramUI {
 				shape.draw( (int)camera.getX() , (int)camera.getY() );
 			}
 			
-			if ( validSeclection() )
+			if ( validSeclection() && mouse_mode == 0 )
 			{
 				selected.draw_outline((int)camera.getX() , (int)camera.getY());
 			}
@@ -352,6 +353,7 @@ public class DiagramUI {
 				String load = UIFileChooser.open("Open a Diagram");
 				if (load != null)
 				{
+					Clear();
 					Loader.Load(load, _this );
 				}
 			}
@@ -360,8 +362,7 @@ public class DiagramUI {
 		UI.addButton("Clear", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				shapes.clear();
-				lines.clear();
+				Clear();
 			}
 		});
 		
@@ -384,6 +385,7 @@ public class DiagramUI {
 					{
 						shapes.add(new Rectangle( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, bordercolour , fillcolour));
 						shapes.get( shapes.size() - 1 ).getText().setColor( fontcolour );
+						selected = shapes.get( shapes.size() - 1 );
 						if (!sticky_mode)
 							mouse_mode = 0;
 					}
@@ -391,6 +393,7 @@ public class DiagramUI {
 					{
 						shapes.add(new Oval( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, bordercolour , fillcolour));
 						shapes.get( shapes.size() - 1 ).getText().setColor( fontcolour );
+						selected = shapes.get( shapes.size() - 1 );
 						if (!sticky_mode)
 							mouse_mode = 0;
 					}
