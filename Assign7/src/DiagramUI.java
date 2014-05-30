@@ -9,6 +9,8 @@ import ecs100.*;
 public class DiagramUI {
 	
 	private IShape selected = null;
+	private Line selceted_line = null;
+	
 	private List<Line> lines;
 	private List<IShape> shapes;
 	private boolean sticky_mode = false;
@@ -98,6 +100,7 @@ public class DiagramUI {
 			shapes.remove(selected);
 			shapes.add(shapes.size(), selected);
 			shape_changed = true;
+			selceted_line = null;
 		}
 	}
 	
@@ -161,6 +164,13 @@ public class DiagramUI {
 				}
 			}
 			
+			if (selceted_line != null && mouse_mode == 0 )
+			{
+				UI.setLineWidth(4.0);
+				selceted_line.draw((int)camera.getX() , (int)camera.getY());
+				UI.setLineWidth(1.0);
+			}
+			
 			for (IShape shape : shapes)
 			{
 				shape.draw( (int)camera.getX() , (int)camera.getY() );
@@ -168,9 +178,11 @@ public class DiagramUI {
 			
 			if ( validSeclection() && mouse_mode == 0 )
 			{
-				selected.draw_outline((int)camera.getX() , (int)camera.getY());
+				UI.setLineWidth(4.0);
+				selected.draw((int)camera.getX() , (int)camera.getY());
+				UI.setLineWidth(1.0);
 			}
-						
+				
 			UI.repaintGraphics();
 			UI.printMessage("Camera Position : " + (int)camera.getX() + ", " + (int)camera.getY());
 			shape_changed = false;
@@ -280,7 +292,12 @@ public class DiagramUI {
 		UI.addButton("Line Colour", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				if (validSeclection())
+				if (selceted_line != null)
+				{
+					selceted_line.setColor( JColorChooser.showDialog(null, "Select Line Colour", selceted_line.getColour()) );
+					shape_changed = true;
+					
+				} else if (validSeclection())
 				{
 					Color tmp = JColorChooser.showDialog(null, "Select Line Colour for all Connected to this shape", linecolour);
 					for (Line line : lines)
@@ -318,6 +335,7 @@ public class DiagramUI {
 			@Override
 			public void buttonPerformed(String name) {
 				camera.setLocation(0,0);
+				shape_changed = true;
 			}
 		});
 		
@@ -430,6 +448,8 @@ public class DiagramUI {
 						if (validSeclection()) {
 							Point selected_pos = selected.getPosition();
 							offset.setLocation( cam_x - selected_pos.getX() , cam_y - selected_pos.getY() );
+						} else {
+							selceted_line = select_line((int)cam_x , (int)cam_y);
 						}
 						press_start.setLocation(x , y);
 						camera_start.setLocation(camera);
