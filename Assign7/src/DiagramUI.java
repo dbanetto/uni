@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.JColorChooser;
 
 import ecs100.*;
@@ -24,7 +25,7 @@ public class DiagramUI {
 	private Color linecolour = Color.black;
 	
 	private int id_counter = 0;
-	
+	private String default_text = "";
 	private Point camera = new Point(0,0);
 	
 	/**
@@ -37,6 +38,7 @@ public class DiagramUI {
 	 *  6 - Line Select Shape to attach to
 	 * 10 - Create Rectangle
 	 * 11 - Create Oval
+	 * 12 - Create Hexagon
 	 */
 	private int mouse_mode = 0;
 	
@@ -224,11 +226,20 @@ public class DiagramUI {
 		});
 		//Ui Option to go into Oval creation mode
 		UI.addButton("Add Oval", new UIButtonListener() {
-					@Override
-					public void buttonPerformed(String name) {
-						mouse_mode = 11;
-					}
-				});
+			@Override
+			public void buttonPerformed(String name) {
+				mouse_mode = 11;
+			}
+		});
+		
+		//Ui Option to go into Hexagon creation mode
+		UI.addButton("Add Hexagon", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				mouse_mode = 12;
+			}
+		});
+		
 		UI.addSlider("Width (px)", 1, 512, new UISliderListener() {
 			@Override
 			public void sliderPerformed(String name, double value) {
@@ -247,6 +258,20 @@ public class DiagramUI {
 				if (validSeclection()) {
 					selected.setHeight((int)value);
 					shape_changed = true;
+				}
+				
+			}
+		});
+		
+		UI.addTextField("Set Text", new UITextFieldListener() {
+			@Override
+			public void textFieldPerformed(String name, String newText) {
+				if (validSeclection())
+				{
+					selected.setText(newText);
+					shape_changed = true;
+				} else {
+					default_text = newText;
 				}
 				
 			}
@@ -331,14 +356,6 @@ public class DiagramUI {
 			}
 		});
 		
-		UI.addButton("Center Camera", new UIButtonListener() {
-			@Override
-			public void buttonPerformed(String name) {
-				camera.setLocation(0,0);
-				shape_changed = true;
-			}
-		});
-		
 		UI.addButton("Delete Shape", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
@@ -403,6 +420,7 @@ public class DiagramUI {
 					{
 						shapes.add(new Rectangle( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, bordercolour , fillcolour));
 						shapes.get( shapes.size() - 1 ).getText().setColor( fontcolour );
+						shapes.get( shapes.size() - 1  ).setText(default_text);
 						selected = shapes.get( shapes.size() - 1 );
 						if (!sticky_mode)
 							mouse_mode = 0;
@@ -411,6 +429,16 @@ public class DiagramUI {
 					{
 						shapes.add(new Oval( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, bordercolour , fillcolour));
 						shapes.get( shapes.size() - 1 ).getText().setColor( fontcolour );
+						shapes.get( shapes.size() - 1  ).setText(default_text);
+						selected = shapes.get( shapes.size() - 1 );
+						if (!sticky_mode)
+							mouse_mode = 0;
+					} 
+					if (mouse_mode == 12)
+					{
+						shapes.add(new Hexagon( id_counter++ , (int)cam_x - width/2, (int)cam_y - height/2, width, height, bordercolour , fillcolour));
+						shapes.get( shapes.size() - 1 ).getText().setColor( fontcolour );
+						shapes.get( shapes.size() - 1  ).setText(default_text);
 						selected = shapes.get( shapes.size() - 1 );
 						if (!sticky_mode)
 							mouse_mode = 0;

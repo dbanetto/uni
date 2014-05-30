@@ -24,12 +24,6 @@ public class Rectangle extends Shape {
 	}
 	
 	@Override
-	public void draw_outline ( int x_camera , int y_camera )
-	{
-		UI.invertRect(this.x - x_camera -1 , this.y - y_camera - 1, this.w  + 2, this.h +2);
-	}
-	
-	@Override
 	public boolean select(int x, int y) {
 		if (disposed)
 			return false;

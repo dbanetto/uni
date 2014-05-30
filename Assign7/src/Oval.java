@@ -22,12 +22,6 @@ public class Oval extends Shape {
 	}
 	
 	@Override
-	public void draw_outline ( int x_camera , int y_camera )
-	{
-		UI.invertOval(this.x - x_camera -1 , this.y - y_camera - 1, this.w  + 2, this.h +2);
-	}
-	
-	@Override
 	public boolean select(int x, int y) {
 		if ( x > this.x && x < this.x + this.w && 
 			 y > this.y && y < this.y + this.h	)

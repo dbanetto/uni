@@ -7,7 +7,6 @@ public interface IShape {
 	
 	//Render to UI
 	void draw ( int x_camera , int y_camera );
-	void draw_outline ( int x_camera , int y_camera );
 	
 	//Detect if the mouse has clicked it
 	boolean select (int x ,int y);

@@ -6,8 +6,6 @@ public class Loader {
 	
 	public static void Load ( String file ,  DiagramUI ui  )
 	{
-		String balck = ColortoHex(Color.black);
-		
 		try {
 			List<Line> lines = ui.getLines();
 			List<IShape> shapes = ui.getShapes();
@@ -16,17 +14,18 @@ public class Loader {
 			String line = "";
             while ( ( line  = fs.readLine() ) != null )
             {
+            	//Invalid Line, ignore
             	if (line.split(":").length != 2){
-                    System.out.println("Invaild line " + line);
                     continue;
                 }
+            	
                 String command = line.split(":")[0];
-                String[] para = line.split(":")[1].split(",");
+                String[] para = line.split(":")[1].split("," , 10); //Allows for ,'s to be in the Text feild
                 
                 if (command.equals("shape"))
                 {
-                	//Example 0,0,100,100,0,rect,Hello World,#ffff00,#ff00ff,#00ffff
-                	//Layout x,y,w,h,ID,type,text,Colour fill , Colour Border, Colour Text
+                	//Example 0,0,100,100,0,rect,#ffff00,#ff00ff,#00ffff,Hello World
+                	//Layout x,y,w,h,ID,type,Colour fill , Colour Border, Colour Text,Inner Text
                 	int x = 0, y = 0, w= 0, h= 0, id = 0;
                 	String type = "", txt = "";
                 	Color fill , border , text;
@@ -38,11 +37,11 @@ public class Loader {
                 	id = Integer.parseInt(para[4]);
                 	
                 	type = para[5];
-                	txt = para[6];
+                	txt = para[9];
                 	
                 	fill = Color.decode(para[7]);
                 	border = Color.decode(para[8]);
-                	text = Color.decode(para[9]);
+                	text = Color.decode(para[6]);
                 	
                 	switch (type)
                 	{
@@ -57,6 +56,12 @@ public class Loader {
                 			oval.getText().setColor(text);
                 			oval.setText(txt);
 	            			shapes.add(oval);
+                			break;
+                		case("hex"):
+                			Hexagon hex = new Hexagon(id, x, y, w, h, border, fill);
+	                		hex.getText().setColor(text);
+	                		hex.setText(txt);
+	            			shapes.add(hex);
                 			break;
                 	}
                 	
@@ -128,9 +133,12 @@ public class Loader {
             	} else if ( s instanceof Oval)
             	{
             		type = "oval";
+            	} else if ( s instanceof Hexagon)
+            	{
+            		type = "hex";
             	}
             	fs.write("shape:");
-            	fs.write( x + "," + y + "," + w + "," + h + "," + id + "," + type + "," + text + "," + fill + "," + border + "," + text );
+            	fs.write( x + "," + y + "," + w + "," + h + "," + id + "," + type + "," + text + "," + fill + "," + border + "," + txt );
             	fs.write("\n");
 			}
 			fs.write("\n");
@@ -160,6 +168,7 @@ public class Loader {
 	//Convert awt.Color's to HTML styled hex colours ( which are nicely converted by Color.decode() )
 	public static String ColortoHex (Color in)
 	{
+		
 		String r = Integer.toHexString( in.getRed() );
 		String g = Integer.toHexString( in.getGreen() );
 		String b = Integer.toHexString( in.getBlue() );
