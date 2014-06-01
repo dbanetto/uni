@@ -48,6 +48,7 @@ public class DiagramUI {
 	{
 		lines = new ArrayList<Line>();
 		shapes = new ArrayList<IShape>();
+		
 	}
 	
 	public void start()
@@ -71,7 +72,7 @@ public class DiagramUI {
 						//Graphics Panel turns null during a re-draw
 						//This thread sometimes get caught out
 					}
-					UI.sleep(10);
+					UI.sleep(16);
 				}
 			}
 		}).start();
@@ -80,7 +81,7 @@ public class DiagramUI {
 	
 	private boolean validSeclection ()
 	{
-		return (selected != null && selected.getVisability());
+		return (selected != null && selected.getVisability() && selected.disposed() == false);
 	}
 	
 	private void select_shape( int x , int y)
@@ -151,8 +152,8 @@ public class DiagramUI {
 	}
 	
 	//UI Rendering
-	private int old_lines_length = 0;
-	private int old_shapes_length = 0;
+	private int old_lines_length = -1;
+	private int old_shapes_length = -1;
 	private void draw()
 	{
 		if (shapes.size() != old_shapes_length || lines.size() != old_lines_length || shape_changed )
@@ -175,7 +176,8 @@ public class DiagramUI {
 			
 			for (IShape shape : shapes)
 			{
-				shape.draw( (int)camera.getX() , (int)camera.getY() );
+				if (shape.disposed() == false)
+					shape.draw( (int)camera.getX() , (int)camera.getY() );
 			}
 			
 			if ( validSeclection() && mouse_mode == 0 )
@@ -186,7 +188,6 @@ public class DiagramUI {
 			}
 				
 			UI.repaintGraphics();
-			UI.printMessage("Camera Position : " + (int)camera.getX() + ", " + (int)camera.getY());
 			shape_changed = false;
 		}
 		if (fast_draw)
@@ -194,7 +195,7 @@ public class DiagramUI {
 			UI.repaintGraphics();
 			fast_draw = false;
 		}
-		
+		UI.printMessage("Mode : " + mouse_mode + " Sticky Mode : " + this.sticky_mode + " Camera Position : " + (int)camera.getX() + ", " + (int)camera.getY());
 		old_lines_length = lines.size();
 		old_shapes_length = shapes.size();
 	}
@@ -202,6 +203,61 @@ public class DiagramUI {
 	//UI Functions
 	private void init ()
 	{
+		//Key bindings
+		UI.setKeyListener(new UIKeyListener() {
+			@Override
+			public void keyPerformed(String key) {
+				switch (key)
+				{
+					case("R"):
+						sticky_mode = true;
+					case("r"):
+						mouse_mode = 10;
+						break;
+					case("O"):
+						sticky_mode = true;
+					case("o"):
+						mouse_mode = 11;
+						break;
+					case("Delete"):
+					case("Backspace"):
+						if ( selceted_line != null )
+						{
+							lines.remove(selceted_line);
+						} else if (validSeclection())
+						{
+							selected.dispose();
+							shapes.remove(selected);
+						}
+						shape_changed = true;
+						break;
+					case("Space"):
+						sticky_mode = false;
+						mouse_mode = 0;
+						break;
+					case("Up"):
+						camera.move(camera.x , camera.y - 10 );
+						shape_changed = true;
+						break;
+					case("Down"):
+						camera.move( camera.x , camera.y + 10 );
+						shape_changed = true;
+						break;
+					case("Left"):
+						camera.move( camera.x -10 , camera.y );
+						shape_changed = true;
+						break;
+					case("Right"):
+						camera.move( camera.x + 10 , camera.y );
+						shape_changed = true;
+						break;
+					default:
+						break;
+				}
+				System.out.println(key);
+			}
+		});
+		
 		//Give a UI Option for going into Selection mode
 		UI.addButton("Select", new UIButtonListener() {
 			@Override
@@ -356,17 +412,20 @@ public class DiagramUI {
 			}
 		});
 		
-		UI.addButton("Delete Shape", new UIButtonListener() {
+		UI.addButton("Delete", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
-				mouse_mode = -1;
-			}
-		});
-		
-		UI.addButton("Delete Line", new UIButtonListener() {
-			@Override
-			public void buttonPerformed(String name) {
-				mouse_mode = -2;
+				if (validSeclection())
+				{
+					selected.dispose();
+					shapes.remove(selected);
+				}else if ( selceted_line != null )
+				{
+					lines.remove(selceted_line);
+				}
+				else {
+					mouse_mode = -1;
+				}
 			}
 		});
 		
@@ -446,24 +505,18 @@ public class DiagramUI {
 					
 					if (mouse_mode == -1)
 					{
+						
 						select_shape((int)cam_x , (int)cam_y);
 						if (validSeclection()) {
 							selected.dispose();
 							shapes.remove(selected);
+						} else {
+							Line l = select_line((int)cam_x, (int)cam_y);
+							if ( l != null )
+							{
+								lines.remove(l);
+							}
 						}
-						if (!sticky_mode)
-							mouse_mode = 0;
-					}
-					
-					if (mouse_mode == -2)
-					{
-						Line l = select_line((int)cam_x, (int)cam_y);
-						if ( l != null )
-						{
-							lines.remove(l);
-						}
-						
-						//Try to select a Line ( give it some area then check if mouse is in it )
 						if (!sticky_mode)
 							mouse_mode = 0;
 					}
