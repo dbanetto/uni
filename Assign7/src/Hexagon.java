@@ -7,7 +7,7 @@ import ecs100.UI;
 
 public class Hexagon extends Shape {
 	
-	Point vertexs[] = new Point[8];
+	Point vertexs[] = new Point[6];
 	
 	public Hexagon(int ID, int x, int y, int w, int h, Color border, Color fill) {
 		super(ID, x, y, w, h, border, fill);
@@ -17,8 +17,8 @@ public class Hexagon extends Shape {
 	@Override
 	public void draw(int x_camera, int y_camera) {
 		
-		double vert_x[] = new double[8];
-		double vert_y[] = new double[8];
+		double vert_x[] = new double[6];
+		double vert_y[] = new double[6];
 		
 		for (int i = 0; i < vertexs.length; i++)
 		{
@@ -29,10 +29,10 @@ public class Hexagon extends Shape {
 			
 		}
 		UI.setColor(this.fill);
-		UI.fillPolygon(vert_x, vert_y, 8);
+		UI.fillPolygon(vert_x, vert_y, 6);
 		
 		UI.setColor(this.border);
-		UI.drawPolygon(vert_x, vert_y, 8);
+		UI.drawPolygon(vert_x, vert_y, 6);
 		
 		this.text.draw(x_camera, y_camera);
 	}
@@ -63,7 +63,7 @@ public class Hexagon extends Shape {
 	
 	public void generateVertex()
 	{
-		Point genVertex[] = new Point[8];
+		Point genVertex[] = new Point[6];
 		
 		int short_side = h , long_side = w;
 		boolean width_long_side = true;
@@ -82,14 +82,12 @@ public class Hexagon extends Shape {
 		
 		double long_dig_in = 0.25 * short_side;
 		
-		genVertex[0] = new Point( 0 , (int)(short_side * 0.25) );
-		genVertex[1] = new Point( 0 , (int)(short_side * 0.75) );
-		genVertex[2] = new Point( (int)long_dig_in , short_side );
-		genVertex[3] = new Point( (int)(long_side - long_dig_in) , short_side );
-		genVertex[4] = new Point( long_side , (int)(short_side * 0.75) );
-		genVertex[5] = new Point( long_side , (int)(short_side * 0.25) );
-		genVertex[6] = new Point( (int)(long_side - long_dig_in) , 0 );
-		genVertex[7] = new Point( (int)long_dig_in , 0 );
+		genVertex[0] = new Point( 0 , (int)(short_side * 0.5) );
+		genVertex[1] = new Point( (int)long_dig_in , short_side );
+		genVertex[2] = new Point( (int)(long_side - long_dig_in) , short_side );
+		genVertex[3] = new Point( long_side , (int)(short_side * 0.5) );
+		genVertex[4] = new Point( (int)(long_side - long_dig_in) , 0 );
+		genVertex[5] = new Point( (int)long_dig_in , 0 );
 		
 		if ( width_long_side == false )
 		{
