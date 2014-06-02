@@ -187,6 +187,8 @@ public class DiagramUI {
 				UI.setLineWidth(1.0);
 			}
 				
+			draw_hud();
+			
 			UI.repaintGraphics();
 			shape_changed = false;
 		}
@@ -200,6 +202,39 @@ public class DiagramUI {
 		old_shapes_length = shapes.size();
 	}
 	
+	//HUD displaying Colours of Border/fill/text/line
+	private void draw_hud()
+	{
+		UI.setColor(Color.white);
+		UI.fillRect(0, 0, 355, 20);
+		UI.setColor(Color.black);
+		UI.drawRect(0, 0, 355, 20);
+		
+		UI.setColor(Color.black);
+		UI.setFontSize(12);
+		UI.drawString("Default fill:", 5, 15);
+		UI.setColor(fillcolour);
+		UI.fillRect(65, 5, 10, 10);
+		
+		UI.setColor(Color.black);
+		UI.setFontSize(12);
+		UI.drawString("Default Border:", 80, 15);
+		UI.setColor(bordercolour);
+		UI.fillRect(165, 5, 10, 10);
+		
+		UI.setColor(Color.black);
+		UI.setFontSize(12);
+		UI.drawString("Default Line:", 180, 15);
+		UI.setColor(linecolour);
+		UI.fillRect(255, 5, 10, 10);
+		
+		UI.setColor(Color.black);
+		UI.setFontSize(12);
+		UI.drawString("Default Text:", 270, 15);
+		UI.setColor(fontcolour);
+		UI.fillRect(340, 5, 10, 10);
+	}
+	
 	//UI Functions
 	private void init ()
 	{
@@ -209,6 +244,11 @@ public class DiagramUI {
 			public void keyPerformed(String key) {
 				switch (key)
 				{
+					case("L"):
+						sticky_mode = true;
+					case("l"):
+					mouse_mode = 5;
+					break;
 					case("R"):
 						sticky_mode = true;
 					case("r"):
@@ -219,11 +259,17 @@ public class DiagramUI {
 					case("o"):
 						mouse_mode = 11;
 						break;
+					case("H"):
+						sticky_mode = true;
+					case("h"):
+						mouse_mode = 12;
+						break;
 					case("Delete"):
 					case("Backspace"):
 						if ( selceted_line != null )
 						{
 							lines.remove(selceted_line);
+							selceted_line = null;
 						} else if (validSeclection())
 						{
 							selected.dispose();
@@ -254,9 +300,23 @@ public class DiagramUI {
 					default:
 						break;
 				}
-				System.out.println(key);
 			}
 		});
+		
+		//Give the User some idea what hot keys there are
+		UI.println("<==== Hotkeys ====>");
+		UI.println("Key - Function");
+		UI.println("r - Make a Rectangle");
+		UI.println("Shift+r - Make a Rectangle (sticky mode)");
+		UI.println("o - Make an Oval");
+		UI.println("Shift+o - Make an Oval (sticky mode)");
+		UI.println("h - Make a Hexagon");
+		UI.println("shift+h - Make a Hexagon (sticky mode)");
+		UI.println("l - Make a Line");
+		UI.println("shift+l - Make a line (sticky mode)");
+		UI.println("Arrow Keys - Move around");
+		UI.println("Space - Clear current command and disable sticky mode");
+		UI.println("Delete/backspace - delete selected object");
 		
 		//Give a UI Option for going into Selection mode
 		UI.addButton("Select", new UIButtonListener() {
