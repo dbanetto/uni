@@ -1,6 +1,9 @@
 import java.awt.Color;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import ecs100.UI;
 
@@ -63,6 +66,11 @@ public class Hexagon extends Shape {
 	
 	public void generateVertex()
 	{
+		//Hmmm Java 7
+		Map< String , ArrayList<Integer> > map = new HashMap< >();
+		map = new HashMap<>(); //This is fine
+		map.put( "Toyota" , new ArrayList<Integer>() );
+		
 		Point genVertex[] = new Point[6];
 		
 		int short_side = h , long_side = w;

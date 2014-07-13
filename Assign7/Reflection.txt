@@ -6,6 +6,17 @@ Resizing
 
 Shapes can be resized from the UI by using the width/height sliders
 
+The use of sliders to change the width/height of the shapes
+is appropriate but limits the range of sizes that can be used.
+With the given range of 1-512, it does not allow for the most variability
+of sizes as other solutions. But the size is appropriate to fit the restrictions
+from the set width/height of the drawing panel given by the UI class. I did not allow
+for anything large than 512 in the UI as given a large range it would become difficult
+to choose smaller increments of size, and if the shape was too big it could take up the whole
+screen and not allow for 2D movement. This however an be by-passed by editing
+the save files, but this is not a user-friendly approach to solve the problem,
+but it does allow for some type solution.
+
 Moving
 ------
 
@@ -41,6 +52,13 @@ This limitation is acceptable because it is common for the delete
 key only to effect the selected and this behaviour was kept to keep
 with this known behaviour.
 
+The UI choice of managing both shapes and lines through the same
+interface was to simplify the use of lines for the user. As creating 
+is inherently a choice that has to be clearly differentiated, deleting
+however is differentiated in a different manner so it does not require
+multiple buttons to get across the idea of being able to delete anything
+on the screen.
+
 Setting Text
 ------------
 
@@ -65,7 +83,11 @@ To start linking two shapes together start by selecting one shape and dragging t
 line to the other shape and release.
 
 To remove a line select it and either press Delete in the UI or press Delete/Backspace on
-the keyboard 
+the keyboard.
+
+Having both a UI option and hot key option for line management is helpful,
+as it gives the user options for using the editor. The UI decision for deleting portion is explained 
+in Deleting
 
 Sticky Mode
 -----------
@@ -96,4 +118,25 @@ on the background will move you around in the 2D space instead of doing a box se
 multiple shapes. I believe that the 2D space was more important than box selection as
 having the ability to move around a diagram would be more useful than moving a multiple
 shapes around a fixed area. This choice was forced to be made as there was no user-friendly
-way to differentiate the intention of the user from the given input channels.   
+way to differentiate the intention of the user from the given input channels.
+
+Fill/Border/Line/Text Colour
+----------------------------
+
+Changing the of a colour of an element of a shape
+is controlled purely through the UI Buttons. The option
+to change a selected shape's colour is given by just using
+the button(s), while changing the default colour(s) is done
+by not having any shape selected.
+
+Having each element that can be coloured being able
+for the user to set themselves is what I saw as important
+for the end user. As I see colour customisation for a diagram
+to be on the same level of importance as a large variety of shapes.
+
+However taking the route of having so many elements that can be coloured
+did create the most UI clutter of the features in this diagram editor.
+
+Having a HUD of the current defaults of the colours on the digram editor
+screen, is helpful to keep track visually of what colours are being used, 
+but it does take up screen space of the editor.
