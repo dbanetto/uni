@@ -130,7 +130,7 @@ public class SpiralUI {
 				 else 
 					yb += (direction ? 1 : -1);
 				
-				if (xaxis && ( (xb >= upper && direction) || (xb <= lower && !direction)))
+				if (xaxis && ((xb >= upper && direction) || (xb <= lower && !direction)) )
 				{
 					xaxis = false;
 					if (direction) {

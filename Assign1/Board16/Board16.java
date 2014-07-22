@@ -10,7 +10,9 @@
  */
 
 import ecs100.*;
+
 import java.awt.Color;
+import java.util.Random;
 
 public class Board16 {
 
@@ -18,11 +20,11 @@ public class Board16 {
     private final int TARGET = 16;
 
     private final int COLS;
-    private int [] array;
-
+    private int [] board;
+    
     public Board16 (int size) {
         COLS = size;
-        array = new int [COLS];
+        board = new int [COLS];
     }
 
     /** Return whether the magic target number has been achieved (greater than)
@@ -30,6 +32,10 @@ public class Board16 {
      */
     public boolean hasReachedTarget() {
         /*# YOUR CODE HERE */
+    	for (int a : board)
+    		if (a == TARGET)
+    			return true;
+    	return false;
     }
 
     /** Return whether the game is over (true) or not (false) 
@@ -39,6 +45,21 @@ public class Board16 {
      */
     public boolean isGameOver() {
         /*# YOUR CODE HERE */
+    	for (int i = 0; i < board.length; i++)
+    	{
+    		if (i - 1 >= 0 && board[i] == board[i-1])
+    			return false;
+    		
+    		if (i + 1 < board.length && board[i] == board[i+1])
+    			return false;
+    		
+    		if (board[i] == 0)
+    			return false;
+    		else if (board[i] == TARGET)
+    			return true;
+    	}
+    	
+    	return false;
     }
 
     /** Return the number of empty tiles 
@@ -46,7 +67,11 @@ public class Board16 {
     [CORE]
      */
     private int numEmptyTiles() {
-        /*# YOUR CODE HERE */
+        int n = 0;
+        for (int a : board)
+    		if (a == 0)
+    			n++;
+        return n;
     }
 
     /** Insert a random number (either 2 or 4) at a randon empty tile.
@@ -55,7 +80,16 @@ public class Board16 {
     [CORE]
      */
     public void insertRandomTile() {
-        /*# YOUR CODE HERE */
+        Random rnd = new Random();
+    	while (numEmptyTiles() != 0)
+        {
+        	int index = rnd.nextInt(COLS);
+        	if (board[index] == 0)
+        	{
+        		board[index] = (rnd.nextDouble() > ((double)LIMIT/10.0) ? 4 : 2 );
+        		break;
+        	}
+        }
     }
 
     /** Move the tiles left. 
@@ -74,6 +108,38 @@ public class Board16 {
      */
     public void left() {
         /*# YOUR CODE HERE */
+    	boolean change = false;
+    	boolean[] addup = new boolean[COLS];
+    		
+    	for (int i = 0; i < board.length - 1; i++ )
+	    	{
+	    		if (board[i] == 0  && board[i + 1] != 0)
+	    		{
+	    			board[i] = board[i+1];
+	    			board[i + 1 ] = 0;
+	    			change = true;
+	    			addup[i] = true;
+	    		} else
+	    		if (board[i] == board[i+1] && board[i] != 0 && !addup[i] )
+	    		{
+	    			board[i] = board[i+1] * 2;
+	    			board[i + 1 ] = 0;
+
+	    		}
+	    	}
+	    do {
+	    	change = false;
+	    	for (int i = 0; i < board.length - 1; i++ )
+	    	{
+	    		if (board[i] == 0  && board[i + 1] != 0)
+	    		{
+	    			board[i] = board[i+1];
+	    			board[i + 1 ] = 0;
+	    			change = true;
+	    			addup[i] = true;
+	    		}
+	    	}
+    	} while (change);
     }
 
     /** Move the tiles right. 
@@ -91,12 +157,44 @@ public class Board16 {
      */
     public void right() {
         /*# YOUR CODE HERE */
+    	boolean change = false;
+    	boolean[] addup = new boolean[COLS];
+    		
+    	for (int i = board.length - 1; i > 0; i-- )
+	    	{
+	    		if (board[i] == 0  && board[i - 1] != 0)
+	    		{
+	    			board[i] = board[i-1];
+	    			board[i-1] = 0;
+	    			change = true;
+	    			addup[i] = true;
+	    		} else
+	    		if (board[i] == board[i-1] && board[i] != 0 && !addup[i] )
+	    		{
+	    			board[i] = board[i-1] * 2;
+	    			board[i-1 ] = 0;
+
+	    		}
+	    	}
+	    do {
+	    	change = false;
+	    	for (int i = board.length - 1; i > 0; i-- )
+	    	{
+	    		if (board[i] == 0  && board[i-1] != 0)
+	    		{
+	    			board[i] = board[i-1];
+	    			board[i-1] = 0;
+	    			change = true;
+	    			addup[i] = true;
+	    		}
+	    	}
+    	} while (change);
     }
 
     public String toString() {
         String ans = "  ";
-        for (int col = 0; col < array.length; col++) {
-            ans += array[col];
+        for (int col = 0; col < board.length; col++) {
+            ans += board[col];
         }
         return ans;
     }
@@ -108,7 +206,7 @@ public class Board16 {
 
     public void redraw() {
         UI.clearGraphics();
-        for (int col = 0; col < array.length; col++) {
+        for (int col = 0; col < board.length; col++) {
             drawTile(col);
         }
         UI.repaintGraphics();
@@ -120,7 +218,7 @@ public class Board16 {
         double top = boardTop;
 
         // Fill the rectangle with a colour matching the value of the tile
-        UI.setColor(getColor(array[col]));
+        UI.setColor(getColor(board[col]));
         UI.fillRect(left,top,tileSize,tileSize);
 
         // Outline the rectangle
@@ -129,11 +227,11 @@ public class Board16 {
 
         // Display the number
         UI.setFontSize(20);
-        if (array[col] == 0) return;
-        if (array[col] >= 16) UI.setColor(Color.white);
+        if (board[col] == 0) return;
+        if (board[col] >= 16) UI.setColor(Color.white);
         double x = left + tileSize * 0.3;
         double y = top + tileSize * 0.6;
-        UI.drawString(""+array[col], x, y);
+        UI.drawString(""+board[col], x, y);
     }
 
     private Color getColor(int value) {
