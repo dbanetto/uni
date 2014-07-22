@@ -4,9 +4,9 @@
 
 
 /* Code for COMP 103 Assignment 1
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
  */
 
 import ecs100.*;

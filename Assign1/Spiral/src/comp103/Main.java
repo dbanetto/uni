@@ -1,3 +1,8 @@
+/* Code for COMP 103 Assignment 1
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
+ */
 package comp103;
 
 import ecs100.*;
