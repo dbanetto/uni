@@ -5,8 +5,8 @@
  */
 package comp103;
 
+import comp103.*;
 import java.awt.Color;
-
 import ecs100.*;
 
 public class SpiralUI {
@@ -70,12 +70,11 @@ public class SpiralUI {
 		for (int i = 0; i < boxes.length; i++)
 		{
 			boxes[i][0] = i + 1;
-			UI.setColor(new Color( boxes[i][0] * 25 ));
+			UI.setColor(new Color( boxes[i][0] * 25 * 256 * 256 ));
 			UI.fillRect(i * BOX_WIDTH + X_POS, Y_POS , BOX_WIDTH, BOX_HEIGHT);
 			
-			UI.setColor(Color.white);
 			UI.setFontSize(10);
-			FontUtil.drawCenteredString(X_POS + BOX_WIDTH * i, Y_POS, String.valueOf(boxes[i][0]), BOX_WIDTH, BOX_HEIGHT);
+			FontUtil.invertCenteredString(X_POS + BOX_WIDTH * i, Y_POS, String.valueOf(boxes[i][0]), BOX_WIDTH, BOX_HEIGHT);
 		}
 		UI.repaintGraphics();
 	}
@@ -90,12 +89,11 @@ public class SpiralUI {
 			for (int x = 0; x < boxes[y].length; x++)
 			{
 				boxes[y][x] = y * boxes.length + x + 1;
-				UI.setColor(new Color( boxes[y][x] * 2 ));
+				UI.setColor(new Color( boxes[y][x] * 2 + boxes[y][x] * 2 * 256 ));
 				UI.fillRect(x * BOX_WIDTH + X_POS, y * BOX_HEIGHT + Y_POS, BOX_WIDTH, BOX_HEIGHT);
 				
-				UI.setColor(Color.white);
 				UI.setFontSize(10);
-				FontUtil.drawCenteredString(x * BOX_WIDTH + X_POS, y * BOX_HEIGHT + Y_POS, String.valueOf(boxes[y][x]), BOX_WIDTH, BOX_HEIGHT);
+				FontUtil.invertCenteredString(x * BOX_WIDTH + X_POS, y * BOX_HEIGHT + Y_POS, String.valueOf(boxes[y][x]), BOX_WIDTH, BOX_HEIGHT);
 			}
 		}
 		UI.repaintGraphics();
@@ -161,13 +159,11 @@ public class SpiralUI {
 		{
 			for (int x = 0; x < boxes[y].length; x++)
 			{
-				UI.setColor(new Color( boxes[y][x] * 2 ));
+				UI.setColor(new Color( boxes[y][x] * 2 * 256 ));
 				UI.fillRect(x * BOX_WIDTH + X_POS, y * BOX_HEIGHT + Y_POS, BOX_WIDTH, BOX_HEIGHT);
 				
-				
-				UI.setColor(Color.white);
 				UI.setFontSize(10);
-				FontUtil.drawCenteredString(x * BOX_WIDTH + X_POS, y * BOX_HEIGHT + Y_POS, String.valueOf(boxes[y][x]), BOX_WIDTH, BOX_HEIGHT);
+				FontUtil.invertCenteredString(x * BOX_WIDTH + X_POS, y * BOX_HEIGHT + Y_POS, String.valueOf(boxes[y][x]), BOX_WIDTH, BOX_HEIGHT);
 			}
 		}
 		UI.repaintGraphics();
