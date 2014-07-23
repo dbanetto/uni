@@ -50,6 +50,14 @@ public class SpiralUI {
 			}
 		});
 		
+		UI.addButton("Double Spiral", new UIButtonListener() {
+			
+			@Override
+			public void buttonPerformed(String name) {
+				renderDoubleSprial();
+			}
+		});
+		
 		UI.addButton("Clear", new UIButtonListener() {
 			
 			@Override
@@ -100,6 +108,58 @@ public class SpiralUI {
 	}
 	
 	public void renderSprial()
+	{
+		boxes = new int[10][10];
+		
+	
+		int n = 1;
+		int upper = boxes.length - 1;
+		int lower = 0;
+		int xb = 0 , yb = 0;
+		boolean xaxis = true;
+		boolean direction = true;
+		
+		while (n <= (boxes.length * boxes[0].length)) {
+			boxes[yb][xb] = n++;
+			
+			if (xaxis) 
+				xb += (direction ? 1 : -1);
+			 else 
+				yb += (direction ? 1 : -1);
+			
+			if (xaxis && ((xb >= upper && direction) || (xb <= lower && !direction)) )
+			{
+				xaxis = false;
+				if (!direction) {
+					lower += 1;
+				}
+			} else if (!xaxis && ((yb >= upper&& direction) || (yb <= lower&& !direction)))
+			{
+				xaxis = true;
+				if (!direction) {
+					upper -= 1;
+				}
+				
+				direction = !direction;
+			}
+		}
+	
+		
+		for (int y = 0; y < boxes.length; y++)
+		{
+			for (int x = 0; x < boxes[y].length; x++)
+			{
+				UI.setColor(new Color( boxes[y][x] * 2 * 256 + boxes[y][x] * 2 * 256 * 256 ));
+				UI.fillRect(x * BOX_WIDTH + X_POS, y * BOX_HEIGHT + Y_POS, BOX_WIDTH, BOX_HEIGHT);
+				
+				UI.setFontSize(10);
+				FontUtil.invertCenteredString(x * BOX_WIDTH + X_POS, y * BOX_HEIGHT + Y_POS, String.valueOf(boxes[y][x]), BOX_WIDTH, BOX_HEIGHT);
+			}
+		}
+		UI.repaintGraphics();
+	}
+	
+	public void renderDoubleSprial()
 	{
 		boxes = new int[10][10];
 		
