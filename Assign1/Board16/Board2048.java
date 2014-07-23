@@ -55,7 +55,7 @@ public class Board2048 {
     		}
     	}
     	
-    	return false;
+    	return true;
     }
 
     /** Return the number of empty tiles 
@@ -89,142 +89,160 @@ public class Board2048 {
         	}
         }
     }
-
-    public void left() {
-        /*# YOUR CODE HERE */
-    	boolean change = false;
-    	boolean[] addup = new boolean[COLS];
-    	for (int y = 0; y < COLS; y++)
+    
+    public void move(Direction dir)
+    {
+    	if (dir.equals(Direction.DOWN) || dir.equals(Direction.UP) )
     	{
-    		for (int i = 0; i < board.length - 1; i++ ) {
-	    		if (board[i][y] == 0  && board[i + 1][y] != 0) {
-	    			board[i][y] = board[i+1][y];
-	    			board[i + 1 ][y] = 0;
-	    			change = true;
-	    			addup[i] = true;
-	    		} else if (board[i][y] == board[i+1][y] && board[i][y] != 0 && !addup[i] )	{
-	    			board[i][y] = board[i+1][y] * 2;
-	    			board[i+1][y] = 0;
-			    }
-		    }
-	    	
-		    do {
-		    	change = false;
-		    	for (int i = 0; i < board.length - 1; i++ )
-		    	{
-		    		if (board[i][y] == 0  && board[i+1][y] != 0)
-		    		{
-		    			board[i][y] = board[i+1][y];
-		    			board[i+1][y] = 0;
-		    			change = true;
-		    		}
-		    	}
-	    	} while (change);
-    	}
-    }
-
-    public void right() {
-        /*# YOUR CODE HERE */
-    	boolean change = false;
-    	boolean[] addup = new boolean[COLS];
-    	for (int y = 0; y < COLS; y++) {
-	    	for (int i = board.length - 1; i > 0; i-- )
-		    	{
-		    		if (board[i][y] == 0  && board[i-1][y] != 0)
-		    		{
-		    			board[i][y] = board[i-1][y];
-		    			board[i-1][y] = 0;
-		    			change = true;
-		    			addup[i] = true;
-		    		} else
-		    		if (board[i][y] == board[i-1][y] && board[i][y] != 0 && !addup[i] )
-		    		{
-		    			board[i][y] = board[i-1][y] * 2;
-		    			board[i-1 ][y] = 0;
-	
-		    		}
-		    	}
-		    do {
-		    	change = false;
-		    	for (int i = board.length - 1; i > 0; i-- )
-		    	{
-		    		if (board[i][y] == 0  && board[i-1][y] != 0)
-		    		{
-		    			board[i][y] = board[i-1][y];
-		    			board[i-1][y] = 0;
-		    			change = true;
-		    		}
-		    	}
-	    	} while (change);
-	    }
-    }
-
-    public void up() {
-        /*# YOUR CODE HERE */
-    	boolean change = false;
-    	boolean[] addup = new boolean[COLS];
-    	for (int x = 0; x < ROWS; x++)
+    		moveVert(dir);
+    	} else
     	{
-    		for (int i = 0; i < board.length - 1; i++ ) {
-	    		if (board[x][i] == 0  && board[x][i+1] != 0) {
-	    			board[x][i] = board[x][i+1];
-	    			board[x][i+1] = 0;
-	    			change = true;
-	    			addup[i] = true;
-	    		} else if (board[x][i] == board[x][i+1] && board[x][i] != 0 && !addup[i] )	{
-	    			board[x][i] = board[x][i+1] * 2;
-	    			board[x][i+1] = 0;
-			    }
-		    }
-	    	
-		    do {
-		    	change = false;
-		    	for (int i = 0; i < board.length - 1; i++ )
-		    	{
-		    		if (board[x][i] == 0  && board[x][i+1] != 0)
-		    		{
-		    			board[x][i] = board[x][i+1];
-		    			board[x][i+1] = 0;
-		    			change = true;
-		    		}
-		    	}
-	    	} while (change);
+    		moveHornz(dir);
     	}
     }
     
-    public void down() {
-        /*# YOUR CODE HERE */
-    	boolean change = false;
-    	boolean[] addup = new boolean[COLS];
-    	for (int x = 0; x < ROWS; x++) {
-	    	for (int i = board.length - 1; i > 0; i-- )
-		    	{
-		    		if (board[x][i] == 0  && board[x][i-1] != 0)
-		    		{
-		    			board[x][i] = board[x][i-1];
-		    			board[x][i-1] = 0;
-		    			change = true;
-		    			addup[i] = true;
-		    		} else
-		    		if (board[x][i] == board[x][i-1] && board[x][i] != 0 && !addup[i] )
-		    		{
-		    			board[x][i] = board[x][i-1] * 2;
-		    			board[x][i-1] = 0;
-	
-		    		}
-		    	}
-		    do {
-		    	change = false;
-		    	for (int i = board.length - 1; i > 0; i-- )
-		    	{
-		    		if (board[x][i] == 0 && board[x][i-1] != 0)
-		    		{
-		    			board[x][i] = board[x][i-1];
-		    			board[x][i-1] = 0;
-		    		}
-		    	}
-	    	} while (change);
-	    }
+    public void moveVert(Direction dir)
+    {
+    	if (dir == Direction.LEFT || dir == Direction.RIGHT )
+    		return;
+    	boolean positive = true;
+    	if (dir == Direction.DOWN)
+    		positive = false;
+    	
+    	System.out.println(String.format("Moving %s", dir.toString() ));
+    	
+    	for (int x = 0; x < ROWS; x++)
+    	{
+	    	for (int y = (positive ? 0 : COLS-1); ( positive ? y < COLS : y >= 0); y+= (positive ? 1 : -1 ))
+	    	{
+    			System.out.println(String.format("Looking at %d @ %d,%d", board[x][y], x ,y));
+    			if (board[x][y] == 0)
+    			{
+    				boolean found = false;
+    				System.out.println(String.format("Finding %d,%d a value to steal", x ,y));
+    				for (int i = y; ( positive ? i < COLS : i >= 0); i += (positive ? 1 : -1 ))
+    				{
+    					if (board[x][i] != 0)
+    					{
+    						System.out.println(String.format("Found new value %d @ %d,%d for %d,%d", board[x][i], x ,i, x ,y));
+    						board[x][y] = board[x][i];
+    						board[x][i] = 0;
+    						found = true;
+    						break;
+    					}
+    				}
+    				if (!found)
+    					break;
+    			}
+    			boolean colated = false;
+    			if (board[x][y] != 0)
+    			{
+    				if ( positive ?  y-1 >= 0 : y+1 < COLS )
+    				{
+    					int n = (positive ? y - 1 :  y + 1 );
+    					if (board[x][y] == board[x][n])
+    					{
+    						System.out.println(String.format("Merged %d,%d and %d,%d", x ,n, x ,y));
+    						board[x][n] *= 2;
+    						board[x][y] = 0;
+    						colated = true;
+    					}
+    				}
+    			}
+    			
+    			if (colated)
+    			{
+    				boolean found = false;
+    				System.out.println(String.format("POST-MERGE: Finding a value to steal from %d,%d", x ,y));
+    				for (int i = y; ( positive ? i < ROWS : i >= 0); i += (positive ? 1 : -1 ))
+    				{
+    					if (y != i && board[x][i] != 0)
+    					{
+    						System.out.println(String.format("POST-MERGE:Found new value %d @ %d,%d for %d,%d", board[i][y], i ,y, x ,y));
+    						board[x][y] = board[x][i];
+    						board[x][i] = 0;
+    						found = true;
+    						break;
+    					}
+    				}
+    				if (!found)
+    					break;
+    			}
+        	}
+    	}
+    	
+    	System.out.println("Completed move");
+    }
+    
+    public void moveHornz(Direction dir)
+    {
+    	if (dir == Direction.DOWN || dir == Direction.UP )
+    		return;
+    	boolean positive = true;
+    	if (dir == Direction.RIGHT)
+    		positive = false;
+    	
+    	System.out.println(String.format("Moving %s", dir.toString() ));
+    	for (int y = 0; y < COLS; y++)
+    	{
+    		for (int x = (positive ? 0 : ROWS-1); ( positive ? x < ROWS : x >= 0); x += (positive ? 1 : -1 ))
+        	{
+    			System.out.println(String.format("Looking at %d @ %d,%d", board[x][y], x ,y));
+    			if (board[x][y] == 0)
+    			{
+    				boolean found = false;
+    				System.out.println(String.format("Finding %d,%d a value to steal", x ,y));
+    				for (int i = x; ( positive ? i < ROWS : i >= 0); i += (positive ? 1 : -1 ))
+    				{
+    					if (board[i][y] != 0)
+    					{
+    						System.out.println(String.format("Found new value %d @ %d,%d for %d,%d", board[i][y], i ,y, x ,y));
+    						board[x][y] = board[i][y];
+    						board[i][y] = 0;
+    						found = true;
+    						break;
+    					}
+    				}
+    				if (!found)
+    					break;
+    			}
+    			boolean colated = false;
+    			if (board[x][y] != 0)
+    			{
+    				if ( positive ?  x - 1 >= 0 : x + 1 < ROWS )
+    				{
+    					int n = (positive ?x - 1 :  x + 1 );
+    					if (board[x][y] == board[n][y])
+    					{
+    						System.out.println(String.format("Merged %d,%d and %d,%d", n ,y, x ,y));
+    						board[n][y] *= 2;
+    						board[x][y] = 0;
+    						colated = true;
+    					}
+    				}
+    			}
+    			
+    			if (colated)
+    			{
+    				boolean found = false;
+    				System.out.println(String.format("Finding %d,%d a value to steal", x ,y));
+    				for (int i = x; ( positive ? i < ROWS : i >= 0); i += (positive ? 1 : -1 ))
+    				{
+    					if (x != i && board[i][y] != 0)
+    					{
+    						System.out.println(String.format("Found new value %d @ %d,%d for %d,%d", board[i][y], i ,y, x ,y));
+    						board[x][y] = board[i][y];
+    						board[i][y] = 0;
+    						found = true;
+    						break;
+    					}
+    				}
+    				if (!found)
+    					break;
+    			}
+        	}
+    	}
+    	System.out.println("Completed move");
     }
     
     public String toString() {
@@ -251,7 +269,6 @@ public class Board2048 {
     }
 
     private void drawTile(int row, int col) {
-        int shiftBy = 3;
         double left = boardLeft +col*tileSize;
         double top = boardTop + row * tileSize;
 
@@ -268,7 +285,7 @@ public class Board2048 {
         if (board[col][row] == 0) return;
         if (board[col][row] >= TARGET) UI.setColor(Color.white);
         
-        FontUtil.invertCenteredString((int)left, (int)top, ""+board[col][row], tileSize, tileSize);
+        FontUtil.drawCenteredString((int)left, (int)top, ""+board[col][row], tileSize, tileSize);
     }
 
     private Color getColor(int value) {
@@ -280,6 +297,10 @@ public class Board2048 {
             case 16 : { return Color.cyan; }     
             case 32 : { return Color.blue; }
             case 64 : { return Color.green; }
+            case 128 : { return Color.darkGray; }
+            case 256 : { return Color.magenta; }
+            case 512 : { return Color.pink; }
+            case 1024 : { return Color.yellow; }
             default: {return Color.black;}
         }
     }

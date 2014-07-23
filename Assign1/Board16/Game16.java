@@ -19,6 +19,9 @@ public class Game16 implements UIButtonListener, UIKeyListener {
     private boolean hasReachedTarget = false;
 
     public Game16 () {
+    	UI.initialise();
+    	UI.setImmediateRepaint(false);
+    	
         UI.addButton("Restart", this);
         UI.addButton("Left", this);
         UI.addButton("Right", this);

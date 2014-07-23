@@ -25,6 +25,8 @@ public class Game2048 implements UIButtonListener, UIKeyListener {
         UI.addButton("Restart", this);
         UI.addButton("Left", this);
         UI.addButton("Right", this);
+        UI.addButton("Up", this);
+        UI.addButton("Down", this);
 
         UI.setKeyListener(this);
 
@@ -32,6 +34,8 @@ public class Game2048 implements UIButtonListener, UIKeyListener {
         UI.println("or use the Left and Right buttons");
         UI.println("Each time 2 tiles with the same number touch, the numbers are added and the two tiles merge.");
         UI.println("Produce the magic number of 16.");
+        UI.println("");
+        UI.println("NOTE : WASD and HJKL is supported!");
 
         startGame();
     }
@@ -61,14 +65,14 @@ public class Game2048 implements UIButtonListener, UIKeyListener {
             return;
         }
 
-        if (direction.equals("Left"))
-            game.left();
-        else if (direction.equals("Right"))
-            game.right();
-        else if (direction.equals("Up"))
-        	game.up();
-        else if (direction.equals("Down"))
-            game.down();
+        if (direction.equals("Left") || direction.equals("a") || direction.equals("h"))
+            game.move(Direction.LEFT);
+        else if (direction.equals("Right") || direction.equals("d") || direction.equals("l"))
+        	game.move(Direction.RIGHT);
+        else if (direction.equals("Up") || direction.equals("w") || direction.equals("k"))
+        	game.move(Direction.UP);
+        else if (direction.equals("Down") || direction.equals("s") || direction.equals("j"))
+        	game.move(Direction.DOWN);
         game.redraw();
 
         // Only display the message the first time

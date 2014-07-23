@@ -106,39 +106,51 @@ public class Board16 {
     [COMPLETION]
      */
     public void left() {
-        /*# YOUR CODE HERE */
-    	boolean change = false;
-    	boolean[] addup = new boolean[COLS];
+    	for (int i = 0; i < board.length; i++)
+    	{
+    		//Seek ahead and move a brick
+    		int found = board.length;
+    		if (board[i] == 0)
+    		{
+    			for (int n = i; n < board.length; n++)
+    	    	{
+    				if (board[n] != 0)
+    				{
+    					board[i] = board[n];
+    					board[n] = 0;
+    					found = n;
+    					break;
+    				}
+    	    	}
+    		}
     		
-    	for (int i = 0; i < board.length - 1; i++ )
-	    	{
-	    		if (board[i] == 0  && board[i + 1] != 0)
-	    		{
-	    			board[i] = board[i+1];
-	    			board[i + 1 ] = 0;
-	    			change = true;
-	    			addup[i] = true;
-	    		} else
-	    		if (board[i] == board[i+1] && board[i] != 0 && !addup[i] )
-	    		{
-	    			board[i] = board[i+1] * 2;
-	    			board[i + 1 ] = 0;
-
-	    		}
-	    	}
-	    do {
-	    	change = false;
-	    	for (int i = 0; i < board.length - 1; i++ )
-	    	{
-	    		if (board[i] == 0  && board[i + 1] != 0)
-	    		{
-	    			board[i] = board[i+1];
-	    			board[i + 1 ] = 0;
-	    			change = true;
-	    			addup[i] = true;
-	    		}
-	    	}
-    	} while (change);
+    		if (board[i] != 0)
+    		{
+    			if (i - 1 >= 0)
+    			{
+    				if (board[i-1] == board[i])
+    				{
+    					board[i-1] = board[i] * 2;
+    					board[i] = 0;
+    				}
+    			}
+    		} else {
+    			break;
+    		}
+    		
+    		if (board[i] == 0)
+    		{
+    			for (int n = found; n < board.length; n++)
+    	    	{
+    				if (board[n] != 0)
+    				{
+    					board[i] = board[n];
+    					board[n] = 0;
+    					break;
+    				}
+    	    	}
+    		}
+    	}
     }
 
     /** Move the tiles right. 
@@ -155,39 +167,51 @@ public class Board16 {
     [COMPLETION]
      */
     public void right() {
-        /*# YOUR CODE HERE */
-    	boolean change = false;
-    	boolean[] addup = new boolean[COLS];
+    	for (int i = board.length-1; i >= 0; i--)
+    	{
+    		//Seek ahead and move a brick
+    		int found = 0;
+    		if (board[i] == 0)
+    		{
+    			for (int n = i; n >= 0; n--)
+    	    	{
+    				if (board[n] != 0)
+    				{
+    					board[i] = board[n];
+    					board[n] = 0;
+    					found = n;
+    					break;
+    				}
+    	    	}
+    		}
     		
-    	for (int i = board.length - 1; i > 0; i-- )
-	    	{
-	    		if (board[i] == 0  && board[i - 1] != 0)
-	    		{
-	    			board[i] = board[i-1];
-	    			board[i-1] = 0;
-	    			change = true;
-	    			addup[i] = true;
-	    		} else
-	    		if (board[i] == board[i-1] && board[i] != 0 && !addup[i] )
-	    		{
-	    			board[i] = board[i-1] * 2;
-	    			board[i-1 ] = 0;
-
-	    		}
-	    	}
-	    do {
-	    	change = false;
-	    	for (int i = board.length - 1; i > 0; i-- )
-	    	{
-	    		if (board[i] == 0  && board[i-1] != 0)
-	    		{
-	    			board[i] = board[i-1];
-	    			board[i-1] = 0;
-	    			change = true;
-	    			addup[i] = true;
-	    		}
-	    	}
-    	} while (change);
+    		if (board[i] != 0)
+    		{
+    			if (i+1 < board.length)
+    			{
+    				if (board[i+1] == board[i])
+    				{
+    					board[i+1] = board[i] * 2;
+    					board[i] = 0;
+    				}
+    			}
+    		} else {
+    			break;
+    		}
+    		
+    		if (board[i] == 0)
+    		{
+    			for (int n = found; n >= 0; n--)
+    	    	{
+    				if (board[n] != 0)
+    				{
+    					board[i] = board[n];
+    					board[n] = 0;
+    					break;
+    				}
+    	    	}
+    		}
+    	}
     }
 
     public String toString() {
@@ -212,7 +236,6 @@ public class Board16 {
     }
 
     private void drawTile(int col) {
-        int shiftBy = 3;
         double left = boardLeft+col*tileSize;
         double top = boardTop;
 
