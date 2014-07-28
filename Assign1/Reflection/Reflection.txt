@@ -14,3 +14,12 @@ you went about exploring further, learning about the issue to your own
 satisfaction. If understanding it remains a problem for you, outline 
 what your next step will be in sorting this out.
 --------------------------------------------------------------------
+
+In the first two weeks of lectures the topic of implementation and design of the
+standard set of collections like lists and sets. The most stand-out part
+of the standard collections are how they all map out to how what they are named after
+in natural language. For example : Queues can only be added to the back and taken from the
+front just like the classic British queue. The only exception to this is the map collection,
+where upon further research I found out it is like a linked array between the key, which is hashed
+using the base object function hashCode(). Having the dependency on the hashCode function also 
+helps to explain why maps or other generic lists cannot have the basic types (boolean, int and char)
