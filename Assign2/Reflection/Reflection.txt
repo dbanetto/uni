@@ -1,0 +1,24 @@
+/* Reflection.txt for COMP103
+ * Name:
+ * Usercode:
+ * ID:
+ */
+
+For your reflection:
+====================
+
+Characterise the different collection classes that you have used in this assignment.  
+
+Why is the Map different from the other collections? (eg, it isn't even a subtype
+of the Collection type).
+
+What is the advantage of declaring a variable to be of type List<Card> but then
+putting a new ArrayList<Card>() into the variable? Why not just declare the
+type to be ArrayList<Card> ?
+
+In FastFood, you needed to iterate down the queue to draw the queue of
+orders. Why is this a violation of the Queue type?  Why do you think Java
+allows you to do it anyway?  What might be a disadvantage of Java allowing you
+to do this?
+
+--------------------------------------------------------------------
