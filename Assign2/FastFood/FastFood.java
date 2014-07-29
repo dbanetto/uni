@@ -10,15 +10,16 @@
  */
 
 import ecs100.*;
+
 import java.util.*;
 
 /** The FastFood game involves customers who generate orders, and the player
- *  who has to fulfill the orders by assembling the right collection of food items.
+ *  who has to fulfil the orders by assembling the right collection of food items.
  *  The goal of the game is to make as much money as possible before
  *  the player gets too far behind the customers and is forced to give up.
  *
  *  The game presents the player with a a queue of orders in a fast food outlet.
- *  The player has to fullfill the customer orders by adding the correct items to
+ *  The player has to fulfil the customer orders by adding the correct items to
  *  the order at the head of the queue.  
  *  When the order is ready, the player can deliver the order, which will
  *  take it off the queue, and will add the price of the order to the balance.
@@ -27,43 +28,104 @@ import java.util.*;
  *  The player can practice by generating orders using the Practice button.
  *  Once the game is started, the orders are generated automatically.
  */
-public class FastFood implements UIButtonListener{
+public class FastFood {
 
     private Queue<Order> orders;
     private double balance;
-
-
+    
+    private Order making;
+    
     public FastFood() {
         orders = new ArrayDeque<Order>();
-
-
-        UI.addButton("Practice Order", this);
-        UI.addButton("Add Fish", this);
-        UI.addButton("Add Chips", this);
-        UI.addButton("Add Burger", this);
-        UI.addButton("Deliver Order", this);
-        UI.addButton("Start Game", this);
-
+        UI.initialise();
+        UI.setImmediateRepaint(false);
+        
+        UI.addButton("Practice Order", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				orders.clear();
+				making = null;
+				generateOrder();
+				drawOrders();
+			}
+		});
+        UI.addButton("Add Fish", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				addItem("Fish");
+				drawOrders();
+			}
+		});
+        
+        UI.addButton("Add Chips", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				addItem("Chips");
+				drawOrders();
+			}
+		});
+        
+        UI.addButton("Add Burger", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				addItem("Burger");
+				drawOrders();
+			}
+		});
+        
+        UI.addButton("Deliver Order", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				deliverOrder();
+			}
+		});
+        
+        UI.addButton("Start Game", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				startGame();
+			}
+		});
+        
+        UI.setKeyListener(new UIKeyListener() {
+			@Override
+			public void keyPerformed(String key) {
+ 				switch (key)
+				{
+					case ("f"):
+					case ("q"):
+						addItem("Fish");
+						break;
+					case ("c"):
+					case ("w"):
+						addItem("Chips");
+						break;
+					case ("e"):
+					case ("b"):
+						addItem("Burger");
+						break;
+					case ("d"):
+					case ("Space"):
+						deliverOrder();
+						break;
+				}
+			}
+		});
+        UI.println("Keyboard Controls : ");
+        UI.println("Add Fish : Q or F");
+        UI.println("Add Chips : W or C ");
+        UI.println("Add Burger : E or B ");
+        UI.println("Deliver Order : Space or D ");
         drawOrders();
         this.run();
 
     }
-
-    /** Respond to the buttons */
-    public void buttonPerformed(String name) {
-        if ("Practice Order".equals(name))  {generateOrder();}
-        else if ("Add Fish".equals(name))   {addItem("Fish");}
-        else if ("Add Chips".equals(name))  {addItem("Chips");}
-        else if ("Add Burger".equals(name)) {addItem("Burger");}
-        else if ("Deliver Order".equals(name)) {deliverOrder();}
-        else if ("Start Game".equals(name)) {startGame();
-        }
-        drawOrders();
-    }
-
     /** Create a new order and put it on the queue to be processed */
     public void generateOrder() {
-        /*# YOUR CODE HERE */
+    	orders.add(new Order());
+    	
+    	if (making == null)
+    		making = orders.poll();
     }
 
     /** As long as there is an order in the queue, adds the specified
@@ -73,7 +135,18 @@ public class FastFood implements UIButtonListener{
      *  of the item is deducted from the current balance.
      */
     public void addItem(String item) {
-        /*# YOUR CODE HERE */
+    	if (making == null)
+    		return;
+    	
+    	if (!making.addItemToOrder(item) && gameRunning)
+    	{
+    		if (item.equals("Fish"))
+    			balance -= 2.50;
+            else if (item.equals("Chips"))
+            	balance -= 1.50;
+            else if (item.equals("Burger"))
+            	balance -= 5.00;
+    	}
     }
 
     /** As long as there is an order at the front of the queue and it is ready,
@@ -82,15 +155,31 @@ public class FastFood implements UIButtonListener{
      *  If there is not a ready order on the queue, it prints a warning message
      */
     public void deliverOrder() {
-        /*# YOUR CODE HERE */
+    	if (making == null)
+    		return;
+    	
+    	if (making.isReady())
+    	{
+    		if (gameRunning)
+    			balance += making.getPrice();
+    		making = orders.poll();
+    		this.drawOrders();
+    	}
     }
 
     /** Draw the queue of orders on the Graphics pane.
      *  Also draws the current balance in the top left corner
      */
     public void drawOrders() {
-        UI.clearGraphics();
-        /*# YOUR CODE HERE */
+        UI.clearGraphics(false);
+        UI.setFontSize(11);
+        if (gameRunning) {
+        	UI.drawString(String.format("Balnce $%.2f", balance) , 0, 12);
+        	UI.drawString(String.format("Queue Length : %d", orders.size()) , 0, 24);
+        }
+        if (making != null)
+        	making.draw(100);
+        UI.repaintGraphics();
     }
 
     // In the game version, the orders must be automatically generated.
@@ -101,7 +190,7 @@ public class FastFood implements UIButtonListener{
     // thread, which executes concurrently with all the GUI buttons.
     // run  does nothing until the gameRunning field is set to be true
     // Once the gameRunning field is true, then it will generate orders automatically,
-    // every timeBetweenOrders milliseconds. It will also makde the games speed up
+    // every timeBetweenOrders milliseconds. It will also make the games speed up
     // gradually, by steadily reducing the timeBetweenOrders.
     // You do not need to write these methods code.
 
@@ -110,12 +199,11 @@ public class FastFood implements UIButtonListener{
 
     private void startGame(){
         UI.clearGraphics();
-        UI.clearText();
         orders.clear();
-        balance = 0;
+        balance = 0.0;
         timeBetweenOrders = 5000;
         gameRunning = true;
-        //	 nextOrder = 0; nextSpeedup = 0;// I don't think they are needed
+        // nextOrder = 0; nextSpeedup = 0;// I don't think they are needed
     }
 
     public void run() {
@@ -123,28 +211,33 @@ public class FastFood implements UIButtonListener{
         long timeNextOrder = 0;
         long timeNextSpeedup = 0;
         while (true) {
-            UI.sleep(100); // Wait at least 100 milliseconds between actions.
+        	this.drawOrders();
+        	UI.sleep(100); // Wait at least 100 milliseconds between actions.
             long now = System.currentTimeMillis();
-            if (!gameRunning) continue;  // if gameRunning is false, then don't generate orders
+            if (!gameRunning)
+            	continue;
+            
             if (now >= timeNextOrder) {
                 timeNextOrder = now + timeBetweenOrders;
                 generateOrder();
                 drawOrders();
             }
+            
             if (now >= timeNextSpeedup) {   // get faster steadily.
-                if (timeBetweenOrders> 200) timeBetweenOrders -= 100; 
+                if (timeBetweenOrders > 500) 
+                	timeBetweenOrders -= 50; 
                 timeNextSpeedup = now + timeBetweenSpeedups;
             }
+            
             if (orders.size() > 20) {
                 UI.println("Oh no! You have too many orders waiting! Game over...");
                 orders.clear();
                 gameRunning = false;
-                break;
             }
         }
     }
 
     public static void main(String args[]) {
-        FastFood ff = new FastFood();
+        new FastFood();
     }
 }
