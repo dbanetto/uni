@@ -40,18 +40,18 @@ public class Order {
     public Order() {
     	do
     	{
-	    	wantsFish = (Math.random() > 0.5 ? 1 : 0);
-	        wantsChips = (Math.random() > 0.5 ? 1 : 0);
-	        wantsBurger = (Math.random() > 0.5 ? 1 : 0);
+	    	wantsFish = (Math.random() > 0.4 ? 1 : 0);
+	        wantsChips = (Math.random() > 0.4 ? 1 : 0);
+	        wantsBurger = (Math.random() > 0.4 ? 1 : 0);
 
 	        if (wantsFish != 0 || wantsChips != 0 || wantsBurger != 0) {
 	            int choice = (int)(Math.random() * 3);
 	            if (choice == 0) 
-	            	wantsFish += (int)(Math.random() * 2);
+	            	wantsFish += (int)(Math.random() * 5);
 	            else if (choice == 1) 
-	            	wantsChips += (int)(Math.random() * 2);
+	            	wantsChips += (int)(Math.random() * 5);
 	            else if (choice == 2) 
-	            	wantsBurger += (int)(Math.random() * 2);
+	            	wantsBurger += (int)(Math.random() * 5);
 	        }
     	} while (this.getPrice() == 0);
     }
@@ -106,39 +106,43 @@ public class Order {
     }
 
     public void draw(int y) {
-    	int[] ypos = new int[] { y , y , y };
+    	int xpos = 10;
     	int imgHeight = 50; //Image height
     	
     	for (int i = (wantsFish - hasFish); i < wantsFish; i++)
     	{
-    		UI.drawImage("Fish.png", 10, ypos[0]);
-    		ypos[0] += imgHeight;
-    	}
-    	for (int i = (wantsChips - hasChips); i < wantsChips; i++)
-    	{
-    		UI.drawImage("Chips.png", 50, ypos[1]);
-    		ypos[1] += imgHeight;
-    	}
-    	for (int i = (wantsBurger - hasBurger); i < wantsBurger; i++)
-    	{
-    		UI.drawImage("Burger.png", 90, ypos[2]);
-    		ypos[2] += imgHeight;
+    		UI.drawImage("Fish.png", xpos, y);
+    		xpos += imgHeight;
     	}
     	
     	for (int i = 0; i < (wantsFish - hasFish); i++)
     	{
-        	UI.drawImage("Fish-grey.png", 10, ypos[0]);
-        	ypos[0] += imgHeight;
+        	UI.drawImage("Fish-grey.png", xpos, y);
+        	xpos += imgHeight;
     	}
+    	
+    	for (int i = (wantsChips - hasChips); i < wantsChips; i++)
+    	{
+    		UI.drawImage("Chips.png", xpos, y);
+    		xpos += imgHeight;
+    	}
+    	
     	for (int i = 0; i < (wantsChips - hasChips); i++)
     	{
-        	UI.drawImage("Chips-grey.png", 50, ypos[1]);
-        	ypos[1] += imgHeight;
+        	UI.drawImage("Chips-grey.png", xpos, y);
+        	xpos += imgHeight;
     	}
+    	
+    	for (int i = (wantsBurger - hasBurger); i < wantsBurger; i++)
+    	{
+    		UI.drawImage("Burger.png", xpos, y);
+    		xpos += imgHeight;
+    	}
+    	
     	for (int i = 0; i < (wantsBurger - hasBurger); i++)
     	{
-        	UI.drawImage("Burger-grey.png", 90, ypos[2]);
-        	ypos[2] += imgHeight;
+        	UI.drawImage("Burger-grey.png", xpos, y);
+        	xpos += imgHeight;
     	}
     }
 }

@@ -175,10 +175,16 @@ public class FastFood {
         UI.setFontSize(11);
         if (gameRunning) {
         	UI.drawString(String.format("Balnce $%.2f", balance) , 0, 12);
-        	UI.drawString(String.format("Queue Length : %d", orders.size()) , 0, 24);
         }
+        
         if (making != null)
-        	making.draw(100);
+        	making.draw(50);
+        int y = 100;
+        for (Order t : orders)
+        {
+        	t.draw(y);
+        	y += 50;
+        }
         UI.repaintGraphics();
     }
 
