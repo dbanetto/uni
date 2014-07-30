@@ -73,6 +73,13 @@ public class FastFood {
 			}
 		});
         
+        UI.addButton("Add Cream Soda", new UIButtonListener() {
+			@Override
+			public void buttonPerformed(String name) {
+				addItem("Cream Soda");
+		        drawOrders();
+			}
+		});
         UI.addButton("Deliver Order", new UIButtonListener() {
 			@Override
 			public void buttonPerformed(String name) {
@@ -103,6 +110,9 @@ public class FastFood {
 					case ("e"):
 					case ("b"):
 						addItem("Burger");
+					case ("s"):
+					case ("r"):
+						addItem("Cream Soda");
 						break;
 					case ("d"):
 					case ("Space"):
@@ -115,6 +125,7 @@ public class FastFood {
         UI.println("Add Fish : Q or F");
         UI.println("Add Chips : W or C ");
         UI.println("Add Burger : E or B ");
+        UI.println("Add Cream Soda : R or S ");
         UI.println("Deliver Order : Space or D ");
         drawOrders();
         this.run();
@@ -140,12 +151,7 @@ public class FastFood {
     	
     	if (!making.addItemToOrder(item) && gameRunning)
     	{
-    		if (item.equals("Fish"))
-    			balance -= 2.50;
-            else if (item.equals("Chips"))
-            	balance -= 1.50;
-            else if (item.equals("Burger"))
-            	balance -= 5.00;
+    		balance -= Order.Prices.get(item);
     	}
     }
 

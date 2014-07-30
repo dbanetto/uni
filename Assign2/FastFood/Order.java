@@ -25,17 +25,20 @@ public class Order {
 		Prices.put("Fish", 2.50);
 		Prices.put("Chips", 1.50);
 		Prices.put("Burger", 5.00);
+		Prices.put("Cream Soda", 2.00);
 	}
 	
     /** the items that are wanted for the order */
-    private int wantsFish;
+	private int wantsFish;
     private int wantsChips;
     private int wantsBurger;
-
+    private int wantsCream;
+    
     /** the items that have been added and are ready in the order */
     private int hasFish;
     private int hasChips;
     private int hasBurger;
+    private int hasCream;
     
     public Order() {
     	do
@@ -43,15 +46,18 @@ public class Order {
 	    	wantsFish = (Math.random() > 0.4 ? 1 : 0);
 	        wantsChips = (Math.random() > 0.4 ? 1 : 0);
 	        wantsBurger = (Math.random() > 0.4 ? 1 : 0);
-
+	        wantsCream = (Math.random() > 0.4 ? 1 : 0);
+	        
 	        if (wantsFish != 0 || wantsChips != 0 || wantsBurger != 0) {
-	            int choice = (int)(Math.random() * 3);
+	            int choice = (int)(Math.random() * 4);
 	            if (choice == 0) 
 	            	wantsFish += (int)(Math.random() * 5);
 	            else if (choice == 1) 
 	            	wantsChips += (int)(Math.random() * 5);
 	            else if (choice == 2) 
 	            	wantsBurger += (int)(Math.random() * 5);
+	            else if (choice == 2) 
+	            	wantsCream += (int)(Math.random() * 5);
 	        }
     	} while (this.getPrice() == 0);
     }
@@ -62,7 +68,8 @@ public class Order {
     public boolean isReady() {
         return (wantsFish   == hasFish  &&
         		wantsChips  == hasChips &&
-        		wantsBurger == hasBurger);
+        		wantsBurger == hasBurger &&
+        		wantsCream == hasCream);
     }
 
     /** If the item is wanted but not already in the order,
@@ -88,6 +95,11 @@ public class Order {
                 hasBurger += 1;
                 return true;
             }
+        } else if (item.equals("Cream Soda")){
+            if (wantsCream > hasCream) {
+                hasCream += 1;
+                return true;
+            }
         }
         return false;
     }
@@ -102,6 +114,7 @@ public class Order {
     	price += wantsFish * Prices.get("Fish");
     	price += wantsChips * Prices.get("Chips");
     	price += wantsBurger *  Prices.get("Burger");
+    	price += wantsCream *  Prices.get("Cream Soda");
         return price;
     }
 
@@ -142,6 +155,18 @@ public class Order {
     	for (int i = 0; i < (wantsBurger - hasBurger); i++)
     	{
         	UI.drawImage("Burger-grey.png", xpos, y);
+        	xpos += imgHeight;
+    	}
+    	
+    	for (int i = (wantsCream - hasCream); i < wantsCream; i++)
+    	{
+    		UI.drawImage("Cream.png", xpos, y);
+    		xpos += imgHeight;
+    	}
+    	
+    	for (int i = 0; i < (wantsCream - hasCream); i++)
+    	{
+        	UI.drawImage("Cream-grey.png", xpos, y);
         	xpos += imgHeight;
     	}
     }
