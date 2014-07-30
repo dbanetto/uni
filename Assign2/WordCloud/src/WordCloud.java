@@ -12,6 +12,7 @@
 import ecs100.*;
 
 import java.awt.Color;
+import java.awt.RenderingHints;
 import java.util.*;
 import java.io.*;
 
@@ -46,7 +47,7 @@ public class WordCloud implements UIButtonListener {
         String fname2 = UIFileChooser.open("Second filename to read text from");
         counts2 = buildHistogram(fname2);
         UI.println("Text read from " + fname2);
-
+        UI.getGraphics().setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         displayWords();
     }
 
@@ -123,7 +124,7 @@ public class WordCloud implements UIButtonListener {
         		double prec =  norm1.get(word) / (norm1.get(word) + norm2.get(word));
         		double fnt = (norm1.get(word) + norm2.get(word) * 100) / 2.0;
         		UI.setFontSize( (int)(36.0 * fnt));
-        		UI.setColor(Color.getHSBColor((float)prec, 0.5f, 0.5f));
+        		UI.setColor(Color.getHSBColor((float)prec, rnd.nextFloat(), rnd.nextFloat()));
         		UI.drawString(word, rnd.nextInt(UI.getCanvasWidth() - 50), UI.getCanvasHeight() * prec);
         	}
         }
