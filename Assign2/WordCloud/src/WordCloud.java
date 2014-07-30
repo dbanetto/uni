@@ -10,6 +10,7 @@
  */
 
 import ecs100.*;
+
 import java.awt.Color;
 import java.util.*;
 import java.io.*;
@@ -65,7 +66,13 @@ public class WordCloud implements UIButtonListener {
             scan.useDelimiter("[^-a-zA-Z']"); 
 
             wordcounts = new HashMap <String,Double> ();
-            /*# YOUR CODE HERE */
+            
+            while (scan.hasNext())
+            {
+            	String word = scan.next().trim();
+            	if (!word.isEmpty())
+            		wordcounts.put(word, wordcounts.containsKey(word) ? wordcounts.get(word) + 1 : 1);
+            }
 
             scan.close(); // closes the scanner 
             return wordcounts;
@@ -80,9 +87,10 @@ public class WordCloud implements UIButtonListener {
      *  document.
      *  [CORE]
      */
-    public Set <String> findAllWords() {
-        return null; // Template only: remove this line when you do your own code below!!!!
-        /*# YOUR CODE HERE */
+    public Set<String> findAllWords() {
+        Set<String> words = counts1.keySet();
+        words.addAll(counts2.keySet());
+        return words;
     }
 
     /** Display words that exist in both documents.
@@ -105,12 +113,20 @@ public class WordCloud implements UIButtonListener {
         if ((counts1 == null) || (counts2 == null)) return;
 
         // First we re-normalise the counts.
-        normaliseCounts(counts1);
-        normaliseCounts(counts2);
-
-        /*# YOUR CODE HERE */
-
-        return;
+        Map<String,Double> norm1 = normaliseCounts(counts1);
+        Map<String,Double> norm2 = normaliseCounts(counts2);
+        Random rnd = new Random();
+        for (String word : norm1.keySet())
+        {
+        	if (norm2.containsKey(word))
+        	{
+        		double prec =  norm1.get(word) / (norm1.get(word) + norm2.get(word));
+        		double fnt = (norm1.get(word) + norm2.get(word) * 100) / 2.0;
+        		UI.setFontSize( (int)(36.0 * fnt));
+        		UI.setColor(Color.getHSBColor((float)prec, 0.5f, 0.5f));
+        		UI.drawString(word, rnd.nextInt(UI.getCanvasWidth() - 50), UI.getCanvasHeight() * prec);
+        	}
+        }
     }
 
     /** Take a word count Map, and a Set of words. Remove those words from the
@@ -118,7 +134,10 @@ public class WordCloud implements UIButtonListener {
      *  [COMPLETION]
      */
     public void removeWords(Map<String,Double> wc, Set<String> words) {
-        /*# YOUR CODE HERE */
+        for (String rm : words)
+        {
+        	wc.remove(rm);
+        }
     }
 
     /** Takes a Map from strings to integers, and an integer,
@@ -128,24 +147,30 @@ public class WordCloud implements UIButtonListener {
      */
     public void removeInfrequentWords (Map<String,Double> c, int limitNumWords) 
     {
-        /*# YOUR CODE HERE */
+        Object[] keys = c.keySet().toArray();
+        for (Object k : keys)
+        {
+        	if (c.get(k) < limitNumWords)
+        		c.remove(k);
+        }
     }
 
     /** Take a Map from words to counts, and "normalise" the counts,
      *  so that they are fractions of the total: they should sum to one.
      */
-    public void normaliseCounts(Map <String, Double> counts) {
+    public Map<String,Double> normaliseCounts(Map<String,Double> counts) {
         // Figure out the total in the current Map
-        if (counts == null) return;
+        if (counts == null) 
+        	return null;
+        Map<String,Double> out = new HashMap<String, Double>();
         double total = 0.0;
         for (String wd : counts.keySet()) 
             total += counts.get(wd);
 
         // Divide all values by the total, so they will sum to one.
-        for (String wd : counts.keySet()) {
-            double count = counts.get(wd)/total;
-            counts.put(wd,count);
-        }
+        for (String wd : counts.keySet())
+            out.put(wd,counts.get(wd)/total);
+        return out;
     }
 
     /** Print the words and their counts to standard out.
@@ -166,8 +191,9 @@ public class WordCloud implements UIButtonListener {
     public void buttonPerformed(String button) {
 
         if (button.equals("remove standard common words")) {
-            String fname = "some-common-words.txt"; // More general form: UIFileChooser.open("filename to read common words from");
-            if (fname == null) return;
+            String fname = UIFileChooser.open("filename to read common words from"); // More general form: ;
+            if (fname == null) 
+            	return;
             UI.println("Getting ignorable words from " + fname);
 
             // Set the elements of the toRemove Set to be the words in file
@@ -210,8 +236,8 @@ public class WordCloud implements UIButtonListener {
             removeWords(counts2, wordsToBeRemoved);
         }
 
-        // printcounts(counts1);
-        // printcounts(counts2);
+        printcounts(counts1);
+        printcounts(counts2);
 
         // Now redo everything on the screen
         displayWords();
