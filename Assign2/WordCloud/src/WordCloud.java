@@ -15,6 +15,7 @@ import java.awt.Color;
 import java.awt.RenderingHints;
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.Array;
 
 /** This program reads 2 text files and compiles word counts for each.
  *  It then eliminates rare words, and words that only occur in one
@@ -55,7 +56,7 @@ public class WordCloud implements UIButtonListener {
      *  Put the counts (as Doubles) into a Map, which is returned.
      *  [CORE]
      */
-    public Map <String, Double> buildHistogram(String filename) {
+    public Map<String,Double> buildHistogram(String filename) {
         if (filename == null) return null;
         Map <String,Double> wordcounts;
         double total = 0.0;
@@ -148,11 +149,28 @@ public class WordCloud implements UIButtonListener {
      */
     public void removeInfrequentWords (Map<String,Double> c, int limitNumWords) 
     {
-        Object[] keys = c.keySet().toArray();
+    	Comparator<String> cmp = new Comparator<String>() {
+			@Override
+			public int compare(String a, String b) {
+				if (c.get(a) >= c.get(b)) {
+		            return -1;
+		        } else {
+		            return 1;
+		        }
+			}
+		};
+		
+
+    	//ArrayList<String> keys = new ArrayList<String>();
+    	String[] keys = new String[c.size()];
+    	c.keySet().toArray(keys);
+    	Arrays.sort(keys,cmp);
+		int n = 0;
         for (Object k : keys)
         {
-        	if (c.get(k) < limitNumWords)
+        	if (n > limitNumWords)
         		c.remove(k);
+        	n++;
         }
     }
 
@@ -247,6 +265,9 @@ public class WordCloud implements UIButtonListener {
     //================================================================
     // Main
     public static void main(String[] args) {
-        new WordCloud();
+    	//Fixes a change in Java7 which makes the comparator in removeInfrequent to cause a contract voliation error
+    	// From : http://stackoverflow.com/questions/13575224/comparison-method-violates-its-general-contract-timsort-and-gridlayout
+    	System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
+    	new WordCloud();
     }
 }
