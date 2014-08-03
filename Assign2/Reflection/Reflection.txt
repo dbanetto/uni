@@ -1,7 +1,7 @@
 /* Reflection.txt for COMP103
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
  */
 
 For your reflection:
@@ -22,3 +22,30 @@ allows you to do it anyway?  What might be a disadvantage of Java allowing you
 to do this?
 
 --------------------------------------------------------------------
+
+Collections used in this assignment:
+	
+	Map : A collection of values associated with a key value
+	Set : A list of objects that have no order
+	Queue : A list of ordered object that can only be removed from the front of the list and added to the end of the list
+
+A Map is different from other collections like an ArrayList.
+This is because there is a fundamental difference of how the values
+are stored. With an ArrayList the objects are stored in an array with a
+numbered index, while a Map has a key object to act as the index. This allows
+for associating a String with a integer which cannot be done with the same
+level of efficiency with other the other Collection objects.
+
+The advantage of declaring a variable as List<Card> instead of
+ArrayList<Card> even though an ArrayList<Card> object would be assigned
+is that it allows for other non-ArrayList objects but still implementations
+of the List<> interface to be assigned without changing the variable's type.
+This comes to the disadvantage of not being able to use ArrayList only features
+or any other implementation of List<> that extends the functionality of the interface.
+
+Being able to iterate through all the objects of the Queue in the Fast Food program is
+a violation of the idea of a queue but not of Java logic. Being able to walk through the
+Queue without continually dequeuing is against the idea of the queue only given out the
+first element. Java allows this violation as the Queue interface is an extension of the Collections
+interface. The disadvantage of Java letting you to jump around Queue's is that doing un-Queue-like
+behaviour like removing an object mid-list maybe unoptimised for even break the Queue
