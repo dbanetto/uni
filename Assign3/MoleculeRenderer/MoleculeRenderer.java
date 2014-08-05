@@ -63,9 +63,25 @@ public class MoleculeRenderer implements UIButtonListener {
 	 * ElementInfo object is the value (containing size and color).
 	 */
 	public MoleculeRenderer() {
+		UI.setImmediateRepaint(false);
+
 		UI.addButton("Read", this);
-		UI.addButton("FromFront", this);
-		/* # YOUR CODE HERE */
+		UI.addButton("From Front", this);
+		UI.addButton("From Back", this);
+		UI.addButton("From Right", this);
+		UI.addButton("From Left", this);
+		UI.addButton("Pan Left", this);
+		UI.addButton("Pan Right", this);
+		UI.setKeyListener(new UIKeyListener() {
+			
+			@Override
+			public void keyPerformed(String key) {
+				if (key.contains("a"))
+					buttonPerformed("Turn Left");
+				if (key.contains("d"))
+					buttonPerformed("Turn Right");
+			}
+		});
 		readElementTable(); // Read the element table first
 	}
 
@@ -79,12 +95,27 @@ public class MoleculeRenderer implements UIButtonListener {
 			String filename = UIFileChooser.open();
 			readMoleculeFile(filename);
 			Collections.sort(molecule, new BackToFrontComparator());
-		} else if (button.equals("FromFront")) { // set the angle and sort from
-													// back to front
+		} else if (button.equals("From Front")) { 
 			currentAngle = 0;
 			Collections.sort(molecule, new BackToFrontComparator());
+		} else if (button.equals("From Back")) { 
+			currentAngle = 180;
+			Collections.sort(molecule, new BackToFrontComparator());
+		} else if (button.equals("From Left")) { 
+			currentAngle = 90;
+			Collections.sort(molecule, new BackToFrontComparator());
+		} else if (button.equals("From Right")) { 
+			currentAngle = 270;
+			Collections.sort(molecule, new BackToFrontComparator());
+		}  else if (button.equals("Pan Left")) {
+			currentAngle += panStep;
+			currentAngle %= 360.0;
+			Collections.sort(molecule, new BackToFrontComparator());
+		} else if (button.equals("Pan Right")) {
+			currentAngle -= panStep;
+			currentAngle %= 360.0;
+			Collections.sort(molecule, new BackToFrontComparator());
 		}
-		/* # YOUR CODE HERE */
 
 		// render the molecule according to the current ordering
 		render();
@@ -101,6 +132,17 @@ public class MoleculeRenderer implements UIButtonListener {
 		try {
 			/* # YOUR CODE HERE */
 			Scanner scan = new Scanner(new File(fname));
+
+			molecule = new ArrayList<Atom>();
+			while (scan.hasNext()) {
+				String symbl = scan.next();
+				int x = scan.nextInt();
+				int y = scan.nextInt();
+				int z = scan.nextInt();
+				Element ele = elementTable.get(symbl);
+				molecule.add(new Atom(x, y, z, ele.colour, ele.radius));
+			}
+			scan.close();
 		} catch (IOException ex) {
 			UI.println("Reading molecule file " + fname + " failed");
 		}
@@ -114,8 +156,19 @@ public class MoleculeRenderer implements UIButtonListener {
 	private void readElementTable() {
 		UI.println("Reading the element table file ...");
 		try {
-			/* # YOUR CODE HERE */
-			Scanner scan = new Scanner(new File("file"));
+			elementTable = new HashMap<>();
+			Scanner scan = new Scanner(new File("element-table.txt"));
+			while (scan.hasNext()) {
+				String symbl = scan.next();
+				int radi = scan.nextInt();
+				int r = scan.nextInt();
+				int g = scan.nextInt();
+				int b = scan.nextInt();
+
+				elementTable.put(symbl, new Element(symbl, radi, new Color(r,
+						g, b)));
+			}
+			scan.close();
 		} catch (IOException ex) {
 			UI.println("Reading element table file FAILED");
 		}
@@ -126,10 +179,13 @@ public class MoleculeRenderer implements UIButtonListener {
 	 * List. The Atom's render() method needs the current perspective angle
 	 */
 	public void render() {
-		UI.clearGraphics();
-		for (Atom atom : molecule) {
-			atom.render(currentAngle);
+		UI.clearGraphics(false);
+		if (molecule != null) {
+			Collections.sort(molecule, new BackToFrontComparator());
+			for (Atom atom : molecule)
+				atom.render(currentAngle);
 		}
+		UI.drawString("Vewing Angle : " + currentAngle, 10, 10);
 		UI.repaintGraphics();
 	}
 
@@ -147,19 +203,22 @@ public class MoleculeRenderer implements UIButtonListener {
 
 	/** Comparator that will order atoms from back to front */
 	private class BackToFrontComparator implements Comparator<Atom> {
-
-		@Override
-		public int compare(Atom o1, Atom o2) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
 		/**
 		 * Uses the z coordinates of the two atoms larger z means towards the
 		 * back, smaller z means towards the front Returns negative if atom1 is
 		 * more to the back than atom2, ( 0 if they are in the same plane,
 		 * positive if atom1 is more to the front than atom2.
 		 */
-		/* # YOUR CODE HERE */
+		@Override
+		public int compare(Atom o1, Atom o2) {
+			int f = o1.further(o2, currentAngle);
+			if (f > 0)
+				return 1;
+			else if (f < 0)
+				return -1;
+			else
+				return 0;
+		}
 	}
 
 	public static void main(String args[]) {
