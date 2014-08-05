@@ -1,0 +1,22 @@
+/* Reflection.txt for COMP103
+ * Name:
+ * Usercode:
+ * ID:
+ */
+
+For your reflection:
+====================
+
+Firstly, describe how far you got, on this assignment. If there was a problem
+you got stuck on, what was that problem?
+
+Reading and understanding someone else's code is difficult.  What elements of
+Sokoban made it easier or made it  more difficult for you to understand?  Can
+you identify things that you would do or avoid doing if you were trying to make
+your own code easily understood by someone else?
+
+What is the point of comparators?  Why are they necessary in general? Could you
+suggest an alternative way of solving the same problems that didn't involve
+having to make these additional classes?
+
+--------------------------------------------------------------------
