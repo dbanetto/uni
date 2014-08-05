@@ -35,13 +35,18 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 	private Map<String, String> agentMapping; // direction to image of worker
 	private Map<String, String> keyMapping; // key string to direction
 
+	private Stack<ActionRecord> actions;
+
 	// Constructors
 	/**
 	 * Construct a new Sokoban object and set up the GUI
 	 */
 	public Sokoban() {
+		actions = new Stack<ActionRecord>();
+
 		UI.addButton("New Level", this);
 		UI.addButton("Restart", this);
+		UI.addButton("Undo", this);
 		UI.addButton("left", this);
 		UI.addButton("up", this);
 		UI.addButton("down", this);
@@ -60,9 +65,25 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		if (button.equals("New Level")) {
 			level = (level + 1) % maxLevels;
 			load();
-		} else if (button.equals("Restart"))
+		} else if (button.equals("Restart")) {
 			load();
-		else
+		} else if (button.equals("Undo")) {
+			if (actions.size() > 0) {
+				ActionRecord rd = actions.pop();
+				UI.printf("Undo a %s to the %s \n" , (rd.isMove() ? "Move" : "Push" ) ,  rd.dir());
+				if (rd.isMove())
+				{
+					// Move Back
+					move(oppositeDirection(rd.dir()));
+					agentDirection = ( !actions.empty() ? actions.peek().dir() : "left");
+				} else if (rd.isPush())
+				{
+					pull(oppositeDirection(rd.dir()));
+					//move(oppositeDirection(rd.dir()));
+					agentDirection = ( !actions.empty() ? actions.peek().dir() : "left");
+				}
+			}
+		} else
 			doAction(button);
 	}
 
@@ -85,8 +106,10 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		if (squares[newP.row][newP.col].hasBox()
 				&& squares[nextP.row][nextP.col].free()) {
 			push(dir);
+			actions.add(new ActionRecord("push", dir));
 		} else if (squares[newP.row][newP.col].free()) {
 			move(dir);
+			actions.add(new ActionRecord("move", dir));
 		}
 	}
 
@@ -98,7 +121,7 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		Trace.println("Move " + dir);
 		UI.repaintGraphics();
 	}
-
+	
 	/** Push: Move the agent, pushing the box one step */
 	public void push(String dir) {
 		drawSquare(agentPos);
@@ -112,7 +135,7 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		Trace.println("Push " + dir);
 		UI.repaintGraphics();
 	}
-
+	
 	/**
 	 * Pull: (useful for undoing a push in the opposite direction) move the
 	 * agent in direction from dir, pulling the box into the agent's old
@@ -135,6 +158,7 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 
 	/** Load a grid of squares (and agent position) from a file */
 	public void load() {
+		actions = new Stack<>();
 		File f = new File("warehouse" + level + ".txt");
 		if (f.exists()) {
 			List<String> lines = new ArrayList<String>();
