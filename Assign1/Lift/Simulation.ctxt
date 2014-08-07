@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.params=
+comment0.target=Simulation()
+comment0.text=\n\ Constructor\:\ Set\ up\ interface\ and\ lift,\ and\ call\ the\ run\ method.\n
+comment1.params=
+comment1.target=void\ run()
+comment1.text=\n\ Runs\ the\ simulation.\n\ Infinite\ loop,\ but\ only\ take\ steps\ if\ the\ field\ running\ is\ true.\n
+comment2.params=name
+comment2.target=void\ buttonPerformed(java.lang.String)
+comment2.text=\n\ Respond\ to\ the\ buttons\n
+comment3.params=args
+comment3.target=void\ main(java.lang.String[])
+numComments=4

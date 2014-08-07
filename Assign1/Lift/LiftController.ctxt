@@ -1,0 +1,8 @@
+#BlueJ class context
+comment0.params=lift
+comment0.target=LiftController(Lift)
+comment0.text=\n\ The\ Constructor\ is\ passed\ the\ lift\ that\ it\ is\ controlling.\n
+comment1.params=sensor
+comment1.target=void\ signal(java.lang.String)
+comment1.text=\n\ Receives\ a\ change\ in\ a\ sensor\ value\ that\ may\ trigger\ an\ action\ and\ state\ change.\n\ If\ there\ is\ a\ transition\ out\ of\ the\ current\ state\ associated\ with\ this\n\ sensor\ signal,\n\ -\ it\ will\ perform\ the\ appropriate\ action\ (if\ any)\n\ -\ it\ will\ transition\ to\ the\ next\ state\n\ \ \ (by\ calling\ changeToState\ with\ the\ new\ state).\n\n\ Possible\ sensor\ values\ that\ you\ can\ respond\ to\:\n\ (note,\ you\ may\ not\ need\ to\ respond\ to\ all\ of\ them)\n\ \ \ "request1"\ \ \ "request2"\ \ \ "request3"\n\ \ \ "atF1"\ \ \ "atF2"\ \ \ "atF3"\n\ \ \ "startUp"\ \ \ "startDown"\n\ \ "doorClosed"\ \ \ "doorOpened"\ \ \ "doorMoving"\n\ \ "timerExpired"\n\ \ "doorSensor"\n\ \ "withinCapacity"\ \ \ "overCapacity"\n\n\ You\ can\ either\ have\ one\ big\ method,\ or\ you\ can\ break\ it\ up\ into\n\ a\ separate\ method\ for\ each\ state\n
+numComments=2
