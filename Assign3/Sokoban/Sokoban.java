@@ -9,8 +9,12 @@
  */
 
 import ecs100.*;
+
 import java.util.*;
+import java.awt.Point;
 import java.io.*;
+
+import com.sun.prism.impl.Disposer.Target;
 
 /**
  * Sokoban
@@ -56,8 +60,162 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		UI.println("You may use keys (wasd or ijkl) but click on the graphics pane first");
 		UI.setKeyListener(this);
 
+		UI.setMouseListener(new UIMouseListener() {
+
+			@Override
+			public void mousePerformed(String action, double x, double y) {
+				if (action.equals("clicked")) {
+					int yb = (int) ((x - leftMargin) / (double) squareSize);
+					int xb = (int) ((y - topMargin) / (double) squareSize);
+					if (bounds(xb, 0, rows) && bounds(yb, 0, cols)) {
+						UI.println("PATH FIND TO " + xb + "," + yb);
+						pathFind(xb, yb);
+					} else {
+						UI.println("OUT OF BOUNDS " + xb + "," + yb + " "
+								+ rows + "," + cols);
+					}
+				}
+			}
+		});
+
 		initialiseMappings();
 		load();
+	}
+
+	private void pathFind(int xtarget, int ytarget) {
+		/*
+		 * The Idea behind this path finding algorithm
+		 * is to "point" back to the where the node came from.
+		 * Repeating this until it has found the [T]arget tile.
+		 * From there it can trace back the shortest route to the
+		 * starting tile.
+		 * 
+		 * This works off the assumption that all tiles are equal
+		 * and there is no extra cost to any tiles
+		 */
+		
+		String[][] dir_board = new String[rows][cols];
+		dir_board[xtarget][ytarget] = "T";
+		dir_board[agentPos.row][agentPos.col] = "S";
+
+		Queue<Point> qpts = new LinkedList<Point>();
+		qpts.add(new Point(agentPos.row, agentPos.col));
+
+		Point path_start = null;
+
+		Map<Integer, String> xdir = new HashMap<Integer, String>();
+		xdir.put(-1, "right");
+		xdir.put(1, "left");
+
+		Map<Integer, String> ydir = new HashMap<Integer, String>();
+		ydir.put(-1, "down");
+		ydir.put(1, "up");
+		
+		// make "nodes" to go out and search for the traget 
+		
+		while (!qpts.isEmpty() && path_start == null) {
+			Point pt = qpts.poll();
+
+			// Natural x/y
+			int nx = pt.x, ny = pt.y;
+
+			for (int x : new int[] { -1, 1 }) {
+				if (nx + x == xtarget && ny == ytarget) {
+					path_start = new Point(nx + x, ny);
+					dir_board[nx + x][ny] = ydir.get(x);
+					break;
+				}
+				
+				if (bounds(nx + x, 0, rows) && bounds(ny, 0, cols)) {
+					Square sqr = squares[nx + x][ny];
+					if (sqr.free() && dir_board[nx + x][ny] == null) {
+						dir_board[nx + x][ny] = ydir.get(x);
+						qpts.add(new Point(nx + x, ny));
+					}
+				}
+			}
+			
+			// Intermediate check
+			if (path_start != null)
+				break;
+
+			for (int y : new int[] { -1, 1 }) {
+				if (nx == xtarget && ny + y == ytarget) {
+					path_start = new Point(nx, ny + y);
+					dir_board[nx][ny + y] = xdir.get(y);
+					break;
+				}
+
+				if (bounds(nx, 0, rows) && bounds(ny + y, 0, cols)) {
+					Square sqr = squares[nx][ny + y];
+					if (sqr.free() && dir_board[nx][ny + y] == null) {
+						dir_board[nx][ny + y] = xdir.get(y);
+						qpts.add(new Point(nx, ny + y));
+					}
+				}
+			}
+		}
+
+		UI.println("Found a Path? "
+				+ (path_start != null ? "Success!" : "Fail."));
+
+		if (path_start == null)
+			return;
+		UI.println("Printing path map");
+		for (int x = 0; x < rows; x++) {
+			for (int y = 0; y < cols; y++) {
+				String s = dir_board[x][y];
+				UI.print(s != null ? s.charAt(0) : " ");
+			}
+			UI.print('\n');
+		}
+		
+		// Get the moves from the map
+		
+		Stack<String> stack_dirs = new Stack<String>();
+		int nx = path_start.x, ny = path_start.y;
+		String dir = "T";
+		
+		UI.println("Filling movement stack");
+		while (dir != "S") {
+			dir = dir_board[nx][ny];
+			if (dir == "S")
+				break;
+			
+			switch (dir) {
+			case "left":
+				ny--;
+				break;
+			case "right":
+				ny++;
+				break;
+			case "down":
+				nx++;
+				break;
+			case "up":
+				nx--;
+				break;
+			}
+
+			stack_dirs.add(oppositeDirection(dir));
+		}
+		
+		// Apply the moves to the Character
+		
+		UI.println("Playing out moves");
+		while (!stack_dirs.isEmpty()) {
+			String dr = stack_dirs.pop();
+			if (!stack_dirs.isEmpty())
+				agentDirection = stack_dirs.peek();
+			
+			move(dr, false);
+			UI.sleep(25);
+		}
+
+	}
+
+	private boolean bounds(int x, int l, int u) {
+		return (x >= l && x < u);
 	}
 
 	/** Respond to button presses */
@@ -68,19 +226,20 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		} else if (button.equals("Restart")) {
 			load();
 		} else if (button.equals("Undo")) {
-			if (actions.size() > 0) {
+			if (!actions.isEmpty()) {
 				ActionRecord rd = actions.pop();
-				UI.printf("Undo a %s to the %s \n" , (rd.isMove() ? "Move" : "Push" ) ,  rd.dir());
-				if (rd.isMove())
-				{
+				UI.printf("Undo a %s to the %s \n", (rd.isMove() ? "Move"
+						: "Push"), rd.dir());
+				if (rd.isMove()) {
 					// Move Back
-					move(oppositeDirection(rd.dir()));
-					agentDirection = ( !actions.empty() ? actions.peek().dir() : "left");
-				} else if (rd.isPush())
-				{
+					move(oppositeDirection(rd.dir()), true);
+					agentDirection = (!actions.empty() ? actions.peek().dir()
+							: "left");
+				} else if (rd.isPush()) {
 					pull(oppositeDirection(rd.dir()));
-					//move(oppositeDirection(rd.dir()));
-					agentDirection = ( !actions.empty() ? actions.peek().dir() : "left");
+					// move(oppositeDirection(rd.dir()));
+					agentDirection = (!actions.empty() ? actions.peek().dir()
+							: "left");
 				}
 			}
 		} else
@@ -106,24 +265,25 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		if (squares[newP.row][newP.col].hasBox()
 				&& squares[nextP.row][nextP.col].free()) {
 			push(dir);
-			actions.add(new ActionRecord("push", dir));
 		} else if (squares[newP.row][newP.col].free()) {
-			move(dir);
-			actions.add(new ActionRecord("move", dir));
+			move(dir, false);
 		}
 	}
 
 	/** Move the agent into the new position (guaranteed to be empty) */
-	public void move(String dir) {
+	public void move(String dir , boolean undo) {
+		if (!undo)
+			actions.add(new ActionRecord("move", dir));
 		drawSquare(agentPos);
 		agentPos = agentPos.next(dir);
 		drawAgent();
 		Trace.println("Move " + dir);
 		UI.repaintGraphics();
 	}
-	
+
 	/** Push: Move the agent, pushing the box one step */
 	public void push(String dir) {
+		actions.add(new ActionRecord("push", dir));
 		drawSquare(agentPos);
 		agentPos = agentPos.next(dir);
 		drawAgent();
@@ -135,7 +295,7 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		Trace.println("Push " + dir);
 		UI.repaintGraphics();
 	}
-	
+
 	/**
 	 * Pull: (useful for undoing a push in the opposite direction) move the
 	 * agent in direction from dir, pulling the box into the agent's old
@@ -209,6 +369,7 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 	public void draw() {
 		UI.clearGraphics();
 		// draw squares
+		UI.drawString("Agent : " + agentPos.row + "," + agentPos.col, 10, 10);
 		for (int row = 0; row < rows; row++)
 			for (int col = 0; col < cols; col++)
 				drawSquare(row, col);
