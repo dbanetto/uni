@@ -3,9 +3,9 @@
 // You may not distribute it in any other way without permission.
 
 /* Code for COMP103, Assignment 3
- * Name: 
- * Usercode: 
- * ID: 
+ * Name: David Barnett
+ * Usercode: 300313764
+ * ID: barnetdavi
  */
 
 import ecs100.*;

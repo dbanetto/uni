@@ -1,7 +1,7 @@
 /* Reflection.txt for COMP103
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: 300313764
+ * ID: barnetdavi
  */
 
 For your reflection:
@@ -20,3 +20,23 @@ suggest an alternative way of solving the same problems that didn't involve
 having to make these additional classes?
 
 --------------------------------------------------------------------
+
+Sokoban : implemented undo and path finding. Had some trouble with the conversion between
+	x,y coordinates and cols,rows for getting the Square objects.
+
+Molecule Renderer : implemented everything up to challenge with little  or no problem.
+	From the challenge list only preservative, zooming and keyboard controls was implemented.
+	The only trouble coming from trying to get constant values in the preservative rendering 
+	to look natural.
+
+When reading through the given Sokoban code, the use of comments above functions
+made it very easy to understand what each section did. The main source of confusion was
+the how the Squares array was sorted by row,col. 
+From this I would try to add more comments/documentation and avoid extremely in-line stacked
+code that would make no sense to anyone.
+
+The point of a comparator is to be able to define what is greater, lesser or equal with two objects.
+This would allow for sorting user-defined classes or non-standard ways of sorting built-in classes.
+The alternative to having a Comparator class would be moving the interface into the Object class
+so every class has a chance to override how it is compared, but this would not allow for multiple ways
+to sort the same list. 

@@ -3,9 +3,9 @@
 // You may not distribute it in any other way without permission.
 
 /* Code for COMP 103, Assignment 3
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: 300313764
+ * ID: barnetdavi
  */
 
 import ecs100.*;
@@ -13,8 +13,6 @@ import ecs100.*;
 import java.util.*;
 import java.awt.Point;
 import java.io.*;
-
-import com.sun.prism.impl.Disposer.Target;
 
 /**
  * Sokoban
@@ -65,8 +63,10 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 			@Override
 			public void mousePerformed(String action, double x, double y) {
 				if (action.equals("clicked")) {
+					
 					int yb = (int) ((x - leftMargin) / (double) squareSize);
 					int xb = (int) ((y - topMargin) / (double) squareSize);
+					
 					if (bounds(xb, 0, rows) && bounds(yb, 0, cols)) {
 						UI.println("PATH FIND TO " + xb + "," + yb);
 						pathFind(xb, yb);
@@ -237,7 +237,6 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 							: "left");
 				} else if (rd.isPush()) {
 					pull(oppositeDirection(rd.dir()));
-					// move(oppositeDirection(rd.dir()));
 					agentDirection = (!actions.empty() ? actions.peek().dir()
 							: "left");
 				}
