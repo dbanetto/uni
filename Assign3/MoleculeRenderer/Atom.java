@@ -71,16 +71,17 @@ public class Atom {
 	 * molecule. 0 degrees corresponds to viewing from the front; 90 degrees
 	 * corresponds to viewing from the right;
 	 */
-	public void render(double angle) {
+	public void render(double angle , double zoom) {
+		double scale = 1 + (further(new Atom(0,0,0, Color.black, 1.0), angle) / 500.0); // Scale Atom 
 		double radian = angle * Math.PI / 180;
 		double left = 0;
 		double top = 0;
-		double diam = radius * 2;
+		double diam = radius * 2 * scale * zoom;
 
 		// The vertical coordinate on the graphics pane is the y coordinate of
 		// the
 		// atom
-		top = y - radius;
+		top = (y - radius) * zoom;
 
 		// The horizontal coordinate on the graphics pane is given by x, z,
 		// and the angle.
@@ -89,9 +90,9 @@ public class Atom {
 		left = (x * Math.cos(radian) + z * Math.sin(radian)) - radius;
 
 		UI.setColor(color);
-		UI.fillOval(left + 400, top, diam, diam, false);
+		UI.fillOval(left * zoom + 400, top, diam, diam, false);
 		UI.setColor(Color.black);
-		UI.drawOval(left + 400, top, diam, diam, false);
+		UI.drawOval(left * zoom + 400, top, diam, diam, false);
 
 		// Note, you do not need to understand the mathematics of this (though
 		// it is

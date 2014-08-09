@@ -55,7 +55,7 @@ public class MoleculeRenderer implements UIButtonListener {
 	private double currentAngle = 0.0; // current viewing angle (in degrees)
 
 	private double panStep = 5.0;
-
+	private double zoom = 1.0;
 	// Constructor:
 	/**
 	 * Set up the Graphical User Interface and read the file of element data of
@@ -80,6 +80,15 @@ public class MoleculeRenderer implements UIButtonListener {
 					buttonPerformed("Turn Left");
 				if (key.contains("d"))
 					buttonPerformed("Turn Right");
+			}
+		});
+		
+		UI.addSlider("Zoom Scale %", 0, 200, new UISliderListener() {
+			
+			@Override
+			public void sliderPerformed(String name, double value) {
+				zoom = value / 100.0;
+				render();
 			}
 		});
 		readElementTable(); // Read the element table first
@@ -183,7 +192,7 @@ public class MoleculeRenderer implements UIButtonListener {
 		if (molecule != null) {
 			Collections.sort(molecule, new BackToFrontComparator());
 			for (Atom atom : molecule)
-				atom.render(currentAngle);
+				atom.render(currentAngle, zoom);
 		}
 		UI.drawString("Vewing Angle : " + currentAngle, 10, 10);
 		UI.repaintGraphics();
