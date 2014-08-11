@@ -1,0 +1,23 @@
+/* Reflection.txt for COMP103
+ * Name:
+ * Usercode:
+ * ID:
+ */
+
+For your reflection:
+====================
+
+Firstly, describe how far you got, on this assignment. If there was a problem
+you got stuck on, what was that problem?
+
+
+Java provides several different implementations of the =Set= type, including =HashSet= and
+=TreeSet=.  Why didn't it provide =ArraySet= ?  (After all, it provided the
+=ArrayList= implementation of the =List= type!).
+
+
+Coming up with good test methods can be as hard as writing the code that it is
+testing.  Suggest some guidelines or principles for writing good test methods.
+
+
+--------------------------------------------------------------------

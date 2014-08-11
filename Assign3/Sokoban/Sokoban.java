@@ -111,6 +111,10 @@ public class Sokoban implements UIButtonListener, UIKeyListener {
 		ydir.put(-1, "down");
 		ydir.put(1, "up");
 		
+		Square targetSQR = squares[xtarget][ytarget];
+		if (!targetSQR.free())
+			return;
+		
 		// make "nodes" to go out and search for the traget 
 		
 		while (!qpts.isEmpty() && path_start == null) {

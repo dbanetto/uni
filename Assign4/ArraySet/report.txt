@@ -1,0 +1,22 @@
+COMP 103 Assignment 4 
+Report on ArraySet testing and benchmarking
+
+Name:
+
+Testing:
+Which test methods succeeded or failed on your implementation of ArraySet:
+
+
+
+
+
+
+
+Benchmarking:
+What were the results of your timing tests?
+(Give the time to load the dictionary and the time to check the story, for both
+ArraySet and HashSet.)
+
+
+
+
