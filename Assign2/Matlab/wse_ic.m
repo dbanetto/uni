@@ -11,17 +11,17 @@
 mode = 'stance phase leg 1';
 
 
-phi1 = 0*pi/180;      %initial angle leg1
-phi2 = 0.9*pi/180;   % initial angle leg2
-phi1d = 0;             % initial speed of rotation leg1
-phi2d = 0;             % initial speed of rotation leg2
+%phi1 = 25*pi/180;      %initial angle leg1
+phi2 = 10*pi/180;   % initial angle leg2
+%phi1d = 1*pi;             % initial speed of rotation leg1
+%phi2d = -1*pi;             % initial speed of rotation leg2
 
 % independent initial conditions
-%phi1  = 0.2015;  % counter-clockwise rotation of leg 1 
+phi1  = 0.2015;  % counter-clockwise rotation of leg 1 
 %phi2 = - phi1;
-%phi1d =-1.4052; % velocity of counter-clockwise rotation of leg 1 
-%phi1d = -1.40;
-%phi2d =-1.1205; % velocity of counter-clockwise rotation of leg 2
+phi1d =-1.4052; % velocity of counter-clockwise rotation of leg 1 
+phi1d = -1.40;
+phi2d =-1.1205; % velocity of counter-clockwise rotation of leg 2
 
 
 % dependent initial conditions (the correct values 

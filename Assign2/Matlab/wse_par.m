@@ -18,8 +18,8 @@ g     = 9.81;  % gravity
 gamma = 0.01; % slope angle
 
 % leg 1 parameters - inner leg
-l1    = 130/1000;       % leg 1: length - m
-r1    = 110/1000;       % leg 1: foot radius - m
+l1    = 200/1000;       % leg 1: length - m
+r1    = 190/1000;       % leg 1: foot radius - m
 c1    = 10/1000;       % leg 1: vertical distance hip-CoM -m
 w1    = 0;         % leg 1: horizontal distance hip-CoM - m
 m1    = 0.7;         % leg 1: mass - kg
