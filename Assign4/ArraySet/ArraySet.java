@@ -44,6 +44,7 @@ public class ArraySet<E> extends AbstractSet<E> {
 		count = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ArraySet(int size) {
 		/* # YOUR CODE HERE */
 		array = (E[]) new Object[size];
