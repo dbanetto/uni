@@ -155,9 +155,7 @@ public class ArrayQueueCh<E> implements BlockingQueue<E> {
 			ensureCapacity();
 			data[back] = e;
 			back = (back + 1);
-			
-				notify();
-			
+			notify();
 		}
 	}
 
