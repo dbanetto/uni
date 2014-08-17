@@ -27,9 +27,9 @@ public class ThreadChallenge {
 
     public ThreadChallenge() {
         // Replace with your ArrayQueue
-        //queue = new java.util.concurrent.ArrayBlockingQueue<String>(NUM_PER_THREAD);
+        queue = new java.util.concurrent.ArrayBlockingQueue<String>(NUM_PER_THREAD);
         //queue = new ArrayQueue<String>();
-        queue = new ArrayQueueCh<String>();
+        //queue = new ArrayQueueCh<String>();
     }
 
     public void run() throws InterruptedException {

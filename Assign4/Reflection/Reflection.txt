@@ -1,7 +1,7 @@
 /* Reflection.txt for COMP103
- * Name:
- * Usercode:
- * ID:
+ * Name: David ABarnett
+ * Usercode: barnetdavi
+ * ID: 300313764
  */
 
 For your reflection:
@@ -21,3 +21,6 @@ testing.  Suggest some guidelines or principles for writing good test methods.
 
 
 --------------------------------------------------------------------
+
+
+
