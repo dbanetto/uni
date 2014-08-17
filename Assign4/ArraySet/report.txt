@@ -23,7 +23,7 @@ Time to load:
 
 Time to Check:
 	Plato:
-		HashSet  :    ~660ms	
+		HashSet  :    ~660ms
 		ArraySet : ~189000ms
 
 	Hamlet:
