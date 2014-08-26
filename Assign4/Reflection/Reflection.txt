@@ -32,7 +32,7 @@ base array for simplicity.
 Java does not provide an ArraySet because it is horrendously slow compared
 to the other two implementations. This is generally caused by most operations
 (add, remove, find) in ArraySet are O(n) operations with HashSet being O(1) as
-it uses hashes. This is even more shown by the benchmarking done with HashSet being
+it sues hashes. This is even more shown by the benchmarking done with HashSet being
 up to 198040% better than its ArraySet counterpart.
 
 Some guidelines or principles when writing tests could be :
