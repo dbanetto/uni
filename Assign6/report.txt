@@ -1,0 +1,83 @@
+ID: 300313764
+Name : David Barnett
+Username : barnetdavi
+
+Standard Table
+        | Selection Sort | Insertion Sort | Merge Sort | Quick Sort |
+--------|----------------|----------------|------------|------------|
+100     | 0.002s         | 0.002s         | 0.002s     | 0.001s     |
+1000    | 0.013s         | 0.026s         | 0.003s     | 0.003s     |
+10000   | 0.305s         | 0.228s         | 0.022s     | 0.014s     |
+100000  | 71.374s        | 108.465s       | 0.140s     | 0.160s     |
+1000000 | 10mins+        | 10mins+        | 1.373s     | 1.866s     |
+
+                 |          | quicksort2 | Arrays.sort | Selection MOD | Quick Sort MOD | Insertion MOD | Merge Sort MOD | Merge Sort |
+---------------------------------------------------------------------------------------------------------------------------------------
+100              | Random   | <0.001s    | <0.001s     | <0.001s       | <0.001s        | <0.001s       | <0.001s        | <0.001s    |
+                 | Sorted   | <0.001s    | <0.001s     | <0.001s       | <0.001s        | <0.001s       | <0.001s        | <0.001s    |
+                 | Reversed | <0.001s    | <0.001s     | <0.001s       | <0.001s        | <0.001s       | <0.001s        | <0.001s    |
+---------------------------------------------------------------------------------------------------------------------------------------
+1000             | Random   | 0.001s     | 0.001s      | 0.005s        | 0.027s         | 0.004s        | <0.001s        | <0.001s    |
+                 | Sorted   | <0.001s    | <0.001s     | 0.007s        | 0.022s         | <0.001s       | <0.001s        | <0.001s    |
+                 | Reversed | <0.001s    | <0.001s     | 0.006s        | 0.034s         | 0.004s        | <0.001s        | <0.001s    |
+---------------------------------------------------------------------------------------------------------------------------------------
+10000            | Random   | 0.003s     | 0.011s      | 0.276s        | 2.701s         | 0.180s        | 0.005s         | 0.003s     |
+                 | Sorted   | 0.002s     | 0.001s      | 0.481s        | 2.140s         | 0.011s        | 0.003s         | 0.002s     |
+                 | Reversed | 0.002s     | 0.002s      | 0.522s        | 2.688s         | 0.368s        | 0.002s         | 0.001s     |
+---------------------------------------------------------------------------------------------------------------------------------------
+100000           | Random   | 0.040s     | 0.070s      | 47.613s       | N/A            | 38.822s       | 0.057s         | 0.042s     |
+                 | Sorted   | 0.026s     | 0.006s      | 39.528s       | N/A            | 0.057s        | 0.035s         | 0.020s     |
+                 | Reversed | 0.028s     | 0.007s      | 47.356s       | N/A            | 90.323s       | 0.030s         | 0.013s     |
+---------------------------------------------------------------------------------------------------------------------------------------
+1000000          | Random   | 0.627s     | 0.710s      | N/A           | N/A            | N/A           | 0.986s         | 0.661s     |
+                 | Sorted   | 0.440s     | 0.080s      | N/A           | N/A            | N/A           | 0.686s         | 0.351s     |
+                 | Reversed | 0.484s     | 0.160s      | N/A           | N/A            | N/A           | 0.644s         | 0.301s     |
+Note: All values rounded to 3 d.p.
+
+What I did:
+
+To benchmark the sorting algorithms I made an outer loop to change the size of array,
+with an inner loop recording the time of the sort so multiple tests could be run at once.
+
+The figures are from 10 repeated runs.
+
+The changes made were:
+	In Selection sort I added a "high" pointer so it was building two sorted lists from the top and
+	the bottom at the same time, instead of just the bottom.
+
+	In the Quick Sort I added a check for under 5 elements, and if so do an insertion sort. Plus I changed
+	the partition scheme to be based off the median of three elements of the set.
+
+	In the Insertion sort I added a binary search to find the position for the new item to
+	be swapped into.
+
+	With the merge sort I made a iterative version of algorithm, following the
+	instructions in the assignment outline
+
+Results are presented above.
+
+Observations :
+
+N/A indicate tests that could not finish because of either time or stack overflow errors
+
+From my testing it seems that the modifications to the selection sort
+did have real gains in performance, but it is still not enough to get anywhere
+close to Merge or Quick Sort levels of speed because it is still a O(n^2) algorithm.
+
+Form testing the modified version of the insertion sort the gains in the
+already sorted set is huge, challenging quicksort and standard java sort (Which is heap-sort).
+Overall the changes made have made large performance increases compared to the standard
+version of the algorithm.
+
+Comparing the the modified version of Merge Sort to the original shows that there was a performance
+decrease. This could of been caused by more chances for the worst case of having the area to merge from the
+iterative loop to over extend the upper limit, making the gap between the upper and lower to be barely higher
+than the mid point. This seemed to have the most impact in the reversed lists.
+
+After modifying the Quick Sort to use the new partition scheme and sorting at 5 or less elements
+caused a performance hit. The algorithm was more prone to stack overflow errors and overall the
+time for a Sort increased compared to the base version. The slow down is most likely cause by a miss
+match of appropriate constants for switching to a linear sort, and the median of 3 items is also slower
+as it needs another sort to get the median and offers no real improvement in choosing a random value with
+object values like Strings. However in the sorting of a int/double/float array taking the average/median would
+be more beneficial
