@@ -1,0 +1,26 @@
+/* Reflection.txt for COMP103
+ * Name:
+ * Usercode:
+ * ID:
+ */
+
+For your reflection:
+====================
+
+First, describe how far you got on this assignment. If there was a problem
+you got stuck on, what was that problem?
+
+* Do you think that having both classes "Images" and "ImageNode" is overkill? 
+  What pros and cons can you think of in comparison to just using ImageNode?
+
+* Did you notice the different complexity of adding an image
+  before vs after the cursor? 
+  What are the complexities and what is the cause of this complexity difference? 
+
+* Can you think of an extension to "ImageNode" that would avoid the 
+  above mentioned complexity difference? 
+
+* Cursors are a good way of obtaining quick access to a certain point in a list. 
+  Can you think of a potential problem if a client does not use Images.setCursor correctly?
+ 
+----------------------------------------------------------------
