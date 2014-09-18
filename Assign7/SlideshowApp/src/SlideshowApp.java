@@ -62,7 +62,7 @@ public class SlideshowApp implements UIButtonListener {
 		UI.addButton("", null);
 		UI.addButton("Toggle Recursive", this);
 		UI.addButton("Count", this);
-		
+
 		showCreatorUI();
 
 	}
