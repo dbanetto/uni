@@ -1,7 +1,7 @@
 /* Reflection.txt for COMP103
- * Name:
- * Usercode:
- * ID:
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
  */
 
 For your reflection:
@@ -15,3 +15,16 @@ First, describe how far you got on this assignment. If there was a problem you g
 
 
 ----------------------------------------------------------------
+
+In this assignment I got up to and completed the Challenge section. There was
+no major problems with completing this assignment.
+
+The tree is displayed differently because the stack that holds the children's order
+is not the same for each re-load of the taxonomy.
+
+NOTE: Assuming inSubtree(...) is referring contains(...).
+
+The main concern with the node being moved into a child of itself is that
+it and its children will no longer be referenced in the main tree. The other
+problem would be a loop will form the sub-tree, from the node that it was attached
+to the "root".

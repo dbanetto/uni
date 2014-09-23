@@ -74,11 +74,9 @@ public class GeneralTree {
 	 * 
 	 */
 	public void addNode(String newName, String parentName) {
-		/* # YOUR CODE HERE */
-		if (root == null) {
-			root = new GeneralTreeNode(newName);
-		} else {
-			boolean contains = findNode(newName) != null;
+		GeneralTreeNode proudParent = findNode(parentName);
+		if (proudParent != null && findNode(newName) == null) {
+			proudParent.addChild(new GeneralTreeNode(newName));
 		}
 	}
 
@@ -98,7 +96,9 @@ public class GeneralTree {
 	 * 
 	 */
 	public void removeNode(String targetName) {
-		/* # YOUR CODE HERE */
+		GeneralTreeNode troubledParent = findNode(targetName);
+		troubledParent.getParent().addChildrenFromNode(troubledParent); // I cannot handle them, please take them
+		troubledParent.remove(); // Good bye
 	}
 
 	/**
@@ -126,8 +126,12 @@ public class GeneralTree {
 	public void moveSubtree(String targetName, String destinationName) {
 		GeneralTreeNode targetNode = this.findNode(targetName);
 		GeneralTreeNode destinationNode = this.findNode(destinationName);
-
-		/* # YOUR CODE HERE */
+		
+		// Stop from moving self onto own sub-tree
+		if (!targetNode.contains(destinationNode)) {
+			targetNode.remove();
+			destinationNode.addChild(targetNode);
+		}
 	}
 
 	/**
@@ -154,7 +158,33 @@ public class GeneralTree {
 	 *         one or both of the parameter's target nodes don't exist.
 	 */
 	public String findClosestCommonAncestor(String target1, String target2) {
-		/* # YOUR CODE HERE */
+		GeneralTreeNode t1 = findNode(target1);
+		GeneralTreeNode t2 = findNode(target2);
+		
+		Stack<GeneralTreeNode> t1Parents = new Stack<>();
+		Stack<GeneralTreeNode> t2Parents = new Stack<>();
+		
+		GeneralTreeNode ptr = t1;
+		while (ptr != null) {
+			t1Parents.add(ptr);
+			ptr = ptr.getParent();
+		}
+		
+		ptr = t2;
+		while (ptr != null) {
+			t2Parents.add(ptr);
+			ptr = ptr.getParent();
+		}
+		
+		ptr = null;
+		while(!t1Parents.isEmpty() && !t2Parents.isEmpty()) {
+			t1 = t1Parents.pop();
+			t2 = t2Parents.pop();
+			if (t1.equals(t2))
+				ptr = t1;
+		}
+		
+		return (ptr != null ? ptr.getName() : "null" );
 	}
 
 	/**
