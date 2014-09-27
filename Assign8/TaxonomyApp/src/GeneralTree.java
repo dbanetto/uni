@@ -4,7 +4,9 @@
 
 import java.util.*;
 import java.io.*;
+
 import javax.swing.*;
+
 import ecs100.*;
 
 /**
@@ -97,7 +99,13 @@ public class GeneralTree {
 	 */
 	public void removeNode(String targetName) {
 		GeneralTreeNode troubledParent = findNode(targetName);
-		troubledParent.getParent().addChildrenFromNode(troubledParent); // I cannot handle them, please take them
+		troubledParent.getParent().addChildrenFromNode(troubledParent); // I
+																		// cannot
+																		// handle
+																		// them,
+																		// please
+																		// take
+																		// them
 		troubledParent.remove(); // Good bye
 	}
 
@@ -126,7 +134,7 @@ public class GeneralTree {
 	public void moveSubtree(String targetName, String destinationName) {
 		GeneralTreeNode targetNode = this.findNode(targetName);
 		GeneralTreeNode destinationNode = this.findNode(destinationName);
-		
+
 		// Stop from moving self onto own sub-tree
 		if (!targetNode.contains(destinationNode)) {
 			targetNode.remove();
@@ -160,31 +168,31 @@ public class GeneralTree {
 	public String findClosestCommonAncestor(String target1, String target2) {
 		GeneralTreeNode t1 = findNode(target1);
 		GeneralTreeNode t2 = findNode(target2);
-		
+
 		Stack<GeneralTreeNode> t1Parents = new Stack<>();
 		Stack<GeneralTreeNode> t2Parents = new Stack<>();
-		
+
 		GeneralTreeNode ptr = t1;
 		while (ptr != null) {
 			t1Parents.add(ptr);
 			ptr = ptr.getParent();
 		}
-		
+
 		ptr = t2;
 		while (ptr != null) {
 			t2Parents.add(ptr);
 			ptr = ptr.getParent();
 		}
-		
+
 		ptr = null;
-		while(!t1Parents.isEmpty() && !t2Parents.isEmpty()) {
+		while (!t1Parents.isEmpty() && !t2Parents.isEmpty()) {
 			t1 = t1Parents.pop();
 			t2 = t2Parents.pop();
 			if (t1.equals(t2))
 				ptr = t1;
 		}
-		
-		return (ptr != null ? ptr.getName() : "null" );
+
+		return (ptr != null ? ptr.getName() : "null");
 	}
 
 	/**
@@ -201,27 +209,27 @@ public class GeneralTree {
 	 * version of the below locations calculation.
 	 */
 	private void calculateLocations() {
-		int[] widths = new int[100];
+		 int[] widths = new int[100];
+		
+		 computeWidths(root, 0, widths);
+		
+		 int[] separations = new int[100]; // separations between nodes at each level
+		
+		 for (int d = 0; d < 100 && widths[d] != 0; d++) {
+		 separations[d] = (UI.getCanvasWidth()) / (widths[d] + 1);
+		 }
+		
+		 int[] nextPos = new int[100]; // loc of next node at each level
+		
+		 for (int d = 0; d < 100; d++) {
+		 if (widths[d] == 0)
+		 break;
+		
+		 nextPos[d] = separations[d] / 2;
+		 }
+		
+		 setLocations(root, 0, nextPos, separations);
 
-		computeWidths(root, 0, widths);
-
-		int[] separations = new int[100]; // separations between nodes at each
-											// level
-
-		for (int d = 0; d < 100 && widths[d] != 0; d++) {
-			separations[d] = (UI.getCanvasWidth() - 20) / (widths[d] + 1);
-		}
-
-		int[] nextPos = new int[100]; // loc of next node at each level
-
-		for (int d = 0; d < 100; d++) {
-			if (widths[d] == 0)
-				break;
-
-			nextPos[d] = separations[d] / 2;
-		}
-
-		setLocations(root, 0, nextPos, separations);
 	}
 
 	/**
