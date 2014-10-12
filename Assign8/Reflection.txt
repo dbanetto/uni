@@ -16,7 +16,7 @@ First, describe how far you got on this assignment. If there was a problem you g
 
 ----------------------------------------------------------------
 
-In this assignment I got up to and completed the Challenge section. There was
+In this assignment I got up to and completed the Challenge section, expect calculateLocation(). There was
 no major problems with completing this assignment.
 
 The tree is displayed differently because the stack that holds the children's order

@@ -1,0 +1,17 @@
+Student ID: 300313764
+
+MARKER'S GUIDE
+==============
+I attempted / completed the following methods:
+(list one method per line below in the form className.methodName)
+
+
+REPORT
+======
+Height of the BST
+	after loading dictionary.txt: 37
+	after removing bad-words.txt: STACK OVER FLOW ERROR
+
+Minimum of the all the branch lengths in the BST
+	after loading dictionary.txt: 36
+	after removing bad-words.txt: STACK OVERFLOW ERROR

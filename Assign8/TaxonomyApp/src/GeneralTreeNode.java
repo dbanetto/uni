@@ -8,8 +8,6 @@ import ecs100.*;
 
 import java.util.*;
 
-import sun.nio.fs.GnomeFileTypeDetector;
-
 /**
  * GeneralTreeNode represents a simple node in a tree. The node stores
  * references to children and a parent (the latter is null in the case of the
