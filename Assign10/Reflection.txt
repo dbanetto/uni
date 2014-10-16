@@ -1,0 +1,25 @@
+/* Reflection.txt for COMP103
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
+ */
+
+For your reflection:
+====================
+
+Firstly, describe how far you got, on this assignment. If there was a problem
+you got stuck on, what was that problem?
+
+
+This was the last assignment for COMP103. Think back to the beginning of the course and what you knew at that point, and then list some of the insights and knowledge you gained during this course.
+
+Which insights and new knowledge do you regard as valuable and why?
+--------------------------------------------------------------------
+
+In this assignment I got up to and completed Challenge. My main problem was
+trying to do BTS styled methods on the linked heap. Many loops were created.
+
+Probably the most important insights I have gained from the COMP103 course
+is an understanding of the main sorting algorithms and their hidden costs
+such as memory complexity. This course also helped to get a better understanding of
+recursion and when to do it and not to.

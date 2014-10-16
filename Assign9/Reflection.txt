@@ -18,6 +18,7 @@ First, describe how far you got on this assignment. If there was a problem you g
 ----------------------------------------------------------------
 
 Got up to challenge, completing the in order traversal, but not the self balancing tree
+I did have problems with the remove `bad words` not completing and creating stack overflows.
 
 Yes, the BTS was considerably faster than the application from assignment 4. The speed
 comes from the O(log n) find and add an item.

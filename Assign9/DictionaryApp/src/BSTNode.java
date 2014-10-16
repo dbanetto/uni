@@ -196,19 +196,11 @@ public class BSTNode<E extends Comparable<E>> {
 		if (left != null && right != null) {
 			return replacementSubtreeFromChildren(left,right);
 		} else if (left != null && right == null) {
-			// Copy left node to current node
-			this.value = left.value;
-			this.right = left.right;
-			this.left  = left.left;
+			return replacementSubtreeFromChildren(left,right);
 		} else if (right != null && left == null) {
-			// Copy right node to current node
-			this.value = right.value;
-			this.left  = right.left;
-			this.right = right.right;
-		} else if (right == null && left == null) {
-			return null;
+			return replacementSubtreeFromChildren(left,right);
 		}
-		return this;
+		return null;
 	}
 
 	/**
@@ -237,20 +229,22 @@ public class BSTNode<E extends Comparable<E>> {
 	private BSTNode<E> replacementSubtreeFromChildren(BSTNode<E> left,
 			BSTNode<E> right) {
 		
+		if (left == null && right == null)
+			return null;
+		
+		if (left != null && right == null)
+			return left;
+		if (left == null && right != null)
+			return right;
+		
 		BSTNode<E> root = null;
-		if (right != null) {
-			root = right;
-			while (root.left != null) {
-				root = root.left;
-			}
-			right = right.remove(root.value);
-		} else {
-			root = left;
-			while (root.right != null) {
-				root = root.right;
-			}
-			left = left.remove(root.value);
+		
+		root = right;
+		while (root.left != null) {
+			root = root.left;
 		}
+		right = right.remove(root.value);
+		
 		
 		root.left = left;
 		root.right = right;

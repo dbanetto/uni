@@ -10,8 +10,8 @@ REPORT
 ======
 Height of the BST
 	after loading dictionary.txt: 37
-	after removing bad-words.txt: STACK OVER FLOW ERROR
+	after removing bad-words.txt: 37
 
 Minimum of the all the branch lengths in the BST
 	after loading dictionary.txt: 36
-	after removing bad-words.txt: STACK OVERFLOW ERROR
+	after removing bad-words.txt: 36
