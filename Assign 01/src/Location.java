@@ -6,17 +6,17 @@ import java.awt.Point;
  * coordinates). Locations are represented with two doubles, (with an
  * unspecified length unit - could be kilometers, for example), and have a fixed
  * origin in the middle of Auckland.
- * 
+ *
  * Points, on the other hand, represent pixel positions on the screen. A Point
  * is described by two integers: x pixels across and y pixels down. Note the y
  * coordinate has its direction flipped from Location objects.
- * 
+ *
  * Methods are provided to convert between these two coordinate systems, but
  * this conversion requires an origin Location (a Location at the origin will be
  * converted to the point (0,0), which is probably the top-left of the screen),
  * and a scale specifying how many pixels per length unit. Typically the scale
  * will be ( windowSize /(maxLocation - minLocation) ).
- * 
+ *
  * Finally, a method is provided to convert out of the latitude-longitude
  * coordinate system used in the input files and into the Location coordinate
  * system.

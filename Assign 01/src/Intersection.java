@@ -1,6 +1,8 @@
+import java.awt.*;
 import java.io.*;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 
@@ -8,6 +10,8 @@ public class Intersection {
     public Set<Road> edges;
     public final Location location;
     public final int id;
+
+    private Color colour;
 
     public Intersection(int ID, Location Location) {
         this.id = ID;
@@ -18,6 +22,14 @@ public class Intersection {
                 return o1.id - o2.id;
             }
         });
+        colour = Color.blue;
+    }
+
+    public void draw(Graphics g, double scale, Location offset) {
+        g.setColor(this.colour);
+        g.fillOval((int)((this.location.x - offset.x) * scale ),
+                   (int)((offset.y - this.location.y) * scale),
+                   5, 5);
     }
 
     @Override
@@ -34,11 +46,11 @@ public class Intersection {
      * @param nodes a File pointing to a list of intersections values separated by tabs
      * @return null on failure, otherwise an array of Intersections
      */
-    public static Set<Intersection> LoadFromFile(File nodes) {
-        Set<Intersection> intersections = new TreeSet<>(new Comparator<Intersection>() {
+    public static java.util.Map<Integer, Intersection> LoadFromFile(File nodes) {
+        TreeMap<Integer, Intersection> intersections = new TreeMap<>(new Comparator<Integer>() {
             @Override
-            public int compare(Intersection o1, Intersection o2) {
-                return o1.id - o2.id;
+            public int compare(Integer o1, Integer o2) {
+                return o1 - o2;
             }
         });
 
@@ -51,7 +63,7 @@ public class Intersection {
                 double lat = Double.parseDouble(data[1]);
                 double lon = Double.parseDouble(data[2]);
 
-                intersections.add(new Intersection(id, Location.newFromLatLon(lat, lon)));
+                intersections.put(id, new Intersection(id, Location.newFromLatLon(lat, lon)));
             }
 
         } catch (FileNotFoundException e) {
@@ -64,5 +76,13 @@ public class Intersection {
             return null;
         }
         return intersections;
+    }
+
+    public Color getColour() {
+        return colour;
+    }
+
+    public void setColour(Color colour) {
+        this.colour = colour;
     }
 }

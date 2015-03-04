@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.io.*;
 import java.util.*;
 
@@ -16,7 +17,9 @@ public class Road {
     boolean notForBicycle;
     double length;
 
-    private Set<Location> segments;
+    Color colour;
+
+    private Set<Segment> segments;
 
     public Road(int ID, int Type, String Label, String City, boolean IsOneWay, byte SpeedLimit, byte RoadClass,
                 boolean NotForCars, boolean NotForPedestrians, boolean NotForBicycles) {
@@ -33,15 +36,17 @@ public class Road {
         this.notForBicycle = NotForBicycles;
 
         this.length = 0.0;
-        this.segments = null;
+        this.segments = new HashSet<>();
+        colour = Color.black;
     }
 
-    public Set<Location> getSegments() {
-        return segments;
-    }
+    public void draw(Graphics g, double scale, Location offset) {
+        if (this.segments == null) return;
 
-    public void setSegments(Set<Location> segments) {
-        this.segments = segments;
+        g.setColor(colour);
+        for(Segment seg : this.segments) {
+            seg.draw(g, scale, offset);
+        }
     }
 
     @Override
@@ -90,8 +95,21 @@ public class Road {
             return null;
         }
 
-
-
         return roads;
+    }
+    // Getters and Setters
+    public Set<Segment> getSegments() {
+        return segments;
+    }
+
+    public void setSegments(Set<Segment> segments) {
+        this.segments = segments;
+    }
+    public Color getColour() {
+        return colour;
+    }
+
+    public void setColour(Color colour) {
+        this.colour = colour;
     }
 }
