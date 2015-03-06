@@ -76,7 +76,7 @@ public class Location {
 		double y = (lat - CENTRE_LAT) * SCALE_LAT;
 		double x = (lon - CENTRE_LON)
 				* (SCALE_LAT * Math.cos((lat - CENTRE_LAT) * DEG_TO_RAD));
-		return new Location(x * 10, y * 10); // scale up a bit to avoid really small numbers
+		return new Location(x * 1000, y * 1000); // scale up a bit to avoid really small numbers
 	}
 
 	// ------------------------------------------

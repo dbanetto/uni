@@ -24,13 +24,11 @@ public class MapGUI extends GUI {
             Rectangle DrawArea = new Rectangle((offset.x) - 5, (offset.y) - 5,
                                                (int)(this.getDrawingAreaDimension().getWidth() / scale) + 5,
                                                (int)(this.getDrawingAreaDimension().getHeight() / scale) + 5) ;
-            System.out.print(DrawArea);
+            System.out.println("render box " + DrawArea);
             List<Intersection> toDraw = intersectionMap.get(DrawArea);
-            System.out.println(toDraw.size());
             for (Intersection iter : toDraw) {
                 iter.draw(g, screenOrigin, scale);
             }
-            intersectionMap.draw(g, scale, offset);
         }
         if (roads != null) {
             for (Road rd : roads.values()) {
@@ -41,7 +39,30 @@ public class MapGUI extends GUI {
 
     @Override
     protected void onClick(MouseEvent e) {
+        if (intersectionMap != null) {
+            Point offset = screenOrigin.asPoint(Location.CENTRE, 1.0);
+            double xprec = e.getX() / this.getDrawingAreaDimension().getWidth();
+            double yprec = e.getY() / this.getDrawingAreaDimension().getHeight();
 
+            Rectangle search = new Rectangle((int)(xprec * (this.getDrawingAreaDimension().getWidth() / scale) + offset.x),
+                                             (int)(yprec * (this.getDrawingAreaDimension().getHeight() / scale) + offset.y),
+                                5,5);
+
+            System.out.println("X%,Y% " + xprec + ", " + yprec);
+            System.out.println("X,Y " + e.getX() + ", " + e.getY());
+            System.out.println("Origin " + screenOrigin);
+            System.out.println("Offset " + offset);
+            System.out.println("search " + search);
+            System.out.println("Graphics " + this.getDrawingAreaDimension());
+
+            List<Intersection> found = intersectionMap.get(search);
+            if (found.size() > 0) {
+                System.out.println("found " + found.get(0));
+                this.getTextOutputArea().setText(found.get(0).toString());
+            } else {
+                this.getTextOutputArea().setText("");
+            }
+        }
     }
 
     @Override
@@ -53,22 +74,22 @@ public class MapGUI extends GUI {
     protected void onMove(Move m) {
         switch(m) {
             case ZOOM_IN:
-                scale *= 1.5; // FIXME: Better scaling
+                scale *= 2; // FIXME: Better scaling
                 break;
             case ZOOM_OUT:
-                scale /= 1.5; // FIXME: Better scaling
+                scale /= 2; // FIXME: Better scaling
                 break;
             case NORTH:
-                screenOrigin = screenOrigin.moveBy(0, 5);
+                screenOrigin = screenOrigin.moveBy(0, 100);
                 break;
             case SOUTH:
-                screenOrigin = screenOrigin.moveBy(0, -5);
+                screenOrigin = screenOrigin.moveBy(0, -100);
                 break;
             case EAST:
-                screenOrigin = screenOrigin.moveBy(5, 0);
+                screenOrigin = screenOrigin.moveBy(100, 0);
                 break;
             case WEST:
-                screenOrigin = screenOrigin.moveBy(-5, 0);
+                screenOrigin = screenOrigin.moveBy(-100, 0);
                 break;
         }
         redraw();
@@ -77,7 +98,7 @@ public class MapGUI extends GUI {
     @Override
     protected void onLoad(File nodes, File road, File segments, File polygons) {
         // TODO: Remove testing code
-        intersectionMap = new QuadTree<Intersection>(new Rectangle(-1000,-1000,2000,2000));
+        intersectionMap = new QuadTree<Intersection>();
         intersections = Intersection.LoadFromFile(nodes, intersectionMap);
         roads = Road.LoadFromFile(road);
         Segment.LoadFromFile(segments, intersections, roads);

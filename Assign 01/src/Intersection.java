@@ -47,6 +47,15 @@ public class Intersection implements IDrawable {
         return this.area;
     }
 
+    @Override
+    public String toString() {
+        return "Intersection{" +
+                "id=" + id +
+                ", location=" + location +
+                ", area=" + area +
+                '}';
+    }
+
     /***
      *
      * @param nodes a File pointing to a list of intersections values separated by tabs
