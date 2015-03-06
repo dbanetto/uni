@@ -156,9 +156,6 @@
       </item>
     </group>
   </component>
-  <component name="ProjectDictionaryState">
-    <dictionary name="drb" />
-  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Assign 01.iml" filepath="$PROJECT_DIR$/Assign 01.iml" />
