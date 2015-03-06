@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Created by drb on 03/03/15.
  */
-public class Segment {
+public class Segment implements IDrawable {
     int roadID;
     Intersection from;
     Intersection to;
@@ -22,18 +22,26 @@ public class Segment {
         this.points = Points;
     }
 
-    public void draw(Graphics g, double scale, Location offset) {
+    public void draw(Graphics g, Location origin,  double scale) {
         assert(points.length > 0);
 
         Location prv = null;
+        Point prvpt = null;
         for(Location loc : this.points) {
+            Point pt = loc.asPoint(origin, scale);
             if (prv != null) {
-                g.drawLine((int)((prv.x - offset.x) * scale), (int)((offset.y - prv.y) * scale),
-                           (int)((loc.x - offset.x) * scale), (int)((offset.y - loc.y) * scale)
-                );
+                g.drawLine(pt.x, pt.y,
+                           prvpt.x, prvpt.y);
             }
             prv = loc;
+            prvpt = pt;
         }
+    }
+
+    @Override
+    public Rectangle getArea() {
+        // TODO: Find area of the points (make rect from top-left and bot-right)
+        return null;
     }
 
     public static void LoadFromFile(File Segments, Map<Integer, Intersection> intersections, Map<Integer,Road> Roads) {

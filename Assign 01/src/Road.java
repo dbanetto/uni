@@ -2,7 +2,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 
-public class Road {
+public class Road implements IDrawable {
     int id;
     int type;
     String label;
@@ -40,12 +40,12 @@ public class Road {
         colour = Color.black;
     }
 
-    public void draw(Graphics g, double scale, Location offset) {
+    public void draw(Graphics g, Location origin, double scale) {
         if (this.segments == null) return;
 
         g.setColor(colour);
         for(Segment seg : this.segments) {
-            seg.draw(g, scale, offset);
+            seg.draw(g, origin, scale);
         }
     }
 
@@ -56,6 +56,11 @@ public class Road {
             return (rd.id == this.id);
         }
         return false;
+    }
+
+    @Override
+    public Rectangle getArea() {
+        return null;
     }
 
     public static java.util.Map<Integer, Road> LoadFromFile(File Roads) {

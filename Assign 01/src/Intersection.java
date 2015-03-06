@@ -6,11 +6,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 
-public class Intersection {
+public class Intersection implements IDrawable {
     public Set<Road> edges;
     public final Location location;
     public final int id;
-
+    private Rectangle area;
     private Color colour;
 
     public Intersection(int ID, Location Location) {
@@ -23,13 +23,14 @@ public class Intersection {
             }
         });
         colour = Color.blue;
+        Point pt = location.asPoint(Location.CENTRE, 1.0);
+        area = new Rectangle(pt.x, pt.y, 6,6);
     }
 
-    public void draw(Graphics g, double scale, Location offset) {
+    public void draw(Graphics g, Location origin, double scale) {
         g.setColor(this.colour);
-        g.fillOval((int)((this.location.x - offset.x) * scale ),
-                   (int)((offset.y - this.location.y) * scale),
-                   5, 5);
+        Point pt = location.asPoint(origin, scale);
+        g.fillOval(pt.x - (area.width / 2), pt.y - (area.height / 2), (int)(area.width), (int)(area.height));
     }
 
     @Override
@@ -41,12 +42,17 @@ public class Intersection {
         return false;
     }
 
+    @Override
+    public Rectangle getArea() {
+        return this.area;
+    }
+
     /***
      *
      * @param nodes a File pointing to a list of intersections values separated by tabs
      * @return null on failure, otherwise an array of Intersections
      */
-    public static java.util.Map<Integer, Intersection> LoadFromFile(File nodes) {
+    public static java.util.Map<Integer, Intersection> LoadFromFile(File nodes, QuadTree<Intersection> quadMap) {
         TreeMap<Integer, Intersection> intersections = new TreeMap<>(new Comparator<Integer>() {
             @Override
             public int compare(Integer o1, Integer o2) {
@@ -60,10 +66,11 @@ public class Intersection {
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split("\t");
                 int id     = Integer.parseInt(data[0]);
-                double lat = Double.parseDouble(data[1]);
-                double lon = Double.parseDouble(data[2]);
+                double lat = java.lang.Double.parseDouble(data[1]);
+                double lon = java.lang.Double.parseDouble(data[2]);
 
                 intersections.put(id, new Intersection(id, Location.newFromLatLon(lat, lon)));
+                quadMap.add(intersections.get(id));
             }
 
         } catch (FileNotFoundException e) {
