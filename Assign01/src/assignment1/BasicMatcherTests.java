@@ -282,14 +282,48 @@ public class BasicMatcherTests extends BasicMatcher {
     // =============================================================
 
     @Test public void test_51() {
-        assertEquals(true, match("", "^.*$"));
+        assertEquals(matchWithLib("", "^.*$"), match("", "^.*$"));
     }
 
     @Test public void test_52() {
         assertEquals(true, match("d", "^.*$"));
     }
 
-    @Test public void test_53() {
-        assertEquals(true, match("a", "^.*$"));
+    // =============================================================
+    // Regex: "a+"; inputs which don't match
+    // =============================================================
+
+    @Test public void test_54() {
+        assertEquals(true, match("a", "a+"));
+    }
+    @Test public void test_55() {
+        assertEquals(true, match("aa", "a+"));
+    }
+    @Test public void test_56() {
+        assertEquals(false, match("b", "a+"));
+    }
+
+    // =============================================================
+    // Regex: "+"; inputs which don't match
+    // =============================================================
+
+    @Test public void test_57() {
+        assertEquals(false, match("", "+"));
+    }
+
+    // =============================================================
+    // Regex: "^a+$"; inputs which don't match
+    // =============================================================
+    @Test public void test_58() {
+        assertEquals(true, match("aa", "^a+$"));
+    }
+    @Test public void test_59() {
+        assertEquals(false, match("ab", "^a+$"));
+    }
+    @Test public void test_60() {
+        assertEquals(true, match("aaaaaa", "^a+$"));
+    }
+    @Test public void test_61() {
+        assertEquals(true, match("a", "^a+$"));
     }
 }

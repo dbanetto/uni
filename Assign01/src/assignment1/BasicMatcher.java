@@ -80,6 +80,10 @@ public class BasicMatcher implements Matcher {
 		if (regex.length() > 1 && regex.charAt(1) == '*') {
 			return matchStar(text, regex);
 		}
+        // check for a plus pattern in the regex
+        if (regex.length() > 1 && regex.charAt(1) == '+') {
+            return matchPlus(text, regex);
+        }
 		// recursively match the whole text with the regex, one char at a time
 		if (matchChar(text, regex)) { 
 			return matchHere(text.substring(1), regex.substring(1));
@@ -104,7 +108,8 @@ public class BasicMatcher implements Matcher {
 	 * @return true if the match is successful, false otherwise.
 	 */
 	protected boolean matchStar(String text, String regex) {
-		if (regex.length() < 2) {
+        // conditions for use of '+'
+        if (regex.length() < 2) {
             return false;
         }
         if (regex.charAt(1) != '*') {
@@ -112,7 +117,6 @@ public class BasicMatcher implements Matcher {
         }
 
         String restOfRegex = regex.substring(2);
-		// we cannot use a do...while loop (although it would be nicer), why not?
 		if (matchHere(text, restOfRegex)) {
 			return true;
 		}
@@ -130,6 +134,43 @@ public class BasicMatcher implements Matcher {
 		} 
 		return false;
 	}
+
+    /**
+     * Assumes that the start of the regex is some character followed by a '+' character.
+     * It tries to match the first character of the regular expression multiple times
+     * against the text input, and then attempts to match the rest of the regular expression
+     * against the rest of the text input.
+     *
+     * @param text some text to match
+     * @param regex the regular expression;
+     *      must be at least two characters long, and the second should be '+'
+     * @return true if the match is successful, false otherwise.
+     */
+    protected boolean matchPlus(String text, String regex) {
+        // conditions for use of '+'
+        if (regex.length() < 2) {
+            return false;
+        }
+        if (regex.charAt(1) != '+') {
+            return false;
+        }
+
+        String restOfRegex = regex.substring(2);
+
+        // match as few characters as possible and try to match the rest of the regex
+        // this effectively backtracks when we can't match the rest of the regex and
+        // tries matching more characters to the plus
+        while (matchChar(text, regex)) {
+            text = text.substring(1);
+            if (matchHere(text, restOfRegex)) {
+                return true;
+            }
+            if (text.length() == 0) {
+                return false;
+            }
+        }
+        return false;
+    }
 	
 	/**
 	 * Matches the first character of the text against the first character of the regex.
