@@ -2,13 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
+import java.awt.event.*;
 import java.io.File;
 
 import javax.swing.BorderFactory;
@@ -63,6 +57,11 @@ public abstract class GUI {
 	 * released), and is passed the MouseEvent object for that click.
 	 */
 	protected abstract void onClick(MouseEvent e);
+
+    protected abstract void onMouseWheelMoved(MouseEvent e);
+    protected abstract void onMouseDrag(MouseEvent e);
+    protected abstract void onMousePressed(MouseEvent e);
+    protected abstract void onMouseReleased(MouseEvent e);
 
 	/**
 	 * Is called whenever the search box is updated. Use getSearchBox to get the
@@ -133,7 +132,7 @@ public abstract class GUI {
 	// assignment up to and including completion.
 	// --------------------------------------------------------------------
 
-	private static final boolean UPDATE_ON_EVERY_CHARACTER = false;
+	private static final boolean UPDATE_ON_EVERY_CHARACTER = true;
 
 	private static final int DEFAULT_DRAWING_HEIGHT = 400;
 	private static final int DEFAULT_DRAWING_WIDTH = 400;
@@ -378,11 +377,23 @@ public abstract class GUI {
 			public void mouseReleased(MouseEvent e) {
 				onClick(e);
 				redraw();
+                onMouseReleased(e);
 			}
-		});
 
+            @Override
+            public void mousePressed(MouseEvent e) {
+                onMousePressed(e);
+            }
+        });
+        drawing.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                onMouseDrag(e);
+            }
+        });
 		drawing.addMouseWheelListener(new MouseAdapter() {
 			public void mouseWheelMoved(MouseWheelEvent e) {
+                onMouseWheelMoved(e);
 			}
 		});
 

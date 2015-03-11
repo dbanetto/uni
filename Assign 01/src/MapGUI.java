@@ -1,17 +1,23 @@
+import javax.swing.text.Segment;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.util.*;
 import java.util.List;
 
 public class MapGUI extends GUI {
-    private Map<Integer, Intersection> intersectionIDs; // <ID, Intersection with ID>
-    private Map<Integer, Road> roadIDs; // <ID, Road with ID>
-    private Map<String, List<Road>> roadLabel; // <Road Label, Road with Label>
+    private Map<Integer, Intersection> intersectionIDs; // <Intersection ID, Intersection>
+    private Map<Integer, Road> roadIDs; // <RoadID, Road>
+    private Map<String, List<Road>> roadLabel; // <Road Label, Roads with Label>
+
+    private QuadTree<Intersection> intersectionMap;
+    private QuadTree<RoadSegment> roadSegmentnMap;
+    private TrieNode roadTrie;
+
     private double scale;
     private Location screenOrigin;
-    private QuadTree<Intersection> intersectionMap;
-    private TrieNode roadTrie;
+    private Point dragOrigin;
 
     private List<Road> selectedRoads;
     private Intersection selectedInter;
@@ -25,22 +31,26 @@ public class MapGUI extends GUI {
 
     @Override
     protected void redraw(Graphics g) {
+        Point offset = screenOrigin.asPoint(Location.CENTRE, 1.0);
+        // Enlarge search area by a bit to avoid clipping
+        Rectangle DrawArea = new Rectangle((offset.x) - 5, (offset.y) - 5,
+                (int)(this.getDrawingAreaDimension().getWidth() / scale) + 5,
+                (int)(this.getDrawingAreaDimension().getHeight() / scale) + 5);
+
         if (roadIDs != null) {
-            for (Road rd : roadIDs.values()) {
+            for (RoadSegment rd : roadSegmentnMap.get(DrawArea)) {
+                g.setColor(Color.black);
                 rd.draw(g, screenOrigin, scale);
             }
         }
+
         if (intersectionIDs != null) {
-            Point offset = screenOrigin.asPoint(Location.CENTRE, 1.0);
-            Rectangle DrawArea = new Rectangle((offset.x) - 5, (offset.y) - 5,
-                                               (int)(this.getDrawingAreaDimension().getWidth() / scale) + 5,
-                                               (int)(this.getDrawingAreaDimension().getHeight() / scale) + 5) ;
-            List<Intersection> toDraw = intersectionMap.get(DrawArea);
-            for (Intersection iter : toDraw) {
+            for (Intersection iter : intersectionMap.get(DrawArea)) {
                 iter.draw(g, screenOrigin, scale);
             }
         }
-        //ensure selected roads are draw above rest
+
+        // ensure selected roads are draw above rest with proper colour
         if (selectedRoads.size() > 0) {
             Graphics2D g2d = (Graphics2D)g;
             g2d.setStroke(new BasicStroke(2));
@@ -62,9 +72,10 @@ public class MapGUI extends GUI {
             double xprec = e.getX() / this.getDrawingAreaDimension().getWidth();
             double yprec = e.getY() / this.getDrawingAreaDimension().getHeight();
 
-            Rectangle search = new Rectangle((int)(xprec * (this.getDrawingAreaDimension().getWidth() / scale) + offset.x),
-                                             (int)(yprec * (this.getDrawingAreaDimension().getHeight() / scale) + offset.y),
-                    (int)(5 / scale),(int)(5 / scale)); // Click accuracy
+            double clickAccuracy =  5 / scale;
+            Rectangle search = new Rectangle((int)(xprec * (this.getDrawingAreaDimension().getWidth() / scale) + offset.x - clickAccuracy/2),
+                                             (int)(yprec * (this.getDrawingAreaDimension().getHeight() / scale) + offset.y - clickAccuracy/2),
+                    (int)(clickAccuracy),(int)(clickAccuracy)); // Click accuracy
 
             deselectIntersection();
             deselectRoads();
@@ -116,14 +127,28 @@ public class MapGUI extends GUI {
 
     @Override
     protected void onMove(Move m) {
+
+        onMove(m, 2.0);
+    }
+
+    /**
+     *
+     * @param m Move
+     * @param scaleDelta How much to change the scale by
+     */
+    protected void onMove(Move m, double scaleDelta) {
+        // Disallow changes when map is not loaded
+        if (roadIDs == null || intersectionIDs == null) { return; }
+
         double mv_y = (0.05 * getDrawingAreaDimension().getHeight()) / scale;
         double mv_x = (0.05 * getDrawingAreaDimension().getWidth()) / scale;
+
         switch(m) {
             case ZOOM_IN:
-                scale *= 2; // FIXME: Better scaling
+                scale *= scaleDelta;
                 break;
             case ZOOM_OUT:
-                scale /= 2; // FIXME: Better scaling
+                scale /= scaleDelta;
                 break;
             case NORTH:
                 screenOrigin = screenOrigin.moveBy(0, mv_y);
@@ -145,17 +170,52 @@ public class MapGUI extends GUI {
     protected void onLoad(File nodes, File road, File segments, File polygons) {
         // TODO: Remove testing code
         intersectionMap = new QuadTree<Intersection>();
+        roadSegmentnMap = new QuadTree<RoadSegment>();
         roadTrie = new TrieNode(false);
         roadLabel = new HashMap<>();
         intersectionIDs = Intersection.LoadFromFile(nodes, intersectionMap);
         roadIDs = Road.LoadFromFile(road, roadTrie, roadLabel);
-        Segment.LoadFromFile(segments, intersectionIDs, roadIDs);
+        RoadSegment.LoadFromFile(segments, intersectionIDs, roadIDs, roadSegmentnMap);
 
 
         System.out.println(intersectionMap.size());
         System.out.println(intersectionIDs.size());
         System.out.println(roadLabel.size());
         System.out.println(roadIDs.size());
+    }
+
+    @Override
+    protected void onMousePressed(MouseEvent e) {
+        dragOrigin = e.getPoint();
+    }
+
+    @Override
+    protected void onMouseDrag(MouseEvent e) {
+        if (dragOrigin != null) {
+            int mv_x = -(int)(e.getX() - dragOrigin.getX());
+            int mv_y = -(int)(e.getY() - dragOrigin.getY());
+            Location mv_by = Location.newFromPoint(new Point(mv_x, mv_y), Location.CENTRE, scale);
+            screenOrigin = screenOrigin.moveBy(mv_by.x, mv_by.y);
+            redraw();
+        }
+        dragOrigin = e.getPoint();
+    }
+
+    @Override
+    protected void onMouseReleased(MouseEvent e) {
+        dragOrigin = null;
+    }
+
+    @Override
+    protected void onMouseWheelMoved(MouseEvent e) {
+        if (e instanceof MouseWheelEvent) {
+            MouseWheelEvent wheel = (MouseWheelEvent)e;
+            if (wheel.getWheelRotation() > 0) { // Scroll in
+                onMove(Move.ZOOM_OUT, 1.2);
+            } else if (wheel.getWheelRotation() < 0) {  // Scroll out
+                onMove(Move.ZOOM_IN, 1.2);
+            }
+        }
     }
 
     public static void main(String[] args) {

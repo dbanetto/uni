@@ -4,22 +4,40 @@ import java.util.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by drb on 03/03/15.
- */
-public class Segment implements IDrawable {
+public class RoadSegment implements IDrawable {
     Road parent;
     Intersection from;
     Intersection to;
     double length;
     Location[] points; // TODO: Better name
+    Rectangle area;
 
-    public Segment (Road Parent, Intersection From, Intersection To, Location[] Points, double Length) {
-        this.parent = Parent;
-        this.from = From;
-        this.to = To;
-        this.length = Length;
-        this.points = Points;
+    public RoadSegment(Road parent, Intersection from, Intersection to, Location[] points, double length) {
+        this.parent = parent;
+        this.from = from;
+        this.to = to;
+        this.length = length;
+        this.points = points;
+
+        // Calculate area
+        Point topLeft = new Point(Integer.MAX_VALUE,Integer.MAX_VALUE);
+        Point botRight = new Point(Integer.MIN_VALUE,Integer.MIN_VALUE);
+        for (Location loc : points) {
+            Point pt = loc.asPoint(Location.CENTRE, 1.0);
+            if (pt.x < topLeft.x) {
+                topLeft.x = pt.x;
+            }
+            if (pt.x > botRight.x) {
+                botRight.x = pt.x;
+            }
+            if (pt.y < topLeft.y) {
+                topLeft.y = pt.y;
+            }
+            if (pt.y > botRight.y) {
+                botRight.y = pt.y;
+            }
+        }
+        this.area = new Rectangle(topLeft.x, topLeft.y, botRight.x - topLeft.x + 1, botRight.y - topLeft.y + 1);
     }
 
     public void draw(Graphics g, Location origin,  double scale) {
@@ -40,15 +58,14 @@ public class Segment implements IDrawable {
 
     @Override
     public Rectangle getArea() {
-        // TODO: Find area of the points (make rect from top-left and bot-right)
-        return null;
+        return area;
     }
 
-    public static void LoadFromFile(File Segments, Map<Integer, Intersection> Intersections, Map<Integer,Road> Roads) {
-        assert (Segments.isFile());
-        assert (Segments.canRead());
+    public static void LoadFromFile(File segments, Map<Integer, Intersection> intersectionMap, Map<Integer,Road> roadMap, QuadTree<RoadSegment> roadSegmentQuadTree) {
+        assert (segments.isFile());
+        assert (segments.canRead());
         try {
-            BufferedReader segmentsReader = new BufferedReader(new FileReader(Segments));
+            BufferedReader segmentsReader = new BufferedReader(new FileReader(segments));
 
             segmentsReader.readLine(); // Skip the header line
 
@@ -56,14 +73,14 @@ public class Segment implements IDrawable {
             while ((line = segmentsReader.readLine()) != null) {
                 Queue<String> data = new ArrayDeque<>(java.util.Arrays.asList(line.split("\t")));
                 int id = Integer.parseInt(data.poll());
-                Road parentRoad = Roads.get(id);
+                Road parentRoad = roadMap.get(id);
                 // FIXME: Insert self to RoadID's segments
                 double length = Double.parseDouble(data.poll());
                 int nodeID1 = Integer.parseInt(data.poll());
-                Intersection from = Intersections.get(nodeID1); //FIXME: find intersection
+                Intersection from = intersectionMap.get(nodeID1); //FIXME: find intersection
                 from.edges.add(parentRoad);
                 int nodeID2 = Integer.parseInt(data.poll());
-                Intersection to = Intersections.get(nodeID2); //FIXME: find intersection
+                Intersection to = intersectionMap.get(nodeID2); //FIXME: find intersection
                 to.edges.add(parentRoad);
 
 
@@ -76,14 +93,16 @@ public class Segment implements IDrawable {
 
                     points.add(Location.newFromLatLon(lat, lon));
                 }
-                parentRoad.getSegments().add(new Segment(parentRoad, from, to, points.toArray(new Location[points.size()]), length));
+                RoadSegment seg = new RoadSegment(parentRoad, from, to, points.toArray(new Location[points.size()]), length);
+                parentRoad.getRoadSegments().add(seg);
+                roadSegmentQuadTree.add(seg);
             }
 
         } catch (FileNotFoundException e) {
-            System.out.println("Could not find " + Segments.getName() +
+            System.out.println("Could not find " + segments.getName() +
                     "\n" + e.toString());
         } catch (IOException e) {
-            System.out.println("IO Exception while operating on " + Segments.getName() +
+            System.out.println("IO Exception while operating on " + segments.getName() +
                     "\n" + e.toString());
         }
     }

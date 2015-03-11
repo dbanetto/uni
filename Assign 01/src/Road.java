@@ -20,7 +20,7 @@ public class Road implements IDrawable {
 
     Color colour;
 
-    private Set<Segment> segments;
+    private Set<RoadSegment> roadSegments;
 
     public Road(int ID, int Type, String Label, String City, boolean IsOneWay, byte SpeedLimit, byte RoadClass,
                 boolean NotForCars, boolean NotForPedestrians, boolean NotForBicycles) {
@@ -37,15 +37,15 @@ public class Road implements IDrawable {
         this.notForBicycle = NotForBicycles;
 
         this.length = 0.0;
-        this.segments = new HashSet<>();
+        this.roadSegments = new HashSet<>();
         colour = Color.black;
     }
 
     public void draw(Graphics g, Location origin, double scale) {
-        if (this.segments == null) return;
+        if (this.roadSegments == null) return;
 
         g.setColor(colour);
-        for(Segment seg : this.segments) {
+        for(RoadSegment seg : this.roadSegments) {
             seg.draw(g, origin, scale);
         }
     }
@@ -109,12 +109,12 @@ public class Road implements IDrawable {
         return roads;
     }
     // Getters and Setters
-    public Set<Segment> getSegments() {
-        return segments;
+    public Set<RoadSegment> getRoadSegments() {
+        return roadSegments;
     }
 
-    public void setSegments(Set<Segment> segments) {
-        this.segments = segments;
+    public void setRoadSegments(Set<RoadSegment> roadSegments) {
+        this.roadSegments = roadSegments;
     }
     public Color getColour() {
         return colour;
