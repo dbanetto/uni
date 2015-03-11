@@ -1,0 +1,41 @@
+This is a doctest based regression suite for assignment1.py
+Each '>>' line is run as if in a python shell, and counts as a test.
+The next line, if not '>>' is the expected output of the previous line.
+If anything doesn't match exactly (including trailing spaces), the test fails.
+
+Import the functions
+>>> from assignment1 import grade
+
+Test the grading code
+>>> grade(0, True)
+E
+>>> grade(40, True)
+D
+>>> grade(45, True)
+D
+>>> grade(50, True)
+C
+>>> grade(55, True)
+C
+>>> grade(55, False)
+K
+>>> grade(66, True)
+B
+>>> grade(66, False)
+K
+>>> grade(76, False)
+K
+>>> grade(76, True)
+B
+>>> grade(86, True)
+A
+>>> grade(86, False)
+K
+>>> grade(0.0,True)
+Invalid mark
+>>> grade(0.0,False)
+Invalid mark
+>>> grade(0,"dsafdsfd")
+Invalid mcr
+
+
