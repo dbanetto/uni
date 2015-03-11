@@ -8,14 +8,14 @@ import java.util.Map;
  * Created by drb on 03/03/15.
  */
 public class Segment implements IDrawable {
-    int roadID;
+    Road parent;
     Intersection from;
     Intersection to;
     double length;
     Location[] points; // TODO: Better name
 
-    public Segment (int RoadID, Intersection From, Intersection To, Location[] Points, double Length) {
-        this.roadID = RoadID;
+    public Segment (Road Parent, Intersection From, Intersection To, Location[] Points, double Length) {
+        this.parent = Parent;
         this.from = From;
         this.to = To;
         this.length = Length;
@@ -44,7 +44,7 @@ public class Segment implements IDrawable {
         return null;
     }
 
-    public static void LoadFromFile(File Segments, Map<Integer, Intersection> intersections, Map<Integer,Road> Roads) {
+    public static void LoadFromFile(File Segments, Map<Integer, Intersection> Intersections, Map<Integer,Road> Roads) {
         assert (Segments.isFile());
         assert (Segments.canRead());
         try {
@@ -60,9 +60,12 @@ public class Segment implements IDrawable {
                 // FIXME: Insert self to RoadID's segments
                 double length = Double.parseDouble(data.poll());
                 int nodeID1 = Integer.parseInt(data.poll());
-                Intersection from = intersections.get(nodeID1); //FIXME: find intersection
+                Intersection from = Intersections.get(nodeID1); //FIXME: find intersection
+                from.edges.add(parentRoad);
                 int nodeID2 = Integer.parseInt(data.poll());
-                Intersection to = intersections.get(nodeID2); //FIXME: find intersection
+                Intersection to = Intersections.get(nodeID2); //FIXME: find intersection
+                to.edges.add(parentRoad);
+
 
                 // Make sure there is an even number of lat's and lon's
                 assert(data.size() % 2 == 0);
@@ -73,7 +76,7 @@ public class Segment implements IDrawable {
 
                     points.add(Location.newFromLatLon(lat, lon));
                 }
-                parentRoad.getSegments().add(new Segment(id, from, to, points.toArray(new Location[points.size()]), length));
+                parentRoad.getSegments().add(new Segment(parentRoad, from, to, points.toArray(new Location[points.size()]), length));
             }
 
         } catch (FileNotFoundException e) {

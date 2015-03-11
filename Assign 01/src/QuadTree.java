@@ -7,6 +7,7 @@ public class QuadTree<T extends IDrawable> {
 
     private final QuadTree<T> parent;
     private final Rectangle area;
+    private int size;
     List<T> items;
     QuadTree<T>[] children;
 
@@ -16,6 +17,7 @@ public class QuadTree<T extends IDrawable> {
         children = null;
         area = new Rectangle(Integer.MIN_VALUE/2, Integer.MIN_VALUE/2, Integer.MAX_VALUE, Integer.MAX_VALUE);
         items = new ArrayList<>();
+        size = 0;
     }
 
     public QuadTree(Rectangle Area) {
@@ -23,6 +25,7 @@ public class QuadTree<T extends IDrawable> {
         children = null;
         area = Area;
         items = new ArrayList<>();
+        size = 0;
     }
 
     private QuadTree(Rectangle Area, QuadTree<T> Parent) {
@@ -30,16 +33,11 @@ public class QuadTree<T extends IDrawable> {
         children = null;
         area = Area;
         items = new ArrayList<>();
+        size = 0;
     }
 
     public int size() {
-        int size = items.size();
-        if (children != null) {
-            for (QuadTree<T> child : children) {
-                size += child.size();
-            }
-        }
-        return size;
+        return this.size;
     }
 
 
@@ -61,6 +59,7 @@ public class QuadTree<T extends IDrawable> {
         }
 
         if (items.size() <= SPLIT_NUMBER) {
+            size++;
             return items.add(t);
         }  else {
             if (children == null){
@@ -68,9 +67,15 @@ public class QuadTree<T extends IDrawable> {
             }
             for (QuadTree<T> child : children) {
                 if (child.getArea().contains(t.getArea())) {
-                    return child.add(t);
+                    if(child.add(t)) {
+                        size++;
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
+            size++;
             return items.add(t);
         }
     }
@@ -84,7 +89,8 @@ public class QuadTree<T extends IDrawable> {
     }
 
     public List<T> get(Rectangle Area) {
-        List<T> toReturn = new ArrayList<>(); // TODO: Make size() cached and estimate list size by coverage * size
+        List<T> toReturn = new ArrayList<>();
+
         for (T i : this.items) {
             if (i.getArea().getBounds().intersects(Area)) {
                 toReturn.add(i);

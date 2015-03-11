@@ -1,13 +1,10 @@
 import java.awt.*;
 import java.io.*;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 
 public class Intersection implements IDrawable {
-    public Set<Road> edges;
+    public Set<Road> edges; // FIXME: Needs edges to and from
     public final Location location;
     public final int id;
     private Rectangle area;
@@ -30,7 +27,7 @@ public class Intersection implements IDrawable {
     public void draw(Graphics g, Location origin, double scale) {
         g.setColor(this.colour);
         Point pt = location.asPoint(origin, scale);
-        g.fillOval(pt.x - (area.width / 2), pt.y - (area.height / 2), (int)(area.width), (int)(area.height));
+        g.fillRect(pt.x - (area.width / 2), pt.y - (area.height / 2), (int) (area.width), (int) (area.height));
     }
 
     @Override
@@ -54,6 +51,31 @@ public class Intersection implements IDrawable {
                 ", location=" + location +
                 ", area=" + area +
                 '}';
+    }
+
+    public String intersectsWith() {
+        String with = "";
+        int count = 0;
+        Set<Road> segs = new TreeSet<>(new Comparator<Road>() {
+            @Override
+            public int compare(Road o1, Road o2) {
+                return (o1.label.equals(o2.label) ? 0 : 1);
+            }
+        });
+        segs.addAll(edges);
+        for (Road r : segs) {
+            if (r.label.isEmpty()) { continue; }
+            count++;
+            if (count == segs.size() && !with.isEmpty()) {
+                with += " and " + r.label;
+            } else if (with.isEmpty()) {
+                with += r.label;
+            } else {
+                with += ", " + r.label;
+            }
+
+        }
+        return with;
     }
 
     /***

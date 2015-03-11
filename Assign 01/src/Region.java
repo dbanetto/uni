@@ -1,7 +1,5 @@
 import java.io.*;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Set;
 
 public class Region {
     private static HashMap<Integer, Region> regions;

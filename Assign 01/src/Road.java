@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 public class Road implements IDrawable {
     int id;
@@ -63,7 +64,7 @@ public class Road implements IDrawable {
         return null;
     }
 
-    public static java.util.Map<Integer, Road> LoadFromFile(File Roads) {
+    public static java.util.Map<Integer, Road> LoadFromFile(File Roads, TrieNode RoadTrie, Map<String, List<Road>> RoadLabel) {
         TreeMap<Integer, Road> roads = new TreeMap<>();
         assert (Roads.isFile());
         assert (Roads.canRead());
@@ -78,8 +79,9 @@ public class Road implements IDrawable {
                 Queue<String> data = new ArrayDeque<>(java.util.Arrays.asList(line.split("\t")));
                 int id = Integer.parseInt(data.poll());
                 int type = Integer.parseInt(data.poll());
-                String label = data.poll();
-                String city = data.poll();
+                String label = data.poll().trim();
+                RoadTrie.insert(label);
+                String city = data.poll().trim();
                 boolean oneway = Integer.parseInt(data.poll()) == 1;
                 byte speed = Byte.parseByte(data.poll());
                 byte roadclass = Byte.parseByte(data.poll());
@@ -87,7 +89,11 @@ public class Road implements IDrawable {
                 boolean notforpede = Integer.parseInt(data.poll()) == 1;
                 boolean notforbicy = Integer.parseInt(data.poll()) == 1;
 
-               roads.put(id, new Road(id, type, label, city, oneway, speed, roadclass, notforcar, notforpede, notforbicy));
+                roads.put(id, new Road(id, type, label, city, oneway, speed, roadclass, notforcar, notforpede, notforbicy));
+                if (!RoadLabel.containsKey(label)) {
+                    RoadLabel.put(label, new ArrayList<Road>());
+                }
+                RoadLabel.get(label).add(roads.get(id));
             }
 
         } catch (FileNotFoundException e) {
