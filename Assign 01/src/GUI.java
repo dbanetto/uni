@@ -1,3 +1,5 @@
+import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -5,20 +7,7 @@ import java.awt.GridLayout;
 import java.awt.event.*;
 import java.io.File;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 
@@ -53,14 +42,22 @@ public abstract class GUI {
 	protected abstract void redraw(Graphics g);
 
 	/**
-	 * Is called when the mouse is clicked (actually, when the mouse is
+	 * Is called when the mouse is clicked and not dragged (actually, when the mouse is
 	 * released), and is passed the MouseEvent object for that click.
 	 */
 	protected abstract void onClick(MouseEvent e);
 
     protected abstract void onMouseWheelMoved(MouseEvent e);
     protected abstract void onMouseDrag(MouseEvent e);
+
+    /**
+     * Is called whenever a mouse button is pressed
+     */
     protected abstract void onMousePressed(MouseEvent e);
+
+    /**
+     * Is called whenever the mouse press is released
+     */
     protected abstract void onMouseReleased(MouseEvent e);
 
 	/**
@@ -375,14 +372,18 @@ public abstract class GUI {
 
 		drawing.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
-				onClick(e);
-				redraw();
                 onMouseReleased(e);
 			}
 
             @Override
             public void mousePressed(MouseEvent e) {
                 onMousePressed(e);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                onClick(e);
+                redraw();
             }
         });
         drawing.addMouseMotionListener(new MouseMotionAdapter() {
@@ -437,9 +438,27 @@ public abstract class GUI {
 		frame.add(controls, BorderLayout.NORTH);
 		frame.add(split, BorderLayout.CENTER);
 
-		// always do these two things last, in this order.
-		frame.pack();
-		frame.setVisible(true);
+        // Try to apply a better Look&Feel theme
+        if (System.getProperty("os.name").equals("Linux")) {
+            try {
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+            } catch (Exception e) {
+            }
+        } else if (System.getProperty("os.name").startsWith("Windows")) {
+            try {
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            } catch (Exception e) {
+            }
+        }
+        try {
+            SwingUtilities.updateComponentTreeUI(frame);
+        } catch (Exception e) {
+
+        }
+
+        // always do these two things last, in this order.
+        frame.pack();
+        frame.setVisible(true);
 	}
 }
 
