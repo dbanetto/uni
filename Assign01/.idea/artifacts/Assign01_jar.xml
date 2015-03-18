@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Assign01:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Assign01_jar</output-path>
+    <root id="archive" name="Assign01.jar">
+      <element id="module-output" name="Assign01" />
+      <element id="extracted-dir" path="/usr/share/java/hamcrest-library.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/share/java/hamcrest-integration.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/share/java/hamcrest-generator.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/share/java/hamcrest-core.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/share/java/junit.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src" />
+    </root>
+  </artifact>
+</component>
