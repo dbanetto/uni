@@ -2,7 +2,8 @@ package assignment2;
 
 import java.awt.*;
 import java.util.*;
-import static maze.Direction.*;
+import java.util.List;
+
 import maze.*;
 
 /**
@@ -12,27 +13,35 @@ import maze.*;
  */
 public class LeftWalker extends Walker {
 	
-	private  Direction facing;
+	private Direction facing;
+    private Direction oldFacing;
     private Point location; // location relative to origin
-    private boolean findNewWall;
+    private boolean wallAlign;
+    private MapNode currentNode;
+    private Map<Point, MapNode> map;
 
 	public LeftWalker() {
 		super("Left Walker");
-        facing = null;
+        facing = Direction.NORTH;;
         location = new Point(0, 0);
-        findNewWall = false;
+        wallAlign = true;
+
+        currentNode = new MapNode();
+        map = new HashMap<Point, MapNode>();
+        map.put(location, currentNode);
 	}
 
 	protected Direction move(View v) {
-        if (facing == null) {
-            facing = Direction.NORTH;
-            facing = alignWithWall(v);
+        updateMap(v);
+        System.out.println("At " + location.x + "," + location.y);
 
-        } else if (findNewWall) {
-            if (!v.mayMove(facing)) {
-                findNewWall = false;
-                facing = rightOfDirection(facing);
+        if (wallAlign) {
+
+            Direction toFace = alignWithWall(v);
+            if (toFace != null) {
+                facing = toFace;
             }
+            wallAlign = false;
         } else {
             if (v.mayMove(leftOfDirection(facing))) { // turn Left
                 facing = leftOfDirection(facing);
@@ -44,52 +53,72 @@ public class LeftWalker extends Walker {
                 facing = behindDirection(facing);
             }
 
-            if (location.equals(new Point(0,0))) {
-                System.out.print("Special Case: ");
-                Direction oldFacing = facing;
-
-                if (!noWallsAround(v)) {
-                    if (v.mayMove(rightOfDirection(facing))) {
-                        facing = leftOfDirection(facing);
-                        if (v.mayMove(facing)) {
-                            facing = rightOfDirection(facing);
-                        } else {
-                            facing = behindDirection(facing);
-                        }
-                        System.out.println("Bounce");
-                    } else {
-                        System.out.println("FORWARD");
+            if (currentNode.visited) {
+                if (currentNode.exited.contains(facing)) {
+                    System.out.println("Hmm I have tried this way before");
+                    Direction toFace = facing;
+                    do {
+                        toFace = rightOfDirection(toFace);
+                    } while ((currentNode.exited.contains(toFace) || !v.mayMove(toFace)) && toFace != facing);
+                    if (!noWallsAround(v) && toFace == facing) {
+                        wallAlign = true;
                     }
-                } else {
-                    facing = Direction.SOUTH;
-                    System.out.println("South");
+                    System.out.println("Changing from " + facing + " to " + toFace);
+                    System.out.println("What would this want: " + getAvailable(location, facing, currentNode));
+                    facing = toFace;
                 }
-                findNewWall = true;
+
+                System.out.println("hey, I have been here lets try: " + facing);
+
             }
         }
+
+
         if (v.mayMove(facing)) {
-            updateLocation(facing);
+            updateLocation(facing, location);
+            System.out.println("On Node: " + currentNode);
+            currentNode.exited.add(facing);
+            currentNode.previous = facing;
+            currentNode.visited = true;
+            currentNode = map.get(location);
+
+            System.out.println("Moving to : " + currentNode + " via " + facing);
+            System.out.println("Moving to : " + location.x + "," + location.y);
         }
-        System.out.println(location);
         return facing;
 	}
 
-    private void updateLocation(Direction toMove) {
-        if (facing.equals(Direction.NORTH)) {
-            location.translate(0,1);
-        } else if (facing.equals(Direction.SOUTH)) {
-            location.translate(0,-1);
-        } else if (facing.equals(Direction.WEST)) {
-            location.translate(-1,0);
-        } else if (facing.equals(Direction.EAST)) {
-            location.translate(1,0);
+    private void updateMap(View v) {
+        Direction toFace = Direction.NORTH;
+        for (int i = 0; i < 4; i++) {
+            if (v.mayMove(toFace)) {
+                Point pt = (Point)location.clone();
+                updateLocation(toFace, pt);
+
+                if (!map.containsKey(pt)) {
+                    map.put(pt,  new MapNode());
+                }
+            }
+            toFace = rightOfDirection(toFace); // clockwise
+        }
+    }
+
+    private void updateLocation(Direction toMove, Point point) {
+        if (toMove.equals(Direction.NORTH)) {
+            point.translate(0, 1);
+        } else if (toMove.equals(Direction.SOUTH)) {
+            point.translate(0, -1);
+        } else if (toMove.equals(Direction.WEST)) {
+            point.translate(-1, 0);
+        } else if (toMove.equals(Direction.EAST)) {
+            point.translate(1, 0);
         } else {
             throw new IllegalArgumentException();
         }
     }
 
     private Direction alignWithWall(View v) {
-        return alignWithWall(v, 4);
+        return alignWithWall(v, 6);
     }
     private Direction alignWithWall(View v, int cycles) {
         Direction toFace = facing;
@@ -101,12 +130,7 @@ public class LeftWalker extends Walker {
             }
             toFace = rightOfDirection(toFace); // clockwise
         }
-        if (hasLeftWall == null) {
-            toFace = Direction.NORTH;
-        } else {
-            toFace = hasLeftWall;
-        }
-        return toFace;
+        return hasLeftWall;
     }
 
     private boolean noWallsAround(View v) {
@@ -159,6 +183,68 @@ public class LeftWalker extends Walker {
             return Direction.EAST;
         } else {
             throw new IllegalArgumentException();
+        }
+    }
+
+    private List<Direction> getAvailable(Point pt, Direction starting, MapNode node) {
+        List<Direction> avail = new ArrayList<Direction>(4);
+        Direction toFace = leftOfDirection(starting);
+        for (int i = 0; i < 4; i++) {
+            Point loc = (Point)pt.clone();
+            updateLocation(toFace, loc);
+            if (map.containsKey(loc)) {
+                MapNode srrnd = map.get(loc);
+                if (!srrnd.visited) {
+                    avail.add(toFace);
+                }
+            }
+            toFace = rightOfDirection(toFace);
+        }
+        toFace = rightOfDirection(starting);
+        for (int i = 0; i < 4; i++) {
+            Point loc = (Point)pt.clone();
+            updateLocation(toFace, loc);
+            if (map.containsKey(loc)) {
+                MapNode srrnd = map.get(loc);
+                if (!node.exited.contains(toFace)) {
+                    avail.add(toFace);
+                }
+            }
+            toFace = rightOfDirection(toFace);
+        }
+        toFace = rightOfDirection(starting);
+        for (int i = 0; i < 4; i++) {
+            Point loc = (Point)pt.clone();
+            updateLocation(toFace, loc);
+            if (map.containsKey(loc)) {
+
+                    avail.add(toFace);
+
+            }
+            toFace = rightOfDirection(toFace);
+        }
+
+        return avail;
+    }
+
+    private class MapNode {
+        boolean visited;
+        Set<Direction> exited;
+        Direction previous;
+
+        public MapNode() {
+            visited = false;
+            exited = new HashSet<Direction>();
+            previous = null;
+        }
+
+        @Override
+        public String toString() {
+            return "MapNode{" +
+                    "visited=" + visited +
+                    ", exited=" + exited +
+                    ", previous=" + previous +
+                    '}';
         }
     }
 }

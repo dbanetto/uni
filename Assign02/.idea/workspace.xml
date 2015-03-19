@@ -28,7 +28,7 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/assignment2/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="360" max-vertical-offset="1854">
+            <state vertical-scroll-proportion="0.0" vertical-offset="306" max-vertical-offset="2438">
               <caret line="23" column="29" selection-start-line="23" selection-start-column="29" selection-end-line="23" selection-end-column="29" />
               <folding />
             </state>
@@ -38,8 +38,8 @@
       <file leaf-file-name="LeftWalkerTests.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/assignment2/LeftWalkerTests.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="2358" max-vertical-offset="2898">
-              <caret line="136" column="0" selection-start-line="136" selection-start-column="0" selection-end-line="136" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="422" max-vertical-offset="3361">
+              <caret line="147" column="53" selection-start-line="147" selection-start-column="53" selection-end-line="147" selection-end-column="53" />
               <folding />
             </state>
           </provider>
@@ -48,10 +48,13 @@
       <file leaf-file-name="LeftWalker.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/assignment2/LeftWalker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.039955605" vertical-offset="1818" max-vertical-offset="3781">
-              <caret line="101" column="59" selection-start-line="101" selection-start-column="59" selection-end-line="101" selection-end-column="59" />
+            <state vertical-scroll-proportion="0.54858935" vertical-offset="1882" max-vertical-offset="5102">
+              <caret line="124" column="37" selection-start-line="124" selection-start-column="37" selection-end-line="124" selection-end-column="37" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#3882#3883#0" expanded="true" />
+                <element signature="e#3924#3925#0" expanded="true" />
+                <element signature="e#6271#6282#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -239,34 +242,6 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <configuration default="false" name="LeftWalkerTests.maze03" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="assignment2.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="SWEN221 - Assgin02" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="assignment2" />
-      <option name="MAIN_CLASS_NAME" value="assignment2.LeftWalkerTests" />
-      <option name="METHOD_NAME" value="maze03" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
     <configuration default="false" name="LeftWalkerTests.maze08" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -308,6 +283,34 @@
       <option name="PACKAGE_NAME" value="assignment2" />
       <option name="MAIN_CLASS_NAME" value="assignment2.LeftWalkerTests" />
       <option name="METHOD_NAME" value="maze07" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="LeftWalkerTests.maze01" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="assignment2.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="SWEN221 - Assgin02" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="assignment2" />
+      <option name="MAIN_CLASS_NAME" value="assignment2.LeftWalkerTests" />
+      <option name="METHOD_NAME" value="maze01" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" value="" />
@@ -560,17 +563,17 @@
       <item index="4" class="java.lang.String" itemvalue="JUnit.LeftWalker Tests" />
       <item index="5" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze09" />
       <item index="6" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze10" />
-      <item index="7" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze03" />
-      <item index="8" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze08" />
-      <item index="9" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze07" />
+      <item index="7" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze08" />
+      <item index="8" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze07" />
+      <item index="9" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze01" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze07" />
         <item index="1" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze08" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze10" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze09" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze03" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze01" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze10" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.LeftWalkerTests.maze09" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" default="true" selected="false">
@@ -586,42 +589,42 @@
       <updated>1426564555043</updated>
       <workItem from="1426564557143" duration="6740000" />
       <workItem from="1426658374588" duration="16964000" />
-      <workItem from="1426710616680" duration="6000" />
+      <workItem from="1426710616680" duration="13279000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="23710000" />
+    <option name="totallyTimeSpent" value="36983000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1920" y="26" width="1920" height="1054" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32867885" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.28249195" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22542734" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17681624" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32975295" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39849624" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39849624" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32867885" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28249195" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -645,7 +648,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="5" />
+      <option name="time" value="6" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -676,6 +679,9 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#3882#3883#0" expanded="true" />
+            <element signature="e#3924#3925#0" expanded="true" />
+            <element signature="e#6271#6282#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -709,6 +715,9 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#3882#3883#0" expanded="true" />
+            <element signature="e#3924#3925#0" expanded="true" />
+            <element signature="e#6271#6282#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -729,15 +738,16 @@
     </entry>
     <entry file="jar://$PROJECT_DIR$/lib/maze.jar!/maze/Walker.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.04" vertical-offset="58" max-vertical-offset="1297">
-          <caret line="21" column="22" selection-start-line="21" selection-start-column="22" selection-end-line="21" selection-end-column="22" />
+        <state vertical-scroll-proportion="-8.48" vertical-offset="436" max-vertical-offset="1405">
+          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/assignment2/LeftWalkerTests.java">
+    <entry file="jar:///usr/lib/jvm/default/src.zip!/java/util/ArrayList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3469">
-          <caret line="136" column="0" selection-start-line="136" selection-start-column="0" selection-end-line="136" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.3322884" vertical-offset="10858" max-vertical-offset="25622">
+          <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -750,12 +760,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/assignment2/LeftWalkerTests.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="422" max-vertical-offset="3361">
+          <caret line="147" column="53" selection-start-line="147" selection-start-column="53" selection-end-line="147" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/assignment2/LeftWalker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.039955605" vertical-offset="1818" max-vertical-offset="3781">
-          <caret line="101" column="59" selection-start-line="101" selection-start-column="59" selection-end-line="101" selection-end-column="59" />
+        <state vertical-scroll-proportion="0.54858935" vertical-offset="1882" max-vertical-offset="5102">
+          <caret line="124" column="37" selection-start-line="124" selection-start-column="37" selection-end-line="124" selection-end-column="37" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#3882#3883#0" expanded="true" />
+            <element signature="e#3924#3925#0" expanded="true" />
+            <element signature="e#6271#6282#0" expanded="true" />
           </folding>
         </state>
       </provider>
