@@ -14,7 +14,6 @@ import maze.*;
 public class LeftWalker extends Walker {
 	
 	private Direction facing;
-    private Direction oldFacing;
     private Point location; // location relative to origin
     private boolean wallAlign;
     private MapNode currentNode;
@@ -22,7 +21,7 @@ public class LeftWalker extends Walker {
 
 	public LeftWalker() {
 		super("Left Walker");
-        facing = Direction.NORTH;;
+        facing = Direction.NORTH;
         location = new Point(0, 0);
         wallAlign = true;
 
@@ -45,8 +44,7 @@ public class LeftWalker extends Walker {
         } else {
             if (v.mayMove(leftOfDirection(facing))) { // turn Left
                 facing = leftOfDirection(facing);
-            } else if (v.mayMove(facing)) { // turn move forward
-                //
+            } else if (v.mayMove(facing)) { // turn move forward, leave facing alone
             } else if (v.mayMove(rightOfDirection(facing))) {
                 facing = rightOfDirection(facing);
             } else {
@@ -60,6 +58,7 @@ public class LeftWalker extends Walker {
                     do {
                         toFace = rightOfDirection(toFace);
                     } while ((currentNode.exited.contains(toFace) || !v.mayMove(toFace)) && toFace != facing);
+
                     if (!noWallsAround(v) && toFace == facing) {
                         wallAlign = true;
                     }
@@ -88,6 +87,11 @@ public class LeftWalker extends Walker {
         return facing;
 	}
 
+    /**
+     * Map the surrounding area for walls and possible routes
+     *
+     * @param v View to check for walls
+     */
     private void updateMap(View v) {
         Direction toFace = Direction.NORTH;
         for (int i = 0; i < 4; i++) {
@@ -103,6 +107,12 @@ public class LeftWalker extends Walker {
         }
     }
 
+    /**
+     * Update a given point with what Direction that was moved
+     *
+     * @param toMove Direction to move
+     * @param point Point to be updated with new location
+     */
     private void updateLocation(Direction toMove, Point point) {
         if (toMove.equals(Direction.NORTH)) {
             point.translate(0, 1);
@@ -120,6 +130,17 @@ public class LeftWalker extends Walker {
     private Direction alignWithWall(View v) {
         return alignWithWall(v, 6);
     }
+
+    /**
+     * Get direction to face to align with clockwise wall
+     *
+     * uses facing as initial direction
+     *
+     * @param v View
+     * @param cycles how many turns should be checked
+     * @return The direction to face to have the closest clockwise wall to the left,
+     * if none is found null is returned
+     */
     private Direction alignWithWall(View v, int cycles) {
         Direction toFace = facing;
         Direction hasLeftWall = null;
@@ -133,6 +154,12 @@ public class LeftWalker extends Walker {
         return hasLeftWall;
     }
 
+    /**
+     * Checks if there is any walls around the given view
+     *
+     * @param v View of Map
+     * @return has no walls around
+     */
     private boolean noWallsAround(View v) {
         Direction toFace = rightOfDirection(facing);
         for (int i = 0; i < 4; i++) {
@@ -144,6 +171,12 @@ public class LeftWalker extends Walker {
         return true;
     }
 
+    /**
+     * Returns the left of a given Direction
+     *
+     * @param facing Direction to be left of
+     * @return Left of given Direction
+     */
     private Direction leftOfDirection(Direction facing) {
         if (facing.equals(Direction.NORTH)) {
             return Direction.WEST;
@@ -158,6 +191,12 @@ public class LeftWalker extends Walker {
         }
     }
 
+    /**
+     * Returns the right of a given Direction
+     *
+     * @param facing Direction to be right of
+     * @return Right of given Direction
+     */
     private Direction rightOfDirection(Direction facing) {
         if ( facing.equals(Direction.NORTH)) {
             return Direction.EAST;
@@ -172,6 +211,12 @@ public class LeftWalker extends Walker {
         }
     }
 
+    /**
+     * Returns the behind of a given Direction
+     *
+     * @param facing Direction to be behind of
+     * @return Behind of given Direction
+     */
     private Direction behindDirection(Direction facing) {
         if ( facing.equals(Direction.NORTH)) {
             return Direction.SOUTH;
@@ -205,7 +250,6 @@ public class LeftWalker extends Walker {
             Point loc = (Point)pt.clone();
             updateLocation(toFace, loc);
             if (map.containsKey(loc)) {
-                MapNode srrnd = map.get(loc);
                 if (!node.exited.contains(toFace)) {
                     avail.add(toFace);
                 }

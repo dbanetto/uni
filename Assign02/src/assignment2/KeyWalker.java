@@ -34,29 +34,34 @@ public class KeyWalker extends Walker {
 
                 @Override
                 public void keyReleased(KeyEvent e) {
-                    switch (e.getKeyCode()) {
-                        case (KeyEvent.VK_W):
-                        case (KeyEvent.VK_J):
-                        case (KeyEvent.VK_UP):
-                            toMove = Direction.NORTH;
-                            break;
-                        case (KeyEvent.VK_S):
-                        case (KeyEvent.VK_K):
-                        case (KeyEvent.VK_DOWN):
-                            toMove = Direction.SOUTH;
-                            break;
-                        case (KeyEvent.VK_A):
-                        case (KeyEvent.VK_H):
-                        case (KeyEvent.VK_LEFT):
-                            toMove = Direction.WEST;
-                            break;
+                        switch (e.getKeyCode()) {
+                            case (KeyEvent.VK_W):
+                            case (KeyEvent.VK_J):
+                            case (KeyEvent.VK_UP):
+                                toMove = Direction.NORTH;
+                                MazeWindow.mainWindow.repaint();
+                                break;
+                            case (KeyEvent.VK_S):
+                            case (KeyEvent.VK_K):
+                            case (KeyEvent.VK_DOWN):
+                                toMove = Direction.SOUTH;
+                                MazeWindow.mainWindow.repaint();
+                                break;
+                            case (KeyEvent.VK_A):
+                            case (KeyEvent.VK_H):
+                            case (KeyEvent.VK_LEFT):
+                                toMove = Direction.WEST;
+                                MazeWindow.mainWindow.repaint();
+                                break;
 
-                        case (KeyEvent.VK_D):
-                        case (KeyEvent.VK_L):
-                        case (KeyEvent.VK_RIGHT):
-                            toMove = Direction.EAST;
-                            break;
-                    }
+                            case (KeyEvent.VK_D):
+                            case (KeyEvent.VK_L):
+                            case (KeyEvent.VK_RIGHT):
+                                toMove = Direction.EAST;
+                                MazeWindow.mainWindow.repaint();
+                                break;
+                        }
+
                 }
             });
             addedListener = true;
