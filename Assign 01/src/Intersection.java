@@ -4,9 +4,10 @@ import java.util.*;
 
 
 public class Intersection implements IDrawable {
-    public Set<Road> edges; // FIXME: Needs edges to and from
     public final Location location;
     public final int id;
+
+    private Set<Road> edges; // FIXME: separate the `from` and `to` edges
     private Rectangle area;
     private Color colour;
 
@@ -21,13 +22,19 @@ public class Intersection implements IDrawable {
         });
         colour = Color.blue;
         Point pt = location.asPoint(Location.CENTRE, 1.0);
-        area = new Rectangle(pt.x, pt.y, 6,6);
+        area = new Rectangle(pt.x, pt.y, 5,5);
     }
 
-    public void draw(Graphics g, Location origin, double scale) {
+    /**
+     * @see super.draw
+     */
+    public void draw(Graphics g, Location originOffset, double scale) {
         g.setColor(this.colour);
-        Point pt = location.asPoint(origin, scale);
-        g.fillRect(pt.x - (area.width / 2), pt.y - (area.height / 2), (int) (area.width), (int) (area.height));
+        Point pt = location.asPoint(originOffset, scale);
+        int scaledSides = Math.min((int)(area.width * (scale * 8.0)), area.width);
+        if (scaledSides != 0) {
+            g.fillRect(pt.x - (scaledSides / 2), pt.y - (scaledSides / 2), scaledSides, scaledSides);
+        }
     }
 
     @Override
@@ -39,6 +46,9 @@ public class Intersection implements IDrawable {
         return false;
     }
 
+    /**
+     * @see super.draw
+     */
     @Override
     public Rectangle getArea() {
         return this.area;
@@ -53,6 +63,10 @@ public class Intersection implements IDrawable {
                 '}';
     }
 
+    /**
+     *
+     * @return A formatted string with the roads that this intersection touches
+     */
     public String intersectsWith() {
         String with = "";
         int count = 0;
@@ -81,7 +95,8 @@ public class Intersection implements IDrawable {
     /***
      *
      * @param nodes a File pointing to a list of intersections values separated by tabs
-     * @return null on failure, otherwise an array of Intersections
+     * @param quadMap a QuadMap of Intersections that will be filled while loading
+     * @return null on failure, otherwise a map of Intersection IDs to Intersections
      */
     public static java.util.Map<Integer, Intersection> LoadFromFile(File nodes, QuadTree<Intersection> quadMap) {
         TreeMap<Integer, Intersection> intersections = new TreeMap<>(new Comparator<Integer>() {
@@ -118,6 +133,10 @@ public class Intersection implements IDrawable {
 
     public Color getColour() {
         return colour;
+    }
+
+    public Set<Road> getEdges() {
+        return edges;
     }
 
     public void setColour(Color colour) {

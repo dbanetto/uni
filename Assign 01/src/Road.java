@@ -12,7 +12,7 @@ public class Road implements IDrawable {
     byte speedLimit;
     // TODO: Make enum for Road Class
     byte roadClass;
-    // TODO: Make flags for notFor*
+    // TODO: Make flags for notFor* to compress to a byte
     boolean notForCar;
     boolean notForPedestrians;
     boolean notForBicycle;
@@ -41,12 +41,15 @@ public class Road implements IDrawable {
         colour = Color.black;
     }
 
-    public void draw(Graphics g, Location origin, double scale) {
+    /**
+     * @see super.draw
+     */
+    public void draw(Graphics g, Location originOffset, double scale) {
         if (this.roadSegments == null) return;
 
         g.setColor(colour);
         for(RoadSegment seg : this.roadSegments) {
-            seg.draw(g, origin, scale);
+            seg.draw(g, originOffset, scale);
         }
     }
 
@@ -59,11 +62,21 @@ public class Road implements IDrawable {
         return false;
     }
 
+    /**
+     * @see super.getArea
+     */
     @Override
     public Rectangle getArea() {
         return null;
     }
 
+    /**
+     * Load Roads from tabulated file
+     * @param Roads file to be loaded from
+     * @param RoadTrie Trie of Road names to be filled
+     * @param RoadLabel a map of road names to list of roads with that name
+     * @return A map of Road ID's to Roads
+     */
     public static java.util.Map<Integer, Road> LoadFromFile(File Roads, TrieNode RoadTrie, Map<String, List<Road>> RoadLabel) {
         TreeMap<Integer, Road> roads = new TreeMap<>();
         assert (Roads.isFile());

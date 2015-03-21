@@ -53,6 +53,12 @@ public class QuadTree<T extends IDrawable> {
         return false;
     }
 
+    /**
+     * Add element to the quadtree
+     *
+     * @param t element to be add
+     * @return true if successfully added, otherwise false
+     */
     public boolean add(T t) {
         if (!this.area.getBounds().contains(t.getArea())) {
             return false;
@@ -80,6 +86,12 @@ public class QuadTree<T extends IDrawable> {
         }
     }
 
+    /**
+     * Add a whole collection to the Quadtree
+     *
+     * @param c collection to be added
+     * @return true if successfully added, otherwise false
+     */
     public boolean addAll(Collection<? extends T> c) {
         boolean success = true;
         for (T i : c) {
@@ -88,6 +100,11 @@ public class QuadTree<T extends IDrawable> {
         return success;
     }
 
+    /**
+     * Get elements that exist in the given area
+     * @param Area to check for elements
+     * @return list of elements in area
+     */
     public List<T> get(Rectangle Area) {
         List<T> toReturn = new ArrayList<>();
 
@@ -106,10 +123,17 @@ public class QuadTree<T extends IDrawable> {
         return toReturn;
     }
 
+    /**
+     * Get the area that this QuadTree covers
+     * @return
+     */
     public Shape getArea() {
         return area;
     }
 
+    /**
+     * Split up elements into children
+     */
     private void split() {
         if (children == null) {
             children = new QuadTree[4];
@@ -144,6 +168,13 @@ public class QuadTree<T extends IDrawable> {
         items.removeAll(toRemove);
     }
 
+    /**
+     * For debug purposes, render the QuadTree
+     *
+     * @param g
+     * @param scale
+     * @param offset
+     */
     public void draw(Graphics g, double scale, Point offset) {
         g.setColor(Color.pink);
         g.drawRect((int) ((area.getBounds().x - offset.x) * scale),

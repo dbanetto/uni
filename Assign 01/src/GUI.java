@@ -1,9 +1,6 @@
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 
@@ -33,8 +30,6 @@ public abstract class GUI {
 		NORTH, SOUTH, EAST, WEST, ZOOM_IN, ZOOM_OUT
 	}
 
-    // these are the methods you need to implement.
-
 	/**
 	 * Is called when the drawing area is redrawn and performs all the logic for
 	 * the actual drawing, which is done with the passed Graphics object.
@@ -47,7 +42,13 @@ public abstract class GUI {
 	 */
 	protected abstract void onClick(MouseEvent e);
 
+    /**
+     * Is called when the mouse wheel moves
+     */
     protected abstract void onMouseWheelMoved(MouseEvent e);
+    /**
+     * Is called when the mouse is dragged, and is passed the MouseEvent object for that click.
+     */
     protected abstract void onMouseDrag(MouseEvent e);
 
     /**
@@ -439,26 +440,22 @@ public abstract class GUI {
 		frame.add(split, BorderLayout.CENTER);
 
         // Try to apply a better Look&Feel theme
-        if (System.getProperty("os.name").equals("Linux")) {
-            try {
-                UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-            } catch (Exception e) {
-            }
-        } else if (System.getProperty("os.name").startsWith("Windows")) {
-            try {
-                UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            } catch (Exception e) {
-            }
-        }
         try {
-            SwingUtilities.updateComponentTreeUI(frame);
-        } catch (Exception e) {
-
+            if (System.getProperty("os.name").equals("Linux")) {
+                    UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+            } else if (System.getProperty("os.name").startsWith("Windows")) {
+                    UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            }
+            SwingUtilities.updateComponentTreeUI(frame); }
+        catch (Exception e) {
         }
 
         // always do these two things last, in this order.
         frame.pack();
         frame.setVisible(true);
+        Graphics2D frame2d = (Graphics2D)(frame.getGraphics());
+        frame2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, // Anti-alias!
+                                 RenderingHints.VALUE_ANTIALIAS_ON);
 	}
 }
 

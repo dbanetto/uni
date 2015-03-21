@@ -54,8 +54,12 @@ public class MapGUI extends GUI {
         }
 
         if (intersectionIDs != null) {
-            for (Intersection iter : intersectionQuadTree.get(DrawArea)) {
-                iter.draw(g, screenOrigin, scale);
+            // test if the zoom is too small to be rendered
+            int scaledSides = Math.min((int)(5 * (scale * 8.0)), 5);
+            if (scaledSides <= 0) {
+                for (Intersection iter : intersectionQuadTree.get(DrawArea)) {
+                    iter.draw(g, screenOrigin, scale);
+                }
             }
         }
 
@@ -77,13 +81,17 @@ public class MapGUI extends GUI {
     @Override
     protected void onClick(MouseEvent e) {
         if (intersectionQuadTree != null) {
+            // Only search if Mouse button 1 is pressed (usually Left button)
+            if (e.getButton() != MouseEvent.BUTTON1) { return; }
+
             Point offset = screenOrigin.asPoint(Location.CENTRE, 1.0);
             double xprec = e.getX() / this.getDrawingAreaDimension().getWidth();
             double yprec = e.getY() / this.getDrawingAreaDimension().getHeight();
 
-            double clickAccuracy =  Math.max(5 / scale, 2.0); // Click accuracy, bug allows for close clicks at extreme zoom
-            Rectangle search = new Rectangle((int)(xprec * (this.getDrawingAreaDimension().getWidth() / scale) + offset.x + clickAccuracy/2),
-                                             (int)(yprec * (this.getDrawingAreaDimension().getHeight() / scale) + offset.y + clickAccuracy/2),
+            // Generate area to be searched that is scaled to the screen size and zoom
+            double clickAccuracy =  Math.max(10 / scale, 3.0); // Click accuracy, bug allows for close clicks at extreme zoom
+            Rectangle search = new Rectangle((int)(xprec * (this.getDrawingAreaDimension().getWidth() / scale) + offset.x),
+                                             (int)(yprec * (this.getDrawingAreaDimension().getHeight() / scale) + offset.y),
                     (int)(clickAccuracy),(int)(clickAccuracy));
 
             deselectIntersection();
@@ -91,33 +99,52 @@ public class MapGUI extends GUI {
 
             List<Intersection> found = intersectionQuadTree.get(search);
             if (found.size() > 0) {
+                if (found.size() > 1) {
+                    // Find closest to mouse pointer
+                    final int x = (int) (xprec * (this.getDrawingAreaDimension().getWidth() / scale) + offset.x);
+                    final int y = (int) (yprec * (this.getDrawingAreaDimension().getHeight() / scale) + offset.y);
+                    Collections.sort(found, new Comparator<Intersection>() {
+                        @Override
+                        public int compare(Intersection o1, Intersection o2) {
+                            Point p1 = o1.location.asPoint(Location.CENTRE, 1.0);
+                            Point p2 = o1.location.asPoint(Location.CENTRE, 1.0);
+
+                            return ((p1.x - x) * (p1.x - x) + (p1.y - y) * (p1.y - y)) - ((p2.x - x) * (p2.x - x) + (p2.y - y) * (p2.y - y));
+                        }
+                    });
+                }
                 selectedInter = found.get(0);
-                this.getTextOutputArea().setText("ID=" + selectedInter.id + "\nIntersects with: "  + selectedInter.intersectsWith());
+                getTextOutputArea().setText("ID=" + selectedInter.id + "\nIntersects with: "  + selectedInter.intersectsWith());
                 selectedInter.setColour(Color.green);
             } else {
-                this.getTextOutputArea().setText("");
+                getTextOutputArea().setText("");
             }
         }
     }
 
     @Override
     protected void onSearch() {
-        List<String> completes = roadTrie.autocomplete(this.getSearchBox().getText(), 10);
-        if (completes != null) {
-            this.getTextOutputArea().setText(completes.toString());
-            this.deselectRoads();
+        List<String> completions = roadTrie.autocomplete(this.getSearchBox().getText(), 10);
+        if (completions != null) {
+            getTextOutputArea().setText(completions.toString());
+            deselectRoads();
             deselectIntersection();
-            for (String rLabel: completes) {
+
+            // Add to selected list and colour them
+            for (String rLabel: completions) {
                 for (Road rd : roadLabel.get(rLabel)) {
                     rd.setColour(Color.green);
                     selectedRoads.add(rd);
                 }
             }
         } else {
-            this.getTextOutputArea().setText("Could not find any streets starting with \'" + this.getSearchBox().getText() + "\'");
+            getTextOutputArea().setText("Could not find any streets starting with \'" + this.getSearchBox().getText() + "\'");
         }
     }
 
+    /**
+     * Un-highlights the selected roads
+     */
     private void deselectRoads() {
         if (selectedRoads != null && selectedRoads.size() > 0) {
             for (Road rd : selectedRoads) {
@@ -127,6 +154,9 @@ public class MapGUI extends GUI {
         }
     }
 
+    /**
+     * Un-highlights the selected intersection
+     */
     private void deselectIntersection() {
         if (selectedInter != null) {
             selectedInter.setColour(Color.blue);
@@ -157,20 +187,29 @@ public class MapGUI extends GUI {
 
         switch(m) {
             case ZOOM_IN:
+                // limit zooming
+                if (scale > 8) {
+                    break;
+                }
                 // Centered zooming
                 delta_width = ((getDrawingAreaDimension().getWidth()/scale) - (getDrawingAreaDimension().getWidth()/(scale * scaleDelta))) / 2;
                 delta_height = ((getDrawingAreaDimension().getHeight()/scale) - (getDrawingAreaDimension().getHeight()/(scale * scaleDelta))) / 2;
                 loc = Location.newFromPoint(new Point((int)delta_width, (int)delta_height), Location.CENTRE, 1.0);
+
                 scale *= scaleDelta;
                 screenOrigin = screenOrigin.moveBy(loc.x, loc.y);
                 break;
             case ZOOM_OUT:
+                // limit zooming
+                if (scale < 0.01) {
+                    break;
+                }
                 // Centered zooming
                 delta_width = ((getDrawingAreaDimension().getWidth()/scale) - (getDrawingAreaDimension().getWidth()/(scale / scaleDelta))) / 2;
                 delta_height = ((getDrawingAreaDimension().getHeight()/scale) - (getDrawingAreaDimension().getHeight()/(scale / scaleDelta))) / 2;
                 loc = Location.newFromPoint(new Point((int)delta_width, (int)delta_height), Location.CENTRE, 1.0);
-                screenOrigin = screenOrigin.moveBy(loc.x, loc.y);
 
+                screenOrigin = screenOrigin.moveBy(loc.x, loc.y);
                 scale /= scaleDelta;
                 break;
             case NORTH:
@@ -208,7 +247,9 @@ public class MapGUI extends GUI {
 
     @Override
     protected void onMousePressed(MouseEvent e) {
-        dragOrigin = e.getPoint();
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            dragOrigin = e.getPoint();
+        }
     }
 
     @Override
@@ -227,7 +268,9 @@ public class MapGUI extends GUI {
 
     @Override
     protected void onMouseReleased(MouseEvent e) {
+
         if (e.getButton() == MouseEvent.MOUSE_FIRST) {
+            // stop dragging
             dragOrigin = null;
         }
     }

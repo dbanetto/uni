@@ -1,24 +1,21 @@
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
-
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * TODO: Write JavaDoc
+ * A representation of the polygon-shapes.mp file
  */
 public class Polygon implements IDrawable {
 
     private static final Map<Integer, Color> typeColours;
-    private static final Color MISSING_TYPE = Color.magenta;
+    private static final Color MISSING_TYPE = new Color(0xFF00FF);
     static {
         Map<Integer, Color> typeColour = new HashMap<>();
-        // Colours thanks to OpenStreetMap.org
+
+        // Nice looking colours thanks to OpenStreetMap.org
         typeColour.put(0x13, new Color(0xCDCDCD)); // city block
 
         typeColour.put(0x3c, new Color(0xB5D0D0)); // Lakes, streams and reservoirs
@@ -64,7 +61,7 @@ public class Polygon implements IDrawable {
         this.cityIdx = CityIdx;
         this.locations = Locations;
 
-        // Calculate area
+        // Calculate rectangular area
         Point topLeft = new Point(Integer.MAX_VALUE,Integer.MAX_VALUE);
         Point botRight = new Point(Integer.MIN_VALUE,Integer.MIN_VALUE);
         for (Location loc : locations) {
@@ -85,35 +82,42 @@ public class Polygon implements IDrawable {
         this.area = new Rectangle(topLeft.x, topLeft.y, botRight.x - topLeft.x + 1, botRight.y - topLeft.y + 1);
     }
 
+    /**
+     * @see super.draw
+     */
     @Override
-    public void draw(Graphics g, Location origin, double scale) {
+    public void draw(Graphics g, Location originOffset, double scale) {
         if (typeColours.containsKey(this.type)) {
             g.setColor(typeColours.get(this.type));
         } else {
             g.setColor(MISSING_TYPE);
             System.out.println("Defaulting colour for type:" + this.type);
         }
-        int[] x = new int[locations.length + 1];
-        int[] y = new int[locations.length + 1];
+        int[] x = new int[locations.length];
+        int[] y = new int[locations.length];
         int i = 0;
         for (Location loc: locations) {
-            Point pt = loc.asPoint(origin, scale);
+            Point pt = loc.asPoint(originOffset, scale);
             x[i] = pt.x;
             y[i] = pt.y;
             i++;
         }
-        Point pt = locations[0].asPoint(origin, scale);
-        x[i] = pt.x;
-        y[i] = pt.y;
-        i++;
         g.fillPolygon(x, y, i);
     }
 
+    /**
+     * @see super.getArea
+     */
     @Override
     public Rectangle getArea() {
         return area;
     }
 
+    /**
+     *
+     * @param file to be read from
+     * @param polygonQuadTree a QuadTree to be filled while loading
+     */
     public static void loadPolygons(File file, QuadTree<Polygon> polygonQuadTree) {
         assert (file.isFile());
         assert (file.canRead());

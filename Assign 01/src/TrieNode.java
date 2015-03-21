@@ -6,11 +6,19 @@ public class TrieNode {
     Map<Character, TrieNode> edges;
     boolean isEnd;
 
+    /**
+     * @param IsEnd flag for end for word
+     */
     public TrieNode(boolean IsEnd) {
         edges = new TreeMap<>();
-        this.isEnd = IsEnd;
+        isEnd = IsEnd;
     }
 
+    /**
+     * Insert text into the trie
+     * @param text to be inserted
+     * @return true if inserted, otherwise false
+     */
     public boolean insert(String text) {
         if (text.isEmpty()) { return false; }
 
@@ -25,6 +33,12 @@ public class TrieNode {
         return false;
     }
 
+    /**
+     * Checks if text exists in the trie
+     *
+     * @param text to be checked
+     * @return true if it exists, otherwise false
+     */
     public boolean exists(String text) {
         if (text.isEmpty()) { return isEnd; }
 
@@ -35,6 +49,13 @@ public class TrieNode {
         }
     }
 
+    /**
+     *  Complete the prefix with a given number of completions
+     *
+     * @param prefix
+     * @param max the number of completions to return
+     * @return a list of size max with completions of the prefix
+     */
     public List<String> autocomplete(String prefix, int max) {
         List<String> list = complete(prefix);
         if (list != null) {
@@ -46,6 +67,11 @@ public class TrieNode {
         return list;
     }
 
+    /**
+     * Complete the prefix with available options
+     * @param prefix to be completed
+     * @return a List of completed strings
+     */
     private List<String> complete(String prefix) {
         // Get to the end of the prefix
         if (!prefix.isEmpty()) {
@@ -64,6 +90,11 @@ public class TrieNode {
         return iterate();
     }
 
+    /**
+     * Iterate over children collecting end nodes
+     *
+     * @return a list of end nodes with its path of characters
+     */
     private List<String> iterate() {
         List<String> list = new ArrayList<>();
         for (Character c : edges.keySet()) {
