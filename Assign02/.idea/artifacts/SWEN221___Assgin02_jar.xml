@@ -9,6 +9,7 @@
       <element id="extracted-dir" path="/usr/share/java/hamcrest-generator.jar" path-in-jar="/" />
       <element id="extracted-dir" path="/usr/share/java/hamcrest-integration.jar" path-in-jar="/" />
       <element id="extracted-dir" path="/usr/share/java/hamcrest-library.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src" />
     </root>
   </artifact>
 </component>

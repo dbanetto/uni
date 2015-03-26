@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.List;
 
 import maze.*;
+import maze.gui.MazeWindow;
 
 /**
  * An any implementation of the left walker, which you need to complete
@@ -16,6 +17,7 @@ public class LeftWalker extends Walker {
 	private Direction facing;
     private Point location; // location relative to origin
     private boolean wallAlign;
+    private boolean wallCharge = false;
     private MapNode currentNode;
     private Map<Point, MapNode> map;
 
@@ -31,8 +33,14 @@ public class LeftWalker extends Walker {
 	}
 
 	protected Direction move(View v) {
-        updateMap(v);
-        System.out.println("At " + location.x + "," + location.y);
+        updateMap(v, currentNode, location);
+
+        if (wallCharge) {
+            if (!v.mayMove(facing)) {
+                wallCharge = false;
+                wallAlign = true;
+            }
+        }
 
         if (wallAlign) {
 
@@ -42,7 +50,11 @@ public class LeftWalker extends Walker {
             }
             wallAlign = false;
         } else {
-            if (v.mayMove(leftOfDirection(facing))) { // turn Left
+
+
+            if (wallCharge) {
+                // charge forward
+            } else if (v.mayMove(leftOfDirection(facing))) { // turn Left
                 facing = leftOfDirection(facing);
             } else if (v.mayMove(facing)) { // turn move forward, leave facing alone
             } else if (v.mayMove(rightOfDirection(facing))) {
@@ -53,36 +65,45 @@ public class LeftWalker extends Walker {
 
             if (currentNode.visited) {
                 if (currentNode.exited.contains(facing)) {
-                    System.out.println("Hmm I have tried this way before");
                     Direction toFace = facing;
-                    do {
-                        toFace = rightOfDirection(toFace);
-                    } while ((currentNode.exited.contains(toFace) || !v.mayMove(toFace)) && toFace != facing);
+                    if (currentNode.paths == 1) {
 
-                    if (!noWallsAround(v) && toFace == facing) {
+                    } else if (currentNode.paths > currentNode.exited.size()) {
+                        Set<Direction> possible = getPaths(v, currentNode, toFace);
+                        possible.remove(currentNode.exited);
+                        for (int i = 0; i < 4; i++) {
+                            toFace = rightOfDirection(toFace);
+                            if (possible.contains(toFace)) {
+                                break;
+                            }
+                        }
+                        wallCharge = true;
                         wallAlign = true;
+                    } else if (currentNode.paths == currentNode.exited.size()) {
+                        toFace = currentNode.previous;
+                        for (int i = 0; i < 4; i++) {
+                            toFace = rightOfDirection(toFace);
+                            if (v.mayMove(toFace)) {
+                                break;
+                            }
+                        }
+                        wallAlign = false;
+                    } else {
+                        toFace = rightOfDirection(toFace);
                     }
-                    System.out.println("Changing from " + facing + " to " + toFace);
-                    System.out.println("What would this want: " + getAvailable(location, facing, currentNode));
+
                     facing = toFace;
                 }
-
-                System.out.println("hey, I have been here lets try: " + facing);
-
             }
         }
 
 
         if (v.mayMove(facing)) {
             updateLocation(facing, location);
-            System.out.println("On Node: " + currentNode);
             currentNode.exited.add(facing);
             currentNode.previous = facing;
             currentNode.visited = true;
             currentNode = map.get(location);
-
-            System.out.println("Moving to : " + currentNode + " via " + facing);
-            System.out.println("Moving to : " + location.x + "," + location.y);
         }
         return facing;
 	}
@@ -92,19 +113,32 @@ public class LeftWalker extends Walker {
      *
      * @param v View to check for walls
      */
-    private void updateMap(View v) {
+    private void updateMap(View v, MapNode node, Point loc) {
         Direction toFace = Direction.NORTH;
         for (int i = 0; i < 4; i++) {
             if (v.mayMove(toFace)) {
-                Point pt = (Point)location.clone();
+                Point pt = new Point(loc);
                 updateLocation(toFace, pt);
-
                 if (!map.containsKey(pt)) {
                     map.put(pt,  new MapNode());
+                    node.paths++;
                 }
+
             }
             toFace = rightOfDirection(toFace); // clockwise
         }
+    }
+
+    private Set<Direction> getPaths(View v, MapNode node, Direction startDir) {
+        Direction toFace = startDir;
+        Set<Direction> toReturn = new HashSet<Direction>();
+        for (int i = 0; i < 4; i++) {
+            if (v.mayMove(toFace)) {
+                toReturn.add(toFace);
+            }
+            toFace = rightOfDirection(toFace); // clockwise
+        }
+        return toReturn;
     }
 
     /**
@@ -115,9 +149,9 @@ public class LeftWalker extends Walker {
      */
     private void updateLocation(Direction toMove, Point point) {
         if (toMove.equals(Direction.NORTH)) {
-            point.translate(0, 1);
-        } else if (toMove.equals(Direction.SOUTH)) {
             point.translate(0, -1);
+        } else if (toMove.equals(Direction.SOUTH)) {
+            point.translate(0, 1);
         } else if (toMove.equals(Direction.WEST)) {
             point.translate(-1, 0);
         } else if (toMove.equals(Direction.EAST)) {
@@ -231,61 +265,24 @@ public class LeftWalker extends Walker {
         }
     }
 
-    private List<Direction> getAvailable(Point pt, Direction starting, MapNode node) {
-        List<Direction> avail = new ArrayList<Direction>(4);
-        Direction toFace = leftOfDirection(starting);
-        for (int i = 0; i < 4; i++) {
-            Point loc = (Point)pt.clone();
-            updateLocation(toFace, loc);
-            if (map.containsKey(loc)) {
-                MapNode srrnd = map.get(loc);
-                if (!srrnd.visited) {
-                    avail.add(toFace);
-                }
-            }
-            toFace = rightOfDirection(toFace);
-        }
-        toFace = rightOfDirection(starting);
-        for (int i = 0; i < 4; i++) {
-            Point loc = (Point)pt.clone();
-            updateLocation(toFace, loc);
-            if (map.containsKey(loc)) {
-                if (!node.exited.contains(toFace)) {
-                    avail.add(toFace);
-                }
-            }
-            toFace = rightOfDirection(toFace);
-        }
-        toFace = rightOfDirection(starting);
-        for (int i = 0; i < 4; i++) {
-            Point loc = (Point)pt.clone();
-            updateLocation(toFace, loc);
-            if (map.containsKey(loc)) {
-
-                    avail.add(toFace);
-
-            }
-            toFace = rightOfDirection(toFace);
-        }
-
-        return avail;
-    }
-
     private class MapNode {
         boolean visited;
         Set<Direction> exited;
         Direction previous;
+        int paths;
 
         public MapNode() {
             visited = false;
             exited = new HashSet<Direction>();
             previous = null;
+            paths = 0;
         }
 
         @Override
         public String toString() {
             return "MapNode{" +
                     "visited=" + visited +
+                    ", paths=" + paths +
                     ", exited=" + exited +
                     ", previous=" + previous +
                     '}';
