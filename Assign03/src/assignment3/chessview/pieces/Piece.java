@@ -8,6 +8,7 @@ import assignment3.chessview.*;
 
 public abstract class Piece {
 	private boolean moved = false;
+	private Position lastPostiion = null;
 
 	protected boolean isWhite;
 
@@ -43,7 +44,7 @@ public abstract class Piece {
 	 *            --- piece being taken, or null if no piece taken.
 	 * @param board
 	 *            --- board on which the validity of this move is being checked.
-	 * @return
+	 * @return True if this piece has a valid move from old to new position, otherwise false
 	 */
 	public boolean isValidMove(Position oldPosition,
 			Position newPosition, Piece isTaken, Board board) {
@@ -51,9 +52,31 @@ public abstract class Piece {
 		return this.isValidMoveLookAhead(oldPosition, newPosition, isTaken, board) && this.equals(p);
 	}
 
+	/**
+	 * Check whether or not a given move on a given board is valid.
+	 * Ignores current piece
+	 *
+	 * @param oldPosition
+	 *            --- position of this piece before move.
+	 * @param newPosition
+	 *            --- position of this piece after move.
+	 * @param isTaken
+	 *            --- piece being taken, or null if no piece taken.
+	 * @param board
+	 *            --- board on which the validity of this move is being checked.
+	 * @return True if this type of piece would have a valid move between old and new position, otherwise false
+	 */
 	public abstract boolean isValidMoveLookAhead(Position oldPosition,
 										Position newPosition, Piece isTaken, Board board);
 
 	public boolean hasMoved() { return this.moved; }
-	public void Moved() { this.moved = true; }
+
+	public Position getLastPostiion() {
+		return lastPostiion;
+	}
+
+	public void Moved(Position oldPosition) {
+		this.moved = true;
+		this.lastPostiion = oldPosition;
+	}
 }

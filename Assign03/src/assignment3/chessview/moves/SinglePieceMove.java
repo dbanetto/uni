@@ -38,7 +38,7 @@ public class SinglePieceMove implements MultiPieceMove {
 	}
 	
 	public void apply(Board b) {
-		b.pieceAt(oldPosition()).Moved();
+		b.pieceAt(oldPosition()).Moved(oldPosition);
 		b.move(oldPosition, newPosition);
 	}
 	

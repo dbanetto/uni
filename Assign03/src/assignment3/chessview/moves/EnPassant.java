@@ -9,19 +9,42 @@ import assignment3.chessview.pieces.*;
  * @author djp
  * 
  */
-public class EnPassant implements Move {
-	public EnPassant(SinglePieceMove move) {				
+public class EnPassant implements MultiPieceMove {
+	private SinglePieceMove move;
+	public EnPassant(SinglePieceMove move) {
+		this.move = move;
 	}
 	
 	public boolean isWhite() {
 		return false;
 	}
 	
-	public boolean isValid(Board board) {		
+	public boolean isValid(Board board) {
+		int enPassRow = move.oldPosition().row();
+		int col = move.newPosition().column();
+
+		Piece enPassed = board.pieceAt(new Position(enPassRow, col));
+
+		if (!(move.piece instanceof Pawn)) {
+			return false;
+		}
+
+		if (!(enPassed instanceof Pawn)) {
+			return false;
+		}
+		if (!enPassed.getLastPostiion().equals(new Position(enPassRow + (enPassed.isWhite() ? -2 : 2), col))) {
+			return false;
+		}
+
 		return true;
 	}
 	
-	public void apply(Board board) {		
+	public void apply(Board board) {
+		int enPassRow = move.oldPosition().row();
+		int col = move.newPosition().column();
+
+		board.move(move.oldPosition(), move.newPosition());
+		board.setPieceAt(new Position(enPassRow, col), null);
 	}
 	
 	public String toString() {
