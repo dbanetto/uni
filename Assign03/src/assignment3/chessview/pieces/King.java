@@ -5,14 +5,17 @@ import assignment3.chessview.*;
 public class King extends Piece {
 	public King(boolean isWhite) {
 		super(isWhite);
-	}	
-	
+	}
+
+	/**
+	 *  @see super.isValidMoveLookAhead
+	 */
 	public boolean isValidMoveLookAhead(Position oldPosition, Position newPosition,
 			Piece isTaken, Board board) {
-		int diffCol = Math.max(oldPosition.column(), newPosition.column())
-				- Math.min(oldPosition.column(), newPosition.column());
-		int diffRow = Math.max(oldPosition.row(), newPosition.row())
-				- Math.min(oldPosition.row(), newPosition.row());
+
+		int diffCol = Math.abs(oldPosition.column() - newPosition.column());
+		int diffRow = Math.abs(oldPosition.row() - newPosition.row());
+
 		Piece p = board.pieceAt(oldPosition);
 		Piece t = board.pieceAt(newPosition);
 

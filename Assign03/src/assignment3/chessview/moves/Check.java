@@ -26,6 +26,7 @@ public class Check implements Move {
 	}
 	
 	public boolean isValid(Board board) {
+		// Play forward and check
 		if (move instanceof PawnPromotion) {
 			PawnPromotion moving = (PawnPromotion)(move);
 			Position opKingPos = board.findKing(!isWhite());

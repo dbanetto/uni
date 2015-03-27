@@ -23,6 +23,7 @@ public class NonCheck implements Move {
 			return false;
 		}
 
+		// Check if the move will put you into check
 		if (move instanceof SinglePieceMove) {
 			SinglePieceMove movement = (SinglePieceMove)move;
 
@@ -32,12 +33,13 @@ public class NonCheck implements Move {
 			board.setPieceAt(movement.newPosition(), movement.piece());
 			board.setPieceAt(movement.oldPosition(), null);
 
-			boolean stillInCheck = board.isInCheck(move.isWhite());
+			boolean inCheck = board.isInCheck(move.isWhite());
 
 			// reset field
 			board.setPieceAt(movement.newPosition(), newSpot);
 			board.setPieceAt(movement.oldPosition(), movement.piece());
-			if (stillInCheck) {
+
+			if (inCheck) {
 				return false;
 			}
 		}

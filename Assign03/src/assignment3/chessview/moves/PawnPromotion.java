@@ -27,6 +27,7 @@ public class PawnPromotion implements MultiPieceMove {
 		}
 		SinglePieceMove pieceMove = (SinglePieceMove)move;
 
+		// Pawn to promote
 		if (!(pieceMove.piece() instanceof Pawn)) {
 			return false;
 		}
@@ -34,7 +35,7 @@ public class PawnPromotion implements MultiPieceMove {
 			return false;
 		}
 
-		Pawn toPromote = (Pawn)pieceMove.piece();
+		// Right place
 		if (pieceMove.newPosition().row() != (promotion.isWhite() ? 8 : 1)) {
 			return false;
 		}

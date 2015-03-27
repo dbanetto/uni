@@ -6,7 +6,10 @@ public class Pawn extends Piece {
 	public Pawn(boolean isWhite) {
 		super(isWhite);
 	}
-	
+
+	/**
+	 *  @see super.isValidMoveLookAhead
+	 */
 	public boolean isValidMoveLookAhead(Position oldPosition, Position newPosition,
 			Piece isTaken, Board board) {
 		int dir = isWhite ? 1 : -1;

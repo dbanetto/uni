@@ -25,14 +25,18 @@ public class EnPassant implements MultiPieceMove {
 
 		Piece enPassed = board.pieceAt(new Position(enPassRow, col));
 
-		if (!(move.piece instanceof Pawn)) {
+		// Check if pawns
+		if (!(move.piece instanceof Pawn) || !(enPassed instanceof Pawn)) {
 			return false;
 		}
 
-		if (!(enPassed instanceof Pawn)) {
+		// Check movements are valid
+		if (!enPassed.getLastPosition().equals(new Position(enPassRow + (enPassed.isWhite() ? -2 : 2), col))) {
 			return false;
 		}
-		if (!enPassed.getLastPostiion().equals(new Position(enPassRow + (enPassed.isWhite() ? -2 : 2), col))) {
+
+		// Make sure the enPassent made double forward movement
+		if (Math.abs(enPassRow - enPassed.getLastPosition().row()) != 2) {
 			return false;
 		}
 

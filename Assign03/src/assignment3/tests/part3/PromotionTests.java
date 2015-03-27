@@ -64,7 +64,7 @@ public class PromotionTests extends TestCase {
 		String[] tests = {
 			"a2-a4=N",
 			"Nb1-c3=Q",
-			// valid play: "a2-a4 b7-b5\na4xb5 Nb8-c6\nb5-b6 a7-a5\nNb1-c3 Bc8-a6\nb6-b7 Qd8-c8\nb7xQc8=Q"
+			// valid play, tested in gnome-chess : "a2-a4 b7-b5\na4xb5 Nb8-c6\nb5-b6 a7-a5\nNb1-c3 Bc8-a6\nb6-b7 Qd8-c8\nb7xQc8=Q"
 		};
 		
 		checkInvalidTests(tests);

@@ -6,7 +6,10 @@ public class Rook extends Piece {
 	public Rook(boolean isWhite) {
 		super(isWhite);
 	}
-	
+
+	/**
+	 *  @see super.isValidMoveLookAhead
+	 */
 	public boolean isValidMoveLookAhead(Position oldPosition, Position newPosition,
 			Piece isTaken, Board board) {
 		Piece p = board.pieceAt(oldPosition);

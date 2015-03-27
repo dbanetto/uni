@@ -1,14 +1,12 @@
 package assignment3.chessview.pieces;
 
-import java.util.Arrays;
-
 import assignment3.chessview.*;
 
 
 
 public abstract class Piece {
 	private boolean moved = false;
-	private Position lastPostiion = null;
+	private Position lastPosition = null;
 
 	protected boolean isWhite;
 
@@ -18,7 +16,7 @@ public abstract class Piece {
 
 	/**
 	 * Determine whether this piece is white or black.
-	 * @return
+	 * @return if the Piece is white returns true, otherwise false
 	 */
 	public boolean isWhite() {
 		return isWhite;
@@ -69,14 +67,26 @@ public abstract class Piece {
 	public abstract boolean isValidMoveLookAhead(Position oldPosition,
 										Position newPosition, Piece isTaken, Board board);
 
+	/**
+	 * Check if the Piece has moved
+	 * @return True if the piece has moved before, else False
+	 */
 	public boolean hasMoved() { return this.moved; }
 
-	public Position getLastPostiion() {
-		return lastPostiion;
+	/**
+	 * Get the Piece's last position
+	 * @return A Position if the piece has moved before, otherwise null
+	 */
+	public Position getLastPosition() {
+		return lastPosition;
 	}
 
+	/**
+	 * Update the Piece moved fields to keep track of piece movements
+	 * @param oldPosition the location where the piece was BEFORE the movement
+	 */
 	public void Moved(Position oldPosition) {
 		this.moved = true;
-		this.lastPostiion = oldPosition;
+		this.lastPosition = oldPosition;
 	}
 }
