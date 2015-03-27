@@ -9,7 +9,7 @@ import static assignment3.tests.TestHelpers.*;
 public class EnPassantTests extends TestCase {
 	
 	public @Test void testEnPassant() {
-		String[][] tests = { 
+		String[][] tests = {
 				// Test 1
 				{"h2-h3 b7-b5\ng2-g3 b5-b4\na2-a4 b4xa3ep",
 				 "8|r|n|b|q|k|b|n|r|\n"+

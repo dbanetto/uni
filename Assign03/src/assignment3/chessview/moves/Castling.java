@@ -49,7 +49,7 @@ public class Castling implements MultiPieceMove {
 		Piece king = board.pieceAt(kingPos);
 		Piece rook = board.pieceAt(rookPos);
 
-		// test if moved
+
 
 		if (king == null || rook == null) {
 			return false;
@@ -63,12 +63,13 @@ public class Castling implements MultiPieceMove {
 			return false;
 		}
 
+		// test if moved
 		if (king.hasMoved() || rook.hasMoved()) {
 			return false;
 		}
 
 		return true;
-	}		
+	}
 	
 	public String toString() {
 		if(kingSide) {

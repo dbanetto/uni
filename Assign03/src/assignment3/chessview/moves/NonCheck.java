@@ -18,8 +18,30 @@ public class NonCheck implements Move {
 		return move.isWhite();
 	}
 	
-	public boolean isValid(Board board) {		
-		return move.isValid(board);
+	public boolean isValid(Board board) {
+		if (!move.isValid(board)) {
+			return false;
+		}
+
+		if (move instanceof SinglePieceMove) {
+			SinglePieceMove movement = (SinglePieceMove)move;
+
+			Piece newSpot = board.pieceAt(movement.newPosition());
+
+			// play forward
+			board.setPieceAt(movement.newPosition(), movement.piece());
+			board.setPieceAt(movement.oldPosition(), null);
+
+			boolean stillInCheck = board.isInCheck(move.isWhite());
+
+			// reset field
+			board.setPieceAt(movement.newPosition(), newSpot);
+			board.setPieceAt(movement.oldPosition(), movement.piece());
+			if (stillInCheck) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public void apply(Board board) {

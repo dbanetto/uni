@@ -15,6 +15,8 @@ public class Queen extends Piece {
 		int deltaRow = Math.abs(oldPosition.row() - newPosition.row());
 		int deltaCol = Math.abs(oldPosition.column() - newPosition.column());
 
+
+
 		return  (t == isTaken || (isTaken != null && isTaken.equals(t) && this.isWhite != isTaken.isWhite()))
 				&& ((deltaCol == deltaRow && deltaCol != 0) || (deltaCol != 0 && deltaRow == 0) || (deltaRow != 0 && deltaCol == 0))
 				&& (board.clearColumnExcept(oldPosition, newPosition, p,t)

@@ -1,11 +1,12 @@
 package assignment3.chessview;
 
 import assignment3.chessview.moves.Move;
+import assignment3.chessview.moves.SinglePieceMove;
 import assignment3.chessview.pieces.*;
 
 public class Board {
 	private Piece[][] pieces; // this is the underlying data structure for a board.
-	
+
 	/**
 	 * Construct an initial board.
 	 */
@@ -52,7 +53,7 @@ public class Board {
 		for(int row=1;row<=8;++row) {
 			for(int col=1;col<=8;++col) {
 				this.pieces[row][col] = board.pieces[row][col];
-			}	
+			}
 		}		
 	}
 
@@ -63,12 +64,33 @@ public class Board {
 	 * @param move
 	 * @return
 	 */
-	public boolean apply(Move move) {		
-		if(move.isValid(this)) {						
-			move.apply(this);			
-			return true;			
-		} else {			
-			return false;			
+	public boolean apply(Move move) {
+		if(move.isValid(this)) {
+			if (false && this.isInCheck(move.isWhite())) {
+				if (move instanceof SinglePieceMove) {
+					SinglePieceMove movement = (SinglePieceMove)move;
+
+					Piece newSpot = pieceAt(movement.newPosition());
+
+					// play forward
+					setPieceAt(movement.newPosition(), movement.piece());
+					setPieceAt(movement.oldPosition(), null);
+
+					boolean stillInCheck = this.isInCheck(move.isWhite());
+
+					// reset field
+					setPieceAt(movement.newPosition(), newSpot);
+					setPieceAt(movement.oldPosition(), movement.piece());
+					if (stillInCheck) {
+						return false;
+					}
+				}
+			}
+
+			move.apply(this);
+			return true;
+		} else {
+			return false;
 		}
 	}
 	
@@ -200,7 +222,7 @@ public class Board {
 		int diffCol = Math.max(startCol,endCol) - Math.min(startCol,endCol);
 		int diffRow = Math.max(startRow,endRow) - Math.min(startRow,endRow);		
 		
-		if(diffCol != diffRow && diffCol == 0) {			
+		if(diffCol != diffRow) {
 			return false;
 		}
 		
