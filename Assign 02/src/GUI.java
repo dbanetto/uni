@@ -4,6 +4,8 @@ import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This is a template GUI that you can use for your mapping program. It is an
@@ -165,9 +167,16 @@ public abstract class GUI {
 	private JTextField search;
 	private JFileChooser fileChooser;
 
+	private Set<RoadUsers> roadUsersFlags;
+
+	public Set<RoadUsers> getRoadUsersFlags() {
+		return roadUsersFlags;
+	}
+
 	public GUI() {
 		initialise();
 	}
+
 
 	@SuppressWarnings("serial")
 	private void initialise() {
@@ -313,6 +322,44 @@ public abstract class GUI {
 			});
 		}
 
+		roadUsersFlags = new HashSet<>();
+		roadUsersFlags.add(RoadUsers.ALLOW_CYCLISTS);
+		JCheckBox useCars = new JCheckBox("Allow Car");
+		useCars.setSelected(true);
+		useCars.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (useCars.isSelected()) {
+					roadUsersFlags.add(RoadUsers.ALLOW_CARS);
+				} else {
+					roadUsersFlags.remove(RoadUsers.ALLOW_CARS);
+				}
+			}
+		});
+		JCheckBox useBike = new JCheckBox("Allow Bike");
+		useBike.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (useBike.isSelected()) {
+					roadUsersFlags.add(RoadUsers.ALLOW_CYCLISTS);
+				} else {
+					roadUsersFlags.remove(RoadUsers.ALLOW_CYCLISTS);
+				}
+			}
+		});
+
+		JCheckBox useWalk = new JCheckBox("Allow Walk");
+		useWalk.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (useWalk.isSelected()) {
+					roadUsersFlags.add(RoadUsers.ALLOW_PEDESTRIANS);
+				} else {
+					roadUsersFlags.remove(RoadUsers.ALLOW_PEDESTRIANS);
+				}
+			}
+		});
+
 		/*
 		 * next, make the top bar itself and arrange everything inside of it.
 		 */
@@ -360,6 +407,9 @@ public abstract class GUI {
 		astar.setMaximumSize(new Dimension(100, 60));
 		astar.setLayout(new GridLayout(2, 1));
 		astar.add(startAStar);
+		astar.add(useCars);
+		astar.add(useBike);
+		astar.add(useWalk);
 		controls.add(astar);
 
 		controls.add(Box.createRigidArea(new Dimension(15, 0)));

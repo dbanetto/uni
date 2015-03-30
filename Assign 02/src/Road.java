@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class Road implements IDrawable {
+
     int id;
     int type;
     String label;
@@ -13,18 +14,16 @@ public class Road implements IDrawable {
     byte speedLimit;
     // TODO: Make enum for Road Class
     byte roadClass;
-    // TODO: Make flags for notFor* to compress to a byte
-    boolean notForCar;
-    boolean notForPedestrians;
-    boolean notForBicycle;
     double length;
+
+    Set<RoadUsers> roadUsers;
 
     Color colour;
 
     private Set<RoadSegment> roadSegments;
 
     public Road(int ID, int Type, String Label, String City, boolean IsOneWay, byte SpeedLimit, byte RoadClass,
-                boolean NotForCars, boolean NotForPedestrians, boolean NotForBicycles) {
+                Set<RoadUsers> roadUsers) {
         this.id = ID;
         this.type = Type;
 
@@ -33,9 +32,7 @@ public class Road implements IDrawable {
         this.isOneWay = IsOneWay;
         this.speedLimit = SpeedLimit;
         this.roadClass = RoadClass;
-        this.notForCar = NotForCars;
-        this.notForPedestrians = NotForPedestrians;
-        this.notForBicycle = NotForBicycles;
+        this.roadUsers = roadUsers;
 
         this.length = 0.0;
         this.roadSegments = new HashSet<>();
@@ -99,11 +96,19 @@ public class Road implements IDrawable {
                 boolean oneway = Integer.parseInt(data.poll()) == 1;
                 byte speed = Byte.parseByte(data.poll());
                 byte roadclass = Byte.parseByte(data.poll());
-                boolean notforcar = Integer.parseInt(data.poll()) == 1;
-                boolean notforpede = Integer.parseInt(data.poll()) == 1;
-                boolean notforbicy = Integer.parseInt(data.poll()) == 1;
+                Set<RoadUsers> users = new HashSet<>();
 
-                roads.put(id, new Road(id, type, label, city, oneway, speed, roadclass, notforcar, notforpede, notforbicy));
+                if (Integer.parseInt(data.poll()) == 0) {
+                    users.add(RoadUsers.ALLOW_CARS);
+                }
+                if (Integer.parseInt(data.poll()) == 0) {
+                    users.add(RoadUsers.ALLOW_PEDESTRIANS);
+                }
+                if (Integer.parseInt(data.poll()) == 0) {
+                    users.add(RoadUsers.ALLOW_CYCLISTS);
+                }
+
+                roads.put(id, new Road(id, type, label, city, oneway, speed, roadclass, users));
                 if (!RoadLabel.containsKey(label)) {
                     RoadLabel.put(label, new ArrayList<Road>());
                 }
@@ -166,16 +171,8 @@ public class Road implements IDrawable {
         return roadClass;
     }
 
-    public boolean isNotForCar() {
-        return notForCar;
-    }
-
-    public boolean isNotForPedestrians() {
-        return notForPedestrians;
-    }
-
-    public boolean isNotForBicycle() {
-        return notForBicycle;
+    public Set<RoadUsers> getUsers() {
+        return roadUsers;
     }
 
     public double getLength() {

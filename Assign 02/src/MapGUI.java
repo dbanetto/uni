@@ -138,7 +138,7 @@ public class MapGUI extends GUI {
                     } else {
                         Intersection endPoint = found.get(0);
                         getTextOutputArea().setText("Starting A*");
-                        Stack<RoadSegment> segs = new AStar().ShortestPath(astarStartPoint, endPoint);
+                        Stack<RoadSegment> segs = new AStar().ShortestPath(astarStartPoint, endPoint, this.getRoadUsersFlags());
                         getTextOutputArea().setText("Started at " + astarStartPoint.toString() + " to " + endPoint.toString() + "\n");
                         if (segs != null && segs.size() > 0) {
                             deselectRoadSegments();
@@ -287,6 +287,7 @@ public class MapGUI extends GUI {
     @Override
     protected void onStartAStar() {
         doAStar = true;
+        deselectRoadSegments();
     }
 
     @Override

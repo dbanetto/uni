@@ -5,7 +5,7 @@ import java.util.*;
  */
 public final class AStar {
 
-    public Stack<RoadSegment> ShortestPath(Intersection start, Intersection goal) {
+    public Stack<RoadSegment> ShortestPath(Intersection start, Intersection goal, Set<RoadUsers> allowedUses) {
         assert(goal != null);
         PriorityQueue<AStarNode> fringe = new PriorityQueue<>();
         Set<Intersection> visited = new HashSet<>();
@@ -21,8 +21,19 @@ public final class AStar {
                 if (node.node.equals(goal)) {
                     break;
                 }
-                for (RoadSegment edge : node.node.getOutOf()) {
+                edges: for (RoadSegment edge : node.node.getOutOf()) {
                     assert(!edge.getTo(node.node).equals(node.node));
+                    boolean allowed = false;
+                    for (RoadUsers use : edge.parent.roadUsers) {
+                        if (allowedUses.contains(use)) {
+                            allowed = true;
+                            break;
+                        }
+                    }
+                    if (!allowed) {
+                        continue;
+                    }
+
                     if (edge.getTo(node.node) != null && !visited.contains(edge.getTo(node.node))) {
                         double costToNeighbour = node.costToHere + edge.length;
                         fringe.offer(new AStarNode(edge.getTo(node.node), node, edge, costToNeighbour, costToNeighbour + estimate(edge.to, goal) ));
