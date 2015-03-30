@@ -1,4 +1,4 @@
-import java.awt.Point;
+import java.awt.*;
 
 /**
  * A Location is a point in a 2D coordinate system, with increasing x from west

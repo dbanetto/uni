@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.io.*;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 
 public class Intersection implements IDrawable {

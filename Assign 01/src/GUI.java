@@ -1,12 +1,9 @@
-import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
 
 /**
  * This is a template GUI that you can use for your mapping program. It is an
