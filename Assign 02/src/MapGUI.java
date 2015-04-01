@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 
@@ -142,10 +143,34 @@ public class MapGUI extends GUI {
                         getTextOutputArea().setText("Started at " + astarStartPoint.toString() + " to " + endPoint.toString() + "\n");
                         if (segs != null && segs.size() > 0) {
                             deselectRoadSegments();
-                            for (RoadSegment seg : segs) {
-                                getTextOutputArea().append(seg.toString() + "\n");
+
+                            List<String> streetNames = new ArrayList<>();
+                            streetNames.add(segs.peek().parent.label);
+                            List<Double> streetLengths = new ArrayList<>();
+                            streetLengths.add(0.0);
+                            int i = 0;
+                            double total = 0.0;
+                            while (!segs.isEmpty()) {
+                                RoadSegment seg = segs.pop();
                                 selectedRoadSegments.add(seg);
+
+                                if (streetNames.get(i).equals(seg.parent.label)) {
+                                    streetLengths.set(i, streetLengths.get(i) + seg.length);
+                                } else {
+                                    streetNames.add(seg.parent.label);
+                                    streetLengths.add(seg.length);
+                                    i++;
+                                }
+                                total += seg.length;
                             }
+
+                            getTextOutputArea().setText("");
+                            DecimalFormat dFormat = new DecimalFormat("#.###");
+                            for (int n = 0; n < i; n++) {
+                                getTextOutputArea().append(streetNames.get(n) + ": " + dFormat.format(streetLengths.get(n)) + "Km\n");
+                            }
+                            getTextOutputArea().append("Total distance = " + dFormat.format(total) + "Km\n");
+
                         } else {
                             getTextOutputArea().append("Nodes are disconnected");
                         }

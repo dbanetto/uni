@@ -360,6 +360,24 @@ public abstract class GUI {
 			}
 		});
 
+		JRadioButton calcDistance = new JRadioButton("Distance");
+		calcDistance.setSelected(true);
+		JRadioButton calcTime = new JRadioButton("Time");
+
+		calcDistance.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				calcTime.setSelected(!calcDistance.isSelected());
+			}
+		});
+
+		calcTime.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				calcDistance.setSelected(!calcTime.isSelected());
+			}
+		});
+
 		/*
 		 * next, make the top bar itself and arrange everything inside of it.
 		 */
@@ -405,12 +423,20 @@ public abstract class GUI {
 
 		JPanel astar = new JPanel();
 		astar.setMaximumSize(new Dimension(100, 60));
-		astar.setLayout(new GridLayout(2, 1));
+		astar.setLayout(new GridLayout(2, 2));
 		astar.add(startAStar);
 		astar.add(useCars);
 		astar.add(useBike);
 		astar.add(useWalk);
 		controls.add(astar);
+
+		JPanel calcType = new JPanel();
+		calcType.setMaximumSize(new Dimension(100, 60));
+		calcType.setLayout(new GridLayout(3, 1));
+		calcType.add(new JLabel("AStar Metric"));
+		calcType.add(calcDistance);
+		calcType.add(calcTime);
+		controls.add(calcType);
 
 		controls.add(Box.createRigidArea(new Dimension(15, 0)));
 		// glue is another invisible component that grows to take up all the
