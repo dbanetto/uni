@@ -1,3 +1,4 @@
+import javax.swing.text.Segment;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -10,6 +11,7 @@ public class Intersection implements IDrawable {
     private Set<Road> edges; // FIXME: separate the `from` and `to` edges
 
     private Set<RoadSegment> outOf;
+    private Set<RoadSegment> roadEdges;
 
     private Rectangle area;
     private Color colour;
@@ -24,6 +26,7 @@ public class Intersection implements IDrawable {
             }
         });
         outOf = new HashSet<>();
+        roadEdges = new HashSet<>();
 
         colour = Color.blue;
         Point pt = location.asPoint(Location.CENTRE, 1.0);
@@ -36,7 +39,7 @@ public class Intersection implements IDrawable {
     public void draw(Graphics g, Location originOffset, double scale) {
         g.setColor(this.colour);
         Point pt = location.asPoint(originOffset, scale);
-        int scaledSides = Math.min((int)(area.width * (scale * 8.0)), area.width);
+        int scaledSides = Math.min((int) (area.width * (scale * 8.0)), area.width);
         if (scaledSides != 0) {
             g.fillRect(pt.x - (scaledSides / 2), pt.y - (scaledSides / 2), scaledSides, scaledSides);
         }
@@ -46,9 +49,14 @@ public class Intersection implements IDrawable {
     public boolean equals(Object ob) {
         if (ob instanceof Intersection) {
             Intersection it = (Intersection) (ob);
-            return (it.id == this.id && it.location.equals(this.location));
+            return (it.id == this.id);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 
     /**
@@ -142,6 +150,20 @@ public class Intersection implements IDrawable {
 
     public Set<Road> getEdges() {
         return edges;
+    }
+
+    public Set<Intersection> getNeighbours() {
+        Set<Intersection> neigh = new HashSet<>();
+
+        for (RoadSegment s : outOf) {
+            neigh.add(s.getTo(this));
+        }
+
+        return neigh;
+    }
+
+    public Set<RoadSegment> getRoadEdges() {
+        return roadEdges;
     }
 
     public Set<RoadSegment> getOutOf() {

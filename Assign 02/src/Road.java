@@ -178,4 +178,9 @@ public class Road implements IDrawable {
     public double getLength() {
         return length;
     }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

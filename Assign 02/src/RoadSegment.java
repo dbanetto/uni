@@ -124,8 +124,10 @@ public class RoadSegment implements IDrawable {
     public Intersection getTo(Intersection from) {
         if (this.from.equals(from)) {
             return to;
-        } else {
+        } else if (this.to.equals(from)) {
             return this.from;
+        } else {
+            throw new IllegalArgumentException();
         }
     }
 
@@ -135,5 +137,31 @@ public class RoadSegment implements IDrawable {
                 "roadID=" + parent.id +
                 ", length=" + length +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RoadSegment that = (RoadSegment) o;
+
+        if (Double.compare(that.length, length) != 0) return false;
+        if (!parent.equals(that.parent)) return false;
+        if (!from.equals(that.from)) return false;
+        return to.equals(that.to);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = parent.hashCode();
+        result = 31 * result + from.hashCode();
+        result = 31 * result + to.hashCode();
+        temp = Double.doubleToLongBits(length);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

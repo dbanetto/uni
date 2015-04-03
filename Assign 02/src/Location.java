@@ -111,6 +111,29 @@ public class Location {
 	public String toString() {
 		return String.format("(%.3f, %.3f)", x, y);
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Location location = (Location) o;
+
+		if (Double.compare(location.x, x) != 0) return false;
+		return Double.compare(location.y, y) == 0;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result;
+		long temp;
+		temp = Double.doubleToLongBits(x);
+		result = (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(y);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
 }
 
 // code for COMP261 assignments

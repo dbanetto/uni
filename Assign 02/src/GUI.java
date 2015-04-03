@@ -76,6 +76,7 @@ public abstract class GUI {
 	 * Is called whenever the 'Start A*' button is pressed by the user
 	 */
 	protected  abstract void onStartAStar();
+	protected  abstract void onIdentifyArticulationPoints();
 
 	/**
 	 * Is called when the user has successfully selected a directory to load the
@@ -324,7 +325,7 @@ public abstract class GUI {
 
 		roadUsersFlags = new HashSet<>();
 		roadUsersFlags.add(RoadUsers.ALLOW_CYCLISTS);
-		JCheckBox useCars = new JCheckBox("Allow Car");
+		final JCheckBox  useCars = new JCheckBox("Allow Car");
 		useCars.setSelected(true);
 		useCars.addActionListener(new ActionListener() {
 			@Override
@@ -336,7 +337,7 @@ public abstract class GUI {
 				}
 			}
 		});
-		JCheckBox useBike = new JCheckBox("Allow Bike");
+		final JCheckBox useBike = new JCheckBox("Allow Bike");
 		useBike.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -348,7 +349,7 @@ public abstract class GUI {
 			}
 		});
 
-		JCheckBox useWalk = new JCheckBox("Allow Walk");
+		final JCheckBox useWalk = new JCheckBox("Allow Walk");
 		useWalk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -360,9 +361,9 @@ public abstract class GUI {
 			}
 		});
 
-		JRadioButton calcDistance = new JRadioButton("Distance");
+		final JRadioButton calcDistance = new JRadioButton("Distance");
 		calcDistance.setSelected(true);
-		JRadioButton calcTime = new JRadioButton("Time");
+		final JRadioButton calcTime = new JRadioButton("Time");
 
 		calcDistance.addActionListener(new ActionListener() {
 			@Override
@@ -375,6 +376,14 @@ public abstract class GUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				calcDistance.setSelected(!calcTime.isSelected());
+			}
+		});
+
+		JButton identifyArticulationPoints = new JButton("Articulation Points");
+		identifyArticulationPoints.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onIdentifyArticulationPoints();
 			}
 		});
 
@@ -437,6 +446,12 @@ public abstract class GUI {
 		calcType.add(calcDistance);
 		calcType.add(calcTime);
 		controls.add(calcType);
+
+		JPanel artPoint = new JPanel();
+		artPoint.setMaximumSize(new Dimension(70, 30));
+		artPoint.setLayout(new GridLayout(1, 2));
+		artPoint.add(identifyArticulationPoints);
+		controls.add(artPoint);
 
 		controls.add(Box.createRigidArea(new Dimension(15, 0)));
 		// glue is another invisible component that grows to take up all the

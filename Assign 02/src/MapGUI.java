@@ -23,9 +23,10 @@ public class MapGUI extends GUI {
     private List<Road> selectedRoads;
     private Intersection selectedInter;
     private List<RoadSegment> selectedRoadSegments;
+    private Set<Intersection> selectedInters;
 
     private boolean doAStar;
-    private Intersection astarStartPoint;
+    private Intersection aStarStartPoint;
 
     public MapGUI() {
         super();
@@ -33,6 +34,7 @@ public class MapGUI extends GUI {
         screenOrigin = Location.newFromLatLon(Location.CENTRE_LAT, Location.CENTRE_LON);
         selectedRoads = new ArrayList<>(10);
         selectedRoadSegments = new ArrayList<>(10);
+        selectedInters = new HashSet<>();
         doAStar = false;
     }
 
@@ -108,7 +110,7 @@ public class MapGUI extends GUI {
             double yprec = e.getY() / this.getDrawingAreaDimension().getHeight();
 
             // Generate area to be searched that is scaled to the screen size and zoom
-            double clickAccuracy =  Math.max(10 / scale, 3.0); // Click accuracy, bug allows for close clicks at extreme zoom
+            double clickAccuracy =  Math.max(10 / scale, 5.0); // Click accuracy, bug allows for close clicks at extreme zoom
             Rectangle search = new Rectangle((int)(xprec * (this.getDrawingAreaDimension().getWidth() / scale) + offset.x),
                                              (int)(yprec * (this.getDrawingAreaDimension().getHeight() / scale) + offset.y),
                     (int)(clickAccuracy),(int)(clickAccuracy));
@@ -133,14 +135,14 @@ public class MapGUI extends GUI {
                     });
                 }
                 if (doAStar) {
-                    if (astarStartPoint == null) {
-                        astarStartPoint = found.get(0);
-                        astarStartPoint.setColour(Color.yellow);
+                    if (aStarStartPoint == null) {
+                        aStarStartPoint = found.get(0);
+                        aStarStartPoint.setColour(Color.yellow);
                     } else {
                         Intersection endPoint = found.get(0);
                         getTextOutputArea().setText("Starting A*");
-                        Stack<RoadSegment> segs = new AStar().ShortestPath(astarStartPoint, endPoint, this.getRoadUsersFlags());
-                        getTextOutputArea().setText("Started at " + astarStartPoint.toString() + " to " + endPoint.toString() + "\n");
+                        Stack<RoadSegment> segs = new AStar().ShortestPath(aStarStartPoint, endPoint, this.getRoadUsersFlags());
+                        getTextOutputArea().setText("Started at " + aStarStartPoint.toString() + " to " + endPoint.toString() + "\n");
                         if (segs != null && segs.size() > 0) {
                             deselectRoadSegments();
 
@@ -174,21 +176,30 @@ public class MapGUI extends GUI {
                         } else {
                             getTextOutputArea().append("Nodes are disconnected");
                         }
-                        astarStartPoint.setColour(Color.blue);
-                        astarStartPoint = null;
+                        aStarStartPoint.setColour(Color.blue);
+                        aStarStartPoint = null;
                         doAStar = false;
                     }
                 } else {
                     selectedInter = found.get(0);
                     getTextOutputArea().setText("ID=" + selectedInter.id + " Paths out=" + selectedInter.getOutOf().size() + "\nIntersects with: " + selectedInter.intersectsWith());
                     selectedInter.setColour(Color.green);
+                    deselectRoadSegments();
+                    for (RoadSegment s : selectedInter.getOutOf()) {
+                        selectedRoadSegments.add(s);
+                    }
+                    deselectIntersections();
+                    for (Intersection n : selectedInter.getNeighbours()) {
+                        n.setColour(Color.cyan);
+                        selectedInters.add(n);
+                    }
                 }
             } else {
                 getTextOutputArea().setText("");
                 if (doAStar) {
-                    if (astarStartPoint != null) {
-                        astarStartPoint.setColour(Color.blue);
-                        astarStartPoint = null;
+                    if (aStarStartPoint != null) {
+                        aStarStartPoint.setColour(Color.blue);
+                        aStarStartPoint = null;
                     }
                     doAStar = false;
                 }
@@ -237,6 +248,15 @@ public class MapGUI extends GUI {
             selectedInter.setColour(Color.blue);
         }
         selectedInter = null;
+    }
+
+    private void deselectIntersections() {
+        if (selectedInters != null && selectedInters.size() > 0 ) {
+            for (Intersection i : selectedInters) {
+                i.setColour(Color.blue);
+            }
+        }
+        selectedInters.clear();
     }
 
     private void deselectRoadSegments() {
@@ -371,6 +391,20 @@ public class MapGUI extends GUI {
             } else if (wheel.getWheelRotation() < 0) {  // Scroll out
                 onMove(Move.ZOOM_IN, 1.2);
             }
+        }
+    }
+
+    @Override
+    protected void onIdentifyArticulationPoints() {
+        if (intersectionIDs != null && !intersectionIDs.isEmpty()) {
+            selectedInters.clear();
+            Set<Intersection> artPoints = Articulation.IdentifyArticulationPoints(intersectionIDs.values());
+            for (Intersection i : artPoints) {
+                selectedInters.add(i);
+                i.setColour(Color.pink);
+            }
+            assert(selectedInters.size() == artPoints.size());
+            getTextOutputArea().setText("Art Points: "+ selectedInters.size());
         }
     }
 
