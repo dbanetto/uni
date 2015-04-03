@@ -70,7 +70,7 @@ public class Articulation {
                     stack.add(node);
                 } else {
                     ArticulationNode childNode = nodes.get(child);
-                    elem.reachBack = Math.min(elem.reachBack, childNode.reachBack);
+                    elem.reachBack = Math.min(elem.reachBack, childNode.depth);
                 }
             } else {
                 if (!elem.data.equals(firstNode)) {
