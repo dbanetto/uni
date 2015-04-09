@@ -179,6 +179,28 @@ public class Road implements IDrawable {
         return length;
     }
 
+    public double getSpeed() {
+        switch (this.speedLimit) {
+            case(0):
+                return 5.0;
+            case(1):
+                return 20.0;
+            case(2):
+                return 40.0;
+            case(3):
+                return 60.0;
+            case(4):
+                return 80.0;
+            case(5):
+                return 100.0;
+            case(6):
+                return 110.0;
+            case(7):
+                return 150.0; // "unlimited"
+            default:
+                throw new RuntimeException();
+        }
+    }
     @Override
     public int hashCode() {
         return id;

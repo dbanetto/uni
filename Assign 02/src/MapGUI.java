@@ -1,3 +1,6 @@
+import org.omg.SendingContext.RunTime;
+
+import javax.swing.text.Segment;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -24,9 +27,13 @@ public class MapGUI extends GUI {
     private Intersection selectedInter;
     private List<RoadSegment> selectedRoadSegments;
     private Set<Intersection> selectedInters;
+    private Restriction restrictions;
 
     private boolean doAStar;
     private Intersection aStarStartPoint;
+
+    private AStarEstimate<Intersection, RoadSegment> distance;
+    private AStarEstimate<Intersection, RoadSegment> time;
 
     public MapGUI() {
         super();
@@ -36,6 +43,35 @@ public class MapGUI extends GUI {
         selectedRoadSegments = new ArrayList<>(10);
         selectedInters = new HashSet<>();
         doAStar = false;
+
+        distance = new AStarEstimate<Intersection, RoadSegment>() {
+            @Override
+            public double estimate(Intersection from, Intersection to, RoadSegment extra) {
+                return from.location.distance(to.location);
+            }
+
+            @Override
+            public double cost(Intersection from, Intersection to, RoadSegment extra) {
+                return extra.length;
+            }
+        };
+
+        time = new AStarEstimate<Intersection, RoadSegment>() {
+            @Override
+            public double estimate(Intersection from, Intersection to, RoadSegment extra) {
+                double speed = extra.parent.getSpeed();
+                if (to.getOutOf().size() == 1) {
+                    RoadSegment next = to.getOutOf().iterator().next();
+                    speed = ((extra.length * extra.parent.getSpeed()) + (next.length * next.parent.getSpeed())) / (extra.length + next.length);
+                }
+                return ((from.location.distance(to.location)) / speed) * 60;
+            }
+
+            @Override
+            public double cost(Intersection from, Intersection to, RoadSegment extra) {
+                return (extra.length / extra.parent.getSpeed()) * 60;
+            }
+        };
     }
 
     @Override
@@ -141,37 +177,52 @@ public class MapGUI extends GUI {
                     } else {
                         Intersection endPoint = found.get(0);
                         getTextOutputArea().setText("Starting A*");
-                        Stack<RoadSegment> segs = new AStar().ShortestPath(aStarStartPoint, endPoint, this.getRoadUsersFlags());
+                        AStarEstimate<Intersection, RoadSegment> calc = null;
+                        String units = "";
+                        switch (this.getHeuristicType()) {
+                            case DISTANCE:
+                                calc = distance;
+                                units = "Km";
+                                break;
+                            case TIME:
+                                calc = time;
+                                units = "Mins";
+                                break;
+                            default:
+                                throw new RuntimeException("Unsupported Heuristic");
+                        }
+
+
+                        Stack<RoadSegment> segs = new AStar().ShortestPath(aStarStartPoint, endPoint, this.getRoadUsersFlags(), restrictions, calc);
                         getTextOutputArea().setText("Started at " + aStarStartPoint.toString() + " to " + endPoint.toString() + "\n");
                         if (segs != null && segs.size() > 0) {
                             deselectRoadSegments();
 
                             List<String> streetNames = new ArrayList<>();
-                            streetNames.add(segs.peek().parent.label);
                             List<Double> streetLengths = new ArrayList<>();
-                            streetLengths.add(0.0);
+
                             int i = 0;
                             double total = 0.0;
                             while (!segs.isEmpty()) {
                                 RoadSegment seg = segs.pop();
                                 selectedRoadSegments.add(seg);
 
-                                if (streetNames.get(i).equals(seg.parent.label)) {
-                                    streetLengths.set(i, streetLengths.get(i) + seg.length);
+                                if (streetNames.size() != 0 && streetNames.get(i).equals(seg.parent.label)) {
+                                    streetLengths.set(i, streetLengths.get(i) + calc.cost(seg.from, seg.to, seg));
                                 } else {
                                     streetNames.add(seg.parent.label);
-                                    streetLengths.add(seg.length);
-                                    i++;
+                                    streetLengths.add(calc.cost(seg.from, seg.to, seg));
+                                    i = streetNames.size() - 1;
                                 }
-                                total += seg.length;
+                                total += calc.cost(seg.from, seg.to, seg);
                             }
 
                             getTextOutputArea().setText("");
                             DecimalFormat dFormat = new DecimalFormat("#.###");
-                            for (int n = 0; n < i; n++) {
-                                getTextOutputArea().append(streetNames.get(n) + ": " + dFormat.format(streetLengths.get(n)) + "Km\n");
+                            for (int n = 0; n < streetNames.size(); n++) {
+                                getTextOutputArea().append(streetNames.get(n) + ": " + dFormat.format(streetLengths.get(n)) + units + "\n");
                             }
-                            getTextOutputArea().append("Total distance = " + dFormat.format(total) + "Km\n");
+                            getTextOutputArea().append("Total = " + dFormat.format(total) +  units + "\n");
 
                         } else {
                             getTextOutputArea().append("Nodes are disconnected");
@@ -336,7 +387,7 @@ public class MapGUI extends GUI {
     }
 
     @Override
-    protected void onLoad(File nodes, File road, File segments, File polygons) {
+    protected void onLoad(File nodes, File road, File segments, File polygons, File restriction) {
         intersectionQuadTree = new QuadTree<>();
         roadSegmentQuadTree = new QuadTree<>();
         roadTrie = new TrieNode(false);
@@ -349,6 +400,9 @@ public class MapGUI extends GUI {
         if (polygons != null) {
             polygonQuadTree = new QuadTree<>();
             Polygon.loadPolygons(polygons, polygonQuadTree);
+        }
+        if (restriction != null) {
+            restrictions = Restriction.loadRestriction(restriction);
         }
     }
 

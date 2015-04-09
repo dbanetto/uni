@@ -29,6 +29,10 @@ public abstract class GUI {
 		NORTH, SOUTH, EAST, WEST, ZOOM_IN, ZOOM_OUT
 	}
 
+	public enum HeuristicType {
+		DISTANCE, TIME
+	}
+
 	/**
 	 * Is called when the drawing area is redrawn and performs all the logic for
 	 * the actual drawing, which is done with the passed Graphics object.
@@ -94,7 +98,7 @@ public abstract class GUI {
 	 *            a File for polygon-shapes.mp
 	 */
 	protected abstract void onLoad(File nodes, File roads, File segments,
-			File polygons);
+			File polygons, File restriction);
 
 	// here are some useful methods you'll need.
 
@@ -146,6 +150,8 @@ public abstract class GUI {
 	private static final String ROADS_FILENAME = "roadID-roadInfo.tab";
 	private static final String SEGS_FILENAME = "roadSeg-roadID-length-nodeID-nodeID-coords.tab";
 	private static final String POLYS_FILENAME = "polygon-shapes.mp";
+	private static final String RESTICTION_FILENAME = "restrictions.tab";
+
 
 	/*
 	 * In Swing, everything is a component; buttons, graphics panes, tool tips,
@@ -169,6 +175,7 @@ public abstract class GUI {
 	private JFileChooser fileChooser;
 
 	private Set<RoadUsers> roadUsersFlags;
+	private HeuristicType heuristicType;
 
 	public Set<RoadUsers> getRoadUsersFlags() {
 		return roadUsersFlags;
@@ -202,7 +209,7 @@ public abstract class GUI {
 		JButton load = new JButton("Load");
 		load.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				File nodes = null, roads = null, segments = null, polygons = null;
+				File nodes = null, roads = null, segments = null, polygons = null, restriction = null;
 
 				// set up the file chooser
 				fileChooser.setCurrentDirectory(new File("."));
@@ -225,6 +232,8 @@ public abstract class GUI {
 							segments = f;
 						} else if (f.getName().equals(POLYS_FILENAME)) {
 							polygons = f;
+						} else if (f.getName().equals(RESTICTION_FILENAME)) {
+
 						}
 					}
 
@@ -235,7 +244,7 @@ public abstract class GUI {
 								"Directory does not contain correct files",
 								"Error", JOptionPane.ERROR_MESSAGE);
 					} else {
-						onLoad(nodes, roads, segments, polygons);
+						onLoad(nodes, roads, segments, polygons, restriction);
 						redraw();
 					}
 				}
@@ -324,7 +333,7 @@ public abstract class GUI {
 		}
 
 		roadUsersFlags = new HashSet<>();
-		roadUsersFlags.add(RoadUsers.ALLOW_CYCLISTS);
+		roadUsersFlags.add(RoadUsers.ALLOW_CARS);
 		final JCheckBox  useCars = new JCheckBox("Allow Car");
 		useCars.setSelected(true);
 		useCars.addActionListener(new ActionListener() {
@@ -363,12 +372,14 @@ public abstract class GUI {
 
 		final JRadioButton calcDistance = new JRadioButton("Distance");
 		calcDistance.setSelected(true);
+		heuristicType = HeuristicType.DISTANCE;
 		final JRadioButton calcTime = new JRadioButton("Time");
 
 		calcDistance.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				calcTime.setSelected(!calcDistance.isSelected());
+				heuristicType = HeuristicType.DISTANCE;
 			}
 		});
 
@@ -376,6 +387,7 @@ public abstract class GUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				calcDistance.setSelected(!calcTime.isSelected());
+				heuristicType = HeuristicType.TIME;
 			}
 		});
 
@@ -564,6 +576,10 @@ public abstract class GUI {
         Graphics2D frame2d = (Graphics2D)(frame.getGraphics());
         frame2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, // Anti-alias!
                                  RenderingHints.VALUE_ANTIALIAS_ON);
+	}
+
+	public HeuristicType getHeuristicType() {
+		return heuristicType;
 	}
 }
 

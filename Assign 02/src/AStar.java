@@ -5,13 +5,13 @@ import java.util.*;
  */
 public final class AStar {
 
-    public Stack<RoadSegment> ShortestPath(Intersection start, Intersection goal, Set<RoadUsers> allowedUses) {
+    public Stack<RoadSegment> ShortestPath(Intersection start, Intersection goal, Set<RoadUsers> allowedUses, Restriction restrictions, AStarEstimate<Intersection, RoadSegment> calc) {
         assert(goal != null);
         PriorityQueue<AStarNode> fringe = new PriorityQueue<>();
         Set<Intersection> visited = new HashSet<>();
 
         AStarNode lastNode = null;
-        fringe.offer(new AStarNode(start, null, null, 0, estimate(start, goal)));
+        fringe.offer(new AStarNode(start, null, null, 0, 0));
 
         while (!fringe.isEmpty()) {
             AStarNode node = fringe.poll();
@@ -22,7 +22,8 @@ public final class AStar {
                     break;
                 }
                 edges: for (RoadSegment edge : node.node.getOutOf()) {
-                    assert(!edge.getTo(node.node).equals(node.node));
+                    Intersection nodeTo = edge.getTo(node.node);
+                    assert(!nodeTo.equals(node.node));
                     boolean allowed = false;
                     for (RoadUsers use : edge.parent.roadUsers) {
                         if (allowedUses.contains(use)) {
@@ -30,13 +31,16 @@ public final class AStar {
                             break;
                         }
                     }
+                    if (restrictions != null && restrictions.isRestricted(node.from.node, node.from.using, node.node, edge, edge.getTo(node.node))) {
+                        allowed = false;
+                    }
                     if (!allowed) {
                         continue;
                     }
 
                     if (edge.getTo(node.node) != null && !visited.contains(edge.getTo(node.node))) {
-                        double costToNeighbour = node.costToHere + edge.length;
-                        fringe.offer(new AStarNode(edge.getTo(node.node), node, edge, costToNeighbour, costToNeighbour + estimate(edge.to, goal) ));
+                        double costToNeighbour = node.costToHere + calc.cost(node.node, nodeTo, edge);
+                        fringe.offer(new AStarNode(nodeTo, node, edge, costToNeighbour, costToNeighbour + calc.estimate(nodeTo, goal, edge) ));
                     }
                 }
             }
@@ -55,10 +59,6 @@ public final class AStar {
             return segments;
         }
         return null;
-    }
-
-    private double estimate(Intersection start, Intersection goal) {
-        return start.location.distance(goal.location);
     }
 
     private class AStarNode implements Comparable {
@@ -80,7 +80,7 @@ public final class AStar {
         @Override
         public int compareTo(Object o) {
             if (o instanceof AStarNode) {
-                return this.totalCostToGoal >= ((AStarNode)(o)).totalCostToGoal ? 1 : -1;
+                return this.totalCostToGoal > ((AStarNode)(o)).totalCostToGoal ? 1 : (this.totalCostToGoal == ((AStarNode)(o)).totalCostToGoal ? 0 : -1);
             }
             throw new IllegalArgumentException();
         }

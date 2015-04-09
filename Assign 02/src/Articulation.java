@@ -74,8 +74,6 @@ public class Articulation {
                 }
             } else {
                 if (!elem.data.equals(firstNode)) {
-                    System.out.println("elem:"+ elem.data.id + "ID  parent:" + elem.parent.data.id + "ID");
-                    System.out.println(elem.reachBack + "(dp:" + elem.depth + ")" + " >= " + elem.parent.depth + "(rb:" + elem.parent.reachBack + ")");
                     if (elem.reachBack >= elem.parent.depth) {
                         articulationPoints.add(elem.parent.data);
                     }
