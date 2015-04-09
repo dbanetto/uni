@@ -1,0 +1,56 @@
+Name: David Barnett
+Student ID: 300313764
+
+Discussion Questions
+---------------------
+
+Question #1: Four Steps of Compiling
+
+The four steps of compiling are
+
+	1. Text Pre-Processing, the source file is read and pre-processor statements
+	such as '#define <stdio.h>' are replace the statement with the contents of the
+	header file referenced or macros like '#define ZERO 0' are swap out making
+	'int i = ZERO;' to 'int i = 0' after pre-processing. This essentially just text
+	substitution.
+	To stop gcc after the pre-processing stage and output the processed
+	source code, add the '-E' when compiling, by default the processed file
+	will print to standard output.
+
+	2. Next is the Compiling stage, the source code is translated into assembly code.
+	This is not machine readable code.
+	To stop gcc after the assembly stage and review the output add a '-S' flag
+	when compiling and by default the result will be in '<file name>.s'
+
+	3. After is the Assembly stage, this is when the assembly code to compiled to
+	object code. Object code is machine code so it can be run by the machine at
+	this point but it lacks any external code outside of what was in the
+	original source file, so it will crash trying to call functions like 'printf'.
+	To stop gcc after the assembly stage and get the output of the stage
+	add an '-c' flag when compiling, by default object code is saved as '<file name>.o'
+
+	4. Finally the program is linked together, the object code and libraries are
+	linked together and outputed as a single runnable file, like an .exe on Windows.
+	To get gcc to link together object code use the command:
+		gcc object_code.o object_code2.o ...
+	to link with the output of 'a.out'. If non-standard libraries are used add
+	'-l<Library file name>'
+
+Question #2: Discuss the major differences between Java and C
+
+There is a few major difference between Java and C. One of the major differences
+would be the programming paradigm with Java being an object-oriented language and
+C being a procedural language. Making differences in how functions are defined,
+where in Java they are methods in a class and in C functions are of global scope.
+Another jarring difference is the lack of classes in C, while there is user defined
+data types through structs and typedefs those custom data types cannot have strongly
+associated functions like methods of a class in Java.
+
+C and Java have differing basic type, with C's lack of boolean's, Java's lack
+control over the signed or unsigned nature of its integral types and C's non-consistent
+size of its basic types, for example on one system the size of int may change from
+4 bytes to 2 bytes but in Java thanks to the JVM it is consistent across all platforms.
+
+C also lacks most syntactical sugar like the enhanced for loop or ideas like
+generics, but has raw pointers to memory addresses allowing to do funky but interesting
+like the fast inverse square root (https://en.wikipedia.org/wiki/Fast_inverse_square_root)
