@@ -179,6 +179,23 @@ public class Road implements IDrawable {
         return length;
     }
 
+    public double getRoadClassLimit() {
+        switch (this.roadClass) {
+            case 0:
+                return 50.0;
+            case 1:
+                return 60.0;
+            case 2:
+                return 80.0;
+            case 3:
+                return 90.0;
+            case 4:
+                return 110.0;
+            default:
+                throw new RuntimeException("Unsupported case");
+        }
+    }
+
     public double getSpeed() {
         switch (this.speedLimit) {
             case(0):

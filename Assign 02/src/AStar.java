@@ -31,7 +31,7 @@ public final class AStar {
                             break;
                         }
                     }
-                    if (restrictions != null && restrictions.isRestricted(node.from.node, node.from.using, node.node, edge, edge.getTo(node.node))) {
+                    if (restrictions != null && node.from != null && restrictions.isRestricted(node.from.node, node.from.using, node.node, edge, edge.getTo(node.node))) {
                         allowed = false;
                     }
                     if (!allowed) {

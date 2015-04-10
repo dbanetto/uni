@@ -13,7 +13,7 @@ public class Restriction {
     }
 
     public boolean isRestricted(Intersection from, RoadSegment from_via, Intersection at, RoadSegment using, Intersection to) {
-        if (restriction.containsKey(at.id)) {
+        if (to != null && from_via != null && using != null && from != null && at != null && restriction.containsKey(at.id)) {
             return restriction.get(at.id).equals(new RestrictionTuple(from.id, from_via.parent.id, at.id, using.parent.id, to.id));
         }
         return false;
@@ -24,7 +24,7 @@ public class Restriction {
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line;
+            String line = reader.readLine(); // skip header line
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split("\t");
                 int a_id     = Integer.parseInt(data[0]);

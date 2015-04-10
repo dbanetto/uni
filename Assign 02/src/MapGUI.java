@@ -1,6 +1,3 @@
-import org.omg.SendingContext.RunTime;
-
-import javax.swing.text.Segment;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -35,6 +32,8 @@ public class MapGUI extends GUI {
     private AStarEstimate<Intersection, RoadSegment> distance;
     private AStarEstimate<Intersection, RoadSegment> time;
 
+    private Map<Intersection, TrafficLight> trafficLights;
+
     public MapGUI() {
         super();
         scale = 1.0;
@@ -46,8 +45,8 @@ public class MapGUI extends GUI {
 
         distance = new AStarEstimate<Intersection, RoadSegment>() {
             @Override
-            public double estimate(Intersection from, Intersection to, RoadSegment extra) {
-                return from.location.distance(to.location);
+            public double estimate(Intersection from, Intersection goal, RoadSegment extra) {
+                return from.location.distance(goal.location);
             }
 
             @Override
@@ -58,18 +57,27 @@ public class MapGUI extends GUI {
 
         time = new AStarEstimate<Intersection, RoadSegment>() {
             @Override
-            public double estimate(Intersection from, Intersection to, RoadSegment extra) {
-                double speed = extra.parent.getSpeed();
-                if (to.getOutOf().size() == 1) {
-                    RoadSegment next = to.getOutOf().iterator().next();
-                    speed = ((extra.length * extra.parent.getSpeed()) + (next.length * next.parent.getSpeed())) / (extra.length + next.length);
+            public double estimate(Intersection from, Intersection goal, RoadSegment extra) {
+                double speed = Math.min(extra.parent.getSpeed(), extra.parent.getRoadClassLimit());
+                if (goal.getOutOf().size() == 1) {
+                    RoadSegment next = goal.getOutOf().iterator().next();
+                    speed = ((extra.length * Math.min(extra.parent.getSpeed(), extra.parent.getRoadClassLimit())) +
+                            (Math.min(next.parent.getSpeed(), next.parent.getRoadClassLimit()))) / (extra.length + next.length);
                 }
-                return ((from.location.distance(to.location)) / speed) * 60;
+                return ((from.location.distance(goal.location)) / speed) * 60;
             }
 
             @Override
             public double cost(Intersection from, Intersection to, RoadSegment extra) {
-                return (extra.length / extra.parent.getSpeed()) * 60;
+                double extraCost = 0;
+                if (trafficLights != null) {
+                    if (trafficLights.containsKey(to)) {
+                        extraCost += 0.5;
+                    }
+                }
+
+                double speed = Math.min(extra.parent.getSpeed(), extra.parent.getRoadClassLimit());
+                return (extra.length / speed) * 60 + extraCost;
             }
         };
     }
@@ -296,7 +304,7 @@ public class MapGUI extends GUI {
      */
     private void deselectIntersection() {
         if (selectedInter != null) {
-            selectedInter.setColour(Color.blue);
+            selectedInter.resetColour();
         }
         selectedInter = null;
     }
@@ -304,7 +312,7 @@ public class MapGUI extends GUI {
     private void deselectIntersections() {
         if (selectedInters != null && selectedInters.size() > 0 ) {
             for (Intersection i : selectedInters) {
-                i.setColour(Color.blue);
+                i.resetColour();
             }
         }
         selectedInters.clear();
@@ -387,7 +395,7 @@ public class MapGUI extends GUI {
     }
 
     @Override
-    protected void onLoad(File nodes, File road, File segments, File polygons, File restriction) {
+    protected void onLoad(File nodes, File road, File segments, File polygons, File restriction, File trafficlights) {
         intersectionQuadTree = new QuadTree<>();
         roadSegmentQuadTree = new QuadTree<>();
         roadTrie = new TrieNode(false);
@@ -403,6 +411,9 @@ public class MapGUI extends GUI {
         }
         if (restriction != null) {
             restrictions = Restriction.loadRestriction(restriction);
+        }
+        if (trafficlights != null) {
+            trafficLights = TrafficLight.loadTrafficLights(trafficlights, intersectionQuadTree);
         }
     }
 

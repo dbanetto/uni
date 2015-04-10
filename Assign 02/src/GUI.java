@@ -98,7 +98,7 @@ public abstract class GUI {
 	 *            a File for polygon-shapes.mp
 	 */
 	protected abstract void onLoad(File nodes, File roads, File segments,
-			File polygons, File restriction);
+			File polygons, File restriction, File trafficlights);
 
 	// here are some useful methods you'll need.
 
@@ -150,7 +150,8 @@ public abstract class GUI {
 	private static final String ROADS_FILENAME = "roadID-roadInfo.tab";
 	private static final String SEGS_FILENAME = "roadSeg-roadID-length-nodeID-nodeID-coords.tab";
 	private static final String POLYS_FILENAME = "polygon-shapes.mp";
-	private static final String RESTICTION_FILENAME = "restrictions.tab";
+	private static final String RESTRICTION_FILENAME = "restrictions.tab";
+	private static final String TRAFFICLIGHTS_FILENAME = "traffic-lights.tab";
 
 
 	/*
@@ -209,7 +210,7 @@ public abstract class GUI {
 		JButton load = new JButton("Load");
 		load.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				File nodes = null, roads = null, segments = null, polygons = null, restriction = null;
+				File nodes = null, roads = null, segments = null, polygons = null, restriction = null, trafficlights = null;
 
 				// set up the file chooser
 				fileChooser.setCurrentDirectory(new File("."));
@@ -232,8 +233,10 @@ public abstract class GUI {
 							segments = f;
 						} else if (f.getName().equals(POLYS_FILENAME)) {
 							polygons = f;
-						} else if (f.getName().equals(RESTICTION_FILENAME)) {
-
+						} else if (f.getName().equals(RESTRICTION_FILENAME)) {
+							restriction = f;
+						} else if (f.getName().equals(TRAFFICLIGHTS_FILENAME)) {
+							trafficlights = f;
 						}
 					}
 
@@ -244,7 +247,7 @@ public abstract class GUI {
 								"Directory does not contain correct files",
 								"Error", JOptionPane.ERROR_MESSAGE);
 					} else {
-						onLoad(nodes, roads, segments, polygons, restriction);
+						onLoad(nodes, roads, segments, polygons, restriction, trafficlights);
 						redraw();
 					}
 				}

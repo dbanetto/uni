@@ -1,4 +1,3 @@
-import javax.swing.text.Segment;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -15,6 +14,7 @@ public class Intersection implements IDrawable {
 
     private Rectangle area;
     private Color colour;
+    private Color defaultColour = Color.blue;
 
     public Intersection(int ID, Location Location) {
         this.id = ID;
@@ -146,6 +146,14 @@ public class Intersection implements IDrawable {
 
     public Color getColour() {
         return colour;
+    }
+
+    public void resetColour() {
+        this.colour = this.defaultColour;
+    }
+
+    public void setDefaultColour(Color colour) {
+        this.defaultColour = colour;
     }
 
     public Set<Road> getEdges() {
