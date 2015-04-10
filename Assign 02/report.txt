@@ -29,7 +29,9 @@ A* Path cost and heuristic estimate
 
 Distance: cost is the length of the road segment and the heuristic is the euclidean distance
 
-Time: the cost is determined by t = d/v and the estimate is made from distance from node to goal
+Time: the cost is determined by t = d/v with a penalty applied if passing through a traffic light.
+
+The estimate is made from distance from node to goal
 with the v = the max speed on the road being used. If the next intersection can only in one
 direction, such as a motorway ramp, the weighted average of the speed of the edge and
 the only next possible edge, weighted on length, is used.
