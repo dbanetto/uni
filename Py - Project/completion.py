@@ -1,26 +1,32 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from lxml import html
-from urllib.parse import urlparse
+from urllib.parse import urlparse, ParseResult
 from urllib.request import urlopen
 from urllib.error import URLError
 from os import path
 import os
 
-def pywget(url=None, depth=2, got=set()):
+def pywget(url=None, depth=1, got=set()):
     if type(url) is not str:
-        raise TypeError('Expected type str for url but got', type(url))
+        raise TypeError('Expected type str for url but got ' + type(url))
+    if type(depth) is not int:
+        raise TypeError('Expected type int for depth but got ' + type(depth))
+    if type(got) is not set:
+        raise TypeError('Expected type set for got but got ' + type(got))
+
     try:
-        req = urlopen(url)
         domain = urlparse(url)
-        print(domain)
+        print('Downloading', url)
+        req = urlopen(url)
         data = req.read()
-        to_save = resolve_name(path.join(make_path(domain), path.basename(domain.path)))
+        to_save = resolve_name(path.basename(domain.path))
         with open(to_save, 'wb') as f:
             f.write(data)
             f.flush()
+        print('Saved', url, 'to', to_save)
         got.add(url)
-        parse_file(url, depth, data, to_save , got)
+        parse_file(url, depth, data, to_save, got)
         return to_save
 
     except URLError as e:
@@ -40,13 +46,14 @@ def parse_file(url, depth, data, to_save, got):
     next = []
     if domain.path.endswith('.html') or to_save.endswith('.html'):
         doc = html.fromstring(data.decode())
+
         for elem, attr, url_path, n in doc.iterlinks():
             item_url = urlparse(url_path)
-            if item_url.netloc == '':
+            if item_url.netloc == '': # relative url
                 next_url = make_abs(domain, item_url)
-            elif item_url.netloc == domain.netloc:
+            elif item_url.netloc == domain.netloc: # absolute url
                 next_url = url_path
-            else:
+            else: # not of this domain (wikipedia etc.)
                 continue
             if next_url not in got:
                 got.add(next_url)
@@ -69,6 +76,9 @@ def make_path(url):
     Returns:
         A str of the local path created
     """
+    if type(url) is not ParseResult:
+        raise TypeError('Expected type ParseResult for base but got ' + type(url))
+
     mkpath = url.netloc
     if not os.path.exists(mkpath):
         os.mkdir(mkpath)
@@ -95,6 +105,11 @@ def make_abs(domain, relative):
         returns absoulte url of relative in terms of domain
         otherwise return url of relative
     """
+    if type(domain) is not ParseResult:
+        raise TypeError('Expected type ParseResult for domain but got ' + type(domain))
+    if type(relative) is not ParseResult:
+        raise TypeError('Expected type ParseResult for relative but got ' + type(relative))
+
     if relative.netloc != '':
         return relative.geturl()
 
@@ -111,6 +126,8 @@ def make_abs(domain, relative):
 
 def make_relative_local(base, to_make):
     """
+    Make to_make relative to base
+
     base:
         base path to be made relative to
 
@@ -120,6 +137,11 @@ def make_relative_local(base, to_make):
     return:
         a valid relative path to `to_make` from `base`
     """
+    if type(base) is not str:
+        raise TypeError('Expected type str for base but got ' + type(base))
+    if type(to_make) is not str:
+        raise TypeError('Expected type str for to_make but got ' + type(to_make))
+
     relative = ""
 
     base_path = path.dirname(base).split('/')
@@ -142,57 +164,10 @@ def make_relative_local(base, to_make):
 
     return os.path.join(*out_path)
 
-def make_relative_url(domain, abs):
-    """
-    domain:
-        A ParseResult of urllib.parse.urlparse()
-        The base url
-
-    abs:
-        A ParseResult of urllib.parse.urlparse()
-        An absoulte url to be made relative to `domain`
-        Has to be of the same domain as `domain`
-
-    errors:
-        If abs and domain's .netloc differ a ValueError
-        is raised
-
-    returns:
-        if abs has no domain returns abs's path
-
-        otherwise returns a relative url of abs
-        in terms of domain
-
-    """
-    if abs.netloc == '':
-        return abs.path
-
-    if abs.netloc != domain.netloc:
-        raise ValueError('Urls are not of the same domain')
-
-    relative = ""
-
-    base_path = path.dirname(domain.path).split('/')[1:]
-    rel_path = abs.path.split('/')[1:]
-
-    while len(base_path) != 0:
-        if rel_path[0] == base_path[0]:
-            base_path = base_path[1:]
-            rel_path = rel_path[1:]
-        else:
-            print('break')
-            break
-
-    print(rel_path)
-    out_path = ['..' for i in base_path if i != '']
-    out_path.extend(rel_path)
-
-    return "/".join(out_path)
-
 
 def resolve_name(name):
     """
-    Check if the given name exists
+    Check if the given name exists, if so return an adjusted file name
 
     name:
         A local path to a file that does not exist
@@ -202,6 +177,9 @@ def resolve_name(name):
         If the name already exists it will increment a counter using
         a <file name>.<numb>.<file extension> format
     """
+    if type(name) is not str:
+        raise TypeError('Expected type str for name but got ' + type(name))
+
     if not path.exists(name):
         return name
 
@@ -215,8 +193,5 @@ def resolve_name(name):
     return tmp_name
 
 
-
 if __name__ == '__main__':
-    print(make_relative_local('hello/words.html', 'woods/words.img'))
     pywget('http://homepages.ecs.vuw.ac.nz/~ian/nwen241/index.html')
-
