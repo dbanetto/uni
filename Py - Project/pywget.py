@@ -21,6 +21,7 @@ def pywget(url=None, depth=2, got=set()):
             f.flush()
         got.add(url)
         parse_file(url, depth, data, to_save , got)
+        return to_save
 
     except URLError as e:
         print('Url error', e)
@@ -45,38 +46,45 @@ def parse_file(url, depth, data, to_save, got):
                 next_url = make_abs(domain, item_url)
             elif item_url.netloc == domain.netloc:
                 next_url = url_path
-                elem.attrib[attr] = make_relative(domain, item_url)
             else:
                 continue
-            next.append(next_url)
+            if next_url not in got:
+                got.add(next_url)
+                next_path = pywget(url=next_url, depth=depth-1, got=got)
+                elem.attrib[attr] = make_relative_local(to_save ,next_path)
 
         data = html.tostring(doc, 'utf-8')
         with open(to_save, 'wb') as f:
             f.write(data)
             f.flush()
 
-    for u in next:
-        if u not in got:
-            got.add(u)
-            pywget(url=u, depth=depth-1, got=got)
 
 def make_path(url):
+    """
+    url: A parsed url from urllib.parse.urlparse()
+
+    Creates a directory structure of
+        <domain>/path/to/file/...
+
+    Returns:
+        A str of the local path created
+    """
     mkpath = url.netloc
     if not os.path.exists(mkpath):
         os.mkdir(mkpath)
 
     for dir in path.dirname(url.path).split('/'):
-        mkpath = path.join(mkpath, dir)
+        mkpath = path.join(mkpath, dir) # build a platform independent path
         if not os.path.exists(mkpath):
             os.mkdir(mkpath)
     return mkpath
-
 
 def make_abs(domain, relative):
     """
     domain:
         A ParseResult of urllib.parse.urlparse()
         the base url
+
     relative:
         A ParseResult of urllib.parse.urlparse()
         The relative url to be solved using the
@@ -101,14 +109,59 @@ def make_abs(domain, relative):
 
     return domain.scheme + '://' + domain.netloc +  rel_path
 
-def make_relative(domain, abs):
+def make_relative_local(base, to_make):
+    """
+    base:
+        base path to be made relative to
+
+    to_make:
+        a path to be made relative to base
+
+    return:
+        a valid relative path to `to_make` from `base`
+    """
+    relative = ""
+
+    base_path = path.dirname(base).split('/')
+    rel_path = to_make.split('/')
+
+    while len(base_path) != 0:
+        if rel_path[0] == base_path[0]:
+            # pop the shared path
+            base_path = base_path[1:]
+            rel_path = rel_path[1:]
+        else:
+            # reached difference
+            # cannot go on further
+            break
+
+    # build necessary number of relative 'directory-ups'
+    out_path = ['..' for i in base_path if i != '']
+    # slap the rest of the to_make path to end
+    out_path.extend(rel_path)
+
+    return os.path.join(*out_path)
+
+def make_relative_url(domain, abs):
     """
     domain:
+        A ParseResult of urllib.parse.urlparse()
+        The base url
 
     abs:
+        A ParseResult of urllib.parse.urlparse()
+        An absoulte url to be made relative to `domain`
+        Has to be of the same domain as `domain`
+
+    errors:
+        If abs and domain's .netloc differ a ValueError
+        is raised
 
     returns:
+        if abs has no domain returns abs's path
 
+        otherwise returns a relative url of abs
+        in terms of domain
 
     """
     if abs.netloc == '':
@@ -138,6 +191,17 @@ def make_relative(domain, abs):
 
 
 def resolve_name(name):
+    """
+    Check if the given name exists
+
+    name:
+        A local path to a file that does not exist
+
+    returns:
+        If it does not just return the name
+        If the name already exists it will increment a counter using
+        a <file name>.<numb>.<file extension> format
+    """
     if not path.exists(name):
         return name
 
@@ -153,5 +217,6 @@ def resolve_name(name):
 
 
 if __name__ == '__main__':
+    print(make_relative_local('hello/words.html', 'woods/words.img'))
     pywget('http://homepages.ecs.vuw.ac.nz/~ian/nwen241/index.html')
 
