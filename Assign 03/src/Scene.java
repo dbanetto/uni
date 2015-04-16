@@ -46,15 +46,23 @@ public class Scene {
         return new Scene(polygons, lights);
     }
 
-    public BufferedImage render(Rectangle imageBounds, Vector3D cameraPosition, Color ambientLight) {
+    public BufferedImage render(Rectangle imageBounds, Camera camera, Color ambientLight) {
         Float[][] depthBuffer = new Float[imageBounds.width][imageBounds.height];
         Color[][] colourBuffer = new Color[imageBounds.width][imageBounds.height];
 
         // Transform polygons
+        List<Polygon> transformed = new ArrayList<>();
+        Transform transform = camera.getTransformation();
+        for (Polygon poly: this.polygons) {
+            Polygon t = poly.applyTransformation(transform);
+            if (imageBounds.intersects(t.getBoudingBox())) {
+                transformed.add(t);
+            }
+        }
 
         Set<Polygon> hidden = new HashSet<>();
-        for (Polygon poly: this.polygons) {
-            if (imageBounds.intersects(poly.getBoudingBox())) {
+        for (Polygon poly: transformed) {
+            if (true) { //imageBounds.intersects(poly.getBoudingBox())) {
                 System.out.println(poly);
                 // hidden.add(poly);
 

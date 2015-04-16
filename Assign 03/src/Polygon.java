@@ -48,9 +48,12 @@ public class Polygon {
         return new Polygon(points, reflective);
     }
 
-    public Polygon applyTransformation(Transform transfrom) {
-
-        return null;
+    public Polygon applyTransformation(Transform transform) {
+        Vector3D[] newPoints = new Vector3D[points.length];
+        for (int i = 0; i < points.length; i++) {
+            newPoints[i] = transform.multiply(points[i]);
+        }
+        return new Polygon(newPoints, this.reflective);
     }
 
     public float getZAt(float x, float y) {

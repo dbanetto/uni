@@ -6,10 +6,10 @@ import java.io.File;
 
 public class ModelViewer extends GUI {
     private Scene scene;
-    private Vector3D cameraPosition;
+    private Camera camera;
 
     public ModelViewer() {
-        this.cameraPosition = new Vector3D(0f,0f,0f);
+        camera = new Camera(new Vector3D(0f,0f,0f), new Vector3D(0f,0f,0f), new Vector3D(1f,1f,1f));
     }
 
     @Override
@@ -27,15 +27,31 @@ public class ModelViewer extends GUI {
         switch (ev.getKeyCode()) {
             case KeyEvent.VK_W:
             case KeyEvent.VK_UP:
+                camera.translate(new Vector3D(0, -10, 0));
                 break;
             case KeyEvent.VK_S:
             case KeyEvent.VK_DOWN:
+                camera.translate(new Vector3D(0, 10 ,0));
                 break;
             case KeyEvent.VK_A:
             case KeyEvent.VK_LEFT:
+                camera.translate(new Vector3D(-10, 0 ,0));
                 break;
             case KeyEvent.VK_D:
             case KeyEvent.VK_RIGHT:
+                camera.translate(new Vector3D(10, 0 ,0));
+                break;
+            case KeyEvent.VK_Q:
+                camera.growScale(1.1f);
+                break;
+            case KeyEvent.VK_E:
+                camera.growScale(0.9f);
+                break;
+            case KeyEvent.VK_Z:
+                camera.rotateX(0.1f);
+                break;
+            case KeyEvent.VK_X:
+                camera.rotateX(-0.1f);
                 break;
         }
         this.redraw();
@@ -44,7 +60,7 @@ public class ModelViewer extends GUI {
     @Override
     protected BufferedImage render() {
 
-        return (scene != null ? scene.render(new Rectangle(0,0,500,500), cameraPosition, getAmbientLightColour()) : null);
+        return (scene != null ? scene.render(new Rectangle(0,0,500,500), camera, getAmbientLightColour()) : null);
     }
 
     public Color getAmbientLightColour() {
