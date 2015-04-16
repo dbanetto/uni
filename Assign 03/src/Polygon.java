@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Polygon {
     private final Vector3D[] points; // array has order, immutable size and cheap
@@ -15,9 +16,13 @@ public class Polygon {
         }
     }
 
+    public boolean isHidden() {
+        return (points[0].x * points[1].y) >  (points[0].y * points[1].x);
+    }
+
     public static Polygon loadFromLine(String line) {
 
-        Queue<String> items = new LinkedList<String>();
+        Queue<String> items = new LinkedList<>();
         items.addAll(Arrays.asList(line.split(" ")));
         if (items.size() != 12) {
             throw new IllegalArgumentException("Invalid polygon line");
@@ -43,13 +48,103 @@ public class Polygon {
         return new Polygon(points, reflective);
     }
 
-    // Getters
+    public Polygon applyTransformation(Transform transfrom) {
 
+        return null;
+    }
+
+    public float getZAt(float x, float y) {
+
+        return 0f;
+    }
+
+    public EdgeListItem[] getEdgeList(int imageHeight) {
+
+
+        float maxyf = Float.MIN_VALUE;
+        float minyf = Float.MAX_VALUE;
+        for (Vector3D vert: points) {
+            if (vert.y > maxyf) {
+                maxyf = vert.y;
+            }
+            if (vert.y < minyf) {
+                minyf = vert.y;
+            }
+        }
+        int maxy = Math.round(maxyf);
+        int miny = Math.round(minyf);
+        EdgeListItem[] list = new EdgeListItem[imageHeight];
+
+
+        for (int a = 0; a < points.length; a++) {
+            int b = (a + 1 >= points.length ? 0 : a + 1);
+            Vector3D vertA = (points[a].y < points[b].y ? points[a] : points[b]);
+            Vector3D vertB = (points[a].y >= points[b].y ? points[a] : points[b]);
+
+            float mx = (vertB.x-vertA.x) / (vertB.y-vertA.y);
+            float mz = (vertB.z-vertA.z) / (vertB.y-vertA.y);
+
+            float x = vertA.x;
+            float z = vertA.z;
+            int i = Math.round(vertA.y);
+            int maxi = Math.round(vertB.y);
+            while (i < maxi) {
+                if (i < imageHeight) {
+                    EdgeListItem item = list[i];
+                    if (item == null) {
+                        item = new EdgeListItem();
+                        item.put(x, z);
+                        list[i] = item;
+                    } else {
+                        item.put(x, z);
+                    }
+                }
+
+                x += mx;
+                z += mz;
+                i++;
+            }
+            if (maxi < imageHeight) {
+                EdgeListItem item = list[maxi];
+                if (item == null) {
+                    item = new EdgeListItem();
+                    item.put(x, z);
+                    list[maxi] = item;
+                } else {
+                    item.put(x, z);
+                }
+            }
+
+        }
+
+        return list;
+    }
+
+    // Getters
     public Vector3D[] getPoints() {
         return points;
     }
 
     public Color getReflective() {
         return reflective;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Polygon polygon = (Polygon) o;
+
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        return (!Arrays.equals(points, polygon.points));
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = points != null ? Arrays.hashCode(points) : 0;
+        result = 31 * result + (reflective != null ? reflective.hashCode() : 0);
+        return result;
     }
 }
