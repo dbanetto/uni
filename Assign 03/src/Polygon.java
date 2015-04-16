@@ -89,7 +89,7 @@ public class Polygon {
             int i = Math.round(vertA.y);
             int maxi = Math.round(vertB.y);
             while (i < maxi) {
-                if (i < imageHeight) {
+                if (i >= 0 && i < imageHeight) {
                     EdgeListItem item = list[i];
                     if (item == null) {
                         item = new EdgeListItem();
@@ -104,7 +104,7 @@ public class Polygon {
                 z += mz;
                 i++;
             }
-            if (maxi < imageHeight) {
+            if (maxi > 0 && maxi < imageHeight) {
                 EdgeListItem item = list[maxi];
                 if (item == null) {
                     item = new EdgeListItem();
@@ -127,6 +127,31 @@ public class Polygon {
 
     public Color getReflective() {
         return reflective;
+    }
+
+    public Rectangle getBoudingBox() {
+        float maxyf = Float.MIN_VALUE;
+        float minyf = Float.MAX_VALUE;
+        float maxxf = Float.MIN_VALUE;
+        float minxf = Float.MAX_VALUE;
+        for (Vector3D vert: points) {
+            if (vert.y > maxyf) {
+                maxyf = vert.y;
+            }
+            if (vert.y < minyf) {
+                minyf = vert.y;
+            }
+            if (vert.x > maxxf) {
+                maxxf = vert.x;
+            }
+            if (vert.x < minxf) {
+                minxf = vert.x;
+            }
+        }
+
+        int x = Math.round(minxf), y = Math.round(minyf);
+        int bot = Math.round(maxyf), right = Math.round(maxxf);
+        return new Rectangle(x, y, right - x, bot - y);
     }
 
     @Override

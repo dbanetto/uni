@@ -8,6 +8,7 @@ import java.util.List;
 public class Scene {
     Collection<Polygon> polygons;
     List<LightSource> lights;
+    Color background = Color.white;
 
     public Scene(Collection<Polygon> polygons, List<LightSource> lights) {
         this.polygons = polygons;
@@ -45,13 +46,15 @@ public class Scene {
         return new Scene(polygons, lights);
     }
 
-    public BufferedImage render(Rectangle imageBounds,Vector3D cameraPosition) {
+    public BufferedImage render(Rectangle imageBounds, Vector3D cameraPosition, Color ambientLight) {
         Float[][] depthBuffer = new Float[imageBounds.width][imageBounds.height];
         Color[][] colourBuffer = new Color[imageBounds.width][imageBounds.height];
 
+        // Transform polygons
+
         Set<Polygon> hidden = new HashSet<>();
         for (Polygon poly: this.polygons) {
-            if (true) {
+            if (imageBounds.intersects(poly.getBoudingBox())) {
                 System.out.println(poly);
                 // hidden.add(poly);
 
@@ -92,7 +95,7 @@ public class Scene {
                 if (colourBuffer[x][y] != null) {
                     img.setRGB(x, y, colourBuffer[x][y].getRGB());
                 } else {
-                    img.setRGB(x, y, Color.white.getRGB());
+                    img.setRGB(x, y, background.getRGB());
                 }
             }
         }

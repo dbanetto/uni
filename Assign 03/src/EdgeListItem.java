@@ -15,8 +15,14 @@ public class EdgeListItem {
 
     public void put(float x, float z) {
         if (left_filled && right_filled) {
-            if (Float.compare(x, x_left) != 0 && Float.compare(x, x_right) != 0) {
-                // throw new IllegalArgumentException();
+            if (Math.abs(x - x_left) > 0.01 && Math.abs(x - x_right) > 0.01) {
+                if (x > x_right) {
+                    x_right = x;
+                    z_right = z;
+                } else if (x < x_left) {
+                    x_left = x;
+                    z_left = z;
+                }
             }
         } else if (!left_filled && !right_filled) {
             x_left = x;

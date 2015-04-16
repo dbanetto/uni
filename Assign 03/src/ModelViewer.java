@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -13,7 +14,12 @@ public class ModelViewer extends GUI {
 
     @Override
     protected void onLoad(File file) {
-        scene = Scene.loadFromFile(file);
+        if (file.getName().endsWith(".txt")) {
+            scene = Scene.loadFromFile(file);
+        } else {
+            JOptionPane.showMessageDialog(null, "Error: Invalid file type.\nExpected '*.txt'", "Invalid File type", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Invalid file format");
+        }
     }
 
     @Override
@@ -38,7 +44,7 @@ public class ModelViewer extends GUI {
     @Override
     protected BufferedImage render() {
 
-        return (scene != null ? scene.render(new Rectangle(0,0,500,500), cameraPosition) : null);
+        return (scene != null ? scene.render(new Rectangle(0,0,500,500), cameraPosition, getAmbientLightColour()) : null);
     }
 
     public Color getAmbientLightColour() {
