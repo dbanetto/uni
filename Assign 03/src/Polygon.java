@@ -17,7 +17,7 @@ public class Polygon {
     }
 
     public boolean isHidden() {
-        return (points[0].x * points[1].y) >  (points[0].y * points[1].x);
+        return (points[0].x - points[1].x)*(points[2].y - points[1].y) > (points[1].y - points[0].y)*(points[2].x - points[1].x);
     }
 
     public static Polygon loadFromLine(String line) {
@@ -56,14 +56,20 @@ public class Polygon {
         return new Polygon(newPoints, this.reflective);
     }
 
-    public float getZAt(float x, float y) {
+    public Vector3D getSurfaceNormal() {
+        float ax = points[1].x - points[0].x;
+        float ay = points[1].y - points[0].y;
+        float az = points[1].z - points[0].z;
 
-        return 0f;
+        float bx = points[2].x - points[1].x;
+        float by = points[2].y - points[1].y;
+        float bz = points[2].z - points[1].z;
+
+        return new Vector3D((ay*bz) - (az*by),(az*bx) - (ax*by), (ax*by) - (ay*bx));
     }
 
     public EdgeListItem[] getEdgeList(int imageHeight) {
-
-
+        Rectangle bounds = this.getBoudingBox();
         float maxyf = Float.MIN_VALUE;
         float minyf = Float.MAX_VALUE;
         for (Vector3D vert: points) {
@@ -83,12 +89,14 @@ public class Polygon {
             int b = (a + 1 >= points.length ? 0 : a + 1);
             Vector3D vertA = (points[a].y < points[b].y ? points[a] : points[b]);
             Vector3D vertB = (points[a].y >= points[b].y ? points[a] : points[b]);
+            assert(vertA != vertB);
 
-            float mx = (vertB.x-vertA.x) / (vertB.y-vertA.y);
-            float mz = (vertB.z-vertA.z) / (vertB.y-vertA.y);
+            double mx = (vertB.x - vertA.x) / (vertB.y - vertA.y);
+            double mz = (vertB.z - vertA.z) / (vertB.y - vertA.y);
 
-            float x = vertA.x;
-            float z = vertA.z;
+            double x = vertA.x;
+            double z = vertA.z;
+
             int i = Math.round(vertA.y);
             int maxi = Math.round(vertB.y);
             while (i < maxi) {
@@ -96,10 +104,10 @@ public class Polygon {
                     EdgeListItem item = list[i];
                     if (item == null) {
                         item = new EdgeListItem();
-                        item.put(x, z);
+                        item.put((float)x, (float)z);
                         list[i] = item;
                     } else {
-                        item.put(x, z);
+                        item.put((float)x, (float)z);
                     }
                 }
 
@@ -111,10 +119,10 @@ public class Polygon {
                 EdgeListItem item = list[maxi];
                 if (item == null) {
                     item = new EdgeListItem();
-                    item.put(x, z);
+                    item.put((float)x, (float)z);
                     list[maxi] = item;
                 } else {
-                    item.put(x, z);
+                    item.put((float)x, (float)z);
                 }
             }
 
@@ -174,5 +182,13 @@ public class Polygon {
         int result = points != null ? Arrays.hashCode(points) : 0;
         result = 31 * result + (reflective != null ? reflective.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Polygon{" +
+                "points=" + Arrays.toString(points) +
+                ", reflective=" + reflective +
+                '}';
     }
 }

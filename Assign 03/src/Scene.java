@@ -62,11 +62,11 @@ public class Scene {
 
         Set<Polygon> hidden = new HashSet<>();
         for (Polygon poly: transformed) {
-            if (true) { //imageBounds.intersects(poly.getBoudingBox())) {
-                System.out.println(poly);
-                // hidden.add(poly);
 
+            Vector3D surfaceNormal = poly.getSurfaceNormal();
+            if (surfaceNormal.z < 0) {
                 EdgeListItem[] EL = poly.getEdgeList(imageBounds.height);
+
                 for (int y = 0; y < EL.length - 1; y++) {
                     if (EL[y] == null) { continue; }
 
@@ -81,14 +81,28 @@ public class Scene {
                             continue;
                         }
                         Float depth = depthBuffer[x][y];
+
+                        Color pixel;
+                        int r = 0, g = 0, b = 0;
+                        for (LightSource light : lights) {
+                            Color l = light.computeIllumination(
+                                    surfaceNormal.unitVector(),
+                                    ambientLight,
+                                    poly.getReflective());
+                            r = Math.min(l.getRed() +  r, 255);
+                            g = Math.min(l.getGreen() +  g, 255);
+                            b = Math.min(l.getBlue() +  b, 255);
+                        }
+                        pixel = new Color(r, g, b);
+
                         if (depth != null) {
                             if (z < depthBuffer[x][y] ) {
                                 depthBuffer[x][y] = z;
-                                colourBuffer[x][y] = poly.getReflective();
+                                colourBuffer[x][y] = pixel;
                             }
                         } else {
                             depthBuffer[x][y] = z;
-                            colourBuffer[x][y] = poly.getReflective();
+                            colourBuffer[x][y] = pixel;
                         }
                         z += mz;
                         x++;

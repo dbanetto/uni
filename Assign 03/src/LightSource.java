@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -7,6 +8,8 @@ import java.util.Queue;
  */
 public class LightSource {
     private final Vector3D position;
+    private Vector3D intensity = new Vector3D(0.5f, 0.5f, 0.5f);
+    private Color incident = Color.white;
 
     public LightSource(Vector3D position) {
         this.position = position;
@@ -29,6 +32,28 @@ public class LightSource {
         position = new Vector3D(x, y , z);
 
         return new LightSource(position);
+    }
+
+    public Color computeIllumination(Vector3D surfaceUnitNormal, Color ambientLight, Color reflectance) {
+        float cosTheta = this.position.cosTheta(surfaceUnitNormal);
+        int r, g, b;
+
+        float ir, ig, ib;
+        ir = incident.getRed() / intensity.x;
+        ig = incident.getGreen() / intensity.y;
+        ib = incident.getBlue()  / intensity.z;
+
+        float rr, rg, rb;
+        rr = reflectance.getRed()   / 255.0f;
+        rg = reflectance.getGreen() / 255.0f;
+        rb = reflectance.getBlue()  / 255.0f;
+
+        r = (int)Math.max(Math.min((ambientLight.getRed() + (cosTheta * ir)) * rr, 255.0f), 0.0f);
+        g = (int)Math.max(Math.min((ambientLight.getGreen() + (cosTheta * ig)) * rg, 255.0f), 0.0f);
+        b = (int)Math.max(Math.min((ambientLight.getBlue() + (cosTheta * ib)) * rb, 255.0f), 0.0f);
+
+
+        return new Color(r, g, b);
     }
 
     // Getters
