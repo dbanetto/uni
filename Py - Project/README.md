@@ -1,25 +1,29 @@
 # Pywget
 
-student id: 300313764
-student name: David Barnett
+Student id: 300313764
+Student name: David Barnett
 
-Third Party Libraries used: `lxml`
+Assertions made: That a url cannot contain whitespace. This is used
+for the regex for capturing urls from href's and src's. The regex also
+captures link's so style sheets will be downloaded as well if present.
 
-I used `lxml` in this project for its extension
-to xml.etree.ElementTree in the standard library that allows for HTML parsing.
+Unsure of if third party libraries were really allowed, this is an alternative
+version and functionally equivalent which works only with using `re` instead
+of the third party library `lxml` for HTML etree parsing which works
+a lot more cleanly.
 
 ## What was implemented
 
-Core
-----
+core.py
+-------
 
 * The specified file is downloaded
 * The names of files are preserved from the url file names
 * Name collisions are detected with `resolve_name` and increment in the
   correct format
 
-Completion
-----------
+completion.py
+-------------
 
 All of above plus:
 
@@ -32,8 +36,8 @@ All of above plus:
 
 
 
-Challenge
----------
+challenge.py
+------------
 
 All of above plus:
 

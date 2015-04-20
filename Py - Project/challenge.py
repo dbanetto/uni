@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 
-from lxml import html
 from urllib.parse import urlparse, ParseResult
 from urllib.request import urlopen
 from urllib.error import URLError
 from os import path
-import os
+import os, re
 
 def pywget(url=None, depth=2, got=set()):
     if type(url) is not str:
@@ -45,9 +44,9 @@ def parse_file(url, depth, data, to_save, got):
     domain = urlparse(url)
     next = []
     if domain.path.endswith('.html') or to_save.endswith('.html'):
-        doc = html.fromstring(data.decode())
-
-        for elem, attr, url_path, n in doc.iterlinks():
+        editted_doc = data.decode()
+        for link in re.finditer('[href|src]=\"(\S+?)\".*?>', data.decode()):
+            url_path, = link.groups()
             item_url = urlparse(url_path)
             if item_url.netloc == '': # relative url
                 next_url = make_abs(domain, item_url)
@@ -55,14 +54,14 @@ def parse_file(url, depth, data, to_save, got):
                 next_url = url_path
             else: # not of this domain (wikipedia etc.)
                 continue
+
             if next_url not in got:
                 got.add(next_url)
                 next_path = pywget(url=next_url, depth=depth-1, got=got)
-                elem.attrib[attr] = make_relative_local(to_save ,next_path)
+                editted_doc = re.sub(url_path, make_relative_local(to_save ,next_path), editted_doc)
 
-        data = html.tostring(doc, 'utf-8')
         with open(to_save, 'wb') as f:
-            f.write(data)
+            f.write(editted_doc.encode())
             f.flush()
 
 
