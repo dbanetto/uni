@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SWEN221 Assign 04.jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SWEN221_Assign_04_jar</output-path>
+    <root id="archive" name="Assign04.jar">
+      <element id="module-output" name="Assign04" />
+      <element id="extracted-dir" path="/usr/share/java/junit.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/share/java/hamcrest-core.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/share/java/hamcrest-generator.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/share/java/hamcrest-integration.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/share/java/hamcrest-library.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src" />
+    </root>
+  </artifact>
+</component>
