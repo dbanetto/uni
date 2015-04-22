@@ -31,51 +31,45 @@ public class ModelViewer extends GUI {
     @Override
     protected void onKeyPress(KeyEvent ev) {
         switch (ev.getKeyCode()) {
-            case KeyEvent.VK_W:
-            case KeyEvent.VK_UP:
-                camera.translate(new Vector3D(0, 10, 0));
-                break;
             case KeyEvent.VK_S:
-            case KeyEvent.VK_DOWN:
-                camera.translate(new Vector3D(0, -10 ,0));
+                camera.rotateX(0.1f);
                 break;
-            case KeyEvent.VK_A:
-            case KeyEvent.VK_LEFT:
-                camera.translate(new Vector3D(10, 0 ,0));
+            case KeyEvent.VK_W:
+                camera.rotateX(-0.1f);
                 break;
             case KeyEvent.VK_D:
-            case KeyEvent.VK_RIGHT:
-                camera.translate(new Vector3D(-10, 0 ,0));
+                camera.rotateY(0.1f);
+                break;
+            case KeyEvent.VK_A:
+                camera.rotateY(-0.1f);
                 break;
             case KeyEvent.VK_Q:
                 camera.growScale(scaleStep);
-                camera.translate(new Vector3D(-width * 0.5f * (1.0f - (1.0f / scaleStep)), 0, 0));
-                camera.translate(new Vector3D(0, -height * 0.5f * (1.0f - (1.0f / scaleStep)) ,0));
                 break;
             case KeyEvent.VK_E:
                 camera.growScale(1.0f / scaleStep);
+                break;
 
-                camera.translate(new Vector3D(-width * 0.5f * (1.0f - (scaleStep)), 0, 0));
-                camera.translate(new Vector3D(0, -height * 0.5f * (1.0f - (scaleStep)), 0));
-                break;
-            case KeyEvent.VK_Z:
-                camera.rotateX(0.1f);
-                break;
-            case KeyEvent.VK_X:
-                camera.rotateX(-0.1f);
-                break;
-            case KeyEvent.VK_C:
-                camera.rotateY(0.1f);
-                break;
-            case KeyEvent.VK_V:
-                camera.rotateY(-0.1f);
-                break;
             case KeyEvent.VK_B:
                 camera.rotateZ(0.1f);
                 break;
             case KeyEvent.VK_N:
                 camera.rotateZ(-0.1f);
                 break;
+
+            case KeyEvent.VK_RIGHT:
+                camera.translate(new Vector3D(-10.f, 0, 0));
+                break;
+            case KeyEvent.VK_LEFT:
+                camera.translate(new Vector3D(10.f,0,0));
+                break;
+            case KeyEvent.VK_UP:
+                camera.translate(new Vector3D(0f,10f,0));
+                break;
+            case KeyEvent.VK_DOWN:
+                camera.translate(new Vector3D(0,-10f,0));
+                break;
+
         }
         this.redraw();
     }

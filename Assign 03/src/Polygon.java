@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class Polygon {
     private final Vector3D[] points; // array has order, immutable size and cheap
@@ -69,15 +68,23 @@ public class Polygon {
     }
 
     public EdgeListItem[] getEdgeList(int imageHeight) {
-        Rectangle bounds = this.getBoudingBox();
+        Rectangle bounds = this.getBondingBox();
         float maxyf = Float.MIN_VALUE;
         float minyf = Float.MAX_VALUE;
+        float maxxf = Float.MIN_VALUE;
+        float minxf = Float.MAX_VALUE;
         for (Vector3D vert: points) {
             if (vert.y > maxyf) {
                 maxyf = vert.y;
             }
             if (vert.y < minyf) {
                 minyf = vert.y;
+            }
+            if (vert.x > maxxf) {
+                maxxf = vert.x;
+            }
+            if (vert.x < minxf) {
+                minxf = vert.x;
             }
         }
         int maxy = Math.round(maxyf);
@@ -91,11 +98,16 @@ public class Polygon {
             Vector3D vertB = (points[a].y >= points[b].y ? points[a] : points[b]);
             assert(vertA != vertB);
 
-            double mx = (vertB.x - vertA.x) / (vertB.y - vertA.y);
-            double mz = (vertB.z - vertA.z) / (vertB.y - vertA.y);
+            float mx = (vertB.x - vertA.x) / (vertB.y - vertA.y);
+            float mz = (vertB.z - vertA.z) / (vertB.y - vertA.y);
 
-            double x = vertA.x;
-            double z = vertA.z;
+            if (Math.abs(vertB.y - vertA.y) < 0.001) {
+                mx = 0;
+                mz = 0;
+            }
+
+            float x = vertA.x;
+            float z = vertA.z;
 
             int i = Math.round(vertA.y);
             int maxi = Math.round(vertB.y);
@@ -104,25 +116,26 @@ public class Polygon {
                     EdgeListItem item = list[i];
                     if (item == null) {
                         item = new EdgeListItem();
-                        item.put((float)x, (float)z);
+                        item.put(x, z);
                         list[i] = item;
                     } else {
-                        item.put((float)x, (float)z);
+                        item.put(x, z);
                     }
                 }
 
                 x += mx;
                 z += mz;
+                x = Math.max(Math.min(x, maxxf), minxf);
                 i++;
             }
             if (maxi > 0 && maxi < imageHeight) {
                 EdgeListItem item = list[maxi];
                 if (item == null) {
                     item = new EdgeListItem();
-                    item.put((float)x, (float)z);
+                    item.put(x, z);
                     list[maxi] = item;
                 } else {
-                    item.put((float)x, (float)z);
+                    item.put(x, z);
                 }
             }
 
@@ -140,7 +153,7 @@ public class Polygon {
         return reflective;
     }
 
-    public Rectangle getBoudingBox() {
+    public Rectangle getBondingBox() {
         float maxyf = Float.MIN_VALUE;
         float minyf = Float.MAX_VALUE;
         float maxxf = Float.MIN_VALUE;

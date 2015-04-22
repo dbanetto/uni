@@ -8,7 +8,7 @@ import java.util.Queue;
  */
 public class LightSource {
     private final Vector3D position;
-    private Vector3D intensity = new Vector3D(0.5f, 0.5f, 0.5f);
+    private Vector3D intensity = new Vector3D(1f, 1f, 1f);
     private Color incident = Color.white;
 
     public LightSource(Vector3D position) {
@@ -16,7 +16,7 @@ public class LightSource {
     }
 
     public static LightSource loadFromLine(String line) {
-        Queue<String> items = new LinkedList<String>();
+        Queue<String> items = new LinkedList<>();
         items.addAll(Arrays.asList(line.split(" ")));
 
         if (items.size() != 3) {
@@ -34,12 +34,16 @@ public class LightSource {
         return new LightSource(position);
     }
 
-    public Color computeIllumination(Vector3D surfaceUnitNormal, Color ambientLight, Color reflectance) {
-        float cosTheta = this.position.cosTheta(surfaceUnitNormal);
+    public Color computeIllumination(Transform t, Vector3D surfaceUnitNormal, Color ambientLight, Color reflectance) {
+        Vector3D lightPos = this.position.unitVector();
+        float cosTheta = lightPos.cosTheta(surfaceUnitNormal);
+        if (cosTheta < 0) {
+            cosTheta = 0;
+        }
         int r, g, b;
 
         float ir, ig, ib;
-        ir = incident.getRed() / intensity.x;
+        ir = incident.getRed()   / intensity.x;
         ig = incident.getGreen() / intensity.y;
         ib = incident.getBlue()  / intensity.z;
 
@@ -48,12 +52,14 @@ public class LightSource {
         rg = reflectance.getGreen() / 255.0f;
         rb = reflectance.getBlue()  / 255.0f;
 
-        r = (int)Math.max(Math.min((ambientLight.getRed() + (cosTheta * ir)) * rr, 255.0f), 0.0f);
-        g = (int)Math.max(Math.min((ambientLight.getGreen() + (cosTheta * ig)) * rg, 255.0f), 0.0f);
-        b = (int)Math.max(Math.min((ambientLight.getBlue() + (cosTheta * ib)) * rb, 255.0f), 0.0f);
+        r = Math.round((ambientLight.getRed()   + cosTheta * ir) * rr);
+        g = Math.round((ambientLight.getGreen() + cosTheta * ig) * rg);
+        b = Math.round((ambientLight.getBlue()  + cosTheta * ib) * rb);
 
-
-        return new Color(r, g, b);
+        return new Color(
+                Math.max(Math.min(r,255),0),
+                Math.max(Math.min(g,255),0),
+                Math.max(Math.min(b,255),0));
     }
 
     // Getters

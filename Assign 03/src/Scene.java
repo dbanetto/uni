@@ -47,65 +47,74 @@ public class Scene {
     }
 
     public BufferedImage render(Rectangle imageBounds, Camera camera, Color ambientLight) {
-        Float[][] depthBuffer = new Float[imageBounds.width][imageBounds.height];
+        float[][] depthBuffer = new float[imageBounds.width][imageBounds.height];
         Color[][] colourBuffer = new Color[imageBounds.width][imageBounds.height];
 
-        // Transform polygons
-        List<Polygon> transformed = new ArrayList<>();
         Transform transform = camera.getTransformation();
-        for (Polygon poly: this.polygons) {
-            Polygon t = poly.applyTransformation(transform);
-            if (imageBounds.intersects(t.getBoudingBox())) {
-                transformed.add(t);
-            }
-        }
+        for (Polygon normalPoly: this.polygons) {
 
-        Set<Polygon> hidden = new HashSet<>();
-        for (Polygon poly: transformed) {
+            Polygon transPoly = normalPoly.applyTransformation(transform);
+            Rectangle polyBounds = transPoly.getBondingBox();
 
-            Vector3D surfaceNormal = poly.getSurfaceNormal();
-            if (surfaceNormal.z < 0) {
-                EdgeListItem[] EL = poly.getEdgeList(imageBounds.height);
+            // clipping
+            if (imageBounds.intersects(polyBounds)) {
 
-                for (int y = 0; y < EL.length - 1; y++) {
-                    if (EL[y] == null) { continue; }
+                // Check if looking polygon the right way
+                Vector3D surfaceTransNormal = transPoly.getSurfaceNormal();
+                if (surfaceTransNormal.z < 0) {
+                    EdgeListItem[] EL = transPoly.getEdgeList(imageBounds.height);
+                    for (int y = 0; y < EL.length - 1; y++) {
+                        if (EL[y] == null) { continue; }
 
-                    int x = Math.round(EL[y].getX_left());
-                    float z = EL[y].getZ_left();
+                        int x = Math.round(EL[y].getX_left());
+                        float z = EL[y].getZ_left();
 
-                    float mz = (EL[y].getZ_right() - EL[y].getZ_left()) / (EL[y].getX_right() - EL[y].getX_left());
-                    while (x <= Math.round(EL[y].getX_right())) {
-                        if (x < 0 || x >= imageBounds.width || y < 0 && y >= imageBounds.height) {
-                            z += mz;
-                            x++;
-                            continue;
+                        float mz = (EL[y].getZ_right() - EL[y].getZ_left()) / (EL[y].getX_right() - EL[y].getX_left());
+                        if (Math.abs(EL[y].getX_right() - EL[y].getX_left()) < 0.001) {
+                            mz = 0;
                         }
-                        Float depth = depthBuffer[x][y];
 
-                        Color pixel;
-                        int r = 0, g = 0, b = 0;
-                        for (LightSource light : lights) {
-                            Color l = light.computeIllumination(
-                                    surfaceNormal.unitVector(),
-                                    ambientLight,
-                                    poly.getReflective());
-                            r = Math.min(l.getRed() +  r, 255);
-                            g = Math.min(l.getGreen() +  g, 255);
-                            b = Math.min(l.getBlue() +  b, 255);
-                        }
-                        pixel = new Color(r, g, b);
+                        // Iterate through horz line
+                        while (x <= Math.round(EL[y].getX_right())) {
+                            if (x < 0 ||
+                                x >= imageBounds.width ||
+                                y < 0 && y >= imageBounds.height ||
+                                !polyBounds.contains(x, y)) {
+                                z += mz;
+                                x++;
+                                continue;
+                            }
 
-                        if (depth != null) {
-                            if (z < depthBuffer[x][y] ) {
+                            // Apply shading
+                            Color pixel;
+                            int r = 0, g = 0, b = 0;
+                            for (LightSource light : lights) {
+                                Color l = light.computeIllumination(
+                                        transform,
+                                        normalPoly.getSurfaceNormal().unitVector(),
+                                        ambientLight,
+                                        transPoly.getReflective());
+
+                                // Additive merge
+                                r = Math.min(l.getRed() +  r, 255);
+                                g = Math.min(l.getGreen() +  g, 255);
+                                b = Math.min(l.getBlue() +  b, 255);
+                            }
+                            pixel = new Color(r, g, b);
+
+                            // Apply to z-buffer
+                            if (colourBuffer[x][y] != null) {
+                                if (z < depthBuffer[x][y] ) {
+                                    depthBuffer[x][y] = z;
+                                    colourBuffer[x][y] = pixel;
+                                }
+                            } else {
                                 depthBuffer[x][y] = z;
                                 colourBuffer[x][y] = pixel;
                             }
-                        } else {
-                            depthBuffer[x][y] = z;
-                            colourBuffer[x][y] = pixel;
+                            z += mz;
+                            x++;
                         }
-                        z += mz;
-                        x++;
                     }
                 }
             }
