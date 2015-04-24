@@ -20,17 +20,27 @@ public class Camera {
         t = t.compose(Transform.newZRotation(rotation.z));
         return t;
     }
+    public Transform getRotationTransformation() {
+        Transform t = Transform.newXRotation(rotation.x);
+        t =  t.compose(Transform.newYRotation(rotation.y));
+        t = t.compose(Transform.newZRotation(rotation.z));
+        return t;
+    }
+
 
     public void translate(Vector3D by) {
         this.position = position.plus(by);
     }
+    public void setPosition(Vector3D pos) {
+        this.position = pos;
+    }
 
     public void setScale(Vector3D scale) {
-        this.scale =scale;
+        this.scale = scale;
     }
 
     public void growScale(float scale) {
-        this.scale = new Vector3D(this.scale.x * scale,this.scale.y * scale,this.scale.z * scale);
+        this.scale = new Vector3D(this.scale.x * scale,this.scale.y * scale, 1.0f);
     }
 
     public void rotateX(float by) {
@@ -47,5 +57,14 @@ public class Camera {
 
     public Vector3D getPosition() {
         return position;
+    }
+
+    @Override
+    public String toString() {
+        return "Camera{" +
+                "position=" + position +
+                ", rotation=" + rotation +
+                ", scale=" + scale +
+                '}';
     }
 }

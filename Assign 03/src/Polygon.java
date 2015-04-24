@@ -15,10 +15,6 @@ public class Polygon {
         }
     }
 
-    public boolean isHidden() {
-        return (points[0].x - points[1].x)*(points[2].y - points[1].y) > (points[1].y - points[0].y)*(points[2].x - points[1].x);
-    }
-
     public static Polygon loadFromLine(String line) {
 
         Queue<String> items = new LinkedList<>();
@@ -56,15 +52,19 @@ public class Polygon {
     }
 
     public Vector3D getSurfaceNormal() {
-        float ax = points[1].x - points[0].x;
-        float ay = points[1].y - points[0].y;
-        float az = points[1].z - points[0].z;
+        Vector3D a = points[1].minus(points[0]);
+        Vector3D b = points[2].minus(points[1]);
 
-        float bx = points[2].x - points[1].x;
-        float by = points[2].y - points[1].y;
-        float bz = points[2].z - points[1].z;
+        return a.crossProduct(b);
+    }
 
-        return new Vector3D((ay*bz) - (az*by),(az*bx) - (ax*by), (ax*by) - (ay*bx));
+    public Vector3D getUnitSurfaceNormal() {
+        Vector3D a = points[1].minus(points[0]);
+        Vector3D b = points[2].minus(points[1]);
+
+        Vector3D n = a.crossProduct(b);
+        float sum = Math.abs(n.x) + Math.abs(n.y) + Math.abs(n.z);
+        return new Vector3D(n.x / sum, n.y / sum, n.z / sum);
     }
 
     public EdgeListItem[] getEdgeList(int imageHeight) {
@@ -111,7 +111,7 @@ public class Polygon {
 
             int i = Math.round(vertA.y);
             int maxi = Math.round(vertB.y);
-            while (i < maxi) {
+            do {
                 if (i >= 0 && i < imageHeight) {
                     EdgeListItem item = list[i];
                     if (item == null) {
@@ -127,7 +127,7 @@ public class Polygon {
                 z += mz;
                 x = Math.max(Math.min(x, maxxf), minxf);
                 i++;
-            }
+            }  while (i < maxi);
             if (maxi > 0 && maxi < imageHeight) {
                 EdgeListItem item = list[maxi];
                 if (item == null) {
@@ -142,6 +142,56 @@ public class Polygon {
         }
 
         return list;
+    }
+
+    public Vector3D getMaxVec() {
+        float x = Float.MIN_VALUE;
+        float y = Float.MIN_VALUE;
+        float z = Float.MIN_VALUE;
+        for (Vector3D vert: points) {
+            if (vert.x > x) {
+                x = vert.x;
+            }
+            if (vert.y > y) {
+                y = vert.y;
+            }
+            if (vert.z > z) {
+                z = vert.z;
+            }
+
+        }
+        return new Vector3D(x,y,z);
+    }
+
+    public Vector3D getMinVec() {
+        float x = Float.MAX_VALUE;
+        float y = Float.MAX_VALUE;
+        float z = Float.MAX_VALUE;
+        for (Vector3D vert: points) {
+            if (vert.x < x) {
+                x = vert.x;
+            }
+            if (vert.y < y) {
+                y = vert.y;
+            }
+            if (vert.z < z) {
+                z = vert.z;
+            }
+
+        }
+        return new Vector3D(x,y,z);
+    }
+
+    public Vector3D getCenterVec() {
+        float x = 0;
+        float y = 0;
+        float z = 0;
+        for (Vector3D vert: points) {
+            x += vert.x;
+            y += vert.y;
+            z += vert.z;
+        }
+        return new Vector3D(x/points.length, y/points.length, z/points.length);
     }
 
     // Getters

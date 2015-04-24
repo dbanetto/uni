@@ -34,7 +34,7 @@ public class LightSource {
         return new LightSource(position);
     }
 
-    public Color computeIllumination(Transform t, Vector3D surfaceUnitNormal, Color ambientLight, Color reflectance) {
+    public Color computeIllumination(Vector3D surfaceUnitNormal, Color ambientLight, Color reflectance) {
         Vector3D lightPos = this.position.unitVector();
         float cosTheta = lightPos.cosTheta(surfaceUnitNormal);
         if (cosTheta < 0) {

@@ -46,6 +46,53 @@ public class Scene {
         return new Scene(polygons, lights);
     }
 
+    public void centerCamera(Camera camera, int width, int height, boolean rescale) {
+        float xmax = Float.MIN_VALUE;
+        float ymax = Float.MIN_VALUE;
+        float zmax = Float.MIN_VALUE;
+
+        float xmin = Float.MAX_VALUE;
+        float ymin = Float.MAX_VALUE;
+        float zmin = Float.MAX_VALUE;
+
+        Transform transform = camera.getRotationTransformation();
+        for (Polygon p: polygons) {
+
+                p = p.applyTransformation(transform);
+
+
+            Vector3D min = p.getMinVec();
+            Vector3D max = p.getMaxVec();
+
+            xmin = Math.min(xmin, min.x);
+            ymin = Math.min(ymin, min.y);
+            zmin = Math.min(zmin, min.z);
+
+            xmax = Math.max(xmax, max.x);
+            ymax = Math.max(ymax, max.y);
+            zmax = Math.max(zmax, max.z);
+
+        }
+
+        xmax += width * 0.2f;
+        xmin -= width * 0.2f;
+        ymax += height * 0.2f;
+        ymin -= height * 0.2f;
+
+
+        float nxmax = Math.max(Math.abs(xmax), Math.abs(xmin));
+        float nxmin = Math.min(-Math.abs(xmax), -Math.abs(xmin));
+        float nymax = Math.max(Math.abs(ymax), Math.abs(ymin));
+        float nymin = Math.min(-Math.abs(ymax), -Math.abs(ymin));
+
+        float   scale =  Math.min(width / (nxmax - nxmin), height / (nymax - nymin));
+        if (rescale) {
+            camera.setScale(new Vector3D(scale, scale, 1f));
+        }
+        camera.setPosition(new Vector3D(-xmin * scale, -ymin * scale, 0));
+
+    }
+
     public BufferedImage render(Rectangle imageBounds, Camera camera, Color ambientLight) {
         float[][] depthBuffer = new float[imageBounds.width][imageBounds.height];
         Color[][] colourBuffer = new Color[imageBounds.width][imageBounds.height];
@@ -55,7 +102,7 @@ public class Scene {
 
             Polygon transPoly = normalPoly.applyTransformation(transform);
             Rectangle polyBounds = transPoly.getBondingBox();
-
+            Vector3D normalUnitSurface = normalPoly.getSurfaceNormal().unitVector();
             // clipping
             if (imageBounds.intersects(polyBounds)) {
 
@@ -74,6 +121,8 @@ public class Scene {
                             mz = 0;
                         }
 
+
+
                         // Iterate through horz line
                         while (x <= Math.round(EL[y].getX_right())) {
                             if (x < 0 ||
@@ -90,8 +139,7 @@ public class Scene {
                             int r = 0, g = 0, b = 0;
                             for (LightSource light : lights) {
                                 Color l = light.computeIllumination(
-                                        transform,
-                                        normalPoly.getSurfaceNormal().unitVector(),
+                                        normalUnitSurface,
                                         ambientLight,
                                         transPoly.getReflective());
 

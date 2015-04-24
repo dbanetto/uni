@@ -12,8 +12,8 @@ public class ModelViewer extends GUI {
     private float scaleStep;
 
     public ModelViewer() {
-        width = 500;
-        height = 500;
+        width = GUI.CANVAS_WIDTH;
+        height = GUI.CANVAS_HEIGHT;
         scaleStep = 1.1f;
     }
 
@@ -25,6 +25,14 @@ public class ModelViewer extends GUI {
         } else {
             JOptionPane.showMessageDialog(null, "Error: Invalid file type.\nExpected '*.txt'", "Invalid File type", JOptionPane.ERROR_MESSAGE);
             System.out.println("Invalid file format");
+        }
+    }
+
+    @Override
+    protected void centerScene() {
+        if (scene != null) {
+            scene.centerCamera(camera, this.width, this.height);
+            redraw();
         }
     }
 
@@ -70,6 +78,10 @@ public class ModelViewer extends GUI {
                 camera.translate(new Vector3D(0,-10f,0));
                 break;
 
+            case KeyEvent.VK_P:
+                System.out.println(camera);
+                break;
+
         }
         this.redraw();
     }
@@ -78,6 +90,12 @@ public class ModelViewer extends GUI {
     protected BufferedImage render() {
 
         return (scene != null ? scene.render(new Rectangle(0,0,width,height), camera, getAmbientLightColour()) : null);
+    }
+
+    @Override
+    protected void cameraReset() {
+        this.camera = new Camera(new Vector3D(0f,0f,0f), new Vector3D(0f,0f,0f), new Vector3D(1f,1f,1f));
+        redraw();
     }
 
     public Color getAmbientLightColour() {

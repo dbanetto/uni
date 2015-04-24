@@ -1,10 +1,4 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -22,13 +16,15 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  * A simple GUI, similar to the one in assignments 1 and 2, that you can base
  * your renderer off. It is abstract, and there are three methods you need to
  * implement: onLoad, onKeyPress, and render. You are free to use this class
  * as-is, modify it, or ignore it completely.
- * 
+ *
  * @author Tony Butler-Yeoman
  */
 public abstract class GUI {
@@ -51,6 +47,9 @@ public abstract class GUI {
 	 * BufferedImage that is your render of the scene.
 	 */
 	protected abstract BufferedImage render();
+
+	protected abstract void centerScene();
+	protected abstract void cameraReset();
 
 	/**
 	 * Forces a redraw of the drawing canvas, you're unlikely to need to call
@@ -144,12 +143,28 @@ public abstract class GUI {
 				}
 			}
 		});
+		JButton center = new JButton("Center Scene");
+		JButton reset = new JButton("Reset Camera");
+		reset.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cameraReset();
+			}
+		});
+		center.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				centerScene();
+			}
+		});
 		// we have to put the button in its own panel to ensure it fills the
 		// full width of the control bar.
-		JPanel loadpanel = new JPanel(new BorderLayout());
-		loadpanel.setMaximumSize(new Dimension(1000, 25));
-		loadpanel.setPreferredSize(new Dimension(1000, 25));
-		loadpanel.add(load, BorderLayout.CENTER);
+		JPanel loadpanel = new JPanel(new GridLayout(3,1));
+		loadpanel.setMaximumSize(new Dimension(1000, 75));
+		loadpanel.setPreferredSize(new Dimension(1000, 75));
+		loadpanel.add(load);
+		loadpanel.add(center);
+		loadpanel.add(reset);
 
 		// set up the sliders for ambient light. they were instantiated in
 		// the field definition, as for some reason they need to be final to
@@ -157,6 +172,25 @@ public abstract class GUI {
 		red.setBackground(new Color(230, 50, 50));
 		green.setBackground(new Color(50, 230, 50));
 		blue.setBackground(new Color(50, 50, 230));
+
+		red.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				redraw();
+			}
+		});
+		green.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				redraw();
+			}
+		});
+		blue.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				redraw();
+			}
+		});
 
 		JPanel sliderparty = new JPanel();
 		sliderparty.setLayout(new BoxLayout(sliderparty, BoxLayout.PAGE_AXIS));
@@ -207,26 +241,6 @@ public abstract class GUI {
 		frame.setVisible(true);
 	}
 
-	public static void main(String[] args) {
-		new GUI() {
-
-			@Override
-			protected void onLoad(File file) {
-			}
-
-			@Override
-			protected BufferedImage render() {
-				//System.out.println(Arrays.toString(getAmbientLightValue()));
-				return null;
-			}
-
-			@Override
-			protected void onKeyPress(KeyEvent ev) {
-				System.out.println(ev.getKeyCode());
-			}
-
-		};
-	}
 }
 
 // code for COMP261 assignments.

@@ -12,6 +12,16 @@ public class ImageExample extends GUI {
 	private double shift = 1.0;
 
 	@Override
+	protected void cameraReset() {
+
+	}
+
+	@Override
+	protected void centerScene() {
+
+	}
+
+	@Override
 	protected void onLoad(File file) {
 		System.out.println("no files loaded in this example.");
 	}
