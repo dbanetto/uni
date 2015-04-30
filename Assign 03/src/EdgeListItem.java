@@ -1,49 +1,23 @@
 
 public class EdgeListItem {
-    private boolean left_filled;
-    private float x_left;
-    private float z_left;
+    private float x_left = Float.POSITIVE_INFINITY;
+    private float z_left = 0;
 
-    private boolean right_filled;
-    private float x_right;
-    private float z_right;
+    private float x_right = Float.NEGATIVE_INFINITY;
+    private float z_right = 0;
 
     public EdgeListItem() {
-        left_filled = false;
-        right_filled = false;
+
     }
 
     public void put(float x, float z) {
-        if (left_filled && right_filled) {
-            if (Math.abs(x - x_left) > 0.01 && Math.abs(x - x_right) > 0.01) {
-                if (x > x_right) {
-                    x_right = x;
-                    z_right = z;
-                } else if (x < x_left) {
-                    x_left = x;
-                    z_left = z;
-                }
-            }
-        } else if (!left_filled && !right_filled) {
+        if (Float.compare(x, x_right) > 0) {
+            x_right = x;
+            z_right = z;
+        }
+        if (Float.compare(x, x_left) < 0) {
             x_left = x;
             z_left = z;
-            left_filled = true;
-        } else if (left_filled && !right_filled) {
-            if (x >= x_left) {
-                x_right = x;
-                z_right = z;
-                right_filled = true;
-            } else {
-                //swap left and right
-                x_right = x_left;
-                z_right = z_left;
-
-                x_left = x;
-                z_left = z;
-                right_filled = true;
-            }
-        } else {
-            throw new IllegalArgumentException();
         }
     }
 

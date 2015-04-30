@@ -19,6 +19,7 @@ public class ModelViewer extends GUI {
 
     @Override
     protected void onLoad(File file) {
+        // make sure file type is correct
         if (file.getName().endsWith(".txt")) {
             scene = Scene.loadFromFile(file);
             camera = new Camera(new Vector3D(0f,0f,0f), new Vector3D(0f,0f,0f), new Vector3D(1f,1f,1f));
@@ -31,7 +32,7 @@ public class ModelViewer extends GUI {
     @Override
     protected void centerScene() {
         if (scene != null) {
-            scene.centerCamera(camera, this.width, this.height);
+            scene.centerCamera(camera, this.width, this.height, true);
             redraw();
         }
     }
@@ -39,6 +40,7 @@ public class ModelViewer extends GUI {
     @Override
     protected void onKeyPress(KeyEvent ev) {
         switch (ev.getKeyCode()) {
+            // Rotate
             case KeyEvent.VK_S:
                 camera.rotateX(0.1f);
                 break;
@@ -51,6 +53,7 @@ public class ModelViewer extends GUI {
             case KeyEvent.VK_A:
                 camera.rotateY(-0.1f);
                 break;
+            // Scale
             case KeyEvent.VK_Q:
                 camera.growScale(scaleStep);
                 break;
@@ -58,13 +61,7 @@ public class ModelViewer extends GUI {
                 camera.growScale(1.0f / scaleStep);
                 break;
 
-            case KeyEvent.VK_B:
-                camera.rotateZ(0.1f);
-                break;
-            case KeyEvent.VK_N:
-                camera.rotateZ(-0.1f);
-                break;
-
+            // Manual Translate
             case KeyEvent.VK_RIGHT:
                 camera.translate(new Vector3D(-10.f, 0, 0));
                 break;
@@ -82,13 +79,31 @@ public class ModelViewer extends GUI {
                 System.out.println(camera);
                 break;
 
+            case KeyEvent.VK_L:
+                addLight();
+                break;
+
         }
         this.redraw();
     }
 
+    private void addLight() {
+        if (scene != null) {
+            // Add a light
+            // set rotation to what the camera is current looking through
+            // so it should be as if the light source is made where the camera is
+            Vector3D rot = new Vector3D(0f,0f,-1f); // vector looking straight down z-axis
+            rot = camera.getRotationTransformation().multiply(rot).unitVector();
+
+            LightSource ls = new LightSource(rot);
+            ls.setIntensity(new Vector3D(0.5f,0.5f,0.5f)); // dim the light
+
+            scene.lights.add(ls);
+        }
+    }
+
     @Override
     protected BufferedImage render() {
-
         return (scene != null ? scene.render(new Rectangle(0,0,width,height), camera, getAmbientLightColour()) : null);
     }
 

@@ -16,9 +16,10 @@ public class Polygon {
     }
 
     public static Polygon loadFromLine(String line) {
-
         Queue<String> items = new LinkedList<>();
         items.addAll(Arrays.asList(line.split(" ")));
+
+        // Check if right size
         if (items.size() != 12) {
             throw new IllegalArgumentException("Invalid polygon line");
         }
@@ -26,6 +27,7 @@ public class Polygon {
         Vector3D[] points = new Vector3D[3];
         Color reflective;
 
+        // Read 3 vectors
         for (int i = 0; i < 3; i++) {
             float x, y, z;
             x = Float.parseFloat(items.poll());
@@ -34,6 +36,7 @@ public class Polygon {
             points[i] = new Vector3D(x, y , z);
         }
 
+        // Read reflective colour
         int r, g, b;
         r = Integer.parseInt(items.poll());
         g = Integer.parseInt(items.poll());
@@ -64,15 +67,16 @@ public class Polygon {
 
         Vector3D n = a.crossProduct(b);
         float sum = Math.abs(n.x) + Math.abs(n.y) + Math.abs(n.z);
+
         return new Vector3D(n.x / sum, n.y / sum, n.z / sum);
     }
 
     public EdgeListItem[] getEdgeList(int imageHeight) {
-        Rectangle bounds = this.getBondingBox();
         float maxyf = Float.MIN_VALUE;
         float minyf = Float.MAX_VALUE;
         float maxxf = Float.MIN_VALUE;
         float minxf = Float.MAX_VALUE;
+
         for (Vector3D vert: points) {
             if (vert.y > maxyf) {
                 maxyf = vert.y;
@@ -91,7 +95,6 @@ public class Polygon {
         int miny = Math.round(minyf);
         EdgeListItem[] list = new EdgeListItem[imageHeight];
 
-
         for (int a = 0; a < points.length; a++) {
             int b = (a + 1 >= points.length ? 0 : a + 1);
             Vector3D vertA = (points[a].y < points[b].y ? points[a] : points[b]);
@@ -103,6 +106,16 @@ public class Polygon {
 
             if (Math.abs(vertB.y - vertA.y) < 0.001) {
                 mx = 0;
+                mz = 0;
+            }
+            if (Float.isInfinite(mx)) {
+                mx = 0;
+            } else if (Float.isNaN(mx)) {
+                mx = 0;
+            }
+            if (Float.isInfinite(mz)) {
+                mz = 0;
+            } else if (Float.isNaN(mz)) {
                 mz = 0;
             }
 

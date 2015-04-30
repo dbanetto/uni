@@ -42,11 +42,18 @@ public class Scene {
                     "\n" + e.toString());
             return null;
         }
+        Camera camera = new Camera(new Vector3D(0f,0f,0f), new Vector3D(0f,0f,0f), new Vector3D(1f,1f,1f));
+
+        Transform center = Transform.newTranslation(new Scene(polygons, lights).getSceneCenter());
+        for (int i = 0; i < polygons.size(); i++) {
+            Polygon p = polygons.get(i);
+            polygons.set(i, p.applyTransformation(center));
+        }
 
         return new Scene(polygons, lights);
     }
 
-    public void centerCamera(Camera camera, int width, int height, boolean rescale) {
+    private Vector3D getSceneCenter() {
         float xmax = Float.MIN_VALUE;
         float ymax = Float.MIN_VALUE;
         float zmax = Float.MIN_VALUE;
@@ -55,11 +62,7 @@ public class Scene {
         float ymin = Float.MAX_VALUE;
         float zmin = Float.MAX_VALUE;
 
-        Transform transform = camera.getRotationTransformation();
         for (Polygon p: polygons) {
-
-                p = p.applyTransformation(transform);
-
 
             Vector3D min = p.getMinVec();
             Vector3D max = p.getMaxVec();
@@ -74,42 +77,71 @@ public class Scene {
 
         }
 
-        xmax += width * 0.2f;
-        xmin -= width * 0.2f;
-        ymax += height * 0.2f;
-        ymin -= height * 0.2f;
+       return new Vector3D(-((xmax-xmin)/2+xmin),-((ymax-ymin)/2+ymin),0);
+    }
+
+    public void centerCamera(Camera camera, int width, int height, boolean rescale) {
+        float xmax = Float.MIN_VALUE;
+        float ymax = Float.MIN_VALUE;
+        float zmax = Float.MIN_VALUE;
+
+        float xmin = Float.MAX_VALUE;
+        float ymin = Float.MAX_VALUE;
+        float zmin = Float.MAX_VALUE;
+
+        Transform transform = camera.getRotationTransformation();
+        for (Polygon p: polygons) {
+
+            p = p.applyTransformation(transform);
+
+            Vector3D min = p.getMinVec();
+            Vector3D max = p.getMaxVec();
+
+            xmin = Math.min(xmin, min.x);
+            ymin = Math.min(ymin, min.y);
+            zmin = Math.min(zmin, min.z);
+
+            xmax = Math.max(xmax, max.x);
+            ymax = Math.max(ymax, max.y);
+            zmax = Math.max(zmax, max.z);
+
+        }
 
 
-        float nxmax = Math.max(Math.abs(xmax), Math.abs(xmin));
-        float nxmin = Math.min(-Math.abs(xmax), -Math.abs(xmin));
-        float nymax = Math.max(Math.abs(ymax), Math.abs(ymin));
-        float nymin = Math.min(-Math.abs(ymax), -Math.abs(ymin));
-
-        float   scale =  Math.min(width / (nxmax - nxmin), height / (nymax - nymin));
+        float scale =  1f;
         if (rescale) {
+            scale = Math.min(width / (xmax - xmin), height / (ymax - ymin));
             camera.setScale(new Vector3D(scale, scale, 1f));
         }
-        camera.setPosition(new Vector3D(-xmin * scale, -ymin * scale, 0));
-
+        float newX = (((xmax-xmin)/2 * scale));
+        float newY = (((ymax-ymin)/2 * scale));
+        camera.setPosition(new Vector3D(newX,newY,0));
     }
 
     public BufferedImage render(Rectangle imageBounds, Camera camera, Color ambientLight) {
+        // init Z-buffer
         float[][] depthBuffer = new float[imageBounds.width][imageBounds.height];
         Color[][] colourBuffer = new Color[imageBounds.width][imageBounds.height];
 
+        // Get matrix
         Transform transform = camera.getTransformation();
         for (Polygon normalPoly: this.polygons) {
-
+            // Apply matrix and get surface normal and bounds for clipping
             Polygon transPoly = normalPoly.applyTransformation(transform);
             Rectangle polyBounds = transPoly.getBondingBox();
+            // used for lighting
             Vector3D normalUnitSurface = normalPoly.getSurfaceNormal().unitVector();
-            // clipping
+
+            // Rectangular clipping
             if (imageBounds.intersects(polyBounds)) {
 
                 // Check if looking polygon the right way
                 Vector3D surfaceTransNormal = transPoly.getSurfaceNormal();
                 if (surfaceTransNormal.z < 0) {
+
+                    // Get edge list
                     EdgeListItem[] EL = transPoly.getEdgeList(imageBounds.height);
+
                     for (int y = 0; y < EL.length - 1; y++) {
                         if (EL[y] == null) { continue; }
 
@@ -117,14 +149,20 @@ public class Scene {
                         float z = EL[y].getZ_left();
 
                         float mz = (EL[y].getZ_right() - EL[y].getZ_left()) / (EL[y].getX_right() - EL[y].getX_left());
+
+                        // float safety check
                         if (Math.abs(EL[y].getX_right() - EL[y].getX_left()) < 0.001) {
+                            mz = 0;
+                        } else if (Float.isInfinite(mz)) {
+                            mz = 0;
+                        } else if (Float.isNaN(mz)) {
                             mz = 0;
                         }
 
 
-
                         // Iterate through horz line
                         while (x <= Math.round(EL[y].getX_right())) {
+                            // Check if in bounds of the image and the polygon
                             if (x < 0 ||
                                 x >= imageBounds.width ||
                                 y < 0 && y >= imageBounds.height ||
@@ -143,7 +181,7 @@ public class Scene {
                                         ambientLight,
                                         transPoly.getReflective());
 
-                                // Additive merge
+                                // Additive merge of light sources
                                 r = Math.min(l.getRed() +  r, 255);
                                 g = Math.min(l.getGreen() +  g, 255);
                                 b = Math.min(l.getBlue() +  b, 255);
@@ -151,7 +189,7 @@ public class Scene {
                             pixel = new Color(r, g, b);
 
                             // Apply to z-buffer
-                            if (colourBuffer[x][y] != null) {
+                            if (colourBuffer[x][y] != null) { // special un-init'd case
                                 if (z < depthBuffer[x][y] ) {
                                     depthBuffer[x][y] = z;
                                     colourBuffer[x][y] = pixel;
@@ -168,6 +206,7 @@ public class Scene {
             }
         }
 
+        // Draw to image
         BufferedImage img = new BufferedImage(imageBounds.width, imageBounds.height, BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < colourBuffer.length; x++) {
             for (int y = 0; y < colourBuffer[0].length; y++) {
@@ -178,7 +217,6 @@ public class Scene {
                 }
             }
         }
-
         return img;
     }
 }

@@ -12,6 +12,12 @@ public class Camera {
         this.scale = scale;
     }
 
+    /**
+     * Get the whole transformation matrix
+     * Includes translation, scaling and rotations (in that order)
+     *
+     * @return full transformation matrix
+     */
     public Transform getTransformation() {
         Transform t = Transform.newTranslation(position);
         t = t.compose(Transform.newScale(scale));
@@ -20,6 +26,12 @@ public class Camera {
         t = t.compose(Transform.newZRotation(rotation.z));
         return t;
     }
+
+    /**
+     * Get only the rotational transformation matrix
+     *
+     * @return rotational transformation matrix
+     */
     public Transform getRotationTransformation() {
         Transform t = Transform.newXRotation(rotation.x);
         t =  t.compose(Transform.newYRotation(rotation.y));
