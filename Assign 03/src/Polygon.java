@@ -72,11 +72,12 @@ public class Polygon {
     }
 
     public EdgeListItem[] getEdgeList(int imageHeight) {
+
+        // Get polygon bounds (in float)
         float maxyf = Float.MIN_VALUE;
         float minyf = Float.MAX_VALUE;
         float maxxf = Float.MIN_VALUE;
         float minxf = Float.MAX_VALUE;
-
         for (Vector3D vert: points) {
             if (vert.y > maxyf) {
                 maxyf = vert.y;
@@ -91,19 +92,22 @@ public class Polygon {
                 minxf = vert.x;
             }
         }
-        int maxy = Math.round(maxyf);
-        int miny = Math.round(minyf);
+
         EdgeListItem[] list = new EdgeListItem[imageHeight];
 
         for (int a = 0; a < points.length; a++) {
+
             int b = (a + 1 >= points.length ? 0 : a + 1);
+            // make sure VertA is to the left of VertB
             Vector3D vertA = (points[a].y < points[b].y ? points[a] : points[b]);
             Vector3D vertB = (points[a].y >= points[b].y ? points[a] : points[b]);
-            assert(vertA != vertB);
+            if (vertA == vertB) { throw new AssertionError(); }
 
+            // Gradients of x and z in respect of y
             float mx = (vertB.x - vertA.x) / (vertB.y - vertA.y);
             float mz = (vertB.z - vertA.z) / (vertB.y - vertA.y);
 
+            // Float sanity checks
             if (Math.abs(vertB.y - vertA.y) < 0.001) {
                 mx = 0;
                 mz = 0;
@@ -124,9 +128,12 @@ public class Polygon {
 
             int i = Math.round(vertA.y);
             int maxi = Math.round(vertB.y);
+
             do {
+                // make sure in bounds
                 if (i >= 0 && i < imageHeight) {
                     EdgeListItem item = list[i];
+                    // lazy init
                     if (item == null) {
                         item = new EdgeListItem();
                         item.put(x, z);
@@ -136,14 +143,21 @@ public class Polygon {
                     }
                 }
 
+                // step forward in interpolation
                 x += mx;
                 z += mz;
+
+                // sanity bounds checks
                 x = Math.max(Math.min(x, maxxf), minxf);
+
                 i++;
             }  while (i < maxi);
+
+            // make doublely sure last point was added
             if (maxi > 0 && maxi < imageHeight) {
                 EdgeListItem item = list[maxi];
                 if (item == null) {
+                    // lazy init
                     item = new EdgeListItem();
                     item.put(x, z);
                     list[maxi] = item;
@@ -238,7 +252,18 @@ public class Polygon {
 
         int x = Math.round(minxf), y = Math.round(minyf);
         int bot = Math.round(maxyf), right = Math.round(maxxf);
+
         return new Rectangle(x, y, right - x, bot - y);
+    }
+
+
+    public boolean containsVec(Vector3D vec) {
+        for (Vector3D v : this.points) {
+            if (vec.equals(v)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

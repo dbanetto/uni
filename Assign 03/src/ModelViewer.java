@@ -104,7 +104,7 @@ public class ModelViewer extends GUI {
 
     @Override
     protected BufferedImage render() {
-        return (scene != null ? scene.render(new Rectangle(0,0,width,height), camera, getAmbientLightColour()) : null);
+        return (scene != null ? scene.render(new Rectangle(0,0,width,height), camera, getAmbientLightColour(), false) : null);
     }
 
     @Override
