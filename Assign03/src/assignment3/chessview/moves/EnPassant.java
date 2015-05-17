@@ -50,7 +50,11 @@ public class EnPassant implements MultiPieceMove {
 		board.move(move.oldPosition(), move.newPosition());
 		board.setPieceAt(new Position(enPassRow, col), null);
 	}
-	
+
+	public SinglePieceMove getMove() {
+		return move;
+	}
+
 	public String toString() {
 		return "ep";
 	}
