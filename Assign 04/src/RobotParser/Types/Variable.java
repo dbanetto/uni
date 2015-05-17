@@ -1,4 +1,4 @@
-package RobotParser.Values;
+package RobotParser.Types;
 
 import Game.Robot;
 import RobotParser.*;
@@ -9,8 +9,8 @@ import java.util.Scanner;
 /**
  * Created by drb on 08/05/15.
  */
-public class Variable implements Expression, Literal {
-    private Object value;
+public class Variable implements Literal, ProgramObject {
+    private ProgramObject value;
     private final Type type;
     private final String name;
 
@@ -31,11 +31,12 @@ public class Variable implements Expression, Literal {
         if (!stack.varExists(name)) {
             Parser.fail("Usage of " + name + " before it is defined", scanner);
         }
-        return new StackVariableLookUp(name, type);
+        Variable var = stack.getVar(name);
+        return new StackVariableLookUp(name, var.getType());
     }
 
     @Override
-    public Object evaluate(Robot robot, ProgramStack stack) {
+    public ProgramObject evaluate(Robot robot, ProgramStack stack) {
         if (value == null) {
             throw new RuntimeException("Used variable before use");
         }
@@ -52,8 +53,21 @@ public class Variable implements Expression, Literal {
         return value.toString();
     }
 
-    public void setValue(Object val) {
-        Util.CheckType(val, type);
+    public Variable clone() {
+        Variable var = new Variable(this.type, this.name);
+        var.setValue(this.value);
+        return var;
+    }
+
+    @Override
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(ProgramObject val) {
+        if (val != null) {
+            Util.CheckType(val, type);
+        }
         this.value = val;
     }
 
@@ -72,8 +86,9 @@ public class Variable implements Expression, Literal {
         }
 
         @Override
-        public Object evaluate(Robot robot, ProgramStack stack) {
-            return stack.getVar(name).evaluate(robot, stack);
+        public ProgramObject evaluate(Robot robot, ProgramStack stack) {
+            Variable var = stack.getVar(name);
+            return var.evaluate(robot, stack);
         }
 
         @Override

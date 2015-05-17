@@ -1,10 +1,7 @@
-package RobotParser.Values;
+package RobotParser.Types;
 
 import Game.Robot;
-import RobotParser.Expression;
-import RobotParser.Literal;
-import RobotParser.Parser;
-import RobotParser.ProgramStack;
+import RobotParser.*;
 
 import java.lang.reflect.Type;
 import java.util.Scanner;
@@ -12,15 +9,18 @@ import java.util.Scanner;
 /**
  * Created by drb on 06/05/15.
  */
-public class BooleanLiteral implements Expression, Literal {
+public class BooleanLiteral implements ProgramObject, Literal {
     private final Boolean value;
+
+    public static final BooleanLiteral TRUE = new BooleanLiteral(true);
+    public static final BooleanLiteral FALSE = new BooleanLiteral(false);
 
     public static final String regex = "true|false";
     public BooleanLiteral() {
         value = null;
     }
 
-    private BooleanLiteral(boolean val) {
+    public BooleanLiteral(boolean val) {
         this.value = val;
     }
 
@@ -38,8 +38,8 @@ public class BooleanLiteral implements Expression, Literal {
     }
 
     @Override
-    public Object evaluate(Robot robot, ProgramStack stack) {
-        return value;
+    public ProgramObject evaluate(Robot robot, ProgramStack stack) {
+        return this;
     }
 
     @Override
@@ -49,6 +49,16 @@ public class BooleanLiteral implements Expression, Literal {
 
     @Override
     public Type getType() {
-        return Boolean.class;
+        return BooleanLiteral.class;
+    }
+
+    @Override
+    public ProgramObject clone() {
+        return new BooleanLiteral(this.value.booleanValue());
+    }
+
+    @Override
+    public Object getValue() {
+        return value;
     }
 }

@@ -2,6 +2,7 @@ package RobotParser.BoolFunc;
 
 import Game.Robot;
 import RobotParser.*;
+import RobotParser.Types.BooleanLiteral;
 
 import java.lang.reflect.Type;
 import java.util.Scanner;
@@ -25,23 +26,23 @@ public class GreaterThan implements Expression {
         Parser.require("\\(", "missing \'(\'", scanner);
 
         Expression a = ProgramExpression.parse(scanner, stack);
-        Util.CheckTypeError(Integer.class, a, scanner);
+        Util.CheckTypeErrorInt(a, scanner);
 
         Parser.require(",", "missing \',\'", scanner);
 
         Expression b = ProgramExpression.parse(scanner, stack);
-        Util.CheckTypeError(Integer.class, b, scanner);
+        Util.CheckTypeErrorInt(b, scanner);
 
         Parser.require("\\)", "missing \')\'", scanner);
 
         return new GreaterThan(a, b);
     }
     @Override
-    public Object evaluate(Robot robot, ProgramStack stack) {
+    public ProgramObject evaluate(Robot robot, ProgramStack stack) {
         Integer ai = Util.castInt(a.evaluate(robot, stack));
         Integer bi = Util.castInt(b.evaluate(robot, stack));
 
-        return ai > bi;
+        return new BooleanLiteral(ai > bi);
     }
     @Override
     public String toString() {
@@ -50,6 +51,6 @@ public class GreaterThan implements Expression {
 
     @Override
     public Type getType() {
-        return Boolean.class;
+        return BooleanLiteral.class;
     }
 }

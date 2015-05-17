@@ -16,7 +16,7 @@ public class RobotProgram implements RobotProgramNode {
     }
 
     public void parse(Scanner scanner) {
-        // Have a parse stack for static type checking
+        // Have a parse stack for parse-time type checking & check variable usage
         ProgramStack parseStack = new ProgramStack();
         while (scanner.hasNext()) {
             statements.add(ProgramStatement.parse(scanner, parseStack));
@@ -38,6 +38,7 @@ public class RobotProgram implements RobotProgramNode {
         StringBuilder sb = new StringBuilder();
         for (Statement exp : statements) {
             sb.append(exp);
+            sb.append("\n");
         }
         return sb.toString();
     }

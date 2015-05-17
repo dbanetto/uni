@@ -26,7 +26,7 @@ public class Move extends ProgramAction {
             Parser.gobble("\\(", scanner);
 
             steps = ProgramExpression.parse(scanner, stack);
-            Util.CheckTypeError(Integer.class, steps, scanner);
+            Util.CheckTypeErrorInt(steps, scanner);
 
             Parser.require("\\)", "Need closing brackets on actions calls", scanner);
         }

@@ -7,7 +7,7 @@ import java.util.Scanner;
 public interface Expression {
     Expression parseExpression(Scanner scanner, ProgramStack stack);
 
-    Object evaluate(Robot robot, ProgramStack stack);
+    ProgramObject evaluate(Robot robot, ProgramStack stack);
 
     Type getType();
 

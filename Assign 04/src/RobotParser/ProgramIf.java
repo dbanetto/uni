@@ -1,6 +1,7 @@
 package RobotParser;
 
 import Game.Robot;
+import RobotParser.Types.BooleanLiteral;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -19,8 +20,8 @@ public class ProgramIf implements Statement {
         }
 
         @Override
-        public Object evaluate(Robot robot, ProgramStack stack) {
-            return true;
+        public ProgramObject evaluate(Robot robot, ProgramStack stack) {
+            return BooleanLiteral.TRUE;
         }
 
         @Override
@@ -45,41 +46,45 @@ public class ProgramIf implements Statement {
         if (!branches.isEmpty()) {
             Parser.fail("Expected an else before", scanner);
         }
-        Parser.gobble("\\(", scanner);
+        Parser.require("\\(", "\'(\' needed for if's", scanner);
+
         Expression cond = ProgramExpression.parse(scanner, stack);
-        if (cond.getType() != Boolean.class) {
-            Util.TypeError(Boolean.class, cond, scanner);
-        }
-        Parser.gobble("\\)", scanner);
+        Util.CheckTypeErrorBool(cond, scanner);
+
+        Parser.require("\\)", "\')\' needed after expression in if's", scanner);
 
         ProgramBlock block = ProgramBlock.parse(scanner, stack);
 
         branches.add(new IfTuple(cond, block));
 
-        while (scanner.hasNext("else")) {
-            Parser.gobble("else", scanner);
-            if (scanner.hasNext("if")) {
-                Parser.gobble("if", scanner);
+        boolean completed = false;
+        while (scanner.hasNext("else|elif")) {
+            if (completed) {
+                Parser.fail("cannot have any more branches after the \'else\' branch", scanner);
+            }
+            if (scanner.hasNext("elif")) {
+                Parser.gobble("elif", scanner);
 
                 if (branches.isEmpty()) {
                     Parser.fail("Expected only 'if' before", scanner);
                 }
 
-                Parser.gobble("\\(", scanner);
+                Parser.require("\\(", "\'(\' needed for elif's", scanner);
+
                 cond = ProgramExpression.parse(scanner, stack);
-                if (cond.getType() != Boolean.class) {
-                    Util.TypeError(Boolean.class, cond, scanner);
-                }
-                Parser.gobble("\\)", scanner);
+                Util.CheckTypeErrorBool(cond, scanner);
+
+                Parser.require("\\)", "\')\' needed after expression in elif's", scanner);
 
                 block = ProgramBlock.parse(scanner, stack);
 
                 branches.add(new IfTuple(cond, block));
-            } else {
+            } else if (scanner.hasNext("else")) {
+                Parser.gobble("else", scanner);
                 block = ProgramBlock.parse(scanner, stack);
 
                 branches.add(new IfTuple(ELSE, block));
-                break;
+                completed = true;
             }
 
         }

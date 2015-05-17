@@ -1,3 +1,6 @@
+$empty = 0;
+$thresh = 1;
+
 while(or(gt(fuelLeft, sub(mul(div(5, add(1, 4)), -1), -1)), eq(1, 0))){
 	shieldOff;
 	$numBar = numBarrels;
@@ -18,7 +21,7 @@ while(or(gt(fuelLeft, sub(mul(div(5, add(1, 4)), -1), -1)), eq(1, 0))){
 			}
 		}
 	} else{
-	        $first = 1;
+		$first = 1;
 		if(and(eq(barrelFB(1), 0), eq(barrelLR($first), 0))){
 			takeFuel;
 		} elif (gt($numBar, $numBar )){

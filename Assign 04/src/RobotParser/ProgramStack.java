@@ -1,6 +1,6 @@
 package RobotParser;
 
-import RobotParser.Values.Variable;
+import RobotParser.Types.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class ProgramStack {
             return vars.get(name);
         }
         if (parent != null) {
-            return vars.get(name);
+            return  parent.getVar(name);
         }
         throw new RuntimeException("Variable "+ name + " does not exist");
     }

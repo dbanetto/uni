@@ -24,7 +24,7 @@ public class Wait extends ProgramAction {
         if (scanner.hasNext("\\(")) {
             Parser.gobble("\\(", scanner);
             time = ProgramExpression.parse(scanner, stack);
-            Util.CheckTypeError(Integer.class, time, scanner);
+            Util.CheckTypeErrorInt(time, scanner);
             Parser.require("\\)", "Need closing brackets on method calls", scanner);
         }
         return new Wait(time);

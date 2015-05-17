@@ -2,6 +2,7 @@ package RobotParser.BoolFunc;
 
 import Game.Robot;
 import RobotParser.*;
+import RobotParser.Types.BooleanLiteral;
 
 import java.lang.reflect.Type;
 import java.util.Scanner;
@@ -27,23 +28,23 @@ public class And implements Expression {
         Parser.require("\\(", "missing \'(\'", scanner);
 
         Expression a = ProgramExpression.parse(scanner, stack);
-        Util.CheckTypeError(Boolean.class, a, scanner);
+        Util.CheckTypeErrorBool(a, scanner);
 
         Parser.require(",", "missing \',\'", scanner);
 
         Expression b = ProgramExpression.parse(scanner, stack);
-        Util.CheckTypeError(Boolean.class, b, scanner);
+        Util.CheckTypeErrorBool(b, scanner);
 
         Parser.require("\\)", "missing \')\'", scanner);
 
         return new And(a, b);
     }
     @Override
-    public Object evaluate(Robot robot, ProgramStack stack) {
+    public ProgramObject evaluate(Robot robot, ProgramStack stack) {
         Boolean ab = Util.castBool(a.evaluate(robot, stack));
         Boolean bb = Util.castBool(a.evaluate(robot, stack));
 
-        return ab && bb;
+        return new BooleanLiteral(ab && bb);
     }
 
     @Override
@@ -53,6 +54,6 @@ public class And implements Expression {
 
     @Override
     public Type getType() {
-        return Boolean.class;
+        return BooleanLiteral.class;
     }
 }

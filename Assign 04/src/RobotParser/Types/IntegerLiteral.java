@@ -1,16 +1,13 @@
-package RobotParser.Values;
+package RobotParser.Types;
 
 import Game.Robot;
-import RobotParser.Expression;
-import RobotParser.Literal;
-import RobotParser.Parser;
-import RobotParser.ProgramStack;
+import RobotParser.*;
 
 import java.lang.reflect.Type;
 import java.util.Scanner;
 
 
-public class IntegerLiteral implements Expression, Literal {
+public class IntegerLiteral implements ProgramObject, Literal {
     private final Integer value;
     public static final String regex = "-?[1-9][0-9]*|0";
 
@@ -18,13 +15,13 @@ public class IntegerLiteral implements Expression, Literal {
         value = null;
     }
 
-    private IntegerLiteral(int val) {
+    public IntegerLiteral(int val) {
         this.value = val;
     }
 
     @Override
-    public Object evaluate(Robot robot, ProgramStack stack) {
-        return value;
+    public ProgramObject evaluate(Robot robot, ProgramStack stack) {
+        return this;
     }
 
     public static boolean isNext(Scanner scanner) {
@@ -47,6 +44,16 @@ public class IntegerLiteral implements Expression, Literal {
 
     @Override
     public Type getType() {
-        return Integer.class;
+        return IntegerLiteral.class;
+    }
+
+    @Override
+    public ProgramObject clone() {
+        return new IntegerLiteral(this.value.intValue());
+    }
+
+    @Override
+    public Object getValue() {
+        return value;
     }
 }

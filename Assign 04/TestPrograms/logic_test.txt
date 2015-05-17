@@ -1,0 +1,48 @@
+println(1 > 1);
+println(2 > 1);
+println(1 > 2);
+
+println();
+println(1 < 1);
+println(1 < 2);
+println(2 < 1);
+
+println();
+println(1 >= 1);
+println(2 >= 1);
+println(1 >= 2);
+
+println();
+println(1 <= 1);
+println(1 <= 2);
+println(2 <= 1);
+
+println();
+println(1 == 1);
+println(1 == 2);
+
+println();
+println(1 != 1);
+println(1 != 2);
+
+println();
+println(true && true);
+println(true && false);
+println(false && true);
+println(false && false);
+
+println();
+println(true || true);
+println(true || false);
+println(false || true);
+println(false || false);
+
+println();
+println(true ^ true);
+println(true ^ false);
+println(false ^ true);
+println(false ^ false);
+
+println();
+println(1 + 4 * 4);
+println(1 + 4 / 4);

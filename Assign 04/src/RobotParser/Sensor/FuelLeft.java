@@ -3,6 +3,8 @@ package RobotParser.Sensor;
 import Game.Robot;
 import RobotParser.Expression;
 import RobotParser.ProgramStack;
+import RobotParser.ProgramObject;
+import RobotParser.Types.IntegerLiteral;
 
 import java.lang.reflect.Type;
 import java.util.Scanner;
@@ -14,8 +16,8 @@ public class FuelLeft implements Expression {
 
 
     @Override
-    public Object evaluate(Robot robot, ProgramStack stack) {
-        return robot.getFuel();
+    public ProgramObject evaluate(Robot robot, ProgramStack stack) {
+        return new IntegerLiteral(robot.getFuel());
     }
 
     @Override
@@ -30,6 +32,6 @@ public class FuelLeft implements Expression {
 
     @Override
     public Type getType() {
-        return Integer.class;
+        return IntegerLiteral.class;
     }
 }

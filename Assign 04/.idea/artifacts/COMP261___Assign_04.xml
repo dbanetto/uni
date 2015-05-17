@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="COMP261 - Assign 04">
+    <output-path>$PROJECT_DIR$/out/artifacts/COMP261___Assign_04</output-path>
+    <root id="archive" name="COMP261 - Assign 04.jar">
+      <element id="dir-copy" path="$PROJECT_DIR$/src" />
+      <element id="directory" name="TestPrograms">
+        <element id="dir-copy" path="$PROJECT_DIR$/TestPrograms" />
+      </element>
+      <element id="directory" name="assets">
+        <element id="dir-copy" path="$PROJECT_DIR$/assets" />
+      </element>
+    </root>
+  </artifact>
+</component>
