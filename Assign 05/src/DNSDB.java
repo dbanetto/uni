@@ -5,12 +5,12 @@ import java.util.Scanner;
 
 public class DNSDB {
 
-    private BPlusTreeIntToString60 hostNames;
-    private BPlusTreeString60toInt ipAddresses;
+    private BPlusTree<Integer, String> hostNames;
+    private BPlusTree<String, Integer> ipAddresses;
 
     public DNSDB() {
-        hostNames = new BPlusTreeIntToString60();
-        ipAddresses = new BPlusTreeString60toInt();
+        hostNames = new BPlusTree<>();
+        ipAddresses = new BPlusTree<>();
     }
 
     public static Integer stringToIP(String text) {
@@ -23,7 +23,7 @@ public class DNSDB {
             int ip = 0;
             for (int i = 0; i < 4; i++) {
                 int b = Integer.parseInt(bytes[i].trim());
-                ip |= b << (24 - 8 * i);
+                ip |= b << (24 - (8 * i));
             }
 
             return ip;

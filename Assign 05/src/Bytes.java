@@ -131,24 +131,27 @@ public class Bytes {
                 Bytes.byteToInt(b[2]), Bytes.byteToInt(b[3]),
                 Bytes.bytesToInt(b));
 
-	/*
         System.out.println("\n\nChecking intToBytes and bytesToInt");
-	System.out.println("checking from 0 to "+ Integer.MAX_VALUE);
-	int counter = 0;
-	for(int n1=0;n1>=0;n1++){
-		byte[] bs = Bytes.intToBytes(n1);
-		int n2 = Bytes.bytesToInt(bs);
-		if (n1!=n2) System.out.println("\n"+n1+": "+n2);
-		if (counter++ == 10000000) {counter=1;System.out.println(n1);}
-	}
-	System.out.println(" OK");
+
+        System.out.println("checking from 0 to " + Integer.MAX_VALUE);
+        int counter = 0;
+        for (int n1 = 0; n1 >= 0; n1++) {
+            byte[] bs = Bytes.intToBytes(n1);
+            int n2 = Bytes.bytesToInt(bs);
+            if (n1 != n2) System.out.println("\n" + n1 + ": " + n2);
+            if (counter++ == 10000000) {
+                counter = 1;
+                System.out.println(n1);
+            }
+        }
+        System.out.println(" OK");
 
         System.out.println("intToByte and byteToInt\ndec / hex -> to byte -> back");
-	for(int i=0;i<256;i++){
-	    byte bt =Bytes.intToByte(i);
-	    System.out.printf("%d / %h -> %h -> %h\n", i, i, bt&0xff, Bytes.byteToInt(bt));
-	}
-        */
+        for (int i = 0; i < 256; i++) {
+            byte bt = Bytes.intToByte(i);
+            System.out.printf("%d / %h -> %h -> %h\n", i, i, bt & 0xff, Bytes.byteToInt(bt));
+        }
+
         System.out.println("Done");
     }
 
