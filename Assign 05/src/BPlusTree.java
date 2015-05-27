@@ -1,18 +1,23 @@
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import java.util.*;
 
 /**
  * Created by drb on 17/05/15.
  */
-public class BPlusTree<K extends Comparable, V> implements Iterable<Map.Entry<K,V>> {
+public class BPlusTree<K extends Comparable<K>, V> implements Iterable<Map.Entry<K,V>> {
     private static final int leafDegree = 1024; // number of K-V pairs
-    private static final int internalDegree = 1024; // number of keys
+    private static final int internalDegree = 100; // number of keys
 
     private final Comparator<K> comparator = new Comparator<K>() {
         @Override
         public int compare(K o1, K o2) {
             return o1.compareTo(o2);
+        }
+    };
+
+    private final Comparator<K> comparatorDecending = new Comparator<K>() {
+        @Override
+        public int compare(K o1, K o2) {
+            return -o1.compareTo(o2);
         }
     };
 
@@ -75,7 +80,7 @@ public class BPlusTree<K extends Comparable, V> implements Iterable<Map.Entry<K,
         BPlusTreeNode<K, V> put(K key, V value);
     }
 
-    private class BPlusTreeInternalNode<K extends Comparable> implements BPlusTreeNode<K, V> {
+    private class BPlusTreeInternalNode<K extends Comparable<K>> implements BPlusTreeNode<K, V> {
         private BPlusTreeInternalNode<K> parent = null;
         private List<K> keys = new ArrayList<>(internalDegree);
         private List<BPlusTreeNode<K, V>> children = new ArrayList<>(internalDegree + 1);
@@ -88,6 +93,13 @@ public class BPlusTree<K extends Comparable, V> implements Iterable<Map.Entry<K,
             this.parent = parent;
             this.keys = keys;
             this.children = children;
+            for (BPlusTreeNode<K, V> child : this.children) {
+                if (child instanceof BPlusTreeInternalNode) {
+                    ((BPlusTreeInternalNode<K>)child).parent = this;
+                } else if (child instanceof BPlusTreeLeafNode) {
+                    ((BPlusTreeLeafNode<K,V>)child).parent = this;
+                }
+            }
         }
 
         @Override
@@ -107,36 +119,31 @@ public class BPlusTree<K extends Comparable, V> implements Iterable<Map.Entry<K,
 
         @Override
         public V find(K key) {
-            for (int i = 0; i < keys.size(); i++) {
-                if (key.compareTo(keys.get(i)) < 0) {
-                    return children.get(i).find(key);
-                }
+            int i = Collections.binarySearch(this.keys, key);
+            if (i < 0) {
+                i = -i - 1;
             }
-            return children.get(keys.size()).find(key);
+            return children.get(i).find(key);
         }
 
         @Override
         public BPlusTreeNode<K, V> put(K key, V value) {
-            for (int i = 0; i < keys.size(); i++) {
-                if (key.compareTo(keys.get(i)) < 0) {
-                    children.get(i).put(key, value);
-                    return (parent == null ? this : parent);
-                }
+            int i = Collections.binarySearch(this.keys, key);
+            if (i < 0) {
+                i = -i - 1;
             }
-            children.get(keys.size()).put(key, value);
+            children.get(i).put(key, value);
             return (parent == null ? this : parent);
         }
 
         public void promoteRight(K key, BPlusTreeNode<K, V> node) {
-            int i = 0;
-            for (; i < keys.size(); i++) {
-                if (((Comparator<? super K>)comparator).compare(key, keys.get(i)) < 0) {
-                    break;
-                }
+            int i = Collections.binarySearch(this.keys, key);
+            if (i < 0) {
+                i = -i - 1;
             }
+
             keys.add(i, key);
             children.add(i + 1, node);
-
             if (needsSplit()) {
                 this.split();
             }
@@ -155,20 +162,33 @@ public class BPlusTree<K extends Comparable, V> implements Iterable<Map.Entry<K,
             ListIterator<K> keyItr = keys.listIterator();
             ListIterator<BPlusTreeNode<K, V>> childItr = children.listIterator();
 
-            K midKey = keys.get(midpoint);
+            K midKey = null;
             for (int i = 0; i < keys.size(); i++) {
                 if (i < midpoint) {
                     leftKeys.add(keyItr.next());
                     leftChildren.add(childItr.next());
                 } else if (i == midpoint) {
+                    midKey = keyItr.next();
                     leftChildren.add(childItr.next());
                 } else {
                     rightKeys.add(keyItr.next());
                     rightChildren.add(childItr.next());
                 }
-
             }
             rightChildren.add(childItr.next());
+
+            if (keys.size() != leftKeys.size() + rightKeys.size() + 1) {
+                throw new AssertionError();
+            }
+            if (children.size() != leftChildren.size() + rightChildren.size()) {
+                throw new AssertionError();
+            }
+            if (leftChildren.size() != leftKeys.size() + 1) {
+                throw new AssertionError();
+            }
+            if (rightChildren.size() != rightKeys.size() + 1) {
+                throw new AssertionError();
+            }
 
             this.keys = leftKeys;
             this.children = leftChildren;
@@ -184,14 +204,18 @@ public class BPlusTree<K extends Comparable, V> implements Iterable<Map.Entry<K,
 
         @Override
         public String toString() {
-            return "{" + this.keys.get(0) +  "..." + this.keys.get(this.keys.size() - 1)+ "}";
-
+            if (keys.size() > 1)
+                return "{" + this.keys.get(0) +  "..." + this.keys.get(this.keys.size() - 1)+ "}";
+            else if (keys.size() > 1)
+                return "{"+ this.keys.get(0) +"}";
+            else
+                return "{}";
         }
     }
 
     private class BPlusTreeLeafNode<K extends Comparable, V> implements BPlusTreeNode<K, V>, Iterable<Map.Entry<K,V>> {
         // Maintain a sorted map
-        SortedMap<K, V> values = new TreeMap<>((Comparator<? super K>) comparator);
+        SortedMap<K, V> values = new TreeMap<>((Comparator<? super K>)comparator);
         BPlusTreeLeafNode<K, V> next;
         BPlusTreeInternalNode parent = null;
 

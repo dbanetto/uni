@@ -175,6 +175,7 @@ public class DNSDB {
      * it will print that value to System.out.
      */
     public void testAllPairs(File file) {
+        System.out.println("Starting Test");
         try {
             Scanner scan = new Scanner(file);
             while (scan.hasNextLine()) {
@@ -212,5 +213,6 @@ public class DNSDB {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        System.out.println("Completed Test");
     }
 }
