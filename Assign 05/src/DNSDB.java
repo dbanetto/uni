@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.io.*;
+import java.util.Map;
 import java.util.Scanner;
 
 
@@ -71,6 +72,9 @@ public class DNSDB {
             System.out.println("Fail: " + e);
         }
         System.out.println("Loading Done");
+
+
+
     }
 
     /**
@@ -120,6 +124,9 @@ public class DNSDB {
      * @return true if valid, false otherwise
      */
     public boolean testPair(String hostName, int ip) {
+        if (hostName == null) {
+            throw new IllegalArgumentException();
+        }
         Integer foundIP = findIP(hostName);
         if (foundIP == null) {
             String foundName = findHostName(ip);
@@ -154,7 +161,13 @@ public class DNSDB {
     public void iterateAll() {
         //YOUR CODE HERE
         //You will need to add methods to the BPlusTree... classes.
-        JOptionPane.showMessageDialog(null, "You must implement iterateAll()");
+        System.out.println("Host names");
+        int count = 0;
+        for (Map.Entry val : hostNames) {
+            // System.out.println(val.getKey() + " -> " + val.getValue());
+            count++;
+        }
+        System.out.println("Hostname count = " + count);
     }
 
     /**
@@ -168,13 +181,31 @@ public class DNSDB {
                 String[] line = scan.nextLine().split("\t");
                 if (line.length != 2)
                     continue;
-                int ip = stringToIP(line[0].trim());
-                String host = line[1].trim();
+                int ip = 0;
+                String host = null;
+                // test for IP address
+                if (line[0].matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {
+                    ip = stringToIP(line[0].trim()); // make sure you test IP \t Domain format
+                    host = line[1].trim();
+                } else if (line[1].matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {
+                    ip = stringToIP(line[1].trim());
+                    host = line[0].trim();
+                } else {
+                    System.out.println("Failed to parse: " + line[0]  + " " + line[1]);
+                    continue;
+                }
+                if (host == null) {
+                    System.out.println("Failed to parse: " + line[0]  + " " + line[1]);
+                    continue;
+                }
+
                 if (!testPair(ip, host)) {
                     System.out.println("Missing: " + IPToString(ip) + " -> " + host);
+                    testPair(ip, host);
                 }
                 if (!testPair(host, ip)) {
                     System.out.println("Missing: " + host + " -> " + IPToString(ip));
+                    testPair(host, ip);
                 }
             }
             scan.close();
