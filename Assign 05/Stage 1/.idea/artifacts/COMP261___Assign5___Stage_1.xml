@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="COMP261 - Assign5 - Stage 1">
+    <output-path>$PROJECT_DIR$/out/artifacts/COMP261___Assign5___Stage_1</output-path>
+    <root id="archive" name="COMP261 - Assign5 - Stage 1.jar">
+      <element id="dir-copy" path="$PROJECT_DIR$/src" />
+      <element id="module-output" name="Assign 05" />
+    </root>
+  </artifact>
+</component>
