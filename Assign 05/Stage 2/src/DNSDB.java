@@ -169,7 +169,7 @@ public class DNSDB {
         System.out.println("Host names");
         int count = 0;
         for (Map.Entry val : hostNames) {
-            System.out.println(val.getKey() + " -> " + val.getValue());
+            // System.out.println(val.getKey() + " -> " + val.getValue());
             count++;
         }
         System.out.println("Hostname count = " + count);

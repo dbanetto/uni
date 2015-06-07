@@ -168,7 +168,7 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
         Block block = new Block(file.read(index));
         int parent;
         int rightNodeIndex;
-        Map<K, V> values = new TreeMap<>();
+        SortedMap<K, V> values = new TreeMap<>();
 
         // meta-data byte
         BlockType meta = BlockType.fromByte(block.getByte(0));
@@ -255,13 +255,33 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
 
         @Override
         public int put(K key, V value) throws IOException {
-            parseNode(children.get(findIndex(key, keys))).put(key, value);
+
+            for (int index = 0; index <= keys.size(); index++) {
+                if (index >= keys.size()) {
+                    parseNode(children.get(keys.size())).put(key, value);
+                    break;
+                }
+
+                if (key.compareTo(keys.get(index)) < 0) {
+                    parseNode(children.get(index)).put(key, value);
+                    break;
+                }
+            }
             return (parent == NULL_POINTER ? index : parent);
         }
 
         @Override
         public V find(K key) throws IOException {
-            return (V)parseNode(children.get(findIndex(key, keys))).find(key);
+            for (int index = 0; index <= keys.size(); index++) {
+                if (index >= keys.size()) {
+                    return (V)parseNode(children.get(keys.size())).find(key);
+                }
+
+                if (key.compareTo(keys.get(index)) < 0) {
+                    return (V)parseNode(children.get(index)).find(key);
+                }
+            }
+            throw new AssertionError();
         }
 
         @Override
@@ -287,12 +307,12 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
                 }
                 for (int b = 0; b < sizeOfKey; b++) {
                     if (b < keyBytes.length) {
-                        block.setByte(keyBytes[b], i);
+                        block.setByte(keyBytes[b], i + b);
                     } else {
-                        block.setByte((byte)0, i);
+                        break;
                     }
-                    i++;
                 }
+                i += sizeOfKey;
 
                 block.setInt(children.get(c + 1), i);
                 i += INT_SIZE;
@@ -307,25 +327,37 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
         }
 
         public void promoteRight(K key, int index) throws IOException  {
-            int i = findIndex(key, keys);
+            int i = 0;
+            for (; i <= keys.size(); i++) {
+                if (i >= keys.size()) {
+                    break;
+                }
+
+                if (key.compareTo(keys.get(i)) < 0) {
+                    break;
+                }
+            }
 
             keys.add(i, key);
             children.add(i + 1, index);
-            if (keys.size() > splitSize()) {
+            if (keys.size() >= splitSize()) {
                 this.split();
+            } else {
+                this.write(file);
             }
-            this.write(file);
         }
 
         private void split() throws IOException {
             int midpoint = (int) Math.floor(splitSize() / 2.0);
 
             // right is greater or equal to midkey
-            List<K> rightKeys = new ArrayList<>(keys.subList(midpoint+1, keys.size()));
-            List<Integer> rightChildren = new ArrayList<>(children.subList(midpoint+1, children.size()));
-            K midKey = keys.get(midpoint);
             List<K> leftKeys = new ArrayList<>(keys.subList(0, midpoint));
             List<Integer> leftChildren = new ArrayList<>(children.subList(0, midpoint+1));
+
+            K midKey = keys.get(midpoint);
+
+            List<K> rightKeys = new ArrayList<>(keys.subList(midpoint+1, keys.size()));
+            List<Integer> rightChildren = new ArrayList<>(children.subList(midpoint+1, children.size()));
 
             this.keys = leftKeys;
             this.children = leftChildren;
@@ -340,8 +372,27 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
             FileInternalNode rightNode = new FileInternalNode(rightIndex, parent, rightKeys, rightChildren);
             rightNode.write(file);
 
+            // maintain parent pointers
+            for (int child : rightChildren) {
+                try {
+                    Node<K,V> node = parseNode(child);
+                    if (node.getType() == BlockType.INTERNAL_NODE) {
+                        FileInternalNode internalNode = (FileInternalNode)node;
+                        internalNode.parent = rightIndex;
+                        internalNode.write(file);
+                    } else if (node.getType() == BlockType.LEAF_NODE) {
+                        FileLeafNode internalNode = (FileLeafNode)node;
+                        internalNode.parent = rightIndex;
+                        internalNode.write(file);
+                    }
+                } catch (IOException ex) {
+                    System.out.println(ex);
+                }
+            }
+
+            this.write(file);
             parseInternalNode(parent).promoteRight(midKey, rightIndex);
-            // System.out.println("split int " + this  + " | " + midKey + " | " + rightNode);
+            System.out.println("split int " + this  + " | " + midKey + " | " + rightNode);
         }
 
         @Override
@@ -364,10 +415,10 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
 
         int parent;
         int rightNodeIndex;
-        Map<K, V> values;
+        SortedMap<K, V> values;
         final int index;
 
-        FileLeafNode(int index, Map<K, V> values, int parent, int rightNodeIndex) {
+        FileLeafNode(int index, SortedMap<K, V> values, int parent, int rightNodeIndex) {
             this.index = index;
             this.parent = parent;
             this.values = values;
@@ -393,8 +444,9 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
 
             if (values.size() > splitSize()) {
                 split();
+            } else {
+                this.write(file);
             }
-            this.write(file);
             return (parent == NULL_POINTER ? index : parent);
         }
 
@@ -404,7 +456,7 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
         }
 
         private void split() throws IOException {
-            int midpoint = (int) Math.floor(values.size() / 2.0);
+            int midpoint = (int) Math.floor(splitSize() / 2.0);
 
             // right is greater or equal to midkey
             SortedMap<K, V> right = new TreeMap<>();
@@ -428,7 +480,9 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
             int rightIndex = allocateBlock();
             FileLeafNode rightNode = new FileLeafNode(rightIndex, right, parent, this.rightNodeIndex);
             rightNode.write(file);
+
             this.rightNodeIndex = rightIndex;
+            this.write(file);
             parseInternalNode(parent).promoteRight(right.firstKey(), rightIndex);
         }
 
@@ -451,12 +505,12 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
                 }
                 for (int b = 0; b < sizeOfKey; b++) {
                     if (b < keyBytes.length) {
-                        block.setByte(keyBytes[b], i);
+                        block.setByte(keyBytes[b], i + b);
                     } else {
-                        block.setByte((byte)0, i);
+                        break;
                     }
-                    i++;
                 }
+                i += sizeOfKey;
 
                 byte[] valBytes = valueToBytes(entry.getValue());
                 if (valBytes.length > sizeOfValue) {
@@ -464,12 +518,12 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
                 }
                 for (int b = 0; b < sizeOfValue; b++) {
                     if (b < valBytes.length) {
-                        block.setByte(valBytes[b], i);
+                        block.setByte(valBytes[b], i + b);
                     } else {
-                        block.setByte((byte)0, i);
+                        break;
                     }
-                    i++;
                 }
+                i += sizeOfValue;
             }
             file.write(block.getBytes(), index);
         }
@@ -488,8 +542,6 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
             return new Iterator<Map.Entry<K, V>>() {
                 Iterator<Map.Entry<K,V>> internal = values.entrySet().iterator();
                 int nextIndex = rightNodeIndex;
-
-                K lastKey = null;
 
                 @Override
                 public boolean hasNext() {
@@ -514,12 +566,7 @@ public abstract class FileBPlusTree<K extends Comparable<K>,V> implements Iterab
                             throw new ArrayIndexOutOfBoundsException();
                         }
                     }
-                    Map.Entry<K,V> entry = internal.next();
-                    if (lastKey != null && entry.getKey().compareTo(lastKey) < 0) {
-                        throw new AssertionError();
-                    }
-                    lastKey = entry.getKey();
-                    return entry;
+                    return internal.next();
                 }
             };
 
