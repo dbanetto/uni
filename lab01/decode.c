@@ -65,7 +65,7 @@ void buildtable(char* key, char* decode)
     // probably need to declare some stuff here!
 
     char *set = (char*)calloc(26, sizeof(char));
-    int index = strlen(key) % 26;
+    int index = (strlen(key) - 1) % 26;
     /*printf("Offset: %i\n", index);*/
     fixkey(key); // fix the key, i.e., uppercase and remove whitespace and punctuation
 
