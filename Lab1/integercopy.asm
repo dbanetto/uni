@@ -5,7 +5,6 @@
 
 .text
 	main:
-		add $s0, $0, $ra # Save our return address
 		la $a0, source
 		la $a1, dest
 		lw $v1, 0($a0)       # read first word from source
