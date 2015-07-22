@@ -4,17 +4,19 @@
 	countmsg: .asciiz  " values copied. "
 
 .text
-	main: 
+	main:
 		add $s0, $0, $ra # Save our return address
 		la $a0, source
 		la $a1, dest
-	
-	loop: 
+		lw $v1, 0($a0)       # read first word from source
+		
+	loop:
 		lw $v1, 0($a0)       # read next word from source
 		addi $v0, $v0,1      # increment count words copied
 		sw $v1, 0($a1)       # write to destination
-		addi $a0, $a0,1      # advance pointer to next source
-		addi $a1, $a1,1      # advance pointer to next dest 8
+		addi $a0, $a0,4      # advance pointer to next source
+		addi $a1, $a1,4      # advance pointer to next dest
+		lw $v1, 0($a0)       # read next word from source
 		bne $v1, $zero, loop # loop if word copied not zero
 
 	loopend:
@@ -27,4 +29,5 @@
 		li $a0, 0x0A # We want to print '\n'
 		li $v0, 11
 		syscall # Print it
-		jr $s0 # Return from main.  We stored $ra in $s0
+		li $v0, 10
+		syscall # Exit
