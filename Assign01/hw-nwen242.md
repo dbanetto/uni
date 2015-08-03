@@ -75,7 +75,56 @@ $$IPS_{P3} = \frac{4GHz}{2.2} = 1,818,181$$
 
 Processor $P2$ has the highest instructions per second
 
+#### Part B
 
 $$Total\ Instructions_{P1} = 10 * IPS_{P1} = 10 * 2,0000,00 = 20,000,000$$
 $$Total\ Instructions_{P2} = 10 * IPS_{P2} = 10 * 2,5000,00 = 25,000,000$$
 $$Total\ Instructions_{P3} = 10 * IPS_{P3} = 10 * 1,818,181 = 18,1818,18$$
+
+#### Part C
+
+
+### Question 3
+
+1.  Input: The input data from sensors like touch screens, keyboard and mice with the data written to memory by the devices
+2.  Output: The output of data such as a GPU to a monitor or a printer with the output devices reading the data sent to them.
+3.  Memory: The storage of data, be it cache, RAM or a hard drive
+4.  Datapath: Controls the flow of data in and out of the processor
+5.  Control: sends signals that determine the operation of other components
+
+### Question 4
+
+```c
+B[g] = A[f + 1] + A[f];
+```
+
+### Question 5
+
+```mips
+sll $t0, $s3, 2    # $t0 = i * 4
+add $t0, $s6, $t0  # $t0 = &A[i]
+sll $t1, $s4, 2    # $t1 = j * 4
+add $t1, $s6, $t1  # $t1 = &A[j]
+addi $t2, $zero, 8 # $t2 = 8
+sll $t2, $t2, 2    # $t2 = 8 * 4
+add $t2, $s7, $t2  # $t2 = &B[8]
+lw  $t0, 0($t0)    # $t0 = A[i]
+lw  $t1, 0($t1)    # $t1 = A[j]
+add $t0, $t0, $t1  # $t0 = $t0 + $t1
+sw  $t0, 0($t2)    # B[8] = $t0
+```
+
+### Question 6
+
+
+#### Part A
+
+The most appropriate instruction format would be the I-Format as it is like a Conditional branch.
+
+#### Part B
+
+```mips
+subi $t2, $t2, 1 # $t2 = $t2 - 1
+bne $t2, $zero, loop # Loop breaks on #at == 1 which is the same as $t2 == 0.
+# PC=PC+4+BranchAddr
+```
