@@ -83,6 +83,15 @@ $$Total\ Instructions_{P3} = 10 * IPS_{P3} = 10 * 1,818,181 = 18,1818,18$$
 
 #### Part C
 
+$$ \frac{Freq_{pre}}{CPI_{pre}} * 10 = Total\ Instructions = \frac{Freq_{post}}{CPI_{post}} * 7 $$
+$$let\ CPI_{post} = CPI_{pre} * 1.2$$
+$$ \frac{Freq_{pre}}{CPI_{pre}} * 10 = \frac{Freq_{post}}{CPI_{pre}* 1.2} * 7 $$
+$$ Freq_{pre} * 12 = Freq_{post} * 7 $$
+$$ \frac{Freq_{pre} * 12}{7} = Freq_{post} $$
+
+$$Freq_{P1 post} = \frac{3Ghz * 12}{7} = 5.14GHz (2 d.p)$$
+$$Freq_{P2 post} = \frac{2.5Ghz * 12}{7} = 4.29GHz (2 d.p)$$
+$$Freq_{P3 post} = \frac{4Ghz * 12}{7} = 6.86Ghz (2 d.p)$$
 
 ### Question 3
 
@@ -124,7 +133,7 @@ The most appropriate instruction format would be the I-Format as it is like a Co
 #### Part B
 
 ```mips
-subi $t2, $t2, 1 # $t2 = $t2 - 1
-bne $t2, $zero, loop # Loop breaks on #at == 1 which is the same as $t2 == 0.
+subi $at, $t2, 1 # $t2 = $t2 - 1
+beq $at, $zero, loop # Loop breaks on #at == 1 which is the same as $t2 == 0.
 # PC=PC+4+BranchAddr
 ```
