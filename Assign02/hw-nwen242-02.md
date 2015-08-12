@@ -48,6 +48,17 @@ Assuming `a = $a0` `b = $a1` `c = $a2` `d = $a3`
 # return
 ```
 
+### Question 4
+
+`0x11???????` with the ?'s being undefined
+
+### Question 5
+
+
 ### Question 6
 
 $$XOR = A * \bar{B} + \bar{A} * B $$
+
+### Question 7
+
+
