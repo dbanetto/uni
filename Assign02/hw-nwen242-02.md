@@ -37,20 +37,31 @@ JLOOPEND:
 ILOOPEND:
 ```
 
+\pagebreak
+
 ### Question 3
 
 Assuming `a = $a0` `b = $a1` `c = $a2` `d = $a3`
 
 ```mips
-# TODO Save return pointer to stack
-# call function
-# restore stack pointer & rp
-# return
+func_f:
+    addi $sp, $sp, -8
+    sw $ra, 0($sp)
+    sw $a0, 4($sp)
+    move $a1, $a2 # set up argument $a0 = a $a1 = c
+    jal FUNC # call func
+    # restore variable a and return pointer
+    lw $ra, 0($sp)
+    lw $t0, 4($sp)
+    addi $sp, $sp, 8 # restore stack pointer
+    add $r0, $r0, $t0 # make return value of a+func()
+    jr $ra # return
 ```
 
 ### Question 4
 
-`0x11???????` with the ?'s being undefined
+The value of the word at address `0x10000000` is `0x11223344` and the
+value of the word at `0x10000010` is `0x11???????` with the ?'s being undefined
 
 ### Question 5
 
