@@ -1,0 +1,47 @@
+
+/* ---------------- some central hosts with fast links ------------ */
+
+host sydney {
+    x=550, y=530
+    link to hobart
+    link to melbourne
+}
+
+/* --------------- then some other hosts with slower links -------- */
+
+host perth {
+    x=380, y=530
+    link to melbourne
+}
+
+host melbourne {
+    x=460, y=530
+    link to perth
+    link to sydney
+    link to hobart
+}
+host hobart {
+    x=510, y=600
+    link to sydney
+    link to melbourne
+}
+host brisbane {
+    x=555, y=450
+    link to sydney
+}
+host wellington {
+    x=655, y=545
+    link to sydney
+}
+host auckland {
+    x=640, y=490
+    link to wellington
+}
+host dunedin {
+    x=615, y=650
+    link to christchurch
+}
+host christchurch {
+    x=630, y=600
+    link to wellington
+}
