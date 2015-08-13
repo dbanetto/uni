@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#define TEXT_SIZE 100000  // Note, the longer the text the more likely you will get a good 'decode' from the start.
+#define TEXT_SIZE 100000000  // Note, the longer the text the more likely you will get a good 'decode' from the start.
 #define ALEN 26         // Number of chars in ENGLISH alphabet
 #define CHFREQ "ETAONRISHDLFCMUGYPWBVKJXQZ" // Characters in order of appearance in English documents.
 #define ALPHABET "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -113,7 +113,6 @@ int main(int argc, char **argv)
             if (c >= 0 && c < 26) {
                 freq_table[sub][c]++;
             }
-
             sub = (sub + 1) % key;
         }
 
@@ -130,42 +129,30 @@ int main(int argc, char **argv)
                 int chari = text[index] - 'A';
                 cur = trans_table[sub][chari];
             }
-            printf("%c", cur);
             sub = (sub + 1) % key;
+            printf("%c", cur);
         }
 
         // Clean up
         for (int i = 0; i < key; i++) {
-            /* DEBUG STATEMENTS */
-            printf("%02i/%02i ", i+1, key);
-            for (int j = 0; j < 26; j++) {
-                printf("%c:%02i ", j + 'A', freq_table[i][j]);
-            }
-            printf("\n");
-            for (int j = 0; j < 26; j++) {
-                printf("%c->%c ", j + 'A', trans_table[i][j]);
-            }
-            printf("\n");
-            /* DEBUG STATEMENTS */
-
             free(freq_table[i]);
             free(trans_table[i]);
         }
         free(freq_table); freq_table = NULL;
         free(trans_table); trans_table = NULL;
-        printf("\n"); /* DEBUG STATEMENTS */
+        printf("\n");
     }
 
     free(text);
 }
 
-void freq_map(char *map, int *freq_table) {
+void freq_map(char map[26], int freq_table[26]) {
     char *chfreq = CHFREQ;
     int i, n;
     int max = -1; char c_max = '\0';
+    // O(1)!! :D
     for (i = 0; i < 26; i++) {
         max = -1;
-        // O(N^2) :(
         for (n = 0; n < 26; n++) {
             if (freq_table[n] > max && !map[n]) {
                 max = freq_table[n];
