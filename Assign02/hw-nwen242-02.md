@@ -1,8 +1,7 @@
-# NWEN242 Homework Assignment 2
+% NWEN242 Homework Assignment 2
+% David Barnett ID: 300313764
 
-## David Barnett ID: 300313764
-
-### Question 1
+### Question 1 {#Q1}
 
 #### Part A
 
@@ -12,7 +11,7 @@ Yes
 
 No
 
-### Question 2
+### Question 2 {#Q2}
 
 ```mips
     addi $t0, $zero, 0 # i = 0
@@ -39,7 +38,7 @@ ILOOPEND:
 
 \pagebreak
 
-### Question 3
+### Question 3 {#Q3}
 
 Assuming `a = $a0` `b = $a1` `c = $a2` `d = $a3`
 
@@ -55,21 +54,81 @@ func_f:
     lw $t0, 4($sp)
     addi $sp, $sp, 8 # restore stack pointer
     add $r0, $r0, $t0 # make return value of a+func()
-    jr $ra # return
+    jr $ra # return with result in $r0
 ```
 
-### Question 4
+### Question 4 {#Q4}
 
 The value of the word at address `0x10000000` is `0x11223344` and the
 value of the word at `0x10000010` is `0x11???????` with the ?'s being undefined
 
-### Question 5
+\pagebreak
 
+### Question 5 {#Q5}
 
-### Question 6
+Inputs are `A`, `B`, `C` and `D`. Output is `O`
 
-$$XOR = A * \bar{B} + \bar{A} * B $$
++---+---+---+---+---+
+| A | B | C | D | O |
++===+===+===+===+===+
+| 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+
+| 1 | 0 | 0 | 0 | 1 |
++---+---+---+---+---+
+| 0 | 1 | 0 | 0 | 1 |
++---+---+---+---+---+
+| 1 | 1 | 0 | 0 | 0 |
++---+---+---+---+---+
+| 0 | 0 | 1 | 0 | 1 |
++---+---+---+---+---+
+| 1 | 0 | 1 | 0 | 0 |
++---+---+---+---+---+
+| 0 | 1 | 1 | 0 | 0 |
++---+---+---+---+---+
+| 1 | 1 | 1 | 0 | 1 |
++---+---+---+---+---+
+| 0 | 0 | 0 | 1 | 1 |
++---+---+---+---+---+
+| 1 | 0 | 0 | 1 | 0 |
++---+---+---+---+---+
+| 0 | 1 | 0 | 1 | 0 |
++---+---+---+---+---+
+| 1 | 1 | 0 | 1 | 1 |
++---+---+---+---+---+
+| 0 | 0 | 1 | 1 | 0 |
++---+---+---+---+---+
+| 1 | 0 | 1 | 1 | 1 |
++---+---+---+---+---+
+| 0 | 1 | 1 | 1 | 1 |
++---+---+---+---+---+
+| 1 | 1 | 1 | 1 | 0 |
++---+---+---+---+---+
 
-### Question 7
+### Question 6 {#Q6}
 
+$$
+(A * \bar{B} * \bar{C} * \bar{D}) +
+$$$$
+(\bar{A} * B * \bar{C} * \bar{D}) +
+$$$$
+(\bar{A} * \bar{B} * C * \bar{D}) +
+$$$$
+(\bar{A} * \bar{B} * \bar{C} * D) +
+$$$$
+(A * B * C * \bar{D}) +
+$$$$
+(A * B * \bar{C} * D) +
+$$$$
+(A * \bar{B} * C * D) +
+$$$$
+(\bar{A} * B * C * D)
+$$
 
+\pagebreak
+
+### Question 7 {#Q7}
+
+Graph have T=0 with the initial values
+
+![](./f-signal-graph.png)
+![](./g-signal-graph.png)
