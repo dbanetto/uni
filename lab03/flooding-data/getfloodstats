@@ -3,7 +3,8 @@
 DURATION="10mins"
 EVERY="10"			# seconds
 #
-rm -f result.flood*
+rm -rf data/
+mkdir data
 #
 for map in "NEWZEALAND.MAP" "WORLD.MAP" "NZ_AUS.MAP" "NORTH_ISLAND.MAP"
 do
@@ -13,6 +14,26 @@ do
         cnet -W -q -T -e $DURATION -s -f ${EVERY}secs FLOODING$f	| \
             grep 'Efficiency'						| \
             cut -d: -f 2						| \
-            awk "{ printf(\"%d %s\n\", ++i * $EVERY, \$1); }"		> result-$map.flood$f
+            awk "{ printf(\"%d %s\n\", ++i * $EVERY, \$1); }"		> data/result-$map.flood$f
     done
+
+    gnuplot <</EOF
+
+    set title "Comparison of 3 flooding protocols"
+    set xlabel "Running time (seconds)"
+    set ylabel "Delivery efficiency (%)"
+
+    set grid
+    set yrange [0:]
+
+    map = "${map}"
+
+    set terminal latex
+    set output sprintf("%s-plot.tex", map)
+    plot	\
+        sprintf("data/result-%s.flood1", map)		title "flooding1" with linespoints, \
+        sprintf("data/result-%s.flood2", map)		title "flooding2" with linespoints, \
+        sprintf("data/result-%s.flood3", map)		title "flooding3" with linespoints
+/EOF
 done
+
