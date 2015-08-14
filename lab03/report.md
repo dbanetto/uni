@@ -2,7 +2,10 @@
 % David Barnett ID: 300313764
 
 # Abstract
+
 *The abstract is a brief summary of the report and contains the scope, motivation, results, the meaning of the results and the conclusion. The abstract is the first thing a person will read in your report. It is important to present the information in a clear, succinct manner to entice the viewer into reading your report.*
+
+This experiment aims to investigate a the efficiency of a range of routing protocols in a simulated network.
 
 # Introduction
 
@@ -18,16 +21,16 @@
 
 
 ----------------------------------                 --------------------------------------------
-![World map](./res/WORLD.MAP-plot.png)             ![New Zealand & Austrila map](./res/NZ_AUS.MAP-plot.png)
+![World map](./res/WORLD.MAP-plot.png)             ![New Zealand & Austrila map](./res/NZ AUS.MAP-plot.png)
 
-![New Zealand map](./res/NEWZEALAND.MAP-plot.png)  ![North Island of New Zealand map](./res/NORTH_ISLAND.MAP-plot.png)
+![New Zealand map](./res/NEWZEALAND.MAP-plot.png)  ![North Island of New Zealand map](./res/NORTH ISLAND.MAP-plot.png)
 ----------------------------------                 --------------------------------------------
 
 
 ## Hops
 
 --------------------------------------------       --------------------------------------------
-![World Hops map](./res/WORLD.MAP-hops-plot.png)   ![North Island of New Zealand map](./res/NZ_AUS.MAP-hops-plot.png)
+![World Hops map](./res/WORLD.MAP-hops-plot.png)   ![North Island of New Zealand map](./res/NZ AUS.MAP-hops-plot.png)
 
 --------------------------------------------       --------------------------------------------
 
