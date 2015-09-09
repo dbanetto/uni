@@ -16,6 +16,9 @@ do
             awk "{ printf(\"%d %s\n\", ++i * $EVERY, \$1); }"		> data/result-8hop-$map.flood$f
     done
 
+    map_low=$(echo ${map} | sed -e 's/.MAP/\-MAP/' | sed -e 's/ /-/')
+    echo ${map_low}
+
     gnuplot <</EOF
 
     set title "Comparison of 4 to 8 hops using flooding3 protocol - ${map}"
@@ -27,8 +30,8 @@ do
 
     map = "${map}"
 
-    set terminal png size 800,600 enhanced font "Helvetica,14"
-    set output sprintf("../res/%s-hops-plot.png", map)
+    set terminal png size 800,600 enhanced font "Sans,16"
+    set output "../res/${map_low}-hops-plot.png"
     plot	\
         sprintf("data/result-%s.flood3", map)		title "4 hops" with linespoints, \
         sprintf("data/result-8hop-%s.flood3", map)		title "8 hops" with linespoints

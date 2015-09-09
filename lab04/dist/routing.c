@@ -49,8 +49,6 @@ static void send_packet(char *packet, size_t length)
 
     // Your code here
     NL_PACKET *p = (NL_PACKET*)(packet);
-    printf("Packet CNET dest: %i\n", p->dest);
-    printf("Packet CNET src: %i\n", p->src);
 
     int link = 0, i, min = INF;
     for (i = 0; i < nodeinfo.nlinks+1; i++) {
@@ -59,9 +57,6 @@ static void send_packet(char *packet, size_t length)
             link = i;
         }
     }
-
-    printf("Packet min cost: %i\n", min);
-    printf("Packet link: %i\n", link);
 
     CHECK(down_to_datalink(link, packet, length));
 }
@@ -82,8 +77,10 @@ void send_table()
     int *table = (int*)malloc(sizeof(int) * rtable_size);
     int i, link;
     for(i = 0; i < rtable_size; i++) {
+        // get the minimum value
         table[i] = INF;
         for(link = 0; link <= nodeinfo.nlinks; link++) {
+            // update the minimum value
             if (rtable[i][link] < table[i]) {
                 table[i] = rtable[i][link];
             }
@@ -91,7 +88,8 @@ void send_table()
     }
 
     for(link = 1; link <= nodeinfo.nlinks; link++) {
-        NL_PACKET	p;
+        // send routing packet
+        NL_PACKET p;
         p.length = sizeof(int) * rtable_size + 1;
         p.src = nodeinfo.address;
         p.dest = link;
@@ -150,17 +148,28 @@ static void update_routing_table(char *packet, size_t length, int arrived_on)
     int change = 0;
     NL_PACKET* p = (NL_PACKET*)(packet);
     int* table = (int*)p->msg;
-    int i;
+    int node;
 
-    for (i = 0; i < rtable_size; i++) {
-        int cost = table[i] + linkinfo[arrived_on].costperframe;
-        if (rtable[i][arrived_on] > cost) {
-            rtable[i][arrived_on] = cost;
-            change = 1;
-            CNET_enable_application(p->src);
+    for (node = 0; node < rtable_size; node++) {
+        // distance metric
+        int cost = table[node] + linkinfo[arrived_on].costperframe;
+
+        // update table if the cost has changed and filter out costs greater than infinity
+        if (rtable[node][arrived_on] != cost && cost < INF) {
+
+            int old = rtable[node][arrived_on];
+            rtable[node][arrived_on] = cost;
+
+            change = 1; // change dectected
+
+            // enable application only when route is first discovered
+            if (old >= INF) {
+                CNET_enable_application(node);
+            }
         }
     }
 
+    // send out changes if change is non-zero
     if (change) {
         send_table();
     }
@@ -176,61 +185,61 @@ int up_to_network(char *packet, size_t length, int arrived_on)
 
     p->hopcount++; /* took 1 hop to get here */
     switch (p->kind) {
-    case NL_ROUTE: {
+        case NL_ROUTE:
 
-        // Have received a routing table, need to check against ours and update
-        // if needed.  If updated, trigger updates to others.  Doesn't matter who
-        // it is addressed to, because the sender doesn't know.
+            // Have received a routing table, need to check against ours and update
+            // if needed.  If updated, trigger updates to others.  Doesn't matter who
+            // it is addressed to, because the sender doesn't know.
 
-        update_routing_table(packet, p->length, arrived_on);
-        break;
-    }
-    case NL_DATA: {
-        // It is a data packet, if it is for us, & seq# is correct consume it.
+            update_routing_table(packet, p->length, arrived_on);
+            break;
 
-        if(p->dest == nodeinfo.address) {   /* This one is for us. */
-            if(p->seqno == NL_packetexpected(p->src)) {
-                CnetAddr tmpaddr;
+        case NL_DATA:
+            // It is a data packet, if it is for us, & seq# is correct consume it.
 
-                CHECK(CNET_write_application(p->msg, &p->length));
-                inc_NL_packetexpected(p->src);
-                /* send back an ACK, change type and other fields though */
+            if(p->dest == nodeinfo.address) {   /* This one is for us. */
+                if(p->seqno == NL_packetexpected(p->src)) {
+                    CnetAddr tmpaddr;
 
-                tmpaddr = p->src;   /* swap src and dest addresses */
-                p->src  = p->dest;
-                p->dest = tmpaddr;
+                    CHECK(CNET_write_application(p->msg, &p->length));
+                    inc_NL_packetexpected(p->src);
+                    /* send back an ACK, change type and other fields though */
 
-                p->kind     = NL_ACK;
-                p->hopcount = 0;
-                p->length   = 0;
-                send_packet(packet, PACKET_HEADER_SIZE); // send ACK
-            } else {
-                fprintf(stderr,"\n\n Out of sequence data packet!! on %s\n", nodeinfo.nodename);
-                fprintf(stderr,"Expected %i got %i\n", NL_packetexpected(p->src), p->seqno);
-                exit(-1);
+                    tmpaddr = p->src;   /* swap src and dest addresses */
+                    p->src  = p->dest;
+                    p->dest = tmpaddr;
+
+                    p->kind     = NL_ACK;
+                    p->hopcount = 0;
+                    p->length   = 0;
+                    send_packet(packet, PACKET_HEADER_SIZE); // send ACK
+                } else {
+                    fprintf(stderr,"\n\n Out of sequence data packet!! on %s\n", nodeinfo.nodename);
+                    fprintf(stderr,"Expected %i got %i\n", NL_packetexpected(p->src), p->seqno);
+                    exit(-1);
+                }
+            } else {  /* OTHERWISE, THIS PACKET IS FOR SOMEONE ELSE */
+                if(p->hopcount < MAXHOPS)
+                    send_packet(packet, length);
             }
-        } else {  /* OTHERWISE, THIS PACKET IS FOR SOMEONE ELSE */
-            if(p->hopcount < MAXHOPS)
-                send_packet(packet, length);
-        }
-        break;
-    }
-    case NL_ACK : {
-        if(p->dest == nodeinfo.address) {   /* This one is for us. */
-            if(p->seqno == NL_ackexpected(p->src)) {
-                inc_NL_ackexpected(p->src);
-                CHECK(CNET_enable_application(p->src));
-            } else {
-                fprintf(stderr,"\n\n out of sequence ACK!! on %s\n", nodeinfo.nodename);
-                exit(-1);
+            break;
+
+        case NL_ACK :
+            if(p->dest == nodeinfo.address) {   /* This one is for us. */
+                if(p->seqno == NL_ackexpected(p->src)) {
+                    inc_NL_ackexpected(p->src);
+                    CHECK(CNET_enable_application(p->src));
+                } else {
+                    fprintf(stderr,"\n\n out of sequence ACK!! on %s\n", nodeinfo.nodename);
+                    exit(-1);
+                }
+            } else {  /* OTHERWISE, THIS PACKET IS FOR SOMEONE ELSE */
+                if(p->hopcount < MAXHOPS)
+                    send_packet(packet, length);
             }
-        } else {  /* OTHERWISE, THIS PACKET IS FOR SOMEONE ELSE */
-            if(p->hopcount < MAXHOPS)
-                send_packet(packet, length);
-        }
-        break;
+            break;
     }
-    }
+
     /* silently drop */;
 
     return(0);

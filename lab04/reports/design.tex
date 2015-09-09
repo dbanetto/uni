@@ -6,19 +6,106 @@
 \usepackage{minted}
 
 \author{David Barnett (ID:300313764)}
-\title{NWEN243 Lab 4 - Routing - Design}
+\title{NWEN243 Lab 4 -- Routing -- Design}
 \date{}
 
 \begin{document}
 
 \maketitle
 
+The design of the routing algorithm was based off the Distance Vector routing
+algorithm. Distance Vector routing is aimed to make distributed routing with
+each node have independent routing table.
+The algorithm has three main parts: advertising the node's best routes to all
+of nodes to its neighbours; updating  the routing table from the routing
+tables shared by the node's neighbours; and routing packets to their
+destination for the lowest cost.
+
+\section*{Routing table}
+
+The routing table is a table with rows representing each node in the whole
+network and each column being a physical link from the current node to a
+neighbour.
+
+With deciding the best path of the packets the cost of transmission of the
+packets are taken into account. The metric used in this version was cost
+per frame plus the cost given by the other nodes.
+
+\begin{minted}{c}
+    int cost = table[i] + linkinfo[arrived_on].costperframe;
+\end{minted}
+
+With table[i] being the table of best routes from a neighbour.
+
+\subsection*{Building routing table}
+
+The routing table is built over time from information shared from neighbours.
+On startup the routing table is empty with all values set to infinity
+representing that there is no known route to the node expect for the node
+itself which is initialised with the value of 0.
+
+\paragraph{}
+
+Over time the node will receive \emph{NL\_ROUTING} packets from its neighbours
+and call \emph{update\_routing\_table} to unpack the packet to update the routing
+table. The table is adjusted using the metric then compared against the local
+table and updating for the minimum cost.
+
 \begin{minted}[linenos]{c}
-    if (0 == 1) {
-        x = &y;
-    } else {
-        y = &x;
+        if (rtable[node][arrived_on] != cost && cost < INF) {
+            int old = rtable[node][arrived_on];
+            rtable[node][arrived_on] = cost;
+            change = 1;
+
+            if (old >= INF) {
+                CNET_enable_application(p->src);
+            }
+        }
+\end{minted}
+
+When a node changed from infinity (\emph{INF} in the code) to non-infinity the
+node has a valid route from the current node to the source of the packet. After
+the table is updated if there was any changes the node will then advertise the
+nodes it can reach through its links for their given cost to all of its
+neighbours.
+
+\subsection*{Sharing routing table}
+
+After the node updates its routing table or is initialised the node shares the
+best of its routing table to all of its neighbours.
+
+\begin{minted}[linenos]{c}
+    for(i = 0; i < rtable_size; i++) {
+        table[i] = INF;
+        for(link = 0; link <= nodeinfo.nlinks; link++) {
+            if (rtable[i][link] < table[i]) {
+                table[i] = rtable[i][link];
+            }
+        }
     }
 \end{minted}
+
+The above code collapses the 2D routing table into an array of the best routes
+this node can provide. The node sends this array off to be shared around.
+
+\section*{Routing packets}
+
+As the node forms more and more routes to nodes more application level packets
+are sent and need to be managed. This is when the routing table is actually
+used to route packets to their destination. To do so the node must determine
+which link is best to use to reach a given node.
+
+\begin{minted}[linenos]{c}
+    for (i = 0; i < nodeinfo.nlinks+1; i++) {
+        if (rtable[p->dest][i] < min) {
+            min = rtable[p->dest][i];
+            link = i;
+        }
+    }
+\end{minted}
+
+The above code does just that, choosing the best link for the job. Afterwards
+the node just has to fire that packet down the link and that node will deal
+with the rest.
 
 \end{document}

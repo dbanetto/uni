@@ -1,0 +1,96 @@
+host center {
+    x=350, y=50
+
+    wan to A1 {
+        costperframe = 1
+    }
+    wan to A2 {
+        costperframe = 1
+    }
+    wan to A3 {
+        costperframe = 1
+    }
+    wan to B1 {
+        costperframe = 1
+    }
+    wan to B2 {
+        costperframe = 1
+    }
+    wan to B3 {
+        costperframe = 1
+    }
+}
+host A1 {
+    x=200, y=150
+    wan to center {
+        costperframe = 2
+    }
+    wan to A2 {
+        costperframe = 2
+    }
+    wan to A3 {
+        costperframe = 2
+    }
+}
+host A2 {
+    x=250, y=250
+    wan to center {
+        costperframe = 2
+    }
+    wan to A1 {
+        costperframe = 2
+    }
+    wan to A3 {
+        costperframe = 2
+    }
+}
+host A3 {
+    x=200, y=250
+    wan to center {
+        costperframe = 2
+    }
+    wan to A1 {
+        costperframe = 2
+    }
+    wan to A2 {
+        costperframe = 2
+    }
+}
+
+host B1 {
+    x=400, y=150
+    wan to center {
+        costperframe = 2
+    }
+    wan to B2 {
+        costperframe = 2
+    }
+    wan to B3 {
+        costperframe = 2
+    }
+}
+host B2 {
+    x=450, y=250
+    wan to center {
+        costperframe = 2
+    }
+    wan to B1 {
+        costperframe = 2
+    }
+    wan to B3 {
+        costperframe = 2
+    }
+}
+host B3 {
+    x=400, y=250
+    wan to center {
+        costperframe = 2
+    }
+    wan to B1 {
+        costperframe = 2
+    }
+    wan to B2 {
+        costperframe = 2
+    }
+}
+

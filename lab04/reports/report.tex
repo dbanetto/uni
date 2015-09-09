@@ -1,28 +1,132 @@
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
 
 
 \usepackage[margin=1in]{geometry}  % set the margins to 1in on all sides
 \usepackage{graphicx}              % to include figures
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{epstopdf}
+\usepackage{float}
+\floatstyle{boxed}
+\restylefloat{figure}
 
 \author{David Barnett (ID:300313764)}
-\title{NWEN243 Lab 4 - Routing - Report}
+\title{NWEN243 Lab 4 -- Routing -- Report}
 \date{}
 
 \begin{document}
 
 \maketitle
 
-\section*{Abstract}
 
-\section*{Introdcution}
+\section*{Introduction}
+
+This experiment aims to compare the efficiency of the Distance Vector
+routing algorithms against a range of other routing methods over a small
+variety of topologies. This is composed of directly comparing the effectiveness
+of the routing algorithm to deliver packets in a network.
 
 \section*{Method}
 
+The method used to test the multiple routing algorithms over a variety of
+networks was to run them using a network simulator by the name of CNET by
+The University of Western Australia. The algorithm used were: flooding1, flooding2,
+flooding3  and Distance Vector (DV). Flooding1 is a blind relay that sends
+all packets received onto all available links. Flooding2 is similar but does
+not send the packet back down the link it was received on. Flooding3 goes a
+different route with building a table of routes collecting data from all packets
+passing it, using the table to do some simple routing, if it cannot use the table
+follows flooding2's method. Distance Vector builds a table of nodes and the cost
+to route to them using a given link, the best route to each node is shared with neighbours
+
+\paragraph{}
+The networks used to test varied from some modeled examples, such as a New Zealand
+network and Australia and New Zealand network, and some extreme cases such as
+K5, a fully connected graph of 5 nodes, and a star where two sets of fully
+connected nodes are connected by a single node. All of the networks are
+static in both number of nodes and the cost between the nodes and has a 100\%
+reliable connection between every node in the network. The settings used in the
+simulation was to emulate a network for 10 minutes sampling every 10 seconds
+for statistics of the network's metrics such as percentage efficiency of packets
+received divided by packets sent.
+
 \section*{Results}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{../res/K5-MAP-plot.png}
+\includegraphics[width=0.7\textwidth]{../res/STAR-MAP-plot.png}
+\includegraphics[width=0.7\textwidth]{../res/NEWZEALAND-MAP-plot.png}
+\includegraphics[width=0.7\textwidth]{../res/NZ-AUS-MAP-plot.png}
+\end{center}
 
 \section*{Discussion}
 
-\section*{Conculsion}
+% intro of sort
+The results show in general the Distance Vector algorithm performs better or
+in all networks tested with a varying magnitude of improvement. With each
+network bringing out the strengths and weakness of the flooding series of
+algorithms the Distance Vector routing stays the most efficient through all
+four networks. There is also a distinct inverse logarithmic curve during the
+initial portion of the simulation. This is also present in flooding3 which in
+both cases would be caused by the setup time of building the routing table
+with flooding1 and flooding2 both have more of an instantaneous response.
+
+% K5 Map
+\paragraph{}
+The \emph{K5} network is designed to test how each routing method will handle
+being full connected with every other node, though it is an unlikely extreme for
+networks it is still shows how each method would handle being the center of a
+star-like structure. Distance Vector Routing and flooding3 thrived in this
+layout due to their use of tables so they do not send unneeded packets that
+would result in a congest the network such as flooding1 and flooding2 had
+achieved with relaying every packet.
+
+% Star map
+\paragraph{}
+The \emph{Star} network is made to test how each routing method would behave
+with separate ``communities'' of nodes connected by only one central node.
+Relative to the spamming methods of flooding1 and flooding2 Distance Vector and
+flooding3 is by magnitudes more efficient. Distance Vector being even more
+efficient than flooding3 in particular during the beginning of the simulation
+with Distance Vector's decision to not send packets unless it knows how to
+routes them while flooding3 would spam and build a table.
+
+% NZ Map
+\paragraph{}
+
+The \emph{New Zealand} network is a model of a real network and is similar to a
+linked list configuration. The spamming methods increased in efficiency as they
+had less chance to fire the packet in the wrong direction but with so many less
+connections between nodes the few connections left become congested and drop
+packets. This is shown with flooding3 and Distance Vector falling low relative
+to other networks like \emph{K5}.
+
+% NZ AUS Map
+\paragraph{}
+
+The \emph{New Zealand and Australia} map is also a model of a networks using
+the network between major cities in Australia and New Zealand as the base. This
+graph is similar to the \emph{Star} network but with not as large difference
+between Distance Vector/flooding3 and flooding1/flooding2. This would due to
+the structures on both sides of the modeled Tasman sea have another star-like
+network to the west and a linked list to the east causing a compound of affects
+seen in the \emph{New Zealand} network and \emph{Star} network.
+
+% round up
+\paragraph{}
+Throughout all of the networks used to test Distance Vector algorithm, it out
+performs all the  other methods over all the different networks used. This can
+be attributed to Distance Vector's expanding horizon so it only allows connections
+between known nodes with routes stopping any spamming seen in the other methods
+thus reducing the overall congestion of the network.
+
+\section*{Conclusion}
+
+Through the experimentation of comparing the flooding methods against the
+Distance Vector algorithm shows how communicating with neighbours about routes
+and to build a table from that information can lead to greater efficiency.
+The results show that overall that the Distance Vector out performs the other methods.
+
 
 \end{document}
 

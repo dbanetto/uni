@@ -4,4 +4,4 @@ bandwidth	 = 56Kbps,
 
 compile		 = "routing.c dll_basic.c nl_table.c"
 
-#include "maps/NZ AUS.MAP"
+#include "map.h"

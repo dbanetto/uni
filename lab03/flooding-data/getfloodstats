@@ -18,7 +18,7 @@ do
             awk "{ printf(\"%d %s\n\", ++i * $EVERY, \$1); }" > data/result-$map.flood$f
     done
 
-    map_low=$(echo ${map} | awk '{print tolower($0)}' | sed -e 's/_/\\_/')
+    map_low=$(echo ${map} | sed -e 's/.MAP/\-MAP/' | sed -e 's/ /-/')
     echo ${map_low}
 
     gnuplot <</EOF
@@ -33,8 +33,8 @@ do
     set yrange [0:]
 
 
-    set terminal png size 800,600 enhanced font "Helvetica,14"
-    set output sprintf("../res/%s-plot.png", map)
+    set terminal png size 800,600 enhanced font "Sans,16"
+    set output "../res/${map_low}-plot.png"
     plot	\
         sprintf("data/result-%s.flood1", map)		title "flooding1" with linespoints, \
         sprintf("data/result-%s.flood2", map)		title "flooding2" with linespoints, \
