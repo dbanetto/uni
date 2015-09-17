@@ -10,6 +10,7 @@
 #define BUFFER_SIZE 1024
 #define BACKLOG 10
 
+// have to keep sock fd global so it can be closed later
 int sock;
 
 void eatZombies(int n)
@@ -21,21 +22,15 @@ void eatZombies(int n)
 }
 
 void cleanup() {
+    // clean up the socket if it has been inited successfully
     if (sock > 0) {
         close(sock);
     }
 }
 
-void offset(char* str, int len, int offset) {
-    int i = 0;
-    for (;i < len; i++) {
-        str[i] = (str[i] + offset) % 127;
-    }
-}
-
 int main(int argc, char *argv[])
 {
-    sock = -1;
+    sock = 0;
     struct sockaddr_in server;
 
     // for forking, and cleaning up zombie child state afterwards
@@ -43,13 +38,13 @@ int main(int argc, char *argv[])
 
     pid_t id;
     signal(SIGCHLD, &eatZombies);
-    atexit(&cleanup); // Insure the
+    atexit(&cleanup); // Insure the socket will be cleaned up
 
     // OK, NWEN 243 code starts here.
 
     // Create a socket (see Lab 2) - it is exactly the same for a server!
     // YOUR CODE HERE
-    if(argc != 2){
+    if(argc != 2) {
         printf("usage:\ntcpserver port\n\n");
         return(-1);
     }
@@ -59,22 +54,19 @@ int main(int argc, char *argv[])
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(atoi(argv[1])); // this time 1st arg is port#
 
+    // make socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         perror("Failed to open socket");
         exit(1);
     }
 
-    // Next you need to BIND your socket.
-    // YOUR CODE HERE
+    // bind socket
     if (bind(sock, (struct sockaddr*)&server, sizeof(server)) < 0) {
         perror("Failed to bind socket");
         close(sock);
         exit(1);
     }
-
-    // Right, now we are in the main server loop.
-    // YOUR CODE HERE
 
     // Start by listening
     if (listen(sock, BACKLOG) < 0) {
@@ -83,6 +75,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    // main server loop
     while(1) {
 
         // you need to accept the connection request
@@ -107,13 +100,11 @@ int main(int argc, char *argv[])
             exit(1);
         } else if (id > 0) {
             // when if > 0, this is the parent, and it should just loop around,
-            // parent
-            close(client_sock); //close socket on parent thread
+            close(client_sock); // close socket on parent so it can be fulled closed in the child
             continue;
         }
-        // child
-        // when id == 0, this is the child and needs to do the work for the server.
-
+        // now in child fork()
+        // deal with client
         char* buffer = NULL;
         buffer = (char*)(calloc(BUFFER_SIZE, sizeof(char)));
         if (buffer == NULL) {
@@ -130,24 +121,20 @@ int main(int argc, char *argv[])
         }
         fprintf(stderr,"%i: %s\n", client.sin_port, buffer);
 
-        offset(buffer, result, 10);
         if (write(client_sock, buffer, result) < 0) {
             perror("Failed to write from client");
             close(client_sock);
             exit(1);
         }
 
-        // Your code here for the child process, that will read from the connection socket, process the data
-        // write back to the socket, and then close and finally call exit(0) when done.
         fprintf(stderr,"%i: Disconnected\n", client.sin_port);
+
         free(buffer);
+        // graceful closure of the connection
         shutdown(client_sock, SHUT_RDWR);
         close(client_sock);
+
         exit(0);
-
-        // Note:  make sure the parent process (id > 0) does not execute this code, but immediately loops back
-        // around (via the while) to get another connection request.
-
     }
 }
 
