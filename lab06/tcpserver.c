@@ -10,12 +10,20 @@
 #define BUFFER_SIZE 1024
 #define BACKLOG 10
 
+int sock;
+
 void eatZombies(int n)
 {
     // This function removes the zombie process state left
     // after the child exits. Learn about this in NWEN 301!
 
     wait3(NULL,WNOHANG,NULL); // Nom Nom
+}
+
+void cleanup() {
+    if (sock > 0) {
+        close(sock);
+    }
 }
 
 void offset(char* str, int len, int offset) {
@@ -27,7 +35,7 @@ void offset(char* str, int len, int offset) {
 
 int main(int argc, char *argv[])
 {
-    int sock, length, msgsock, status;
+    sock = -1;
     struct sockaddr_in server;
 
     // for forking, and cleaning up zombie child state afterwards
@@ -35,6 +43,7 @@ int main(int argc, char *argv[])
 
     pid_t id;
     signal(SIGCHLD, &eatZombies);
+    atexit(&cleanup); // Insure the
 
     // OK, NWEN 243 code starts here.
 
@@ -130,7 +139,7 @@ int main(int argc, char *argv[])
 
         // Your code here for the child process, that will read from the connection socket, process the data
         // write back to the socket, and then close and finally call exit(0) when done.
-        fprintf(stderr,"%i: Disconnected\n", client.sin_port, buffer);
+        fprintf(stderr,"%i: Disconnected\n", client.sin_port);
         free(buffer);
         shutdown(client_sock, SHUT_RDWR);
         close(client_sock);
@@ -140,7 +149,5 @@ int main(int argc, char *argv[])
         // around (via the while) to get another connection request.
 
     }
-
-    close(sock);
 }
 
