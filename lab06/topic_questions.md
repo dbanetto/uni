@@ -13,7 +13,7 @@ time.
 # Question 2
 
 No. TCP decides when is the best time to send the data through congestion and flow control
-to best maximise the network and the bandwidth to the other party.
+to best maximise the network bandwidth to the other party and minimize the network congestion.
 
 <!-- http://www.unixguide.net/network/socketfaq/2.11.shtml -->
 

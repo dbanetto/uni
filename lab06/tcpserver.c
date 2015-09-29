@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
         }
         fprintf(stderr,"%i: %s\n", client.sin_port, buffer);
 
+        // only write back the amount that was sent
         if (write(client_sock, buffer, result) < 0) {
             perror("Failed to write from client");
             close(client_sock);
