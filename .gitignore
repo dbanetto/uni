@@ -1,7 +1,10 @@
 *.o
 lab03/res/
+lab04/res/
 lab03/flooding-data/data/
 
+lab02/crack
+lab06/tcpserver
 decode
 encode
 tcpclient
@@ -17,7 +20,8 @@ _minted*
 *.tar.gz
 *.zip
 
-*.impl
+*.iml
 .idea/
 .gradle/
 *.class
+build/
