@@ -16,12 +16,13 @@ No
 ```mips
     addi $t0, $zero, 0 # i = 0
 ILOOP:
-    slt $t3,$s0,$t0
-    beq $t3, $zero, ILOOPEND # i < a
+    slt $t3,$t0,$s0
+    bne $t3, $zero, ILOOPEND # if i >= a
+
     addi $t1, $zero, 0 # i = 0
 JLOOP:
-    slt $t3,$s1,$t1
-    beq $t3, $zero, JLOOPEND # j < b
+    slt $t3,$t1,$s1 # j < b
+    bne $t3, $zero, JLOOPEND # if j >= b
 
     add $t3, $t1, $t2 # $t3 = i + j
     sll $t4, $t2, 2   # j * 4
@@ -128,7 +129,7 @@ $$
 
 ### Question 7 {#Q7}
 
-Graph have T=0 with the initial values
+`T=0` is the initial state
 
 ![](./f-signal-graph.png)
 ![](./g-signal-graph.png)
