@@ -64,8 +64,6 @@ There needs to be two NOPs between the lw and a following branch instruction bec
 
 ## A
 
-The results of experimenting with the different modes of MIPS using the original, unmodified, program.
-
 #### Basic
 
 At cycle 10 of the program the register `$2` is updated to `6`
@@ -96,96 +94,42 @@ The value of register `$2` is needed at cycle 10 of the program
 
 The value of register `$2` is needed at cycle 8 of the program but then updated to the new value at cycle 9 via forwarding
 
+#### Unmodified
+
+The value of register `$2` is needed at cycle 8 of the program
+
 ## C
 
-The problem that occurred is that the second `add` is dependent on the result of the previous `add` instruction. In the case of the unmodified version the wrong value of `$2` is used because the result has not been written back to the registry file yet. This is an  example of a data hazard.
+The problem is that there is a data hazard. This is due to the second `add` is dependent on the result of the previous `add` instruction. In the case of the unmodified version the wrong value of `$2` is used because the result has not been written back to the registry file yet.
 
 # Exercise 4.2
 
 ## A
 
-The results of experimenting with the different modes of MIPS using the original, unmodified, program.
-
-#### Basic
-
-The branch instruction was ready to jump after `6` cycles of the program
-
-#### Forwarding
-
-The branch instruction was ready to jump after `4` cycles of the program
-
-#### Forwarding & Branch
-
-The branch instruction was ready to jump after `4` cycles of the program
-
 ## B
 
-The following `addi` was loaded into the pipeline following before the branch and not flushed so it completed a full execution and updated `$2` to `1` preventing the, seemingly, infinite loop.
-
 ## C
-
-The problem occurring is the instruction that was after the branch statement was loaded into the pipeline and executed in the normal linear fashion, but the branch was taken so the operation after the branch was meant to be the instruction at the target location. Since the `addi` instruction was already in the pipeline and not flushed out after the unsuccessful implicit  branch prediction. This is called a control hazard.
 
 # Exercise 4.3
 
 ## A
 
-The results of experimenting with the different modes of MIPS using the original, unmodified, program.
-
-#### Basic
-
-Register `$3` has received result from the `lw` the value after `10` cycles. However the value of `$3` is incorrect from what is expected of the program.
-
-#### Bubbles
-
-Register `$3` has received result from the `lw` the value after `12` cycles. The value of `$3` was the expected value.
-
-#### Forwarding
-
-Register `$3` has received result from the `lw` the value after `10` cycles. The value of `$3` was the expected value.
-
 ## B
-
-The results of experimenting with the different modes of MIPS using the original, unmodified, program.
-
-#### Basic
-
-The number of clock cycles till the value of `$3` is needed was `8` cycles.
-
-#### Bubbles
-
-The number of clock cycles till the value of `$3` is needed was `12` cycles.
-
-#### Forwarding
-
-The number of clock cycles till the value of `$3` is needed was `8` cycles, but then later updated to the result of the `lw` in cycle `9`.
 
 ## C
 
-The problem is the program requires the results of the previous result, in both cases for the `sw` requires the result of the previous `addi` and also the second `addi` requires the result of the previous `lw`. This is an example of a data hazard.
-
 # Exercise 5.1
 
-+------------------------------------+--------------+--------+-------------+
-| Mode Option                        | Instructions | Cycles | CPI (3.d.p) |
-+====================================+==============+========+=============+
-| Basic                              | 208          | 214    | 1.028       |
-+------------------------------------+--------------+--------+-------------+
-| Bubbles                            | 106          | 212    | 2.0         |
-+------------------------------------+--------------+--------+-------------+
-| Bubbles with Branch Assumptions    | 78           | 156    | 2.0         |
-+------------------------------------+--------------+--------+-------------+
-| Forwarding                         | 132          | 138    | 1.045       |
-+------------------------------------+--------------+--------+-------------+
-| Forwarding with Branch Assumptions | 97           | 109    | 1.124       |
-+------------------------------------+--------------+--------+-------------+
+## D
+
+## E
+
+## F
+
+## G
+
+## H
 
 # Exercise 5.2
-
-## A
-
-The number of cycles is used to calculate the performance of a pipeline because the cycle count gives the total time taken by multiplying it the clock frequency. CPI or total instructions are not appropriate measures as the instruction count only counts the number of instructions loaded into pipeline.The CPI is also not used because it is derived from the instruction count. The table above also shows that having the best instruction count or CPI does not mean the program finished in the fastest time.
-
-## B
 
 # Exercise 5.3
