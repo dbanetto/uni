@@ -418,4 +418,132 @@ over and over again results in increased hit rates and thus performance.
 
 # 4.3 Replacement algorithms
 
+## A
+
+### Contents of set 0
+
+0x40, 0x41, 0x42, 0x43
+
+The contents of set 0 is the values 64 to 67 (0x40 to 0x43) because the
+total cache size is 256 bytes or 64 words so as the array of size 512 bytes
+or 128 words is loaded the index values wrapped around and started to override
+previous blocks in the cache with the new blocks.
+
+
+## B
+
+### Changes to set 0
+
+|Change # | LRU | Tag W1 | Data W1        | LRU | Tag W2 | Data W2
+|---------|-----|--------|----------------|-----|--------|------------------
+|0        | 0   | 400000 | 0 , 1,  2,  3  | 0   |        |
+|1        | 1   | 400000 | 0 , 1,  2,  3  | 0   | 400001 | 16,  17,  18,  19
+|3        | 0   | 400002 | 32, 33, 34, 35 | 1   | 400001 | 16,  17,  18,  19
+|4        | 1   | 400002 | 32, 33, 34, 35 | 0   | 400003 | 48,  49,  50,  51
+|5        | 0   | 400004 | 64, 65, 66, 67 | 1   | 400003 | 48,  49,  50,  51
+|6        | 1   | 400004 | 64, 65, 66, 67 | 0   | 400005 | 80,  81,  82,  83
+|7        | 0   | 400006 | 96, 97, 98, 99 | 1   | 400005 | 80,  81,  82,  83
+|8        | 1   | 400006 | 96, 97, 98, 99 | 0   | 400007 | 112, 113, 114, 115
+
+The LRU values indicate the least recently used element of the 2 way cache, so the higher the LRU the least recently used the
+block is.
+This is  used to determine which block in cache to replace once a new block is needed.
+On a replacement the LRU of the new block is set to zero and all other valid blocks increment LRU by 1.
+Accessing a block already in the cache will do the same.
+The changes shown by set 0 reflect this as when the LRU is 1 on the next cache miss the data in that index of the set
+is replaced with a new value.
+
+## C
+
+### Changes to set 0
+
+
+|Change # | FIFO| Tag W1 | Data W1        | FIFO| Tag W2 | Data W2
+|---------|-----|--------|----------------|-----|--------|------------------
+|0        | 0   | 400000 | 0 , 1,  2,  3  | 0   |        |
+|1        | 1   | 400000 | 0 , 1,  2,  3  | 0   | 400001 | 16,  17,  18,  19
+|3        | 0   | 400002 | 32, 33, 34, 35 | 1   | 400001 | 16,  17,  18,  19
+|4        | 1   | 400002 | 32, 33, 34, 35 | 0   | 400003 | 48,  49,  50,  51
+|5        | 0   | 400004 | 64, 65, 66, 67 | 1   | 400003 | 48,  49,  50,  51
+|6        | 1   | 400004 | 64, 65, 66, 67 | 0   | 400005 | 80,  81,  82,  83
+|7        | 0   | 400006 | 96, 97, 98, 99 | 1   | 400005 | 80,  81,  82,  83
+|8        | 1   | 400006 | 96, 97, 98, 99 | 0   | 400007 | 112, 113, 114, 115
+
+Using the FIFO, first in first out, memory cache strategy the content of set 0
+update throughout the program. As the array iterated through the values in set 0
+changed. The oldest block in the set was replaced by the new block received after the
+miss.
+
+\pagebreak
+
+# 4.4 Accessing at different strides
+
+## A
+
+See `replace-4-4.asm`
+
+## B
+
+Stride | N | Hit rate | Compulsory Miss | Conflict Miss | Capacity Miss
+-------|---|----------|-----------------|---------------|--------------
+1      | 1 | 75%      | 32              | 0             | 0
+1      | 2 | 75%      | 32              | 0             | 32
+1      | 4 | 75%      | 32              | 0             | 96
+2      | 1 | 50%      | 32              | 0             | 0
+2      | 2 | 50%      | 32              | 0             | 32
+2      | 4 | 50%      | 32              | 0             | 96
+4      | 1 | 0%       | 32              | 0             | 0
+4      | 2 | 0%       | 32              | 0             | 32
+4      | 4 | 0%       | 32              | 0             | 96
+8      | 1 | 0%       | 16              | 0             | 0
+8      | 2 | 0%       | 16              | 16            | 0
+8      | 4 | 0%       | 16              | 48            | 0
+16     | 1 | 0%       | 8               | 0             | 0
+16     | 2 | 0%       | 8               | 8             | 0
+16     | 4 | 0%       | 8               | 24            | 0
+32     | 1 | 0%       | 4               | 0             | 0
+32     | 2 | 50%      | 4               | 0             | 0
+32     | 4 | 75%      | 4               | 0             | 0
+64     | 1 | 0%       | 2               | 0             | 0
+64     | 2 | 50%      | 2               | 0             | 0
+64     | 4 | 75%      | 2               | 0             | 0
+
+
+## C
+
+<!-- TODO: write up here -->
+
+The data recorded show a few trends.
+With strides less than the word size, such as 1 to 4, showed a trend of decreasing hit rate.
+This would be due to the stride using an ever decreasing amount of the block that would be hit
+by the next iteration of the loop.
+They also had more capacity misses as the total size of the blocks that are entered into the cache
+in the iteration is larger than the cache size.
+This is not present in the higher stride lengths, such as 8 and above, due to not every potential
+block is loaded into the cache.
+The later strides started to increase in hit rate as the blocked that are pulled to memory are smaller
+than the set size. This allows for the cache to be loaded on the first loop and have no need afterwards
+to update the memory cache for any times of the loop, where lower strides will still have capacity misses
+because it cannot store the whole array in cache.
+The biggest factors that plays in the data is the cache size, set size and block size as they all influence
+if there is capacity issues only using one word in each set entry.
+
+\pagebreak
+
+# 4.5 Instruction cache
+
+## A
+
+The optimal performance of 10/12 or 83% is achieve by using 16 byte block sizes and using, direct mapping, 2 way, 4 way and fully associative mapping
+with using either the FIFO or LRU algorithms.
+
+## B
+
+The settings used are suitable for the program.
+The critical factor was the block size.
+This was because the memory addresses used are not in the same
+block in any of the block sizes expect 16 bytes (4 words) giving it a large advantage
+with only having to miss once to get both of the words the program wants in one in the cache.
+This advantage was agnostic to all other cache settings as the program does not access any other
+memory addresses which the other settings help more to decrease hit rate.
 
