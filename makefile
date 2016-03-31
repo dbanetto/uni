@@ -1,4 +1,4 @@
-all: 
+all: essay.tex essay.bib 
 	pdflatex essay
 	bibtex essay
 	pdflatex essay
