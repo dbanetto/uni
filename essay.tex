@@ -18,9 +18,11 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 
 \maketitle
 
-% \begin{abstract}
-%     % TODO
-% \end{abstract}
+\begin{abstract}
+    % TODO
+    Abstract goes here
+\end{abstract}
+
 \vspace{.1in}
 
 \noindent {\em Keywords:} Software Process Models
@@ -33,6 +35,8 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 
 \section{Importance of using process models}
 % Q: describe the importance of using process models to guide software development
+
+% why we need process modeling
 Fail to plan, is a plan to fail. 
 As software has increased in complexity and scale of projects increase it
 became more apparent that software should be managed and planned differently it was
@@ -55,7 +59,10 @@ week. With the right processing model the software will have the correct tools
 to handle what was expected to happen through out the process and give a guide
 through the unexpected.
 
+% add more on why it is important and how it guides
+
 \vspace{.1in}
+
 % TODO: this needs some reworking
 Over the years many process models have been proposed and many variations have
 been used and reported one. The process models that will be discussed in this
@@ -73,9 +80,27 @@ Extreme programming.
 % Strengths: easy, clear steps and deliverables
 % compare: ??
 % contrast: ??
-% Need a counter source, "Enough with Life cycle?"
+% note: Need a counter source, "Enough with Life cycle?"
 
 The Waterfall model was proposed in 1970 by Dr. Winston Royce \cite{Waterfall:1970}.
+He proposed it as a method to be a guide of steps and processes that together
+help to make a larger software project succeed. 
+The principle idea behind the Waterfall model is that there are seven stages to
+software development to be executed in a sequential order:
+
+% should this be a list or just comma separated?
+\begin{enumerate}
+\item System requirements
+\item Software requirements
+\item Analysis
+\item Design
+\item Coding
+\item Testing
+\item Operations
+\end{enumerate}
+
+Each stage closes off with an artifact that does not change from the rest of
+the development.
 
 \begin{figure}[htb]
 \fbox{\parbox[b]{.99\linewidth}{
@@ -91,10 +116,13 @@ The Waterfall model was proposed in 1970 by Dr. Winston Royce \cite{Waterfall:19
 % compare: Waterfall's steps
 % contrast: Has testing involved in the 
 
+\cite{Rook:1986}
+
 \section{Spiral Model} % sequential / Iterative, testing, risk
 % theme:
 % compare:
 % contrast:
+\cite{Boehm:1988}
 
 \section{Phased Development Model} % iterative, testing, risk
 % theme:
