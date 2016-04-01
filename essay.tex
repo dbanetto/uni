@@ -18,12 +18,12 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 
 \maketitle
 
-\begin{abstract}
-    % TODO
-\end{abstract}
+% \begin{abstract}
+%     % TODO
+% \end{abstract}
 \vspace{.1in}
 
-\noindent {\em Keywords:} Software Process Models, Sequential, Agile Methods
+\noindent {\em Keywords:} Software Process Models
 
 \vspace{.1in}
 
@@ -34,23 +34,33 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 \section{Importance of using process models}
 % Q: describe the importance of using process models to guide software development
 Fail to plan, is a plan to fail. 
-A process model is a model of how to setup a project with a set of tasks to perform,
+As software has increased in complexity and scale of projects increase it
+became more apparent that software should be managed and planned differently it was
+described as a \emph{Software crisis} \cite{nato:1969}.
+``We believe that the only way ahead lies through the steady development of the best existing 
+techniques'' \cite{nato:1969} Gill's comments on how to move forward from the
+\emph{Software Crisis} which describes a need for more of a engineering approach to software development.
+One such endeavour is process modelling.
+A process model is a model of how to setup a project with a set of tasks,
 such as requirements acquisition or construction, of a similar nature that together form 
 the scaffolding of a plan of how to approach to build a project.
-As software has increased in complexity and scale of projects increase it
-became more apparent that software should be managed and planned differently.
-\cite{nato:1969}
+
+\vspace{.1in} % are we allowed to do this?
+
+By using the appropriate process model software development can be guided
+through the many stages of creating software with an over-arching idea of how it
+should be done. This can range from having static requirements and working
+linearly through the development cycle to changing the requirements from week to
+week. With the right processing model the software will have the correct tools
+to handle what was expected to happen through out the process and give a guide
+through the unexpected.
 
 \vspace{.1in}
-
-A software project may face a variety of problems in many aspects of the
-development. A single  
-
-There are a variety of different process models giving different solutions to
-the variety of different problems that a project could face. This can ranges from
-having a ever changing set of requirements to dead certain requirements
-enshrined in law so different process model reflects their suitability to these constraints
-with their processes such as scope management of the project or lack there of.
+% TODO: this needs some reworking
+Over the years many process models have been proposed and many variations have
+been used and reported one. The process models that will be discussed in this
+review is: Waterfall, V-Model, Spiral Model, Phased Development Model and
+Extreme programming.
 
 % --- 5 Model Section ---
 % Q: provide a systematic review of process models that have been proposed so far,
@@ -59,15 +69,27 @@ with their processes such as scope management of the project or lack there of.
 \section{Waterfall} % sequential
 % theme: sequential
 % strengths: requirements up front, easy
-% compare:
-% contrast:
+% Goals: a model of how to make successful large software
+% Strengths: easy, clear steps and deliverables
+% compare: ??
+% contrast: ??
+% Need a counter source, "Enough with Life cycle?"
 
-The Waterfall model \cite{Waterfall:1970}
+The Waterfall model was proposed in 1970 by Dr. Winston Royce \cite{Waterfall:1970}.
+
+\begin{figure}[htb]
+\fbox{\parbox[b]{.99\linewidth}{
+\vskip 0.5cm
+\includegraphics[width=0.45\textwidth]{figures/waterfall-model.png}
+\vskip 0.5cm}}
+\caption{\protect\label{xyz}  Waterfall Model}
+\end{figure}
 
 \section{V-Model} % sequential, testing
 % theme:
-% compare:
-% contrast:
+% Goals: to extends the existing Waterfall to include testing
+% compare: Waterfall's steps
+% contrast: Has testing involved in the 
 
 \section{Spiral Model} % sequential / Iterative, testing, risk
 % theme:
