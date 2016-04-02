@@ -43,7 +43,7 @@ became more apparent that software should be managed and planned differently it 
 described as a \emph{Software crisis} \cite{nato:1969}.
 ``We believe that the only way ahead lies through the steady development of the best existing 
 techniques'' \cite{nato:1969} Gill's comments on how to move forward from the
-\emph{Software Crisis} which describes a need for more of a engineering approach to software development.
+\emph{Software Crisis} which describes a need for more of an engineering approach to software development.
 One such endeavour is process modelling.
 A process model is a model of how to setup a project with a set of tasks,
 such as requirements acquisition or construction, of a similar nature that together form 
@@ -82,6 +82,7 @@ Extreme programming.
 % contrast: ??
 % note: Need a counter source, "Enough with Life cycle?"
 
+% should include an overview & theme of the model
 The Waterfall model was proposed in 1970 by Dr. Winston Royce \cite{Waterfall:1970}.
 He proposed it as a method to be a guide of steps and processes that together
 help to make a larger software project succeed. 
@@ -106,13 +107,13 @@ software.
 This lends the model to be more suitable for software projects that have well known
 requirements and technology such as porting an application to another platform.
 Waterfall also has the benefits of being an easy project to manage with its
-clear cut stages of development and equally easy for a new member or external
+clear milestones of development and equally easy for a new member or external
 stakeholder to the team to understand the status of the project.
 
 \vspace{.1in}
 
 % covers the weakness of water fall
-Conversely the strengths of the model highlights the downsides of the model as
+Conversely the strengths of the model also highlights the weaknesses of the model as
 well.
 One of the assumptions in the process model is that the requirements at the start of the project is
 static and are still meet the clients needs that the project was started for.
@@ -127,7 +128,42 @@ what the client had in mind during the initial phases of the project.
 % compare: Waterfall's steps
 % contrast: Has testing involved in the 
 
-\cite{Rook:1986}
+% should include an overview & theme of the model
+V-Model was proposed as a variation of the Waterfall model by Paul Rook in 1986
+\cite{Rook:1986}.
+The rational behind the V-Model is to produce software in a linear fashion with
+well known requirements that has need for extensive testing and verification of
+the system \cite{Rook:1986}.
+The general workings of the V-Model are similar to the workings of Waterfall
+with a few differences in testing.
+Instead in V-Model the testing stage of the process model is expanded and added short loops,
+the software is tested against the produced designs and requirements with
+steps of verification and validations  that if failed will lead back to the design
+stages or requirements respectfully.
+
+\begin{figure}[htb]
+\fbox{\parbox[b]{.99\linewidth}{
+\vskip 0.5cm
+\includegraphics[width=0.45\textwidth]{figures/v-model.jpg}
+\vskip 0.5cm}}
+\caption{\protect\label{xyz}  V-Model}
+\end{figure}
+
+The strengths of the V-Model are built up upon Waterfall.
+As with Waterfall, V-Model also is an easy to mange project with clear milestones
+to each stage of development. V-Model splits off from Waterfall with its focus
+on verification and validation of the product.
+Through the testing the V-Model has the potential to produce an extensively well
+tested product that meets a set of strict requirements such as traffic networks
+or medical equipment \cite{Advancements:2010}.
+
+The V-Model is similar to Waterfall in many aspects, such as the mainly sequential
+process and having a single final derivable at the end of the process. 
+The differences between the two models are highlighted with V-Model's focus towards
+producing a well tested product with multiple types and opportunities to
+validate and verify the program against the requirements and designs. However
+both still face 
+
 
 \section{Spiral Model} % sequential / Iterative, testing, risk
 % theme:
