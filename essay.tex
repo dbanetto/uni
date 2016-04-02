@@ -86,21 +86,10 @@ The Waterfall model was proposed in 1970 by Dr. Winston Royce \cite{Waterfall:19
 He proposed it as a method to be a guide of steps and processes that together
 help to make a larger software project succeed. 
 The principle idea behind the Waterfall model is that there are seven stages to
-software development to be executed in a sequential order:
-
-% should this be a list or just comma separated?
-\begin{enumerate}
-\item System requirements
-\item Software requirements
-\item Analysis
-\item Design
-\item Coding
-\item Testing
-\item Operations
-\end{enumerate}
-
-Each stage closes off with an artifact that does not change from the rest of
-the development.
+software development cycle and they are to be executed in a sequential order:
+System requirements, software requirements, analysis, design, coding, testing and operations.
+Each stage ends with some artifacts that the next stage depends on, forcing them
+to become static, and builds upon to deliver a product at the end of the process.
 
 \begin{figure}[htb]
 \fbox{\parbox[b]{.99\linewidth}{
@@ -109,6 +98,28 @@ the development.
 \vskip 0.5cm}}
 \caption{\protect\label{xyz}  Waterfall Model}
 \end{figure}
+
+% main features of waterfall
+The strength of this model lies in the assumptions that the requirements are
+well thought out, any foreseeable problems has known solutions to complete the
+software.
+This lends the model to be more suitable for software projects that have well known
+requirements and technology such as porting an application to another platform.
+Waterfall also has the benefits of being an easy project to manage with its
+clear cut stages of development and equally easy for a new member or external
+stakeholder to the team to understand the status of the project.
+
+\vspace{.1in}
+
+% covers the weakness of water fall
+Conversely the strengths of the model highlights the downsides of the model as
+well.
+One of the assumptions in the process model is that the requirements at the start of the project is
+static and are still meet the clients needs that the project was started for.
+Another factor to this weakness is that the model allows for only one delivery of the product to
+the client at the end of the whole project, making a possible large time gap from requirements 
+gathering with the client to the final delivery to the client which has the risk of not being 
+what the client had in mind during the initial phases of the project.
 
 \section{V-Model} % sequential, testing
 % theme:
