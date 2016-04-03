@@ -88,9 +88,20 @@ He proposed it as a method to be a guide of steps and processes that together
 help to make a larger software project succeed. 
 The principle idea behind the Waterfall model is that there are seven stages to
 software development cycle and they are to be executed in a sequential order:
-System requirements, software requirements, analysis, design, coding, testing and operations.
-Each stage ends with some artifacts that the next stage depends on, forcing them
-to become static, and builds upon to deliver a product at the end of the process.
+
+\begin{enumerate}
+  \item System requirements
+  \item Software requirements
+  \item Analysis
+  \item Design
+  \item Coding
+  \item Testing and operations.
+\end{enumerate}
+
+The end of each stage is a milestone of how the project is progressing and with some artifacts
+that the next stage depends on, making them static for simplicity, and builds upon
+them to deliver the next milestone till the product at the end of the process is
+complete.
 
 \begin{figure}[htb]
 \fbox{\parbox[b]{.99\linewidth}{
@@ -99,6 +110,12 @@ to become static, and builds upon to deliver a product at the end of the process
 \vskip 0.5cm}}
 \caption{\protect\label{xyz}  Waterfall Model}
 \end{figure}
+
+Figure 1 shows the general form that Waterfall takes with its characteristic 
+linearly moving between each stage with no movement back to previous stages of
+development.
+
+\vspace{.1in}
 
 % main features of waterfall
 The strength of this model lies in the assumptions that the requirements are
@@ -131,9 +148,9 @@ what the client had in mind during the initial phases of the project.
 % should include an overview & theme of the model
 V-Model was proposed as a variation of the Waterfall model by Paul Rook in 1986
 \cite{Rook:1986}.
-The rational behind the V-Model is to produce software in a linear fashion with
-well known requirements that has need for extensive testing and verification of
-the system \cite{Rook:1986}.
+The principle idea of the V-Model is to produce software in a linear fashion with
+well known requirements and solved problems that has the need for extensive testing 
+and verification of the system \cite{Rook:1986}.
 The general workings of the V-Model are similar to the workings of Waterfall
 with a few differences in testing.
 Instead in V-Model the testing stage of the process model is expanded and added short loops,
@@ -149,21 +166,50 @@ stages or requirements respectfully.
 \caption{\protect\label{xyz}  V-Model}
 \end{figure}
 
+Figure 2 shows a common interpretation of V-Model with its characteristic
+building of requirements and designs to be tested against on the left side of
+the model leading to the building of the software then moving up the right side
+verifying and validating the software built against the specification built
+earlier. Failure to meet leads back to the appropriate to re-visit building that
+level of the design or the specification. Finally at the end releasing the
+product to the client.
+
+\vspace{.1in}
+
 The strengths of the V-Model are built up upon Waterfall.
 As with Waterfall, V-Model also is an easy to mange project with clear milestones
-to each stage of development. V-Model splits off from Waterfall with its focus
+to each stage of development.
+V-Model splits off from Waterfall with its focus
 on verification and validation of the product.
+Each artifact from the milestones are also used in the process again with either
+being an artifact to test or to test against to verify and validate the product
+moving forward. Failing to pass the test will lead back to the stage allowing to
+fix a past mistake, recognising that it is hard to get it prefect the first time
+round.
 Through the testing the V-Model has the potential to produce an extensively well
 tested product that meets a set of strict requirements such as traffic networks
 or medical equipment \cite{Advancements:2010}.
 
-The V-Model is similar to Waterfall in many aspects, such as the mainly sequential
-process and having a single final derivable at the end of the process. 
-The differences between the two models are highlighted with V-Model's focus towards
-producing a well tested product with multiple types and opportunities to
-validate and verify the program against the requirements and designs. However
-both still face 
+\vspace{.1in}
 
+% needs a cite in it somewhere
+The shortcomings of V-Model as well is akin to Waterfalls.
+V-Model relies upon the requirements are quite static but has slightly more
+flexibility than Waterfall due to the addition of more extensive testing that introduced loops 
+through the verification and validation processes of the product. 
+The extensive testing is only truly beneficial given that the project needs to
+be tested to such lengths, in situations that the end-product is used in safety
+critical situations the testing will be a great asset but for other types of
+projects that do not need a high level of verification and validation it would
+be an expensive use of resources on an area for little benefits.
+However this does not allow V-Model to be as flexible as iterative process models such as
+Agile based models as V-Model still have a large time period between project
+initiation and delivery. 
+V-Model also suffers from the same fate of Waterfall in the fact that it only
+delivers a single version of the product to the client. Which carries a risk of 
+not meeting the clients needs, though it is indirectly managed through the validation testing.
+This is an inherent risk of only delivering a single version at the end
+of project common in sequential process models like V-Model and Waterfall.
 
 \section{Spiral Model} % sequential / Iterative, testing, risk
 % theme:
@@ -212,4 +258,5 @@ both still face
 % \item Not having the correct margins -- they are 0.8 inch all round.
 % \item Not using A4 paper format when creating the pdf file.
 % \end{enumerate}
+
 % vim:set spell et sw=4 ts=4 tw=80:
