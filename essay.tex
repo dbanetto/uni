@@ -61,7 +61,7 @@ through the unexpected.
 
 % add more on why it is important and how it guides
 
-\vspace{.1in}
+\section{Review of Process Models}
 
 % TODO: this needs some reworking
 Over the years many process models have been proposed and many variations have
@@ -73,7 +73,7 @@ Extreme programming.
 % Q: provide a systematic review of process models that have been proposed so far,
 % Q: compare and contract 5 selected distinct process models for software development
 % Q: identify central themes that have been considered important for evolving process models
-\section{Waterfall} % sequential
+\subsection{Waterfall} % sequential
 % theme: sequential
 % strengths: requirements up front, easy
 % Goals: a model of how to make successful large software
@@ -83,7 +83,8 @@ Extreme programming.
 % note: Need a counter source, "Enough with Life cycle?"
 
 % should include an overview & theme of the model
-The Waterfall model was proposed in 1970 by Dr. Winston Royce \cite{Waterfall:1970}.
+The Waterfall model was proposed in 1970 by Dr. Winston Royce \cite{royce:1970:waterfall} 
+with a focus on meeting requirements.
 He proposed it as a method to be a guide of steps and processes that together
 help to make a larger software project succeed. 
 The principle idea behind the Waterfall model is that there are seven stages to
@@ -108,7 +109,7 @@ complete.
 \vskip 0.5cm
 \includegraphics[width=0.45\textwidth]{figures/waterfall-model.png}
 \vskip 0.5cm}}
-\caption{\protect\label{xyz}  Waterfall Model}
+\caption{\protect\label{waterfall}  Waterfall Model}
 \end{figure}
 
 Figure 1 shows the general form that Waterfall takes with its characteristic 
@@ -139,7 +140,7 @@ the client at the end of the whole project, making a possible large time gap fro
 gathering with the client to the final delivery to the client which has the risk of not being 
 what the client had in mind during the initial phases of the project.
 
-\section{V-Model} % sequential, testing
+\subsection{V-Model} % sequential, testing
 % theme:
 % Goals: to extends the existing Waterfall to include testing
 % compare: Waterfall's steps
@@ -147,10 +148,10 @@ what the client had in mind during the initial phases of the project.
 
 % should include an overview & theme of the model
 V-Model was proposed as a variation of the Waterfall model by Paul Rook in 1986
-\cite{Rook:1986}.
+\cite{rook:1986:vmodel} with a testing focus.
 The principle idea of the V-Model is to produce software in a linear fashion with
 well known requirements and solved problems that has the need for extensive testing 
-and verification of the system \cite{Rook:1986}.
+and verification of the system \cite{rook:1986:vmodel}.
 The general workings of the V-Model are similar to the workings of Waterfall
 with a few differences in testing.
 Instead in V-Model the testing stage of the process model is expanded and added short loops,
@@ -163,7 +164,7 @@ stages or requirements respectfully.
 \vskip 0.5cm
 \includegraphics[width=0.45\textwidth]{figures/v-model.jpg}
 \vskip 0.5cm}}
-\caption{\protect\label{xyz}  V-Model}
+\caption{\protect\label{vmodel}  V-Model}
 \end{figure}
 
 Figure 2 shows a common interpretation of V-Model with its characteristic
@@ -188,7 +189,7 @@ fix a past mistake, recognising that it is hard to get it prefect the first time
 round.
 Through the testing the V-Model has the potential to produce an extensively well
 tested product that meets a set of strict requirements such as traffic networks
-or medical equipment \cite{Advancements:2010}.
+or medical equipment \cite{advancements:2010:vmodel}.
 
 \vspace{.1in}
 
@@ -211,18 +212,21 @@ not meeting the clients needs, though it is indirectly managed through the valid
 This is an inherent risk of only delivering a single version at the end
 of project common in sequential process models like V-Model and Waterfall.
 
-\section{Spiral Model} % sequential / Iterative, testing, risk
+
+\subsection{Spiral Model} % sequential / Iterative, testing, risk
 % theme: sequential / iterative, risk
 % compare:
 % contrast:
 
-The Spiral Model is a process model that Barry Boehm described in 1986 \cite{Boehm:1988}.
-The model has the core theme of risk management and analysis which neither
-Waterfall or V-Model directly tackled.
-Spiral model also has ideas from both sequential and iterative methods with
-producing multiple prototypes of the product over the course of the whole project 
-while also linearly going through the software development cycle with the
-addition of steps to review, plan the next iteration of the prototype as well as
+The Spiral Model is a process model that Barry Boehm described in 1986 \cite{boehm:1988:spiral}.
+The model has a mixture of ideas in it, the core idea of the model is to address risk management and analysis
+which neither Waterfall or V-Model directly tackled.
+Spiral model also shares some ideas from both Waterfall and V-Model with a sequential approach 
+but also includes some iterative elements with producing multiple prototypes of the 
+product over the course of the whole project but only delivers a single product
+at the end of the development.
+The rest of the process progresses linearly going through the software development cycle with the
+addition of steps to review and plan for the next iteration of the prototype as well as
 identifying risks and how to resolve them going forward.
 
 \begin{figure}[htb]
@@ -230,15 +234,43 @@ identifying risks and how to resolve them going forward.
 \vskip 0.5cm
 \includegraphics[width=0.45\textwidth]{figures/spiral-model.png}
 \vskip 0.5cm}}
-\caption{\protect\label{xyz}  Spiral Model}
+\caption{\protect\label{spiral}  Spiral Model}
 \end{figure}
 
-\section{Phased Development Model} % iterative, testing, risk
+\vspace{.1in}
+
+Figure 3 shows the general use of the Spiral Model with multiple cycles or iterations \cite{boehm:1988:spiral}.
+Each cycle of the spiral starts with the identification of what parts of the
+final product will be developed in this iteration, shown as quadrant one in figure 3. 
+This process also includes suggesting alternative ways to implement what has been identified and
+identifying the resource constraints for the cycle.
+The next quadrant's goal is to handle risk analysis and resolving the identified
+risk, allowing ``risk-driven subsetting of the spiral model steps allows the model 
+to accommodate any appropriate mixture of a specification-oriented, 
+prototype-oriented, simulation-oriented, automatic transformation-oriented, 
+or other approach to software development'' \cite{boehm:1988:spiral}.
+Which lends Spiral model to be very flexible with its application.
+The third quadrant is the execution of the planning for the cycle with
+development and testing. 
+
+\vspace{.1in}
+% finish the overview of Spiral ^
+
+% Explicitly state Strengths + themes
+%
+\vspace{.1in}
+
+With the benefits and flexibility that the Spiral Model offers it comes at a
+cost. One of them are the complexity to manage a project with Spiral. One such
+problem is falling into the trap of running each cycle of the spiral as if it
+was a miniature Waterfall.
+
+\subsection{Phased Development Model} % iterative, testing, risk
 % theme:
 % compare:
 % contrast:
 
-\section{Extreme Programming} % iterative, testing, risk
+\subsection{Extreme Programming} % iterative, testing, risk
 % theme:
 % compare:
 % contrast:
