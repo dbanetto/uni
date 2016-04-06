@@ -145,6 +145,15 @@ the client at the end of the whole project, making a possible large time gap fro
 gathering with the client to the final delivery to the client which has the risk of not being 
 what the client had in mind during the initial phases of the project.
 
+\paragraph{}
+Though in spite of the downside of Waterfall, it has some valid use cases.
+The main use case is when the requirements for the project is well known and the
+solutions to the problems are also known and solved and that risk is not a large
+enough factor that a model better suited to handle it, such as V-Model or Spiral
+Model should be chosen, then Waterfall is a good choice for a process model.
+Examples of a good projects to Waterfall are porting applications or government
+work.
+
 \subsection{V-Model} % sequential, testing
 % theme:
 % Goals: to extends the existing Waterfall to include testing
@@ -220,6 +229,17 @@ delivers a single version of the product to the client. Which carries a risk of
 not meeting the clients needs, though it is indirectly managed through the validation testing.
 This is an inherent risk of only delivering a single version at the end
 of project common in sequential process models like V-Model and Waterfall.
+V-Model also suffers the same problem as Waterfall in the fact it does not 
+have as much client involvement as iterative models such as Incremental and
+Iterative development model.
+
+\paragraph{}
+The V-Model's use cases are a subset of Waterfall as it targets a sub-set that
+requires an extensive amount of testing.
+The V-Model is only appropriate when all the requirements are known upfront and
+the solutions to the problems the requirements presents are known and solved.
+This makes V-Model have a strong use
+case in safety critical system that require reliability, safety and security.
 
 
 \subsection{Spiral Model} % sequential / Iterative, testing, risk
@@ -305,7 +325,18 @@ Another cost of Spiral model is the need to have an expert of the risks that
 will be needed to be identified and resolved which could cause a large strain on the
 resources of the project than the benefits of mitigating the risks.
 
-\vspace{.1in}
+\paragraph{}
+With the costs and benefits of the Spiral model it has many different use cases.
+The most prominent use case of the Spiral model is when risk analysis,
+evaluation and management is an important component of the development of the
+software. It also has a use case of when a prototype of the final software
+product is useful, such as when a user interface for the software is needed.
+Spiral model is appropriate to be used with research or extermination with a new
+product as it allows for multiple prototypes with a single focused goal 
+to deliver at the end with a tools in place to handle the changes and 
+risks involved with pushing new developments in areas.
+Spiral model also handles a complex set of requirements as it allows chances to
+realign the project with the clients expectations with the prototyping.
 
 \subsection{Iterative and Incremental Development} % iterative, testing, risk
 % theme: iterative, many deliverables
@@ -410,6 +441,19 @@ product delivery is used instead of an incremental such as Waterfall, V-Model an
 have more upfront architectural designs to manage the risk of having
 architectural problems in the extension of the product.
 
+\paragraph{}
+Given the strengths and weakness of the Incremental and iterative development
+there are some appropriate use cases for the model. A strong use case for IID is
+getting a product to market quick to cash in on a new found niche or to get out
+before competition. Another use case for the model is when the majority of the
+requirements are known at the start of the project with an expectation of some
+of them are going to change over time, this will given enough knowledge 
+that an effective initial architectural design of whole project can be made and
+iterated on over the course of the project while still adapting to the changes
+around the product and the client's needs. A long term software project such as
+a compiler or a kernel would benefit from an IID approach as the goal of the
+project is clear with variations in small details and improvements with new
+technology or research can be incorporated as the project moves forward.
 
 \subsection{Extreme Programming} % iterative, testing, risk
 % theme:
