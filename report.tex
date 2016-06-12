@@ -33,7 +33,6 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 % how your team used the process model,
 \section{Process Model}
 
-
 \begin{figure}[htb]
 \fbox{\parbox[b]{.99\linewidth}{
 \vskip 0.5cm
@@ -45,6 +44,12 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 %The experiences you made with using the process model and the lessons
 % you learned from the project
 \section{Experience}
+% andrew: pretty kewl
+% cuan: late?
+% Cameron price:
+% Cameron Porter:
+% me:
+
 
 % How well your application meets the requirements gathered during the
 % initial requirements analysis and what you have done to ensure your ap-
@@ -59,10 +64,29 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 % and which points it misses
 % big reveal it is P-System!!!
 
-There are three different types of systems that a software project could behave
-like, S-System, P-System and E-System.
+A software program can be described as one of three types of systems:
+S-System, E-System and P-System. Each type of system has a varying set of traits
+to their development and maintenance cycles as they have different relationships
+to their environments and specifications that they were designed for and how
+they react to changes in either of them. These range from development
+and maintenance is continuous to after development there is no need for
+maintenance. The KPSmart application displays some traits of each of system
+types but mostly exhibits the traits of a P-System.
 
-\cite{lehman:1980}
+\vspace{.1in}
+
+The KPSmart application has some traits of a S-System. Which are described as
+software which has its functionality formally defined by the specification as
+well as how it will be delivered \cite{lehman:1980}. S-Systems are systems which
+solve a problem which is related to the real world with very rigid rules such
+as implementing a
+sorting algorithm which leads onto a set of well defined specifications for the
+system to be implemented.
+Changing the specifications, and thus the problem the system is to solve,
+would results in changing the system as a whole due to the system being tightly
+coupled. The maintenance of a S-System would be low as the resulting system
+would not need to change unless its specifications does.
+This process is illustrated by the figure \ref{s-system}.
 
 \vspace{.1in}
 
@@ -76,17 +100,11 @@ like, S-System, P-System and E-System.
 
 \vspace{.1in}
 
-\vspace{.1in}
-
-\begin{figure}[htb]
-\fbox{\parbox[b]{.99\linewidth}{
-\vskip 0.5cm
-\includegraphics[width=0.45\textwidth]{figures/p-system.png}
-\vskip 0.5cm}}
-\caption{\protect\label{p-system}  P-System }
-\end{figure}
-
-\vspace{.1in}
+The KPSmart application itself is formally defined by specifications to solve a
+problem but lacks the level of details and rigidity to classify it as an
+S-System, however some sub-systems of the applications are fit to be classed as such.
+These include the routing and the calculation for a mail delivery duration
+sub-systems as they both are well defined in what problem they solve.
 
 \vspace{.1in}
 
@@ -96,6 +114,18 @@ like, S-System, P-System and E-System.
 \includegraphics[width=0.45\textwidth]{figures/e-system.png}
 \vskip 0.5cm}}
 \caption{\protect\label{e-system}  E-System }
+\end{figure}
+
+\vspace{.1in}
+
+\vspace{.1in}
+
+\begin{figure}[htb]
+\fbox{\parbox[b]{.99\linewidth}{
+\vskip 0.5cm
+\includegraphics[width=0.45\textwidth]{figures/p-system.png}
+\vskip 0.5cm}}
+\caption{\protect\label{p-system}  P-System }
 \end{figure}
 
 \vspace{.1in}
