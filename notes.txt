@@ -1,0 +1,15 @@
+++ testing was exquisite. No untested code pushed to master. Good experience with continuous integration - Travis. Git handled well
+
+++ some model uncertainty, but once we started we reflected and wasn’t too late to change, so adapted.
+
+++ Ruby - clean code base and enforced mvc
+-- Ruby - inexperienced in ruby, underestimated in how long it took to get up and running. 
+
+-- very different schedules - had difficulty finding time together and also we overestimated how much time we had to work on this.
+
+-- ran out of time
+
+-- better graphical reporting
+
+-- at the requirements stage slightly misunderstood some things
+++ but because our model was flexible, we adjusted
