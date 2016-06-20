@@ -105,15 +105,27 @@ problem but lacks the level of details and rigidity to classify it as an
 S-System, however some sub-systems of the applications are fit to be classed as such.
 These include the routing and the calculation for a mail delivery duration
 sub-systems as they both are well defined in what problem they solve.
+However the KPSmart application as a whole is not a S-System.
 
 \subsection{E-System}
 
-The KPS application has some aspects of an E-System.
+The KPSmart application has some aspects of an E-System.
 An E-System is a type of system which is embedded in apart of the problem and is
-apart of environment of the problem itself. A practical example of this would be
-a stock market fast trader which itself is apart of the market and must not only
-model the environment it is working in but also model its own impacts on that
-environment so be maximise yields.
+apart of environment of the problem itself \cite{lehman:1980}. A practical example of this would be
+a stock market trader AI, which itself is apart of the market and must not only
+model the environment which it is trading in but also model its own impacts on the market
+so it can maximise yields. The drive to model and interact with the environment
+is the trait which gives this types of system the name of \emph{E}-System for
+an environment system. With this kind of system the specifications and models
+of the system are all derived from a problem residing the real world which
+informs the views and models to create abstractions over the problem. From these
+abstractions a set of requirements and specifications are drawn up to create a
+system that will exist in the same world as the problem. However the resulting
+system will likely cause changes to the problem and world around it leading to
+a feedback loop of changes in models and requirements into how the system
+changes the world. The system would need to also model itself and it changes to
+the world around it to be effective in situations twitch stock trading or
+dispatching airplanes. This process is illustrated by the figure \ref{e-system}.
 
 \vspace{.1in}
 
@@ -124,6 +136,14 @@ environment so be maximise yields.
 \vskip 0.5cm}}
 \caption{\protect\label{e-system}  E-System }
 \end{figure}
+
+The KPSmart application has some sub-systems and features which could
+be consider to be E-System-like. These elements are most prevalent in
+the manager tooling. For example the decision support functions of suggesting
+to close or open routes to maximise profit as well as suggesting that a route 
+price is too high and could improve volume with a reduction. These types of
+features would benefit from modeling the real world with the KPSmart application
+as an actor in it. However the KPSmart application as a whole is not a E-System.
 
 \vspace{.1in}
 
