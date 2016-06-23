@@ -40,9 +40,11 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 For the KPSmart application our team chose the to use the spiral model for our
 process model. We chose this model because of its iterative approach to the
 development of the application so we could get as much client feedback as we
-could. We also saw risks involving our scheduling of our team and other aspects
+could. We also saw risks involving our scheduling of the team to meet up and other aspects
 of our project so the spiral model fitted the bill. An illustration of how the
 spiral model is generically use shown in figure \ref{spiral-model}.
+
+\vspace{.1in}
 
 \begin{figure}[htb]
 \fbox{\parbox[b]{.99\linewidth}{
@@ -52,13 +54,17 @@ spiral model is generically use shown in figure \ref{spiral-model}.
 \caption{\protect\label{spiral-model} Spiral model }
 \end{figure}
 
-After the first round of risk analysis we discovered that this process is 
+\vspace{.1in}
+
+After the first round of risk analysis we discovered that this process is
 detrimental to our development of the project and was over kill for our
 needs. So we decided to change to the phased iterative and incremental
 development model (IID). The IID model has the same basic features we wanted
 from a process model of iteration based development with customer feedback
 playing an important role. An illustration of how the IID model is used is shown
 in figure \ref{iid-model}.
+
+\vspace{.1in}
 
 \begin{figure}[htb]
 \fbox{\parbox[b]{.99\linewidth}{
@@ -68,11 +74,20 @@ in figure \ref{iid-model}.
 \caption{\protect\label{iid-model} Incremental and Iterative development model }
 \end{figure}
 
-Settling on the IID model our team used it to some effect. We planned to use
-the first iteration to build a basic skeleton of how the components are laid out
-and try to make it as a launch pad to iterate on features and functionality in
-later iterations. After completing the first iteration we displayed our system
-to our client for feedback. 
+\vspace{.1in}
+
+Settling on the IID model our team used it to some effect.
+We planned to use each iteration to build up and refine features that were
+developed in the previous iteration. To achieve this we started the first
+iteration by creating a rough skeleton of a majority of the application with key
+data models and function paths outlined.
+After completing each iteration we had a meeting with our clients show casing the
+new features that were added in the iteration cycle. With this meeting we also
+took the opportunity to refine our knowledge of the requirements and receive
+feedback on the work that we have completed.
+Each iteration started with a rough plan of what is to be completed in that
+iteration which in theory would of been refined as we gained more understanding
+of the components.
 
 %The experiences you made with using the process model and the lessons
 % you learned from the project
@@ -83,6 +98,62 @@ to our client for feedback.
 % Cameron Porter (no-bread):
 % me: ~.~
 
+The overall experience of using iterative and incremental development model was
+good but had many places were we could improve next time. Through the
+execution of the project we achieved our primary goal of using the model to get
+the customer's feedback. This was one of the main reasons we chose the IID
+process however we only had the opportunity to meet with the client two times.
+Though the two client meetings resulted in a better understanding of the
+requirements and expectations of the clients, only having two meetings
+could not possibly result in a or near complete understanding of the
+requirements for us to implement or even to give the clients enough of an idea of
+what we have implemented so they can point out if we are going down the wrong
+tack.
+From this we only reached our third iteration cycle by the end of the project.
+A critical error we made was to not have a clear plan to each iteration or even
+have a deadline for the iteration to be completed by. With these missing aspects
+of our iterations they were aimless and had no sense of urgency. This lead to
+many team members to put this project on the back burner and left it till the
+exam period. This resulted in iterations taking a long time to complete their
+vague goals.
+
+\vspace{.1in}
+
+From the project I have learnt some important components to a successful group
+project. In this project we agreed to try something that was new to most of the
+team, using Ruby on Rails as our framework to build our application. We had one
+member that was a professional in the framework and I was being tutored in the
+framework in another group project. The inexperienced members took this as a
+learning experience to understand ruby and the Rails framework.
+
+\vspace{.1in}
+
+One the important components to a successful group project would be communication within the team.
+Throughout the project our team communicated through online tools, such as
+Slack, to organise team meetings and discuss portions of the work. The team
+meetings were agreed to be a weekly meeting before a lecture with the goal of
+talking about what is currently being done in the project and if you need help
+speak up then. However these meetings were often derailed by unrelated talk or
+looking back retrospectively some members that were struggling with foreign
+frameworks and languages.
+A side affect of the derailed meetings was the current goal of the project was
+being poorly met, for example during the requirements gather phase most of the
+talk was about which technologies should we use and attempting to solve the
+problem before knowing what it was.
+In the extreme this lead to one member ending up
+contributing no code to the final product from what I gather was due to a
+knowledge gap. In retrospect relying on people to speak up about not understanding
+something is not the best method to resolve a knowledge gap but should be more
+insistent and direct with asking members about their progress.
+From this I have learnt that a meeting is only effective when it is on task and
+the goals of the meeting is met. For my next project I would attempt to be
+stricter in meeting to keep it on task instead of allowing members to get off topic
+and start talking about their world trip they are planning otherwise it just
+turns into a waste of time.
+
+\vspace{.1in}
+
+Time management is also a key component to a successful group project.
 
 % How well your application meets the requirements gathered during the
 % initial requirements analysis and what you have done to ensure your
@@ -176,7 +247,7 @@ dispatching airplanes. This process is illustrated by the figure \ref{e-system}.
 The KPSmart application has some sub-systems and features which could
 be consider to be E-System-like. These elements are most prevalent in
 the manager tooling. For example the decision support functions of suggesting
-to close or open routes to maximise profit as well as suggesting that a route 
+to close or open routes to maximise profit as well as suggesting that a route
 price is too high and could improve volume with a reduction. These types of
 features would benefit from modeling the real world with the KPSmart application
 as an actor in it. However the KPSmart application as a whole is not a E-System.
@@ -189,12 +260,12 @@ The KPSmart application has many, if not all, of the traits of a
 P-System. A P-System is the middle ground between an E-System and a
 S-System, it has a clear set of specifications for the system to
 implement as a base of the problem as well as more functionality that
-builds upon the base to create more complex \cite{lehman:1980}. An 
+builds upon the base to create more complex \cite{lehman:1980}. An
 example of a P-System would be a computer controlled player for a game,
 such as checkers, while the base game is well defined and specified it
 will also need to make the best decision in its current situation.
 The P-System is built using an abstraction of a problem from the world
-at large, which is then used to define the requirements and specifications 
+at large, which is then used to define the requirements and specifications
 of the system. The built system may reveal more information about the problem
 that could require a rethink or an update to the abstraction of the problem,
 thus leading onto changes in the specifications and the system. This can form
@@ -224,7 +295,7 @@ delivery logistics thus not an E-System. In addition to these a lack of
 these features the system is an abstraction of the business process that the
 KPS firm wanted to automate and their requirements and specifications grew over
 time with greater understanding of the problem so did the system. With these
-traits and the system on the whole is a P-System even though some sub-systems 
+traits and the system on the whole is a P-System even though some sub-systems
 could be defined as S-Systems or E-Systems.
 
 % What kind of maintenance activities may be needed to maintain the
@@ -232,11 +303,11 @@ could be defined as S-Systems or E-Systems.
 % discussed in the lectures.
 \section{Maintenance}
 % Corrective (control over day-to-day):
-%   
-% Adaptive (control modifications): 
-%   
+%
+% Adaptive (control modifications):
+%
 % Perfective (perfecting existing funcs):
-%   
+%
 % Preventive (prevent performance degrade):
 %   Database queries for reports are slower than they should be
 
@@ -244,7 +315,7 @@ The developed KPSmart application however grand or functional it is will need
 to be maintained, and most likely not by its original authors. This maintenance
 could take one of four different forms: corrective; adaptive; perfective, and;
 preventive. The KPSmart applications as it stands would benefit from each of
-these maintenance activities and some work has already be done from the original 
+these maintenance activities and some work has already be done from the original
 developers to help lessen the pain of these activities.
 
 % What process model would you use if the project were developed as an
