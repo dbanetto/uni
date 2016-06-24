@@ -210,8 +210,47 @@ being apart of this project.
 
 The KPSmart clients provided us with an outline of the requirements of the
 system and further went into detail during client meetings or while the clients
-were available.
+were available. The requirements document outlined for a system to be used to
+track and route mail for the Kelburn Postal Service (KPS). These requirements
+include event processing, monitoring key business figures, logging events and
+discussion support. To ensure the application we built met these requirements we
+used our use cases as a checklist of feature as well as using client meetings.
 
+% TODO: ~event processing~, monitoring key business figures, logging events and
+% discussion support
+
+\vspace{.1in}
+
+The event processing functionality has been mostly implemented and tested. From the
+requirements that we initially gathered from the documentation that was given we
+found that the event processing functionality had two main concepts. 
+The first concept is the routes between cities.
+We found a route to have the properties of the maximum, price and cost of the
+volume and weight of a mail parcel as well as its mode of transport and origin
+and destination city. With a route the client wanted to be informed about
+different types of events directly related to the route. This included the
+creation of a new route, editing a route and requiring more information if the 
+cost to use the route has changed for either KPS or the customer, and the
+discontinuation of a route. These requirements were implemented into the
+KPSmart application.
+The second being a mail delivery which is routed from an origin city somewhere in 
+New Zealand to a another city, foreign or domestic, using exclusively one of three
+transport methods: land, sea or air. A mail delivery has properties of weight,
+volume, origin and destination cities as well as its entry time into the system.
+We later found out that the routing must
+building up many hops from city to city to path its way to the destination city 
+using the same transport method otherwise report that the mail cannot be
+delivered. From these requirements we have implemented the routing between a
+origin city and a destination city using a metric of time. The restriction of
+only being able to send a mail from a city in New Zealand has not been added,
+nor was using one exclusive form of transport. To track these requirements, and 
+the new details we learnt about them over time, we discussed them in either the
+team meetings or our Slack to share the information, however this was not the
+best way to track the requirements as it caused some confusion between members.
+
+\vspace{.1in}
+
+The 
 
 % What kind of system is your application, i.e., S-system, E-system or P-
 % system and why?
