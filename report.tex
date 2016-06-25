@@ -37,12 +37,15 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 % no goals for each iteration
 % ending up being every iteration just being a client meeting
 
+% TODO: update paragraphs to use refs
+
 For the KPSmart application our team chose the to use the spiral model for our
 process model. We chose this model because of its iterative approach to the
 development of the application so we could get as much client feedback as we
 could. We also saw risks involving our scheduling of the team to meet up and other aspects
-of our project so the spiral model fitted the bill. An illustration of how the
-spiral model is generically use shown in figure \ref{spiral-model}.
+of our project so the spiral model fitted the bill \cite{boehm:1988:spiral}. 
+An illustration of how the spiral model is generically use shown in figure
+\ref{spiral-model}.
 
 \vspace{.1in}
 
@@ -59,7 +62,7 @@ spiral model is generically use shown in figure \ref{spiral-model}.
 After the first round of risk analysis we discovered that this process is
 detrimental to our development of the project and was over kill for our
 needs. So we decided to change to the phased iterative and incremental
-development model (IID). The IID model has the same basic features we wanted
+development model (IID) \cite{larman:2003:iid}. The IID model has the same basic features we wanted
 from a process model of iteration based development with customer feedback
 playing an important role. An illustration of how the IID model is used is shown
 in figure \ref{iid-model}.
@@ -216,41 +219,77 @@ include event processing, monitoring key business figures, logging events and
 discussion support. To ensure the application we built met these requirements we
 used our use cases as a checklist of feature as well as using client meetings.
 
-% TODO: ~event processing~, monitoring key business figures, logging events and
-% discussion support
-
 \vspace{.1in}
 
 The event processing functionality has been mostly implemented and tested. From the
 requirements that we initially gathered from the documentation that was given we
-found that the event processing functionality had two main concepts. 
+found that the event processing functionality had two main concepts.
 The first concept is the routes between cities.
 We found a route to have the properties of the maximum, price and cost of the
 volume and weight of a mail parcel as well as its mode of transport and origin
 and destination city. With a route the client wanted to be informed about
 different types of events directly related to the route. This included the
-creation of a new route, editing a route and requiring more information if the 
+creation of a new route, editing a route and requiring more information if the
 cost to use the route has changed for either KPS or the customer, and the
 discontinuation of a route. These requirements were implemented into the
 KPSmart application.
-The second being a mail delivery which is routed from an origin city somewhere in 
+The second being a mail delivery which is routed from an origin city somewhere in
 New Zealand to a another city, foreign or domestic, using exclusively one of three
 transport methods: land, sea or air. A mail delivery has properties of weight,
 volume, origin and destination cities as well as its entry time into the system.
 We later found out that the routing must
-building up many hops from city to city to path its way to the destination city 
+building up many hops from city to city to path its way to the destination city
 using the same transport method otherwise report that the mail cannot be
 delivered. From these requirements we have implemented the routing between a
 origin city and a destination city using a metric of time. The restriction of
 only being able to send a mail from a city in New Zealand has not been added,
-nor was using one exclusive form of transport. To track these requirements, and 
+nor was using one exclusive form of transport. To track these requirements, and
 the new details we learnt about them over time, we discussed them in either the
 team meetings or our Slack to share the information, however this was not the
 best way to track the requirements as it caused some confusion between members.
+To ensure we have completed these requirements we checked our implementation
+with tests derived from our use cases and showing the end result to the client.
 
 \vspace{.1in}
 
-The 
+% TODO: add delivery times, average delivery times, & critical routes
+The monitoring of key business features has all of its basic features
+implemented. From what we initially gathered from the client and their
+documentation they wanted a view statistics such as revenue, expenditure and profit
+that resulted from mail devilries as well as the number of mail deliveries made,
+their duration as well as their average duration and critical routes that were
+under performing for the business.
+The KPSmart application meets a majority these requirements by providing summary constantly
+updating statistics as apart of its reporting sub-system.
+The application is missing the ability to identify critical routes and
+calculating the average duration of a mail delivery, all other requirements were
+meet. These requirements were static  so to ensure we meet them we cross-checked
+them with the written documentation and shown the results to the client.
+
+\vspace{.1in}
+
+The client wanted to have the ability to view these business events in a log.
+The KPSmart application does implement the basic version of this. The
+requirements we gathered about the event log describes it as a list of
+historical events that have occurred in the KPS business, this includes the
+events: route creation, route edits and mail deliveries. The client also wished
+to have the ability to import a historic event log formatted in XML and be able
+to refine their view of the event log by a time period. From these requirements
+we have built a basic event log that will allow you to view all the business
+events listed in chronological order with the full details of the event
+available to the user. We however did not finish implementing uploading the
+historic event log or start on viewing periods of time of the event log. To
+ensure we meet our client's requirements we showed these features in a meeting.
+
+\vspace{.1in}
+
+The client expressed interest in the system aiding managers in making business
+decisions. This included the system analysing all the routes and how they are
+performing. The KPSmart application partially meets this requirement by
+preparing a report of all mail deliveries and clearly display how they perform 
+in terms of loss or profit through the UI.  To ensure we meet our client's
+requirements we checked our use cases and documentation before showing these
+features to the client in a meeting.
 
 % What kind of system is your application, i.e., S-system, E-system or P-
 % system and why?
