@@ -442,9 +442,12 @@ could be defined as S-Systems or E-Systems.
 The developed KPSmart application however grand or functional it is will need
 to be maintained, and most likely not by its original authors. This maintenance
 could take one of four different forms: corrective; adaptive; perfective, and;
-preventive. The KPSmart applications as it stands would benefit from each of
+preventive \cite{Pigoski:1996}. 
+The KPSmart applications as it stands would benefit from each of
 these maintenance activities and some work has already be done from the original
 developers to help lessen the pain of these activities.
+To keep the control of the change sane the maintainers should take the same
+source control etiquette by using feature branch.
 
 \vspace{.1in}
 
@@ -465,17 +468,25 @@ library version hell.
 
 Some tools are already present to assist with adaptive maintenance. Adaptive
 maintenance is changing the system to meet updated specifications or add new
-features. For the KPSmart application this would be a large portion of the work
+features. This type of maintenance is of a medium priority to the end user as it
+does new features to the system.
+For the KPSmart application this would be a large portion of the work
 for a maintainer as there are many missing features after our release. To help
 with this maintenance by using a simple languages such as ruby and sticking to
 the architecture Ruby on Rails gives adding new features should be relatively
 easy as how to add features in a Rails environment is standardised. 
 
-\cite{Pigoski:1996}
-
 \vspace{.1in}
 
-Perfective
+Perfective maintenance has the aim of perfecting the exiting functionality of
+the system. To achieve this a maintainer would need to have knowledge of the
+requirements and well versed in our chosen technologies, Ruby on Rails, to make
+the best decisions in how to best polish the system. This type of maintenance is
+of a low priority to the end user but common. It does not improve the functionality
+of the system just reduces the technical that has accrued over the development
+of the system and makes the other types of maintenance easier and less time
+consuming as most of the anti-patterns or other hideous incarnations have been
+buffed out.
 
 \vspace{.1in}
 
@@ -492,8 +503,18 @@ experienced with Rails to make these changes.
 % open source application, and why?  Which Indirect Sale-Value model,
 % discussed in the lecture, can be used for your application, and how?
 \section{Open source}
-
-\cite{raymond:1999}
+% Bazaar or Cathedral 
+% 
+% http://www.catb.org/~esr/writings/magic-cauldron/magic-cauldron-9.html
+% Loss-Leader/Market Positioner 
+% Widget Frosting
+% Give Away the Recipe, Open A Restaurant
+% Accessorizing
+% Free the Future, Sell the Present
+% Free the Software, Sell the Brand
+% Free the Software, Sell the Content
+\cite{raymond:1999:cathedral}
+\cite{raymond:1999:magic}
 
 \section{Conclusion}
 
