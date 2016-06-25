@@ -446,7 +446,47 @@ preventive. The KPSmart applications as it stands would benefit from each of
 these maintenance activities and some work has already be done from the original
 developers to help lessen the pain of these activities.
 
+\vspace{.1in}
+
+Corrective maintenance is a type of system maintenance to correct failures that
+have occurred in the day to day operation. This includes correcting bugs or
+other faults that would stopping the normal usage of the system. 
+For the KPSmart application there are some known bugs in the current build. 
+One known bug that would stop the normal flow of clerk using the system is after
+failing validation on a form where a city name is inputed it will return the id
+of the city it was a valid city instead of the city name. The only tool to
+assist the maintainer is the test suite to display the expected behaviour of
+each component. Another tool to assist the maintainer or deployment of this
+application is that a side affect of using ruby is the frozen library versions
+allowing for consistent builds between development and production and preventing
+library version hell.
+
+\vspace{.1in}
+
+Some tools are already present to assist with adaptive maintenance. Adaptive
+maintenance is changing the system to meet updated specifications or add new
+features. For the KPSmart application this would be a large portion of the work
+for a maintainer as there are many missing features after our release. To help
+with this maintenance by using a simple languages such as ruby and sticking to
+the architecture Ruby on Rails gives adding new features should be relatively
+easy as how to add features in a Rails environment is standardised. 
+
 \cite{Pigoski:1996}
+
+\vspace{.1in}
+
+Perfective
+
+\vspace{.1in}
+
+Preventive maintenance has the aim of preventing degradation of the performance
+of the system over time. This would include optimising expensive calls to the
+database or scaling the application horizontally or vertically. The KPSmart
+application as it stands is very inefficient when using resources such as the database
+and this type of maintenance could vastly improve the performance of the system
+with proper usage of the database. To assist with this maintenance the
+use of standard Ruby of Rails database objects will allow a maintainer
+experienced with Rails to make these changes.
 
 % What process model would you use if the project were developed as an
 % open source application, and why?  Which Indirect Sale-Value model,
