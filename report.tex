@@ -19,6 +19,14 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 \maketitle
 
 \begin{abstract}
+    This report discusses the development of the KPSmart application. 
+    This includes the choice to use a client driven iterative development
+    methodology, Incremental and Iterative model, to build the application and
+    the good and bad experiences of using this model. This includes how we
+    missed requirements and not always on task. This report also discusses that
+    the KPSmart application is a P-System, plans for the maintenance of the
+    application and what needs to be done, as well as plans to open source the
+    application using the Bazaar model.
 \end{abstract}
 
 \vspace{.1in}
@@ -28,6 +36,13 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 \vspace{.1in}
 
 \section{Introduction}
+The KPSmart application is a mail delivery logistics system. This was made for
+clients at Kelburn Postal Service (KPS) using Ruby on Rails to make a web
+application that fits their requirements. To do so a process model was chosen by
+my team and I to develop this system over the course of 2 months. The
+experiences from our development and the requirements we gathered is discussed.
+The type of system, maintenance of the system after hand over and a look at open
+sourcing the application are discussed.
 
 % Which process model your team has chosen for the project and why, and
 % how your team used the process model,
@@ -513,8 +528,70 @@ experienced with Rails to make these changes.
 % Free the Future, Sell the Present
 % Free the Software, Sell the Brand
 % Free the Software, Sell the Content
-\cite{raymond:1999:cathedral}
-\cite{raymond:1999:magic}
+
+If the KPSmart application was to become an open source project the process
+model of how it would develop would need to change. The change will be needed as
+the Iterative and Incremental Development model works best if the developers of
+the project which given a pure community based development team would not be
+possible. There are alternative process models such as Cathedral
+model or the Bazaar model to handle a community based development effort.
+However KPS also as the option to take a hybrid approach of having full time
+developers internally at the same time as having community source developers as
+well. With the change major to an open source model the
+business model will need to change. An indirect business model such as
+selling accessory, or selling support are a few of the many options open to KPS
+if they decide to open source this project.
+
+\vspace{0.1in}
+
+Deciding on the process model to use is mostly determined how much KPS control
+wants over the goals of the project. If they want to lead the project into a
+well defined architecture that meets their own goals with the community helping
+by looking through the source code to find bugs to be fixed in the next release
+the Cathedral model would be the best fit. The Cathedral model is when an
+exclusive group of developers, for example the developers working for KPS, will
+work in isolation and make large releases of the product with the release of the
+source code accompanying it \cite{raymond:1999:cathedral}. The textbook example
+of a open source project following the Cathedral model is the GNU Emacs editor.
+This model can be used in conjunction of another iterative process model such as
+IID to be used internally while the development of the next release is underway.
+The main benefits of using Cathedral is having many eyes on the source code of
+the project spotting bugs when they come across them, however this methodology
+does not allow for as much co-operation between the end users and the core developers
+of the project. The other popular choice of open source models is the Bazaar
+model. In the Bazaar model the entire development of the project with the source
+code, changes and communication about the project is open to anyone to join.
+The developers working on this style of project can be purely community driven
+with a team of lead maintainers, the employees of KPS would most likely take
+this role, and the end users of the project can become co-developers and
+contribute new features or fixes to bugs \cite{raymond:1999:cathedral}. 
+The golden example of the Bazaar methodology is the Linux kernel with thousands
+of contributors while still keeping a stable product and its effort to release
+early and release often so the end-users can throughly test the relatively small 
+amount of changes introduced in the last short cycle.
+
+\vspace{0.1in}
+
+With the KPSmart application I would run the open source project as a Bazaar model.
+To setup the Bazaar model I would still have an internal development team in KPS
+but make them the lead maintainers of the project. The internal development team
+can also still work using an iterative development model, such as the Iterative and
+Incremental model. To get the most benefit from this the iteration times will
+need to be short and the plans for each iteration well known to the community of
+the project.
+
+\vspace{0.1in}
+
+While open sourcing the project KPS would need to look into different revenue
+streams if it was previously selling the KPSmart application to other mail delivery
+services or franchise members. KPS would need to bring in an indirect business
+model. A few possible models are to give our the software for free but sell a
+service of deploying and maintaining the system for a client, or to sell access
+to mail routes to other users of the system \cite{raymond:1999:magic}. Giving out the service and selling
+the deployment and maintenance would be the most effective business model as
+even if KPS might lose market share in the mail delivery industry in New Zealand
+they could be selling their software world wide which would have a larger
+potential revenue then staying in New Zealand market.
 
 \section{Conclusion}
 
