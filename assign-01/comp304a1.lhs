@@ -6,7 +6,7 @@
 
 A) count
 
-Using pattern mathcing because it shows the different
+Using pattern matching and grauds because it shows the different
 cases the aligorithm will face 
 
 > count :: (Num a, Eq a) => a -> [a] -> a
@@ -16,11 +16,17 @@ cases the aligorithm will face
 >           | otherwise = count n xs
 
 An alternative method would be to use if/else blocks
-instead of mathcing on values
+instead of mathcing on values.
+
+An alternative method would be to use a left fold, which would
+use more of the standard library, such as:
+
+> countFold :: (Num a, Eq a) => a -> [a] -> a
+> countFold n arr = foldl (\acc x -> if x == n then acc + 1 else acc) 0 arr
 
 B) allPos
 
-Using pattern mathcing because it shows the different
+Using pattern matching and grauds because it shows the different
 cases the aligorithm will face. A sub function
 was used for the recursion to keep track of the index in
 the array.
@@ -35,13 +41,20 @@ the array.
 > allPosI :: (Num a, Eq a) => a -> [a] -> a -> [a]
 > allPosI _ [] _ = []
 > allPosI n (x:xs) i
->               | n == x = [i] ++ allPosI n xs (i+1) 
+>               | n == x = i:(allPosI n xs (i+1))
 >               | otherwise = allPosI n xs (i+1) 
 
 
 An alternative method would be to use if/else blocks
 instead of mathcing on values or use a standard 
-list function.
+list function. 
+
+> allPosW :: (Num a, Eq a) => a -> [a] -> [a]
+> allPosW n arr = collect 1 arr
+>       where collect _ [] = []
+>             collect i (x:xs)
+>                       | n == x = i:(collect (i+1) xs)
+>                       | otherwise = (collect (i+1) xs)
 
 C) firstLastPos
 
@@ -78,7 +91,55 @@ finding the 1st and last elemnts seperatly for ease of mind.
 
 An alternative method with be to join lastPos and firstPos together
 but at the cost of doubling the number of cases to match against and greatly
-increasing the complexity of the function.
+increasing the complexity of the function or reduce the number of functions
+by using where's but still iterating through the list twice at most.
+
+> firstLastPosW :: (Num a, Eq a, Ord a) => a -> [a] -> (a, a)
+> firstLastPosW n arr = (firstPosW 1 arr, lastPosW 1 arr)
+>       where firstPosW _ [] = 0
+>             firstPosW i (x:xr)
+>                   | x == n = i
+>                   | otherwise = firstPosW (i+1) xr
+>             lastPosW _ [] = 0
+>             lastPosW i (x:xr) 
+>                   | x == n = max i (lastPosW (i+1) xr)
+>                   | otherwise = lastPosW (i+1) xr
+
+2. Sorting
+~~~~~~~~~~
+
+A) n^2 sorting aligorithm (Selection sort)
+
+this method finds the minimum value of the array and moves
+it to the back of the sorted array. I chose selection sort
+as I understood how it worked and how to pair haskell's recursion 
+to implement it.
+
+> sort1 :: (Ord a) => [a] -> [a] 
+> sort1 [] = []
+> sort1 arr = (minimum arr):sort1 (deleteFirst (minimum arr) arr)
+>       where deleteFirst _ [] = []
+>             deleteFirst n (x:xs)
+>                 | x == n = xs
+>                 | otherwise = x:deleteFirst n xs
+
+Alternatives to implement selection sort would be to use a
+recursive fold with the accumulator being a tuple of minimum and
+the remaining list.
+
+To add support for a first-order function to compare using a passed
+in funciton the usage of minimum would need to be expanded into its own
+function so it could use the aribitray comparator.
+
+A) n log n sorting aligorithm (Quick sort)
+
+> sort2 :: (Ord a) => [a] -> [a]
+> sort2 [] = []
+> sort2 (x:xr) = (sort2 less) ++ x:equal ++ (sort2 more)
+>       where less  = filter(< x) xr
+>             more  = filter(> x) xr
+>             equal = filter(== x) xr
+>
 
 Examples and testing
 ~~~~~~~~~~~~~~~~~~~
@@ -112,3 +173,15 @@ Examples and testing
 >       print("firstLastPos 5 [1,2,1,2,1] == (0,0)")
 >       print(firstLastPos 5 [1,2,1,2,1])
 >
+>       -- sorting
+>       print("sort1 [1,2,1,2,1] == [1,1,1,2,2]")
+>       print(sort1 [1,2,1,2,1])
+>
+>       print("sort1 [102,22,81,22,1] == [1,22,26,81,102]")
+>       print(sort1 [102,22,81,26,1])
+>
+>       print("sort2 [1,2,1,2,1] == [1,1,1,2,2]")
+>       print(sort2 [1,2,1,2,1])
+>
+>       print("sort2 [102,22,81,22,1] == [1,22,26,81,102]")
+>       print(sort2 [102,22,81,26,1])
