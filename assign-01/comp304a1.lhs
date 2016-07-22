@@ -132,13 +132,13 @@ in funciton the usage of minimum would need to be expanded into its own
 function so it could use the aribitray comparator.
 Such as:
 
-> sort1ho :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
+> sort1ho :: (a -> a -> Ordering) -> [a] -> [a]
 > sort1ho _ [] = []
-> sort1ho cmp arr = (small cmp arr):sort1ho cmp (deleteFirst (small cmp arr) arr)
->       where deleteFirst _ [] = []
->             deleteFirst n (x:xs)
->                 | x == n = xs
->                 | otherwise = x:deleteFirst n xs
+> sort1ho cmp arr = (small cmp arr):sort1ho cmp (deleteFirst cmp (small cmp arr) arr)
+>       where deleteFirst _ _ [] = []
+>             deleteFirst c n (x:xs)
+>                 | (c n x) == EQ = xs
+>                 | otherwise = x:deleteFirst c n xs
 >             small c (x:xs) = foldl(\min i -> if (c i min) == LT then i else min) x xs
 
 A) n log n sorting aligorithm (Quick sort)
@@ -156,15 +156,56 @@ saw in a tutorial on Haskell.
 >             equal = filter(== x) xr
 >
 
+Using higher order functions to compare the parameters
 
-> sort2ho :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
+> sort2ho :: (a -> a -> Ordering) -> [a] -> [a]
 > sort2ho _ [] = []
 > sort2ho cmp (x:xr) = (sort2ho cmp less) ++ x:equal ++ (sort2ho cmp more)
 >       where less  = filter(\y -> y `cmp` x == LT) xr
 >             more  = filter(\y -> y `cmp` x == GT) xr
 >             equal = filter(\y -> y `cmp` x == EQ) xr
->
 
+3. Map
+~~~~~~
+
+> data MapElement k v = Pair k v deriving (Show)
+> type Map k v = [MapElement k v]
+>
+> emptyMap :: Map k v
+> emptyMap = []
+>
+> hasKey :: (Eq k) => k -> Map k v -> Bool
+> hasKey _ [] = False
+> hasKey k (Pair x  _ :xs)
+>           | x == k = True
+>           | otherwise = hasKey k xs
+>
+> setVal :: (Eq k) => k -> v -> Map k v -> Map k v
+> setVal k v [] = [Pair k v]
+> setVal k v (Pair x y:xs)
+>             | k == x = Pair x v:xs
+>             | otherwise = Pair x y:setVal k v xs
+>
+> getVal :: (Eq k) => k -> Map k v -> v
+> getVal k (Pair x y:xs)
+>           | k == x = y
+>           |  otherwise = getVal k xs
+>
+> delKey :: (Eq k) => k -> Map k v -> Map k v
+> delKey _ [] = []
+> delKey k (Pair x y:xs)
+>           | k == x = xs
+>           | otherwise = Pair x y:xs
+
+
+4. Building a Map
+~~~~~~~~~~~~~~~~~
+
+> buildMap :: (Eq k) => [(k, v)] -> Map k v
+> buildMap [] = emptyMap
+> buildMap arr = build arr emptyMap
+>           where build [] map = map
+>                 build ((x,y):xs) map = build xs (setVal x y map)
 
 Examples and testing
 ~~~~~~~~~~~~~~~~~~~~
@@ -224,3 +265,15 @@ Examples and testing
 >
 >       print("sort2ho (\\l r -> compare r l)  [102,22,81,22,1] == [102,81,26,22,1]")
 >       print(sort2ho (\l r -> compare r l) [102,22,81,26,1])
+>
+>       -- Map
+>       print("Add Value")
+>       print(setVal 10 "wow" emptyMap)
+>       print("Delete Value")
+>       print(delKey 10 (setVal 10 "wow" emptyMap))
+>       print("Get Value")
+>       print(getVal 10 (setVal 10 "wow" emptyMap))
+>
+>       -- Build Map
+>       print("Build map")
+>       print(buildMap [(1, "A"), (2, "B")])
