@@ -1,8 +1,10 @@
+%include lhs2TeX.fmt
+
 "COMP 304 Assignment 1"
  David Barnett (300313764)
 
 1. Variations on a search
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A) count
 
@@ -23,6 +25,16 @@ use more of the standard library, such as:
 
 > countFold :: (Num a, Eq a) => a -> [a] -> a
 > countFold n arr = foldl (\acc x -> if x == n then acc + 1 else acc) 0 arr
+
+Another apporach would be to use a more tail recursive friendly version
+such as:
+
+> countTail :: (Num a, Eq a) => a -> [a] -> a
+> countTail n arr = countTail' n arr 0
+>           where countTail' _ [] t = t
+>                 countTail' n (x:xs) t
+>                       | x == n = countTail' n xs (t+1)
+>                       | otherwise = countTail' n xs t
 
 B) allPos
 
@@ -201,17 +213,64 @@ Using higher order functions to compare the parameters
 4. Building a Map
 ~~~~~~~~~~~~~~~~~
 
+This uses a tail recursive method with a where to make a hidden
+function
+
 > buildMap :: (Eq k) => [(k, v)] -> Map k v
 > buildMap [] = emptyMap
 > buildMap arr = build arr emptyMap
 >           where build [] map = map
 >                 build ((x,y):xs) map = build xs (setVal x y map)
 
+
+
 Examples and testing
 ~~~~~~~~~~~~~~~~~~~~
 
+tests for firstLastPos sort1 and sort2 do not include
+tests with empty arrays as it caused compile errors that I cannot
+figure out.
+
+> testCount1 = count 1 [1,2,1,2,1] == 3
+> testCount2 = count 5 [1,2,1,2,1] == 0
+> testCount3 = count 5 [] == 0
+>
+> testAllPos1 = allPos 1 [1,2,1,2,1] == [1,3,5]
+> testAllPos2 = allPos 5 [1,2,1,2,1] == []
+> testAllPos3 = allPos 5 [] == []
+>
+> testFirstLastPos1 = firstLastPos 1 [1,2,1,2,1] == (1,5)
+> testFirstLastPos2 = firstLastPos 2 [1,2,1,2,1] == (2,4)
+> testFirstLastPos3 = firstLastPos 5 [1,2,1,2,1] == (0,0)
+>
+>
+> testSort11 = sort1 [1,2,1,2,1] == [1,1,1,2,2]
+> testSort12 = sort1 [102,22,81,22,1] == [1, 22, 22, 81, 102]
+>
+> testSort21 = sort2 [1,2,1,2,1] == [1,1,1,2,2]
+> testSort22 = sort2 [102,22,81,22,1] == [1, 22, 22, 81, 102]
+
 > main :: IO()
 > main = do
+>       -- Tests
+>       print(testCount1)
+>       print(testCount2)
+>       print(testCount3)
+>
+>       print(testAllPos1)
+>       print(testAllPos2)
+>       print(testAllPos3)
+>
+>       print(testFirstLastPos1)
+>       print(testFirstLastPos2)
+>       print(testFirstLastPos3)
+>
+>       print(testSort11)
+>       print(testSort12)
+>
+>       print(testSort21)
+>       print(testSort22)
+>
 >       -- Count Examples
 >       print("count 1 [1,2,1,2,1] == 3")
 >       print(count 1 [1,2,1,2,1])
