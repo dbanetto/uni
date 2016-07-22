@@ -11,7 +11,7 @@ A) count
 Using pattern matching and grauds because it shows the different
 cases the aligorithm will face
 
-> count :: (Num a, Eq a) => a -> [a] -> a
+> count :: (Num a, Eq a) => a -> [a] -> Int 
 > count _ [] = 0
 > count n (x:xs)
 >           | n == x = 1 + count n xs
@@ -29,7 +29,7 @@ use more of the standard library, such as:
 Another apporach would be to use a more tail recursive friendly version
 such as:
 
-> countTail :: (Num a, Eq a) => a -> [a] -> a
+> countTail :: (Num a, Eq a) => a -> [a] -> Int 
 > countTail n arr = countTail' n arr 0
 >           where countTail' _ [] t = t
 >                 countTail' n (x:xs) t
@@ -43,14 +43,14 @@ cases the aligorithm will face. A sub function
 was used for the recursion to keep track of the index in
 the array.
 
-> allPos :: (Num a, Eq a) => a -> [a] -> [a]
+> allPos :: (Num a, Eq a) => a -> [a] -> [Int]
 > allPos n arr = (allPosI n arr 1)
 >
 > -- n - is the number we are looking for
 > -- arr - is the reminding array we are checking
 > -- i - is the current index in the array
 > -- returns an array of in where n was found in the array
-> allPosI :: (Num a, Eq a) => a -> [a] -> a -> [a]
+> allPosI :: (Eq a) => a -> [a] -> Int -> [Int]
 > allPosI _ [] _ = []
 > allPosI n (x:xs) i
 >               | n == x = i:(allPosI n xs (i+1))
@@ -61,7 +61,7 @@ An alternative method would be to use if/else blocks
 instead of mathcing on values or use a standard
 list function.
 
-> allPosW :: (Num a, Eq a) => a -> [a] -> [a]
+> allPosW :: (Num a, Eq a) => a -> [a] -> [Int]
 > allPosW n arr = collect 1 arr
 >       where collect _ [] = []
 >             collect i (x:xs)
@@ -76,7 +76,7 @@ finding the 1st and last elemnts seperatly for ease of mind.
 > -- n - is the number we are looking for
 > -- arr - is the reminding array we are checking
 > -- returns a tuple of the first and last indices where we saw n
-> firstLastPos :: (Num a, Eq a) => a -> [a] -> (a, a)
+> firstLastPos :: (Eq a) => a -> [a] -> (Int, Int)
 > firstLastPos _ [] = (0,0)
 > firstLastPos n arr = (firstPos n arr 1, lastPos n arr 1 0)
 >
@@ -84,7 +84,7 @@ finding the 1st and last elemnts seperatly for ease of mind.
 > -- arr - is the reminding array we are checking
 > -- i - is the current index in the array
 > -- returns the first index of the 1st instance of an element equalling n
-> firstPos :: (Num a, Eq a) => a -> [a] -> a -> a
+> firstPos :: (Eq a) => a -> [a] -> Int -> Int
 > firstPos _ [] _ = 0
 > firstPos n (x:xs) i
 >               | n == x = i
@@ -95,7 +95,7 @@ finding the 1st and last elemnts seperatly for ease of mind.
 > -- i - is the current index in the array
 > -- h - is the highest index we saw n being equal to
 > -- returns the last index of the 1st instance of an element equalling n
-> lastPos :: (Num a, Eq a) => a -> [a] -> a -> a -> a
+> lastPos :: (Eq a) => a -> [a] -> Int -> Int -> Int
 > lastPos _ [] _ h = h
 > lastPos n (x:xs) i h
 >               | n == x = lastPos n xs (i+1) i
@@ -106,7 +106,7 @@ but at the cost of doubling the number of cases to match against and greatly
 increasing the complexity of the function or reduce the number of functions
 by using where's but still iterating through the list twice at most.
 
-> firstLastPosW :: (Num a, Eq a, Ord a) => a -> [a] -> (a, a)
+> firstLastPosW :: (Eq a) => a -> [a] -> (Int, Int)
 > firstLastPosW n arr = (firstPosW 1 arr, lastPosW 1 arr)
 >       where firstPosW _ [] = 0
 >             firstPosW i (x:xr)
