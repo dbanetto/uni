@@ -1,12 +1,9 @@
-%include lhs2TeX.fmt
+% COMP 304 Assignment 1
+% David Barnett (300313764)
 
-"COMP 304 Assignment 1"
- David Barnett (300313764)
+\section{1. Variations on a search}
 
-1. Variations on a search
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-A) count
+\subsection{A) count}
 
 Using pattern matching and grauds because it shows the different
 cases the aligorithm will face
@@ -36,7 +33,7 @@ such as:
 >                       | x == n = countTail' n xs (t+1)
 >                       | otherwise = countTail' n xs t
 
-B) allPos
+\subsection{B) allPos}
 
 Using pattern matching and grauds because it shows the different
 cases the aligorithm will face. A sub function
@@ -59,7 +56,8 @@ the array.
 
 An alternative method would be to use if/else blocks
 instead of mathcing on values or use a standard
-list function.
+list function or using forward propergating by passing the
+array that is being built to each recursion call.
 
 > allPosW :: (Num a, Eq a) => a -> [a] -> [Int]
 > allPosW n arr = collect 1 arr
@@ -68,7 +66,7 @@ list function.
 >                       | n == x = i:(collect (i+1) xs)
 >                       | otherwise = (collect (i+1) xs)
 
-C) firstLastPos
+\subsection{C) firstLastPos}
 
 This method breaks down the problem into two sub-problems of
 finding the 1st and last elemnts seperatly for ease of mind.
@@ -117,10 +115,9 @@ by using where's but still iterating through the list twice at most.
 >                   | x == n = max i (lastPosW (i+1) xr)
 >                   | otherwise = lastPosW (i+1) xr
 
-2. Sorting
-~~~~~~~~~~
+\section{2. Sorting}
 
-A) n^2 sorting aligorithm (Selection sort)
+\subsection{A) n^2 sorting aligorithm (Selection sort)}
 
 this method finds the minimum value of the array and moves
 it to the back of the sorted array. I chose selection sort
@@ -153,7 +150,7 @@ Such as:
 >                 | otherwise = x:deleteFirst c n xs
 >             small c (x:xs) = foldl(\min i -> if (c i min) == LT then i else min) x xs
 
-A) n log n sorting aligorithm (Quick sort)
+\subsection{B) n log n sorting aligorithm (Quick sort)}
 
 This method implements quick sort with the assumption of the
 pivot point is the first element of the array. I chose this method
@@ -177,57 +174,84 @@ Using higher order functions to compare the parameters
 >             more  = filter(\y -> y `cmp` x == GT) xr
 >             equal = filter(\y -> y `cmp` x == EQ) xr
 
-3. Map
-~~~~~~
+Merge sort
 
-> data MapElement k v = Pair k v deriving (Show)
+> sort2merge :: (Ord a) => [a] -> [a]
+> sort2merge [] = []
+> sort2merge [a] = [a]
+> sort2merge [a, b]
+>       | a < b = [a, b]
+>       | otherwise = [b ,a] 
+> sort2merge arr = merge (sort2merge left) (sort2merge right)
+>   where n     = length arr 
+>         left  = take (n `div` 2) arr
+>         right = drop (n `div` 2) arr 
+>         merge [] [] = [] 
+>         merge [] y = y 
+>         merge x [] = x 
+>         merge (x:xs) (y:ys)
+>            | x > y = y:(merge (x:xs) ys) 
+>            | otherwise = x:(merge xs (y:ys))
+>  
+
+\section{3. Map}
+
+> type MapElement k v = (k, v)
 > type Map k v = [MapElement k v]
->
+
+
 > emptyMap :: Map k v
 > emptyMap = []
->
+
+
 > hasKey :: (Eq k) => k -> Map k v -> Bool
 > hasKey _ [] = False
-> hasKey k (Pair x  _ :xs)
+> hasKey k ((x,  _) :xs)
 >           | x == k = True
 >           | otherwise = hasKey k xs
->
+
+Set Value keeps that the map will only have  
+
 > setVal :: (Eq k) => k -> v -> Map k v -> Map k v
-> setVal k v [] = [Pair k v]
-> setVal k v (Pair x y:xs)
->             | k == x = Pair x v:xs
->             | otherwise = Pair x y:setVal k v xs
->
+> setVal k v [] = [(k, v)]
+> setVal k v ((x, y):xs)
+>             | k == x = (x, v) : xs
+>             | otherwise = (x, y) : setVal k v xs
+
+
 > getVal :: (Eq k) => k -> Map k v -> v
-> getVal k (Pair x y:xs)
+> getVal k ((x, y):xs)
 >           | k == x = y
 >           |  otherwise = getVal k xs
->
+
+
 > delKey :: (Eq k) => k -> Map k v -> Map k v
 > delKey _ [] = []
-> delKey k (Pair x y:xs)
+> delKey k ((x, y):xs)
 >           | k == x = xs
->           | otherwise = Pair x y:xs
+>           | otherwise = (x, y):xs
 
 
-4. Building a Map
-~~~~~~~~~~~~~~~~~
+\section{4. Building a Map}
 
-This uses a tail recursive method with a where to make a hidden
-function
+This methods builds up the map and updates its entries
+as it recuses over the array. 
 
-> buildMap :: (Eq k) => [(k, v)] -> Map k v
+> buildMap :: (Eq k, Num v) => [k] -> Map k v
 > buildMap [] = emptyMap
 > buildMap arr = build arr emptyMap
 >           where build [] map = map
->                 build ((x,y):xs) map = build xs (setVal x y map)
+>                 build (x:xs) map 
+>                   | hasKey x map = build xs (setVal x ((getVal x map)+1) map)
+>                   | otherwise = build xs (setVal x 1 map)
+
+Another method to achieve this would be to count up and remove all each element
+as it comes across it.
 
 
+\section{Examples and testing}
 
-Examples and testing
-~~~~~~~~~~~~~~~~~~~~
-
-tests for firstLastPos sort1 and sort2 do not include
+tests for sort1 and sort2 do not include
 tests with empty arrays as it caused compile errors that I cannot
 figure out.
 
@@ -242,6 +266,7 @@ figure out.
 > testFirstLastPos1 = firstLastPos 1 [1,2,1,2,1] == (1,5)
 > testFirstLastPos2 = firstLastPos 2 [1,2,1,2,1] == (2,4)
 > testFirstLastPos3 = firstLastPos 5 [1,2,1,2,1] == (0,0)
+> testFirstLastPos4 = firstLastPos 5 [] == (0,0)
 >
 >
 > testSort11 = sort1 [1,2,1,2,1] == [1,1,1,2,2]
@@ -249,6 +274,8 @@ figure out.
 >
 > testSort21 = sort2 [1,2,1,2,1] == [1,1,1,2,2]
 > testSort22 = sort2 [102,22,81,22,1] == [1, 22, 22, 81, 102]
+>
+> testBuildMap1 = buildMap [1,2,3,2,1] == [(1,2), (2, 2), (3,1)]
 
 > main :: IO()
 > main = do
@@ -264,12 +291,15 @@ figure out.
 >       print(testFirstLastPos1)
 >       print(testFirstLastPos2)
 >       print(testFirstLastPos3)
+>       print(testFirstLastPos4)
 >
 >       print(testSort11)
 >       print(testSort12)
 >
 >       print(testSort21)
 >       print(testSort22)
+>
+>       print(testBuildMap1)
 >
 >       -- Count Examples
 >       print("count 1 [1,2,1,2,1] == 3")
@@ -335,4 +365,4 @@ figure out.
 >
 >       -- Build Map
 >       print("Build map")
->       print(buildMap [(1, "A"), (2, "B")])
+>       print(buildMap [1, 2, 3, 2, 1])
