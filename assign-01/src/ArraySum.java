@@ -1,3 +1,11 @@
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.*;
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
+
 /**
  * Sum an array, using threads, with timing
  * Create an array and sum it using several threads and time.
@@ -25,7 +33,6 @@ public class ArraySum {
 
     private static void Sum0() {
 
-        System.out.print("\nNo threads");
         StopWatch w = new StopWatch();
         w.start();
 
@@ -33,20 +40,19 @@ public class ArraySum {
         for (int i = 0; i < M; i++) sum = sum + x[i];
 
         w.stop();
-        System.out.print("   Sum = " + sum);
-        System.out.println("  elapsed time: " + w.getElapsedTime() + " ms");
 
+        // System.out.println(String.format("single,%d,%d,%d,%d", N, M, w.getElapsedTime(), 0));
     }
 
     // Sum with threads
-
-    private static void SumN(int N) {
-
-        System.out.print("\n" + N + " threads");
+    private static List<Long> SumN(int N) {
         StopWatch w = new StopWatch();
+        StopWatch threads = new StopWatch();
         w.start();
 
         sum = 0;
+
+        threads.start();
         Adder[] adder = new Adder[N];
 
         int chunkSize = M / N;    // Size of chunk given to each process
@@ -60,10 +66,10 @@ public class ArraySum {
         adder[N - 1] = new Adder(x, (N - 1) * chunkSize, M - 1);
 
         // Now start them
-
         for (int i = 0; i < N; i++) {
             adder[i].start();
         }
+        threads.stop();
 
         // Wait till they're all finished, then print a message
 
@@ -76,42 +82,159 @@ public class ArraySum {
         }
 
         w.stop();
-        System.out.print("   Sum = " + sum);
-        System.out.println("  elapsed time: " + w.getElapsedTime() + " ms");
+        // System.out.println(String.format("global,%d,%d,%d,%d", N, M, w.getElapsedTime(), threads.getElapsedTime()));
 
+        List<Long> results = new ArrayList<>();
+        results.add(w.getElapsedTime());
+        results.add(threads.getElapsedTime());
+        return results;
+    }
+
+    // Sum with threads with Local
+    private static List<Long> SumNLocal(int N) {
+        StopWatch w = new StopWatch();
+        StopWatch threads = new StopWatch();
+        w.start();
+
+        int localSum = 0;
+
+        threads.start();
+        AdderLocal[] adder = new AdderLocal[N];
+
+        int chunkSize = M / N;    // Size of chunk given to each process
+
+        // Give chunkSize to the first N-1 threads
+        for (int i = 0; i < N - 1; i++) {
+            adder[i] = new AdderLocal(x, i * chunkSize, (i + 1) * chunkSize - 1);
+        }
+
+        // Give the rest to the last thread
+        adder[N - 1] = new AdderLocal(x, (N - 1) * chunkSize, M - 1);
+
+        // Now start them
+        for (int i = 0; i < N; i++) {
+            adder[i].start();
+        }
+        threads.stop();
+
+        // Wait till they're all finished, then print a message
+
+        try {
+            for (int k = 0; k < N; k++) {
+                AdderLocal current = adder[k];
+                current.join();
+                localSum += current.sum;
+            }
+        } catch (InterruptedException e) {
+            System.err.println("Ouch");
+        }
+        w.stop();
+
+        // System.out.println(String.format("local,%d,%d,%d,%d", N, M, w.getElapsedTime(), threads.getElapsedTime()));
+
+        List<Long> results = new ArrayList<>();
+        results.add(w.getElapsedTime());
+        results.add(threads.getElapsedTime());
+        return results;
+    }
+
+    // Sum with threads with Local
+    private static void SumNRec() {
+        StopWatch w = new StopWatch();
+        StopWatch threads = new StopWatch();
+        w.start();
+
+        int localSum = 0;
+
+        threads.start();
+        AdderRec adder;
+
+        adder = new AdderRec(x, 0, M - 1);
+
+        // Now start them
+        adder.start();
+        threads.stop();
+
+        // Wait till they're all finished, then print a message
+
+        try {
+            adder.join();
+            localSum += adder.sum;
+        } catch (InterruptedException e) {
+            System.err.println("Ouch");
+        }
+        w.stop();
+
+        // System.out.println(String.format("rec,%d,%d,%d,%d", N, M, w.getElapsedTime(), threads.getElapsedTime()));
     }
 
 
     public static void main(String[] args) {
 
-        // Check for arguments
+        for (int sizePower = 2; sizePower < 8; sizePower++) {
+            int size = (int)(Math.pow(10, sizePower));
 
-        if (args.length != 0 && args.length != 2) {
-            System.out.println("Error: Must provide two arguments or none!");
-            System.exit(1);
+            List<Double> avgTotalTime = new ArrayList<>();
+            List<Double> avgCreateTime = new ArrayList<>();
+            List<Integer> threads = new ArrayList<>();
+
+            System.out.println(String.format("Using array size of %d", size));
+            for (int thread = 1; thread <= 50; thread++) {
+                N = thread;
+                M = size;
+                // System.out.println(String.format("Using %d threads", thread));
+
+                List<Long> totalTime = new ArrayList<>();
+                List<Long> createTime = new ArrayList<>();
+
+                // Create and initialise array to 0..M-1.
+
+                x = new int[M];
+                for (int i = 0; i < M; i++) x[i] = i + 1;
+
+                // Sum0();
+
+                for (int attempt = 0; attempt < 50; attempt++) {
+                    List<Long> results = SumN(N);
+                    // List<Long> results = SumNLocal(N);
+
+                    totalTime.add(results.get(0));
+                    createTime.add(results.get(1));
+                }
+                avgTotalTime.add(average(totalTime));
+                avgCreateTime.add(average(createTime));
+
+
+                threads.add(thread);
+            }
+
+            XYChart chart = new XYChartBuilder()
+                    .xAxisTitle("Threads")
+                    .yAxisTitle("Avg Time")
+                    .width(800)
+                    .height(800)
+                    .build();
+
+            XYSeries series1 = chart.addSeries("Total Time", threads, avgTotalTime);
+            XYSeries series2 = chart.addSeries("Create Time", threads, avgCreateTime);
+
+            try {
+                BitmapEncoder.saveBitmap(chart, String.format("./%s-threads-vs-time-%d", InetAddress.getLocalHost().getHostName() , size), BitmapEncoder.BitmapFormat.PNG);
+                System.out.println(String.format("Made graph: threads-vs-time-%d.png", size));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        if (args.length == 2) {
-            N = Integer.parseInt(args[0]);
-            M = Integer.parseInt(args[1]);
-        }
-
-        // Create and initialise array to 0..M-1.
-
-        x = new int[M];
-        for (int i = 0; i < M; i++) x[i] = i + 1;
-
-        System.out.println("ArraySum with " + N + " threads, " + M + " elements");
-        System.out.println("Sum is " + (M * (M + 1) / 2));
-
-        Sum0();
-
-        SumN(N);
+        SumNRec();
 
     }
 
+    static double average(List<Long> data) {
+        Long total = data.stream().reduce(0L, Long::sum);
+        return (double)total / (double)data.size();
+    }
 }
-
 
 class Adder extends Thread {
 
@@ -137,4 +260,72 @@ class Adder extends Thread {
         }
     }
 
+}
+
+class AdderLocal extends Thread {
+
+    private static int count = 0;
+
+    int id = count;
+    int lo, hi;
+    int[] x;
+
+    public int sum;
+
+    AdderLocal(int[] xx, int l, int h) {
+        count++;
+        x = xx;
+        lo = l;
+        hi = h;
+    }
+
+    public void run() {
+        for (int i = lo; i <= hi; i++) {
+            sum +=  x[i];
+            yield();
+        }
+    }
+}
+
+class AdderRec extends Thread {
+
+    private static int count = 0;
+    public static int Threashold = 1000;
+
+    int id = count;
+    int lo, hi;
+    int[] x;
+
+    public int sum;
+
+    AdderRec(int[] xx, int l, int h) {
+        count++;
+        x = xx;
+        lo = l;
+        hi = h;
+    }
+
+    public void run() {
+        int size = hi - lo;
+        if (size > 1000) {
+            // split
+            int nextLo = lo + (size/2);
+            AdderRec lower = new AdderRec(x, lo, nextLo - 1);
+            AdderRec higher = new AdderRec(x, nextLo, hi);
+
+            try {
+                lower.join();
+                higher.join();
+            } catch (InterruptedException e) {
+                System.err.println("Ouch");
+            }
+
+            sum = lower.sum + higher.sum;
+        } else {
+            for (int i = lo; i <= hi; i++) {
+                sum +=  x[i];
+                yield();
+            }
+        }
+    }
 }
