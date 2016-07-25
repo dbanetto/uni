@@ -31,7 +31,7 @@ public class ArraySum {
 
     // Sum without threads
 
-    private static void Sum0() {
+    private static List<Long>  Sum0() {
 
         StopWatch w = new StopWatch();
         w.start();
@@ -42,6 +42,10 @@ public class ArraySum {
         w.stop();
 
         // System.out.println(String.format("single,%d,%d,%d,%d", N, M, w.getElapsedTime(), 0));
+        List<Long> results = new ArrayList<>();
+        results.add(w.getElapsedTime());
+        results.add(0L);
+        return results;
     }
 
     // Sum with threads
@@ -139,7 +143,7 @@ public class ArraySum {
     }
 
     // Sum with threads with Local
-    private static void SumNRec() {
+    private static List<Long> SumNRec() {
         StopWatch w = new StopWatch();
         StopWatch threads = new StopWatch();
         w.start();
@@ -165,12 +169,15 @@ public class ArraySum {
         }
         w.stop();
 
-        // System.out.println(String.format("rec,%d,%d,%d,%d", N, M, w.getElapsedTime(), threads.getElapsedTime()));
+        List<Long> results = new ArrayList<>();
+        results.add(w.getElapsedTime());
+        results.add(threads.getElapsedTime());
+        return results;
     }
 
 
     public static void main(String[] args) {
-
+        String method = "local";
         for (int sizePower = 2; sizePower < 8; sizePower++) {
             int size = (int)(Math.pow(10, sizePower));
 
@@ -179,10 +186,11 @@ public class ArraySum {
             List<Integer> threads = new ArrayList<>();
 
             System.out.println(String.format("Using array size of %d", size));
-            for (int thread = 1; thread <= 50; thread++) {
+            for (int thread = 1; thread <= 64; thread++) {
                 N = thread;
                 M = size;
-                // System.out.println(String.format("Using %d threads", thread));
+                // AdderRec.Threashold = (int)Math
+                System.out.println(String.format("Using %d threads", thread));
 
                 List<Long> totalTime = new ArrayList<>();
                 List<Long> createTime = new ArrayList<>();
@@ -194,9 +202,11 @@ public class ArraySum {
 
                 // Sum0();
 
-                for (int attempt = 0; attempt < 50; attempt++) {
-                    List<Long> results = SumN(N);
-                    // List<Long> results = SumNLocal(N);
+                for (int attempt = 0; attempt < 10; attempt++) {
+                    // List<Long> results = Sum0();
+                    // List<Long> results = SumN(N);
+                    List<Long> results = SumNLocal(N);
+                    // List<Long> results = SumNRec();
 
                     totalTime.add(results.get(0));
                     createTime.add(results.get(1));
@@ -219,7 +229,10 @@ public class ArraySum {
             XYSeries series2 = chart.addSeries("Create Time", threads, avgCreateTime);
 
             try {
-                BitmapEncoder.saveBitmap(chart, String.format("./%s-threads-vs-time-%d", InetAddress.getLocalHost().getHostName() , size), BitmapEncoder.BitmapFormat.PNG);
+                BitmapEncoder.saveBitmap(chart,
+                        String.format("./%s-%s-threads-vs-time-%d",
+                                InetAddress.getLocalHost().getHostName(), method , size),
+                        BitmapEncoder.BitmapFormat.PNG);
                 System.out.println(String.format("Made graph: threads-vs-time-%d.png", size));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -231,7 +244,10 @@ public class ArraySum {
     }
 
     static double average(List<Long> data) {
-        Long total = data.stream().reduce(0L, Long::sum);
+        Long total = 0L;
+        for (Long i : data) {
+            total += i;
+        }
         return (double)total / (double)data.size();
     }
 }
