@@ -103,7 +103,106 @@ values from it, depending on the implementation of the queue.
 
 # 2. Measuring Array Sum
 
+Each experiment was preformed on three systems: an 8 core desktop computer which 
+has a clock speed of 4Ghz, a 4 core laptop with a clock speed of around 2.1Ghz
+and Lighthouse with 64 cores with a clock speed of 1.1Ghz. The Java versions were
+consistent expect for Lighthouse being only Java 7 while all other machines were
+the latest Java 8. All measurements of time are recorded in milliseconds. 
+Each data point is an average of 10 runs of the experiment.
+
+## Sequential Summing
+
+The first experiments is a base line of summing elements on a single thread.
+The range of sizes uses where 100 to 10 million incrementing by a multiple of
+10 each step. The results for each of the array sizes where very similar so
+only Figure 1 showing the time spent on summing 10 million elements is included.
+There are many factored that would of contributed to these consistent sub-millisecond 
+results could be the absence of having to switch between threads with other
+threads or processes. Another possible reason could be that the Java virtual
+machine identified the tight loop and applied just-in-time compiling to
+increase the performance of the loop to near native speeds coupled with the
+benefits of the temporal cache locality of summing arrays with such a simple
+operation as addition. 
+
+![Single Threaded Sumation with 10 million elements](./figures/yomi-single-threads-vs-time-10000000.png)
+
+## Global Variable
+
+The next part of the experiment is to show the affect of concurrently summing
+the array with different methods using different numbers of threads and array
+sizes. For this part the concurrent method used is to sum from each thread into
+a shared synchronised global variable and yield the thread after each addition.
+
+Each machine that ran this experiment had large variations between each others
+in their results expect for the relatively low cost of initialising the threads
+at the start of each run. Lighthouse and the 4 Core laptop both showed plateauing 
+after around 4 threads were used. For the laptop this would make sense as this
+is the point where the number of threads for the program will be greater than
+the number of physical cores to compute the operations. Expect for Lighthouse
+with its 64 threads this does not make much sense and I presume it is a
+*feature* of the operation system's scheduler to fairly distribute cpu time.
+A interesting point in the 4 core laptop is the amount of time taken is a
+magnitude greater than the other machines and while running the tests I
+recorded 80% of cpu time was spent on kernel tasks, I presume this to be
+resulting from page faults as the process was making an excess number of
+context switches between threads and the system resulted over a million page
+faults by the process by the end of the experiment. This is most likely caused
+by the OS of the laptop stored the large array to page file for an unknown
+reason, even though it had enough RAM storage for the array.
+
+The affect of the yield as a part of the method to calculate this causes the
+thread to stop and go to the back of the queue for CPU time and is platform
+dependent on how this will affect results. The amount of time to create the
+threads had an upwards trend with the number of threads needed to be created as
+expected but it was relatively very small. A side-affect of using a synchronised shared
+global variable to be summed to is each thread must wait till the last thread to start updating it
+has completed so a considerable amount of time is waiting for another thread to finish as well as
+then yielding its spot to be currently executed and moved to the back of the cpu time queue hurts and
+the associated context switching between threads is costly.
+
+![Global Variable Sum 10 million elements on 8 cores](./figures/yomi-global-threads-vs-time-10000000.png)
+
+![Global Variable Sum 10 million elements on 64 cores](./figures/lighthouse.ecs.vuw.ac.nz-global-threads-vs-time-10000000.png)
+
+![Global Variable Sum 10 million elements on 4 cores](./figures/david.local-global-threads-vs-time-10000000.png)
+
+## Local Variable
+
+The other method used to test summing large arrays concurrently was to use a local variable 
+instead of a shared variable. So this makes the method be give each thread a range in the array
+and make a local sum of its elements and the main thread then summing up the results of the threads
+after they join back into the main thread, to be consistent after each element is summed the thread is yielded as
+well.
+
+In this experiment each of the machines behaved differently to each other. However the 4 core laptop behaved
+similarly to how it was in the global variable experiment and the same page fault issue was observed again which
+explains the same shape of the graph. Expect the average time was a tenth of the global variable variant which can be attributed
+to not having to be locked waiting for the global variable to sum a value.
+The results observed from Lighthouse and its 64 threads shows a speed up with every thread added.
+This is likely caused by each thread getting one physical CPU to compute and no interdependence between
+threads on who has the lock on the global sum variable. A similar trend can be seen in the 8 core PC but
+quickly loses it after the number of threads exceeds the number of CPU cores in the machine. In laptop and
+Lighthouse runs the cost of starting the threads were relatively negligible, while the cost of making threads 
+on the 8 core PC shows an increasing trend past 8 threads. This could be caused by the lower overall time to
+sum the array is lower due to clock speed differences so the change in time to create threads becomes more significant
+with the number of threads used.
+
+Overall the usage of the local variable significantly increases the performance of the summation when compared to 
+the use of global variable. This generally comes down to not needing to synchronise between all the threads to access
+the shared global variable.
+
+![Local Variable Sum 10 million elements on 8 cores](./figures/yomi-local-threads-vs-time-10000000.png)
+
+![Local Variable Sum 10 million elements on 64 cores](./figures/lighthouse.ecs.vuw.ac.nz-local-threads-vs-time-10000000.png)
+
+![Local Variable Sum 10 million elements on 4 cores](./figures/david.local-local-threads-vs-time-1000000.png)
+
+
+\pagebreak
+
 # 3. Recursive Array Sum
 <!--
 Extra: thread pool, executor service
 -->
+
+![Local Variable Sum 10 million elements on 8 cores](./figures/yomi-recurse-threads-vs-time-10000000.png)
