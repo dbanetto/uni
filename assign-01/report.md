@@ -124,7 +124,7 @@ increase the performance of the loop to near native speeds coupled with the
 benefits of the temporal cache locality of summing arrays with such a simple
 operation as addition. 
 
-![Single Threaded Sumation with 10 million elements](./figures/yomi-single-threads-vs-time-10000000.png)
+![Single Threaded Sumation with 10 million elements](./figures/yomi-seq-threads-vs-time-10000000.png)
 
 ## Global Variable
 
@@ -189,7 +189,9 @@ with the number of threads used.
 
 Overall the usage of the local variable significantly increases the performance of the summation when compared to 
 the use of global variable. This generally comes down to not needing to synchronise between all the threads to access
-the shared global variable.
+the shared global variable. The amount of time overall to sum the array has a large range of factors from, number of cores
+and thus the number of threads that can be run at one, usage of page file and repeated page faults on large data structures
+and the usage of different concurrent methods.
 
 ![Local Variable Sum 10 million elements on 8 cores](./figures/yomi-local-threads-vs-time-10000000.png)
 
@@ -205,4 +207,31 @@ the shared global variable.
 Extra: thread pool, executor service
 -->
 
-![Local Variable Sum 10 million elements on 8 cores](./figures/yomi-recurse-threads-vs-time-10000000.png)
+The next experiment is to try another method to concurrently sum the array.
+This method splits the array in half and passes it to two threads to compute if the
+size of the array is over a threshold, if it is lower the thread will sum the array
+iteratively and yield after each calculation. The parent thread waits for the join from its
+two child threads and sums their results. 
+
+The results of this experiment varies with the total size of the array and shows a relationship
+between higher thresholds correlate to faster average times to sum the array with a decay
+curve with the increase in threshold size.
+However with the array size over million elements this decay curve suddenly jumps
+when the threshold is greater than 50% of the array size. The general decay curve is
+caused by requiring less threads to calculate the sum as the cost of creating threads can be quite
+high as best shown in the local variable method in the previous experiment.
+
+With the large array sizes above the 50% mark only two threads would be dispatched to calculate
+the sum. The slow down is caused to the consistent yielding by the threads after they summed the next element
+to the total and given only two threads would be working on at most 5 millions elements each this would 
+empathises the cost of yielding. This does not show up in smaller array sizes as they do not have the size
+to make this noticeable.
+
+![Recursive Sum 1000 elements on 8 cores](./figures/yomi-recurse-threads-vs-time-1000.png)
+
+![Recursive Sum 1 million elements on 8 cores](./figures/yomi-recurse-threads-vs-time-1000000.png)
+
+![Recursive Sum 10 million elements on 8 cores](./figures/yomi-recurse-threads-vs-time-10000000.png)
+
+Some figures are omitted to not over clutter this report with graphs but are attached in the data.zip.
+The code uses is also available in code.zip
