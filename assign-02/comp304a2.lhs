@@ -1,9 +1,9 @@
-% David Barnett (300313264) 
+% David Barnett (300313264)
 % COMP304 Assignment 2
 
-\section{Binary Trees}
+\section{1. Binary Trees}
 
-> data BinTree a = Empty | Node a (BinTree a) (BinTree a) 
+> data BinTree a = Empty | Node a (BinTree a) (BinTree a)
 >              deriving (Show)
 
 \subsection{a. hasbt}
@@ -22,8 +22,8 @@
 > equalbt (Node _ _ _) Empty = False
 > equalbt Empty (Node _ _ _) = False
 > equalbt (Node lx ll lr) (Node rx rl rr)
->       | lx == rx = equalbt ll rl && equalbt lr rr 
->       | otherwise = False 
+>       | lx == rx = equalbt ll rl && equalbt lr rr
+>       | otherwise = False
 
 
 \subsection{c. reflectbt}
@@ -50,7 +50,7 @@
 > fullbt (Node _ (Node _ _ _) Empty) = False
 > fullbt (Node _ l r) = fullbt l && fullbt r
 
-\section{Binary tree folds}
+\section{2. Binary tree folds}
 
 \subsection{a. btfold}
 
@@ -70,7 +70,7 @@
 
 \subsubsection{equalbtf}
 
-This is not possible to implement using `btfold` as it requires traversing 
+This is not possible to implement using `btfold` as it requires traversing
 both BinTrees in step lock. An alternative fold function to implement
 this behaviour would be quite spesific with each and would almost be
 just the same as using a higher order function to equate elements in
@@ -81,8 +81,8 @@ the two trees, such as:
 > equalbtff _ (Node _ _ _) Empty = False
 > equalbtff _ Empty (Node _ _ _) = False
 > equalbtff f (Node lx ll lr) (Node rx rl rr)
->       | f lx rx = equalbtff f ll rl && equalbtff f lr rr 
->       | otherwise = False 
+>       | f lx rx = equalbtff f ll rl && equalbtff f lr rr
+>       | otherwise = False
 
 \subsubsection{reflectbtf}
 
@@ -96,7 +96,7 @@ the two trees, such as:
 
 Would of thought to use `v == [] && w == []` instead but this introdued
 the need for the `Eq` type class so chose to use lenght of the arrays to
-keep the same type contraints as the non-fold version of the function. 
+keep the same type contraints as the non-fold version of the function.
 
 \subsubsection{fullbtf}
 
@@ -108,13 +108,81 @@ which bubbles all the way up the fold.
 > fullbtf :: BinTree a -> Bool
 > fullbtf Empty = True
 > fullbtf t = (btfold ffold LT t) == EQ
->           where 
+>           where
 >               ffold _ LT LT = EQ
 >               ffold _ EQ EQ = EQ
->               ffold _ _ _ = GT 
+>               ffold _ _ _ = GT
 
+
+\section{3. Binary Search Trees}
+
+\subsection{empty}
+
+> empty :: (Ord a, Eq a) => BinTree a
+> empty = Empty
+
+\subsection{insert}
+
+> insert :: (Ord a, Eq a) => a -> BinTree a -> BinTree a
+> insert x Empty = (Node x Empty Empty)
+> insert x (Node a l r)
+>   | x > a     = Node a l (insert x r)
+>   | x == a    = Node a l r
+>   | otherwise = Node a (insert x l) r
+
+\subsection{has}
+
+> has :: (Ord a, Eq a) => a -> BinTree a -> Bool
+> has _ Empty = False
+> has x (Node a l r)
+>   | x > a     = has x r
+>   | x == a    = True 
+>   | otherwise = has x l
+
+\subsection{delete}
+
+// TODO: game is hard
+
+> delete :: (Ord a, Eq a) => a -> BinTree a -> BinTree a
+> delete _ Empty = Empty
+> delete x (Node a Empty Empty)
+>       | x == a = Empty
+>       | otherwise = Node a Empty Empty
+> delete x (Node a l Empty)
+>       | x == a = l
+>       | x < a = Node a (delete x l) Empty
+>       | otherwise = Node a l Empty
+> delete x (Node a Empty r)
+>       | x == a = r
+>       | x > a = Node a Empty (delete x r)
+>       | otherwise = Node a Empty r
+> delete x (Node a l r)
+>       | x == a = Node (smallest r) l (delete (smallest r) r)
+>       | x > a = Node a (delete x l) r
+>       | x < a = Node a l (delete x r)
+>       where 
+>           smallest (Node a Empty _) = a 
+>           smallest (Node a l _) = smallest l
+
+\subsection{flatten}
+
+Flattens the tree in decsending order
+
+> flatten :: BinTree a -> [a]
+> flatten Empty = []
+> flatten (Node a l r) = (flatten l) ++ [a] ++ (flatten r)
+
+\subsection{equals}
+
+Uses the implementation detail of flatten that it is in
+decsending order so even if the BST's are inserted in different
+orders the flatten arrays will be the same so we can equate on them
+for simplicity.
+
+> equals :: (Eq a) => BinTree a -> BinTree a -> Bool
+> equals a b = (flatten a) == (flatten b)
 
 \section{Examples}
 
 > main = do
->  putStrLn("Wow") 
+>  putStrLn("Wow")
