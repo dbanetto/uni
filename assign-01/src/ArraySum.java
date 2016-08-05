@@ -37,7 +37,10 @@ public class ArraySum {
         w.start();
 
         int sum = 0;
-        for (int i = 0; i < M; i++) sum = sum + x[i];
+        for (int i = 0; i < M; i++) {
+            sum = sum + x[i];
+            // Thread.currentThread().interrupt();
+        }
 
         w.stop();
 
@@ -175,21 +178,37 @@ public class ArraySum {
         return results;
     }
 
+    // Sum with threads with Local
+    private static List<Long> SumStream() {
+        StopWatch w = new StopWatch();
+        w.start();
+
+        // Wait till they're all finished, then print a message
+        // Arrays.asList(x).parallelStream().mapToInt(value -> value).sum();
+
+        w.stop();
+
+        List<Long> results = new ArrayList<>();
+        results.add(w.getElapsedTime());
+        results.add(0L);
+        return results;
+    }
+
 
     public static void main(String[] args) {
-        String method = "local";
-        for (int sizePower = 2; sizePower < 8; sizePower++) {
-            int size = (int)(Math.pow(10, sizePower));
+        String method = "seq";
+        for (int sizePower = 7; sizePower < 8; sizePower++) {
+            int size = 10000000;
 
             List<Double> avgTotalTime = new ArrayList<>();
             List<Double> avgCreateTime = new ArrayList<>();
             List<Integer> threads = new ArrayList<>();
 
             System.out.println(String.format("Using array size of %d", size));
-            for (int thread = 1; thread <= 64; thread++) {
+            for (int thread = (size / 100); thread <= size; thread += (size / 100)) {
                 N = thread;
-                M = size;
-                // AdderRec.Threashold = (int)Math
+                M = thread;
+                AdderRec.Threashold = thread;
                 System.out.println(String.format("Using %d threads", thread));
 
                 List<Long> totalTime = new ArrayList<>();
@@ -203,9 +222,9 @@ public class ArraySum {
                 // Sum0();
 
                 for (int attempt = 0; attempt < 10; attempt++) {
-                    // List<Long> results = Sum0();
+                    List<Long> results = Sum0();
                     // List<Long> results = SumN(N);
-                    List<Long> results = SumNLocal(N);
+                    // List<Long> results = SumNLocal(N);
                     // List<Long> results = SumNRec();
 
                     totalTime.add(results.get(0));
@@ -219,14 +238,14 @@ public class ArraySum {
             }
 
             XYChart chart = new XYChartBuilder()
-                    .xAxisTitle("Threads")
+                    .xAxisTitle("Array Size")
                     .yAxisTitle("Avg Time")
                     .width(800)
                     .height(800)
                     .build();
 
             XYSeries series1 = chart.addSeries("Total Time", threads, avgTotalTime);
-            XYSeries series2 = chart.addSeries("Create Time", threads, avgCreateTime);
+            // XYSeries series2 = chart.addSeries("Create Time", threads, avgCreateTime);
 
             try {
                 BitmapEncoder.saveBitmap(chart,
@@ -323,11 +342,14 @@ class AdderRec extends Thread {
 
     public void run() {
         int size = hi - lo;
-        if (size > 1000) {
+        if (size > Threashold) {
             // split
             int nextLo = lo + (size/2);
             AdderRec lower = new AdderRec(x, lo, nextLo - 1);
             AdderRec higher = new AdderRec(x, nextLo, hi);
+
+            lower.start();
+            higher.start();
 
             try {
                 lower.join();

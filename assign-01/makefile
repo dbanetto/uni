@@ -1,4 +1,4 @@
 all: report.pdf
 
-report.pdf: report.md
+%.pdf: %.md
 	pandoc $< -o $@
