@@ -141,8 +141,6 @@ which bubbles all the way up the fold.
 
 \subsection{delete}
 
-// TODO: game is hard
-
 > delete :: (Ord a, Eq a) => a -> BinTree a -> BinTree a
 > delete _ Empty = Empty
 > delete x (Node a Empty Empty)
@@ -166,7 +164,7 @@ which bubbles all the way up the fold.
 
 \subsection{flatten}
 
-Flattens the tree in decsending order
+Flattens the tree in descending order
 
 > flatten :: BinTree a -> [a]
 > flatten Empty = []
@@ -175,14 +173,42 @@ Flattens the tree in decsending order
 \subsection{equals}
 
 Uses the implementation detail of flatten that it is in
-decsending order so even if the BST's are inserted in different
+descending order so even if the BST's are inserted in different
 orders the flatten arrays will be the same so we can equate on them
 for simplicity.
 
 > equals :: (Eq a) => BinTree a -> BinTree a -> Bool
 > equals a b = (flatten a) == (flatten b)
 
+\section{Graph Algorithms}
+
+> type Graph a = [(a, Int, a)]
+
+\subsubsection{reachable}
+
+\subsubsection{cliques}
+
 \section{Examples}
 
+\subsection{Tests}
+
+> testhasbtEmpty  = hasbt 1 empty == False
+> testhasbtHasTop = hasbt 1 (insert 1 empty) == True
+> testhasbtHas2nd = hasbt 1 (insert 1 (insert 2 empty)) == True
+
+equalbtEmpty   = equalbt empty empty == True
+
+> testequalbtFilled1 = equalbt empty (insert 1 empty) == False
+> testequalbtFilled2 = equalbt (insert 1 empty) empty == False
+
+> testreflectEmpty = reflectbt empty == empty
+
 > main = do
->  putStrLn("Wow")
+>  putStrLn("hasbt Test")
+>  print(testhasbtEmpty)
+>  print(testhasbtHasTop)
+>  print(testhasbtHas2nd)
+>
+>  putStrLn("equalbt Test")
+>  print(testequalbtFilled1)
+>  print(testequalbtFilled2)
