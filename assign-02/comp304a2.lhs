@@ -136,7 +136,7 @@ which bubbles all the way up the fold.
 > has _ Empty = False
 > has x (Node a l r)
 >   | x > a     = has x r
->   | x == a    = True 
+>   | x == a    = True
 >   | otherwise = has x l
 
 \subsection{delete}
@@ -158,8 +158,8 @@ which bubbles all the way up the fold.
 >       | x == a = Node (smallest r) l (delete (smallest r) r)
 >       | x > a = Node a (delete x l) r
 >       | x < a = Node a l (delete x r)
->       where 
->           smallest (Node a Empty _) = a 
+>       where
+>           smallest (Node a Empty _) = a
 >           smallest (Node a l _) = smallest l
 
 \subsection{flatten}
@@ -186,6 +186,18 @@ for simplicity.
 
 \subsubsection{reachable}
 
+> reachable :: (Eq a) =>  a -> a -> Graph a -> Bool
+> reachable _ _ [] = False
+> reachable x y g  = 
+>
+> paths :: (Eq a) => a -> a -> Graph a -> [Graph a] -> [Graph a] 
+> paths a b g v = concatMap (\a -> ) [] (unvisited (neighbours b g) v)
+>   where unvisited n v   = filter (\a -> not (elm a v)) n
+>         neighbours b g = filter (\(x, _, _) -> b == x) g
+
+\subsubsection{minCostPath}
+
+
 \subsubsection{cliques}
 
 \section{Examples}
@@ -201,7 +213,7 @@ equalbtEmpty   = equalbt empty empty == True
 > testequalbtFilled1 = equalbt empty (insert 1 empty) == False
 > testequalbtFilled2 = equalbt (insert 1 empty) empty == False
 
-> testreflectEmpty = reflectbt empty == empty
+> -- testreflectEmpty = reflectbt empty == empty
 
 > main = do
 >  putStrLn("hasbt Test")
