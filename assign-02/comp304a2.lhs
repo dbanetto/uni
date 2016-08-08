@@ -188,12 +188,12 @@ for simplicity.
 
 > reachable :: (Eq a) =>  a -> a -> Graph a -> Bool
 > reachable _ _ [] = False
-> reachable x y g  = 
+> -- reachable x y g  = 
 >
-> paths :: (Eq a) => a -> a -> Graph a -> [Graph a] -> [Graph a] 
-> paths a b g v = concatMap (\a -> ) [] (unvisited (neighbours b g) v)
->   where unvisited n v   = filter (\a -> not (elm a v)) n
->         neighbours b g = filter (\(x, _, _) -> b == x) g
+> paths :: (Eq a) => a -> a -> Graph a -> Graph a -> [Graph a] 
+> paths a b g p = concatMap (\a -> [[a]]) (unvisited (neighbours b g) p)
+>   where unvisited  n v = filter (\a -> not (elem a v)) n
+>         neighbours b g = filter (\(x, _, _) -> x == b) g
 
 \subsubsection{minCostPath}
 
@@ -208,12 +208,33 @@ for simplicity.
 > testhasbtHasTop = hasbt 1 (insert 1 empty) == True
 > testhasbtHas2nd = hasbt 1 (insert 1 (insert 2 empty)) == True
 
-equalbtEmpty   = equalbt empty empty == True
-
+> testequalbtEmpty   = equalbt (Empty :: BinTree Int) (Empty :: BinTree Int) == True
 > testequalbtFilled1 = equalbt empty (insert 1 empty) == False
 > testequalbtFilled2 = equalbt (insert 1 empty) empty == False
 
-> -- testreflectEmpty = reflectbt empty == empty
+> testreflectbtEmpty = equals (reflectbt (Empty :: BinTree Int)) (Empty :: BinTree Int)
+> testreflectbt1 = equals (reflectbt (insert 2 (insert 1 empty))) (Node 1 (Node 2 Empty Empty) Empty)
+
+> testfringebtEmpty = fringebt (Empty :: BinTree Int) == ([] :: [Int])
+> testfringebtFilled = fringebt (insert 2 (insert 1 empty)) == [2]
+
+> testfullbtEmpty = fullbt (Empty :: BinTree Int) == True
+> testfullbtUnBal = fullbt (insert 1 (insert 2 empty)) == False
+> testfullbtBal = fullbt (insert 3 (insert 1 (insert 2 empty))) == True
+
+> testhasbtfEmpty  = hasbtf 1 empty == False
+> testhasbtfHasTop = hasbtf 1 (insert 1 empty) == True
+> testhasbtfHas2nd = hasbtf 1 (insert 1 (insert 2 empty)) == True
+
+> testreflectbtfEmpty = equals (reflectbtf (Empty :: BinTree Int)) (Empty :: BinTree Int)
+> testreflectbtf1 = equals (reflectbtf (insert 2 (insert 1 empty))) (Node 1 (Node 2 Empty Empty) Empty)
+
+> testfringebtfEmpty = fringebtf (Empty :: BinTree Int) == ([] :: [Int])
+> testfringebtfFilled = fringebtf (insert 2 (insert 1 empty)) == [2]
+
+> testfullbtfEmpty = fullbtf (Empty :: BinTree Int) == True
+> testfullbtfUnBal = fullbtf (insert 1 (insert 2 empty)) == False
+> testfullbtfBal = fullbtf (insert 3 (insert 1 (insert 2 empty))) == True
 
 > main = do
 >  putStrLn("hasbt Test")
@@ -221,6 +242,38 @@ equalbtEmpty   = equalbt empty empty == True
 >  print(testhasbtHasTop)
 >  print(testhasbtHas2nd)
 >
->  putStrLn("equalbt Test")
+>  putStrLn("\nequalbt Test")
+>  print(testequalbtEmpty)
 >  print(testequalbtFilled1)
 >  print(testequalbtFilled2)
+>
+>  putStrLn("\nreflectbt Test")
+>  print(testreflectbtEmpty)
+>  print(testreflectbt1)
+>
+>  putStrLn("\nfringebt Test")
+>  print(testfringebtEmpty)
+>  print(testfringebtFilled)
+>
+>  putStrLn("\nfullbt Test")
+>  print(testfullbtEmpty)
+>  print(testfullbtUnBal)
+>  print(testfullbtBal)
+>
+>  putStrLn("\nhasbtf Test")
+>  print(testhasbtfEmpty)
+>  print(testhasbtfHasTop)
+>  print(testhasbtfHas2nd)
+>
+>  putStrLn("\nreflectbtf Test")
+>  print(testreflectbtfEmpty)
+>  print(testreflectbtf1)
+>
+>  putStrLn("\nfringebtf Test")
+>  print(testfringebtfEmpty)
+>  print(testfringebtfFilled)
+>
+>  putStrLn("\nfullbtf Test")
+>  print(testfullbtfEmpty)
+>  print(testfullbtfUnBal)
+>  print(testfullbtfBal)
