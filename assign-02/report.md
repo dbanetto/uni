@@ -172,8 +172,8 @@ monitor RW
             signalC(OKR)
 ```
 
-To ensure given that there are waiting writers, no more than two writers 
-will write before a reader is allowed to read the variable `ww` is introduced 
+To ensure given that there are waiting writers, no more than two writers
+will write before a reader is allowed to read the variable `ww` is introduced
 to track the number of times the writers are allowed to proceed the readers.
 
 # Critical Section Problem
@@ -190,11 +190,11 @@ Problem.)
 Program
 
 ```
-loop                
-    m1: Non Critical Section         
-    m2: Limit.Enter   
-    m3: Crical Section        
-    m4: Limit.Leave     
+loop
+    m1: Non Critical Section
+    m2: Limit.Enter
+    m3: Crical Section
+    m4: Limit.Leave
 ```
 
 Monitor
@@ -214,7 +214,12 @@ monitor Limit
         signalC(ENTER)
 ```
 
-### Mutual Exclusion 
+This monitor works by counting the number of threads that enter and leave
+their critical section and limits the number of threads to enter by making the threads
+wait if the limit has been reached. The count is decreased as the next thread enters
+their critical section.
+
+### Mutual Exclusion
 
 No single thread has exclusive access to the critical section
 but it is limited to `M` threads at once by counting the number of
@@ -224,7 +229,7 @@ threads to wait their turn if the capacity is reached.
 ### Deadlock
 
 There is no deadlock using the monitor as the monitor does terminate
-in both `Enter` and `Leave` operations. The only chance for a deadlock 
+in both `Enter` and `Leave` operations. The only chance for a deadlock
 would be if `M` is set to be zero or less.
 
 ### Starvation
@@ -236,7 +241,45 @@ step.
 
 ## B - Semaphores
 
-// TODO: Semaphores
+Program
+
+```
+loop
+    m1: Non Critical Section
+    m2: Limit.wait
+    m3: Crical Section
+    m4: Limit.signal
+```
+
+Monitor
+
+```
+semphore Limit
+    int count := N
+    waitset = {}
+
+    op wait
+        if count > 0
+            count := count - 1
+        else
+            waitset = waitset + {p}
+            p := blocked
+
+    op signal
+        if (waitset is empty)
+            count := count + 1
+        else
+           select q from waitset
+           waitset := waitset - {q}
+           q.state := ready
+```
+
+### Mutual Exclusion
+
+
+### Deadlock
+
+### Starvation
 
 \pagebreak
 
@@ -251,7 +294,60 @@ front of the queue to read from, but now they don’t have to wait for previous 
 finish.
 -->
 
-## Mutual Exclusion 
+Program
+---------------------------------------------------------
+Producor                      Consumer
+----------------------------  ----------------------------
+loop                          loop
+r1: Non Critical Section      w1: Non Critical Section
+r2: ProdCon.enterP            w2: ProdCond.enterC
+r3: Crical Section            w3: Crical Section
+r4: ProdCon.leaveP            w4: ProdCond.leaveC
+----------------------------------------------------------
+
+Monitor
+
+```
+monitor ProdCon
+    cond NotEmpty, NotFull, ConAv, ProdAv
+    int prods := M
+    int cons  := N
+
+    op enterC
+        if cons > 0
+            cons := cons - 1
+        else
+            wait(ConAv)
+
+        while empty(NotEmpty)
+            wait(NotEmpty)
+
+    op leaveC
+        if !empty(ConAv)
+            signal(ConAv)
+        else
+            cons := cons + 1
+        signal(NotFull)
+
+    op enterP
+        if prods > 0
+            prods := prods - 1
+        else
+            wait(prodAv)
+
+        while empty(NotFull)
+            wait(NotFull)
+
+    op leaveP
+        if !empty(ProdAv)
+            signal(ProdAv)
+        else
+            prods := prods + 1
+        signal(NotFull)
+```
+
+
+## Mutual Exclusion
 
 ## Deadlock
 
