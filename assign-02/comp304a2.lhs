@@ -194,7 +194,7 @@ for simplicity.
 > paths :: (Eq a) => a -> a -> Graph a -> Graph a -> [Graph a] 
 > paths a b g p
 >   | a == b = [reverse p]
->   | otherwise = concatMap (\e@(x, z, y) -> (paths y b g (e:p))) (neighbours a g)
+>   | otherwise = concatMap (\e@(x, z, y) -> (paths y b g (e:p))) ( unvisited (neighbours a g) p)
 >   where unvisited  n v = filter (\a -> not (elem a v)) n
 >         neighbours b g = filter (\(x, _, _) -> x == b) g
 
@@ -202,17 +202,28 @@ for simplicity.
 \subsubsection{minCostPath}
 
 > minCostPath :: (Eq a) => a -> a -> Graph a -> Graph a
-> minCostPath x y g = (L.minimumBy (\a b -> compare (cost a) (cost b)) (paths x y g []))
+> minCostPath _ _ [] = []
+> minCostPath x y g =  minn (paths x y g [])
 >   where cost p = foldl (\a (_, c, _) -> a + c) 0 p
+>         minn [] = []
+>         minn g  = L.minimumBy (\a b -> compare (cost a) (cost b)) g
 
-`minCostPath` is more expensive to evaluate to than reachable because `minCostPath` has to 
-look at all paths and their entire paths as well. Lazy evaluation saves `reachable` from
-this fate because only 1 path needs to be found before the condition of `paths` returns nothing
-is false. This saves `reachable` the troubles of evaluating all paths before finding the solution.
+With lazy evaluation the computation of the `reachable` function is cheaper
+than computing the `minCostPath` function. This is cause by lazy evaluation
+only computing what it needs and for the `reachable` function to determine
+a result it only has to find a single path from `paths` where `minCostPath`
+must evaluate all paths as they are needed to compute which one is the shortest
+path.
 
 \subsubsection{cliques}
 
-> cliques :: Graph a -> [Graph a]
+> cliques :: (Eq a) => Graph a -> [Graph a]
+> cliques [] = []
+> cliques g = L.groupBy (\ (y,_,a) (b,_,x) -> reachable a b g && reachable x y g) g
+
+Groups components of the graph if they are both reachable from A -> B and  B -> A
+so that any element of the sub-graph is reachable to and from any other vertices
+in the component.
 
 \section{Examples}
 
@@ -249,6 +260,20 @@ is false. This saves `reachable` the troubles of evaluating all paths before fin
 > testfullbtfEmpty = fullbtf (Empty :: BinTree Int) == True
 > testfullbtfUnBal = fullbtf (insert 1 (insert 2 empty)) == False
 > testfullbtfBal = fullbtf (insert 3 (insert 1 (insert 2 empty))) == True
+
+> testreachableEmpty = reachable 'A' 'B' [] == False
+> testreachableValid1 = reachable 'A' 'B' [('A', 1, 'B')] == True
+> testreachableValid2 = reachable 'A' 'B' [('A', 1, 'C'), ('A', 1, 'T'), ('C',1,'B')] == True
+> testreachableInValid1 = reachable 'A' 'B' [('A', 1, 'C')] == False
+
+> testminCostPathEmpty = minCostPath 'A' 'B' [] == []
+> testminCostPathValid1 = minCostPath 'A' 'B' [('A', 1, 'B')] == [('A', 1, 'B')]
+> testminCostPathValid2 = minCostPath 'A' 'B' [('A', 1, 'C'), ('A', 20, 'B'), ('C',1,'B')] == [('A', 1, 'C'), ('C', 1, 'B')]
+> testminCostPathInValid1 = minCostPath 'A' 'B' [('A', 1, 'C')] == []
+
+> testCliquesEmpty    = cliques ([] :: Graph Char) == [] 
+> testCliquesValid1   = cliques [('A', 1, 'B'), ('B', 1, 'A')] == [[('A', 1, 'B'), ('B', 1, 'A')]]
+> testCliquesValid2   = cliques [('A', 1, 'B'), ('B', 1, 'A'), ('C',1,'B')] == [[('A', 1, 'B'), ('B', 1, 'A')], [('C',1,'B')]]
 
 > main = do
 >  putStrLn("hasbt Test")
@@ -291,3 +316,27 @@ is false. This saves `reachable` the troubles of evaluating all paths before fin
 >  print(testfullbtfEmpty)
 >  print(testfullbtfUnBal)
 >  print(testfullbtfBal)
+>
+>  putStrLn("\nreachable Test")
+>  print(testreachableEmpty)
+>  print(testreachableValid1)
+>  print(testreachableValid2)
+>  print(testreachableInValid1)
+>
+>
+>  putStrLn("\nminCostPath Test")
+>  print(testminCostPathEmpty)
+>  print(testminCostPathValid1)
+>  print(testminCostPathValid2)
+>  print(testminCostPathInValid1)
+>
+>  putStrLn("\nminCostPath Test")
+>  print(testminCostPathEmpty)
+>  print(testminCostPathValid1)
+>  print(testminCostPathValid2)
+>  print(testminCostPathInValid1)
+>
+>  putStrLn("\ncliques Test")
+>  print(testCliquesEmpty)
+>  print(testCliquesValid1)
+>  print(testCliquesValid2)
