@@ -5,10 +5,11 @@
 
 > import qualified Data.List as L
 > data BinTree a = Empty | Node a (BinTree a) (BinTree a)
->              deriving (Show)
+>              deriving (Show, Eq)
+
+`Eq` for BinTree has only been used for the sanity of testing.
 
 \subsection{a. hasbt}
-
 
 > hasbt :: (Eq a) => a -> BinTree a -> Bool
 > hasbt _ Empty = False
@@ -26,6 +27,8 @@
 >       | lx == rx = equalbt ll rl && equalbt lr rr
 >       | otherwise = False
 
+Could of just derived `Eq` and used `==` instead but decided that would defeat
+the purpose.
 
 \subsection{c. reflectbt}
 
@@ -133,6 +136,8 @@ which bubbles all the way up the fold.
 
 \subsection{has}
 
+Using a binary search to find the element
+
 > has :: (Ord a, Eq a) => a -> BinTree a -> Bool
 > has _ Empty = False
 > has x (Node a l r)
@@ -163,6 +168,11 @@ which bubbles all the way up the fold.
 >           smallest (Node a Empty _) = a
 >           smallest (Node a l _) = smallest l
 
+Covering all three cases of no children, one child and two children
+in separate patterns. This version of delete favours the
+right hand side to find a suitable node to be promoted when removing with
+two children.
+
 \subsection{flatten}
 
 Flattens the tree in descending order
@@ -191,10 +201,17 @@ for simplicity.
 > reachable _ _ [] = False
 > reachable x y g  = not ((paths x y g []) == [])
 
+Paths find all possible paths from A to Z.
+It achieves this by passing the visited set, which is also the path taken to get
+to the current vertex, to each subsequence recursion and stepping forward with
+where the path is from.
+
+This uses `Data.List` for `concatMap`
+
 > paths :: (Eq a) => a -> a -> Graph a -> Graph a -> [Graph a] 
 > paths a b g p
 >   | a == b = [reverse p]
->   | otherwise = concatMap (\e@(x, z, y) -> (paths y b g (e:p))) ( unvisited (neighbours a g) p)
+>   | otherwise = L.concatMap (\e@(x, z, y) -> (paths y b g (e:p))) (unvisited (neighbours a g) p)
 >   where unvisited  n v = filter (\a -> not (elem a v)) n
 >         neighbours b g = filter (\(x, _, _) -> x == b) g
 
@@ -207,6 +224,8 @@ for simplicity.
 >   where cost p = foldl (\a (_, c, _) -> a + c) 0 p
 >         minn [] = []
 >         minn g  = L.minimumBy (\a b -> compare (cost a) (cost b)) g
+
+This uses `Data.List` for `minimumBy`
 
 With lazy evaluation the computation of the `reachable` function is cheaper
 than computing the `minCostPath` function. This is cause by lazy evaluation
@@ -260,6 +279,22 @@ in the component.
 > testfullbtfEmpty = fullbtf (Empty :: BinTree Int) == True
 > testfullbtfUnBal = fullbtf (insert 1 (insert 2 empty)) == False
 > testfullbtfBal = fullbtf (insert 3 (insert 1 (insert 2 empty))) == True
+
+> testEmpty = empty == (Empty :: BinTree Int)
+
+> testInsert1 = insert 1 empty == (Node 1 Empty Empty)
+> testInsert2 = insert 2 (insert 1 empty) == Node 1 Empty (Node 2 Empty Empty)
+
+> testHasEmpty = has 1 empty == False
+> testHas1     = has 1 (insert 1 empty) == True
+> testHas2     = has 2 (insert 1 empty) == False
+
+> testDeleteEmpty = delete 1 empty == (Empty :: BinTree Int)
+> testDelete1   = delete 1 (insert 1 empty) == (Empty :: BinTree Int)
+> testDelete2   = delete 2 (insert 1 empty) == Node 1 Empty Empty
+> testDelete3   = delete 2 (insert 2 (insert 1 empty)) == Node 1 Empty Empty
+> testDelete4   = delete 2 (insert 3 (insert 2 (insert 1 empty))) == Node 1 Empty (Node 3 Empty Empty)
+> testDelete5   = delete 3 (insert 2 (insert 3 (insert 1 empty))) == Node 1 Empty (Node 2 Empty Empty)
 
 > testreachableEmpty = reachable 'A' 'B' [] == False
 > testreachableValid1 = reachable 'A' 'B' [('A', 1, 'B')] == True
@@ -317,12 +352,31 @@ in the component.
 >  print(testfullbtfUnBal)
 >  print(testfullbtfBal)
 >
+>  putStrLn("\nempty Test")
+>  print(testEmpty)
+>
+>  putStrLn("\ninsert Test")
+>  print(testInsert1)
+>  print(testInsert2)
+>
+>  putStrLn("\nHas Test")
+>  print(testHasEmpty)
+>  print(testHas1)
+>  print(testHas2)
+>
+>  putStrLn("\nDelete Test")
+>  print(testDeleteEmpty)
+>  print(testDelete1)
+>  print(testDelete2)
+>  print(testDelete3)
+>  print(testDelete4)
+>  print(testDelete5)
+>
 >  putStrLn("\nreachable Test")
 >  print(testreachableEmpty)
 >  print(testreachableValid1)
 >  print(testreachableValid2)
 >  print(testreachableInValid1)
->
 >
 >  putStrLn("\nminCostPath Test")
 >  print(testminCostPathEmpty)

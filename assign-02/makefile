@@ -2,7 +2,10 @@
 all: comp304a2 comp304a2.pdf
 
 run: comp304a2
-	./comp304a2
+	@./comp304a2
+
+test: comp304a2
+	@! ./comp304a2 | grep False
 
 comp304a2: comp304a2.lhs
 	ghc $<
