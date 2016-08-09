@@ -3,6 +3,7 @@
 
 \section{1. Binary Trees}
 
+> import qualified Data.List as L
 > data BinTree a = Empty | Node a (BinTree a) (BinTree a)
 >              deriving (Show)
 
@@ -188,17 +189,30 @@ for simplicity.
 
 > reachable :: (Eq a) =>  a -> a -> Graph a -> Bool
 > reachable _ _ [] = False
-> -- reachable x y g  = 
->
+> reachable x y g  = not ((paths x y g []) == [])
+
 > paths :: (Eq a) => a -> a -> Graph a -> Graph a -> [Graph a] 
-> paths a b g p = concatMap (\a -> [[a]]) (unvisited (neighbours b g) p)
+> paths a b g p
+>   | a == b = [reverse p]
+>   | otherwise = concatMap (\e@(x, z, y) -> (paths y b g (e:p))) (neighbours a g)
 >   where unvisited  n v = filter (\a -> not (elem a v)) n
 >         neighbours b g = filter (\(x, _, _) -> x == b) g
 
+
 \subsubsection{minCostPath}
 
+> minCostPath :: (Eq a) => a -> a -> Graph a -> Graph a
+> minCostPath x y g = (L.minimumBy (\a b -> compare (cost a) (cost b)) (paths x y g []))
+>   where cost p = foldl (\a (_, c, _) -> a + c) 0 p
+
+`minCostPath` is more expensive to evaluate to than reachable because `minCostPath` has to 
+look at all paths and their entire paths as well. Lazy evaluation saves `reachable` from
+this fate because only 1 path needs to be found before the condition of `paths` returns nothing
+is false. This saves `reachable` the troubles of evaluating all paths before finding the solution.
 
 \subsubsection{cliques}
+
+> cliques :: Graph a -> [Graph a]
 
 \section{Examples}
 
