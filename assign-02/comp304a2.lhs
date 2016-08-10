@@ -17,6 +17,8 @@
 >       | a == x = True
 >       | otherwise = hasbt a l || hasbt a r
 
+recurises through the binary tree 
+
 \subsection{b. equalbt}
 
 > equalbt :: (Eq a) => BinTree a -> BinTree a -> Bool
@@ -36,15 +38,20 @@ the purpose.
 > reflectbt Empty = Empty
 > reflectbt (Node x l r) = Node x (reflectbt r) (reflectbt l)
 
+swaps the positions of sub-trees
+
 \subsection{d. fringebt}
 
 > fringebt :: BinTree a -> [a]
 > fringebt Empty = []
 > fringebt (Node a Empty Empty) = [a]
-> fringebt (Node _ l Empty) = fringebt l
-> fringebt (Node _ Empty r) = fringebt r
 > fringebt (Node _ l r) = fringebt l ++ fringebt r
 
+If the node has any children it is not on the fringe and composes
+the result of the fringe of the left and right sub-trees.
+Only if the node has no children it will return an array with the
+node's value. This builds up a list of values of all leafs, in ascending
+ordering assuming bt is a BST.
 
 \subsection{e. fullbt}
 
@@ -54,16 +61,26 @@ the purpose.
 > fullbt (Node _ (Node _ _ _) Empty) = False
 > fullbt (Node _ l r) = fullbt l && fullbt r
 
+Checks if the tree is full by checking if every sub-tree
+has either two children or none.
+
 \section{2. Binary tree folds}
 
 \subsection{a. btfold}
 
 > btfold :: (a -> b -> b -> b) -> b -> BinTree a -> b
 > btfold _ u Empty = u
-> btfold f u (Node a Empty Empty) = f a u u
-> btfold f u (Node a l Empty) = f a (btfold f u l) u
-> btfold f u (Node a Empty r) = f a u (btfold f u r)
 > btfold f u (Node a l r) = f a (btfold f u l) (btfold f u r)
+
+The `btfold` applies a function over the entire tree from leave up to root.
+The higher order function has 3 parameters. The first is the value of the
+node which the function is currently being applied on and the second parameter
+is the result of the fold on the left sub-tree (or the unit value if it is empty) and the
+third parameter is the result of the fold on the right sub-tree (or unit value if it is
+empty). The higher order function returns the new value to be used in its parent's
+fold or is the return if it is the root. The second parameter for `btfold` is the unit
+value of the fold which is the value of the empty node. The third parameter is the `BinTree`
+to apply the `btfold` over.
 
 \subsection{b. Question 1 using btfold}
 
@@ -71,6 +88,9 @@ the purpose.
 
 > hasbtf :: (Eq a) => a -> BinTree a -> Bool
 > hasbtf x t = btfold (\u v w -> x == u || v || w) False t
+
+Checks if the BinTree has the element `x` by bubbling up the True value
+by OR'ing the result at each node.
 
 \subsubsection{equalbtf}
 
@@ -92,6 +112,8 @@ the two trees, such as:
 
 > reflectbtf :: BinTree a -> BinTree a
 > reflectbtf t = btfold (\u v w -> Node u w v) Empty t
+
+`reflectbtf` just swaps the sub-trees around as it makes its way up the fold.
 
 \subsubsection{fringebtf}
 
@@ -134,6 +156,9 @@ which bubbles all the way up the fold.
 >   | x == a    = Node a l r
 >   | otherwise = Node a (insert x l) r
 
+Inserts the new value as a leaf positioned so it maintains the
+ordering of the tree.
+
 \subsection{has}
 
 Using a binary search to find the element
@@ -175,11 +200,13 @@ two children.
 
 \subsection{flatten}
 
-Flattens the tree in descending order
-
 > flatten :: BinTree a -> [a]
 > flatten Empty = []
 > flatten (Node a l r) = (flatten l) ++ [a] ++ (flatten r)
+
+`flatten` collects all the values of the `BinTree` by inserting the
+current node's value in-between the left and right sub-tree. This also
+maintains ascending ordering of the array at the end.
 
 \subsection{equals}
 
