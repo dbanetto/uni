@@ -238,10 +238,16 @@ This uses `Data.List` for `concatMap`
 > paths :: (Eq a) => a -> a -> Graph a -> Graph a -> [Graph a] 
 > paths a b g p
 >   | a == b = [reverse p]
->   | otherwise = L.concatMap (\e@(x, z, y) -> (paths y b g (e:p))) (unvisited (neighbours a g) p)
+>   | otherwise = L.concatMap (\e@(x, z, y) -> if x == a then (paths y b g (e:p)) else (paths x b g (e:p))) (unvisited (neighbours a g) p)
 >   where unvisited  n v = filter (\a -> not (elem a v)) n
->         neighbours b g = filter (\(x, _, _) -> x == b) g
+>         neighbours b g = filter (\(x, _, y) -> x == b || y == b) g
 
+To implement the undirected graph neighbours checks if either side of the edge containts the
+current vertex and then in the `concatMap` we have to check if we need to move forward using the
+first or second vertex.
+
+Another way of implementing this would be to make a function that will turn an directed graph
+and add new edges to make it into a undirected graph.
 
 \subsubsection{minCostPath}
 
@@ -265,7 +271,7 @@ path.
 
 > cliques :: (Eq a) => Graph a -> [Graph a]
 > cliques [] = []
-> cliques g = L.groupBy (\ (y,_,a) (b,_,x) -> reachable a b g && reachable x y g) g
+> cliques g = L.groupBy (\ (y,_,a) (b,_,x) -> reachable a b g) g
 
 Groups components of the graph if they are both reachable from A -> B and  B -> A
 so that any element of the sub-graph is reachable to and from any other vertices
@@ -326,6 +332,7 @@ in the component.
 > testreachableEmpty = reachable 'A' 'B' [] == False
 > testreachableValid1 = reachable 'A' 'B' [('A', 1, 'B')] == True
 > testreachableValid2 = reachable 'A' 'B' [('A', 1, 'C'), ('A', 1, 'T'), ('C',1,'B')] == True
+> testreachableValid3 = reachable 'A' 'B' [('A', 1, 'C'), ('B', 1, 'C')] == True
 > testreachableInValid1 = reachable 'A' 'B' [('A', 1, 'C')] == False
 
 > testminCostPathEmpty = minCostPath 'A' 'B' [] == []
@@ -335,7 +342,7 @@ in the component.
 
 > testCliquesEmpty    = cliques ([] :: Graph Char) == [] 
 > testCliquesValid1   = cliques [('A', 1, 'B'), ('B', 1, 'A')] == [[('A', 1, 'B'), ('B', 1, 'A')]]
-> testCliquesValid2   = cliques [('A', 1, 'B'), ('B', 1, 'A'), ('C',1,'B')] == [[('A', 1, 'B'), ('B', 1, 'A')], [('C',1,'B')]]
+> testCliquesValid2   = cliques [('A', 1, 'B'), ('B', 1, 'A'), ('C',1,'Z')] == [[('A', 1, 'B'), ('B', 1, 'A')], [('C',1,'Z')]]
 
 > main = do
 >  putStrLn("hasbt Test")
@@ -403,6 +410,7 @@ in the component.
 >  print(testreachableEmpty)
 >  print(testreachableValid1)
 >  print(testreachableValid2)
+>  print(testreachableValid3)
 >  print(testreachableInValid1)
 >
 >  putStrLn("\nminCostPath Test")
