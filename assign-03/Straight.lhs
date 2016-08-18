@@ -96,18 +96,28 @@ makes for much more plumbing code to make sure the next translation gets the new
 
 > trans :: [Stmt] -> Code
 > trans [] = []
-> trans stmts = transn stmts 0
->       where transn [] _ = []
->             transn (stmt:stmts) n = (trans' stmt n) ++ (transn stmts (n+2))
+> trans stmts = code
+>       where (code, _) = transn stmts 0
+> 
+> transn :: [Stmt] -> Int -> (Code, Int)
+> transn [] n = ([], n)
+> transn (stmt:stmts) n = (t ++ rest, m)
+>     where (t, m)    = trans' stmt  n
+>           (rest, _) = transn stmts m
 >
-> trans' :: Stmt -> Int -> Code
-> trans' (Asgn var exp) _ = (transexp exp) ++ [Store var]
-> trans' (While exp loop) n = [Target start] ++ (transexp exp) ++ [ConJump end] ++ (trans loop) ++ [Jump start, Target end]
->       where end = n
+> trans' :: Stmt -> Int -> (Code, Int)
+> trans' (Asgn var exp) n = ((transexp exp) ++ [Store var], n)
+> trans' (While exp loop) n = (cmds, label)
+>       where cmds = [Target start] ++ (transexp exp) ++ [ConJump end] ++ loopstmts ++ [Jump start, Target end]
+>             (loopstmts, label) = transn loop (n + 2) 
+>             end   = n
 >             start = n + 1
-> trans' (If exp succ fail) n = (transexp exp) ++ [ConJump lfail] ++ (trans succ) ++ [Jump end, Target lfail] ++ (trans fail) ++ [Target end]
->   where end   = n
->         lfail = n + 1
+> trans' (If exp succ fail) n = (cmds, label )
+>        where cmds =  (transexp exp) ++ [ConJump lfail] ++ truetmt ++ [Jump end, Target lfail] ++ falsestmt  ++ [Target end] 
+>              (truetmt, n1) = transn succ (n + 2) 
+>              (falsestmt, label) = transn fail n1 
+>              end   = n
+>              lfail = n + 1
 >
 >
 > transexp :: Exp -> Code
@@ -231,7 +241,7 @@ Some examples for testing
 
 > s1 = Asgn 'b' (Const (Bool True))
 > s2 = Asgn 'a' (Const (Int 0))
-> s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const (Int 1)))]
+> s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const (Int 1))), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const (Int 1)))]]
 > p1 = Prog [s1, s2, s3]
 
 > testIfTrue = run (Prog [(Asgn 'a' (Const (Bool True))), If (Var 'a') [(Asgn 'a' (Const (Int 10)))] [(Asgn 'a' (Const (Int 0)))]]) == [('a', (Int 10))]
