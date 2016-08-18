@@ -21,20 +21,27 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 >      	    | If Exp [Stmt] [Stmt]
 >             deriving (Show)
 
-> data Exp = Const Int
+> data Exp = Const Val
 >          | Var Char
 >      	   | Bin Op Exp Exp
+>      	   | ConNot Exp
+>      	   | Con CondOp Exp Exp
 >            deriving (Show)
 
 > data Op = Plus | Minus | Times | Div
 >           deriving (Show, Eq)
+
+> data Val = Bool Bool | Int Int
+>              deriving (Show, Eq)
+
+> data CondOp = And | Or | Not
+>               deriving (Show, Eq)
 
 The store is a list of variable names and their values.  For now, a variable
 now is just a single character and a value is an integer.
 
 > type Store = [(Var, Val)]
 > type Var = Char
-> type Val = Int
 > type Label = Int
 
 Straight line programs are translated into code for a simple stack-oriented
@@ -49,16 +56,17 @@ the result).
 
 > type Code = [Command]
 >
-> data Command = LoadI Int
+> data Command = LoadI Val
 >              | Load  Var
 >              | Store Var
 >              | BinOp Op
+>              | BoolOp CondOp
 >              | Target Label  -- jump target
 >              | Jump Label    -- jump to label target
 >              | ConJump Label -- jump to label target if Var == 0
 >               deriving (Show, Eq)
 >
-> type Stack = [Int]
+> type Stack = [Val]
 
 Run a program, by compiling and then executing the resulting code
 The program is run with an initially empty store and empty stack, and the
@@ -106,6 +114,8 @@ makes for much more plumbing code to make sure the next translation gets the new
 > transexp (Const n) = [LoadI n]
 > transexp (Var v) = [Load v]
 > transexp (Bin op e1 e2) = transexp e1 ++ transexp e2 ++ [BinOp op]
+> transexp (ConNot exp) = (transexp exp) ++ [BoolOp Not]
+> transexp (Con op e1 e2) = transexp e1 ++ transexp e2 ++ [BoolOp op]
 
 \subsection{VM Code Execute}
 
@@ -138,7 +148,7 @@ of bugs in translate.
 > exec ((ConJump l) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
 >   where nx = dropWhile (\ c -> c /= (Target l)) prog
 >         next
->           | x /= 0 = cmds
+>           | isBool x = cmds
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
 >
@@ -153,8 +163,15 @@ of bugs in translate.
 > exec' (Store v) (x:stack, store, p) = (stack, store', p)
 > 	where store' = setVal v x store
 >
-> exec' (BinOp op)  (x:y:stack, store, p) = (z:stack, store, p)
-> 	where z = apply op x y
+> exec' (BinOp op)  (x:y:stack, store, p) = ((Int z):stack, store, p)
+> 	where z = apply op (isInt x) (isInt y)
+>
+> exec' (BoolOp Not)  (x:stack, store, p) = ((Bool z):stack, store, p)
+> 	where z = not (isBool x)
+> exec' (BoolOp op)  (x:y:stack, store, p) = ((Bool z):stack, store, p)
+> 	where z = apply op (isBool x) (isBool y)
+> 	      apply And a b = a && b
+> 	      apply Or  a b = a || b
 
 Target is an NOOP here because it is cleaner to handle it in exec' than exec
 
@@ -177,7 +194,7 @@ Apply an arithmetic operator
 Look up a variable in the store
 
 > getVal :: Var -> Store -> Val
-> getVal v s = foldr (\(u,x) r -> if u==v then x else r) (error "Variable not found") s
+> getVal v s = foldr (\(u,x) r -> if u == v then x else r) (error "Variable not found") s
 
 \subsection{setVal}
 
@@ -185,9 +202,26 @@ Assign a value to a variable in the store
 
 > setVal :: Var -> Val -> Store -> Store
 > setVal v x [] = [(v,x)]
-> setVal v x (o@(u,_):s)
->               | v == u = (v,x):s
+> setVal v x (o@(u,w):s)
+>               | v == u = (v,(cmpType x w)):s
 > 	     	    | otherwise = o:setVal v x s -- fix setVal losing values
+
+\section{Type checking}
+
+Checks if two values have the same types
+
+> cmpType :: Val -> Val -> Val
+> cmpType a@(Int _) (Int _) = a
+> cmpType a@(Bool _) (Bool _) = a
+> cmpType _ _ = error "mismatched types"
+
+> isInt :: Val -> Int
+> isInt (Int n) = n
+> isInt _ = error "Is not integer"
+
+> isBool :: Val -> Bool
+> isBool (Bool n) = n
+> isBool _ = error "Is not boolean"
 
 \section{Testing}
 
@@ -195,13 +229,13 @@ Assign a value to a variable in the store
 
 Some examples for testing
 
-> s1 = Asgn 'b' (Const 10)
-> s2 = Asgn 'a' (Const 0)
-> s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1)), Asgn 'b' (Bin Minus (Const 1) (Var 'b') )]
+> s1 = Asgn 'b' (Const (Bool True))
+> s2 = Asgn 'a' (Const (Int 0))
+> s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const (Int 1)))]
 > p1 = Prog [s1, s2, s3]
 
-> testIfTrue = run (Prog [(Asgn 'a' (Const 1)), If (Var 'a') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('a', 10)]
-> testIfFalse = run (Prog [(Asgn 'a' (Const 0)), If (Var 'a') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('a', 0)]
+> testIfTrue = run (Prog [(Asgn 'a' (Const (Bool True))), If (Var 'a') [(Asgn 'a' (Const (Int 10)))] [(Asgn 'a' (Const (Int 0)))]]) == [('a', (Int 10))]
+> testIfFalse = run (Prog [(Asgn 'a' (Const (Bool False))), If (Var 'a') [(Asgn 'a' (Const (Int 10)))] [(Asgn 'a' (Const (Int 0)))]]) == [('a', (Int 0))]
 
 > main = do
 >
