@@ -78,19 +78,28 @@ Translate straight line program into stack machine code
 
 > translate :: Prog -> Code
 > translate (Prog stmts) = trans stmts
->
+
+To ensure that every label has a unique label each statement to be translated
+will be allocated 2 labels to be unique to it by incrementing the label counter `n`.
+Though not all statements need to have a unique label there is no cost expect for incrementing
+the `n` variable. Another way of implementing this would be to return the value of `n` form
+`trans'` functions and allowing them to update the counter as needed. Though I think that way
+makes for much more plumbing code to make sure the next translation gets the new label counter.
+
 > trans :: [Stmt] -> Code
 > trans [] = []
-> trans (stmt : stmts) = (trans' stmt) ++ (trans stmts)
+> trans stmts = transn stmts 0
+>       where transn [] _ = []
+>             transn (stmt:stmts) n = (trans' stmt n) ++ (transn stmts (n+2))
 >
-> trans' :: Stmt -> Code
-> trans' (Asgn var exp) = (transexp exp) ++ [Store var]
-> trans' (While exp loop) = [Target start] ++ (transexp exp) ++ [ConJump end] ++ (trans loop) ++ [Jump start, Target end]
->       where end = 1
->             start = 2
-> trans' (If exp succ fail) = (transexp exp) ++ [ConJump lfail] ++ (trans succ) ++ [Jump end, Target lfail] ++ (trans fail) ++ [Target end]
->   where end   = 1
->         lfail = 2
+> trans' :: Stmt -> Int -> Code
+> trans' (Asgn var exp) _ = (transexp exp) ++ [Store var]
+> trans' (While exp loop) n = [Target start] ++ (transexp exp) ++ [ConJump end] ++ (trans loop) ++ [Jump start, Target end]
+>       where end = n
+>             start = n + 1
+> trans' (If exp succ fail) n = (transexp exp) ++ [ConJump lfail] ++ (trans succ) ++ [Jump end, Target lfail] ++ (trans fail) ++ [Target end]
+>   where end   = n
+>         lfail = n + 1
 >
 >
 > transexp :: Exp -> Code
