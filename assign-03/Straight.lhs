@@ -97,8 +97,9 @@ makes for much more plumbing code to make sure the next translation gets the new
 > trans :: [Stmt] -> Code
 > trans [] = []
 > trans stmts = code
->       where (code, _) = transn stmts 0
-> 
+>       where checked = check stmts
+>             (code, _) = transn checked 0
+>
 > transn :: [Stmt] -> Int -> (Code, Int)
 > transn [] n = ([], n)
 > transn (stmt:stmts) n = (t ++ rest, m)
@@ -109,13 +110,13 @@ makes for much more plumbing code to make sure the next translation gets the new
 > trans' (Asgn var exp) n = ((transexp exp) ++ [Store var], n)
 > trans' (While exp loop) n = (cmds, label)
 >       where cmds = [Target start] ++ (transexp exp) ++ [ConJump end] ++ loopstmts ++ [Jump start, Target end]
->             (loopstmts, label) = transn loop (n + 2) 
+>             (loopstmts, label) = transn loop (n + 2)
 >             end   = n
 >             start = n + 1
 > trans' (If exp succ fail) n = (cmds, label )
->        where cmds =  (transexp exp) ++ [ConJump lfail] ++ truetmt ++ [Jump end, Target lfail] ++ falsestmt  ++ [Target end] 
->              (truetmt, n1) = transn succ (n + 2) 
->              (falsestmt, label) = transn fail n1 
+>        where cmds =  (transexp exp) ++ [ConJump lfail] ++ truetmt ++ [Jump end, Target lfail] ++ falsestmt  ++ [Target end]
+>              (truetmt, n1) = transn succ (n + 2)
+>              (falsestmt, label) = transn fail n1
 >              end   = n
 >              lfail = n + 1
 >
@@ -126,6 +127,39 @@ makes for much more plumbing code to make sure the next translation gets the new
 > transexp (Bin op e1 e2) = transexp e1 ++ transexp e2 ++ [BinOp op]
 > transexp (ConNot exp) = (transexp exp) ++ [BoolOp Not]
 > transexp (Con op e1 e2) = transexp e1 ++ transexp e2 ++ [BoolOp op]
+
+\section{check}
+
+This section does static checking on the static constraints of the language.
+These include only assigning a variable once, only having one type for a variable
+operators being constricted to their types and not being able to declare a variable twice.
+This 
+
+> check :: [Stmt] -> [Stmt]
+> check [] = []
+> check stmts
+>       | c (checks stmts []) = stmts
+>       | otherwise = error "failed static check"
+>       where c (True, ss) = seq ss True
+>             c _ =  False
+>
+> checks :: [Stmt] -> Store -> (Bool, Store)
+> checks [] ss = (length ss > 0, ss)
+> checks ((Asgn v e):ss) store = (res, sstore)
+>       where sstore = True `seq` (setVal v (checkexp e store) store)
+>             (res, _) = checks ss sstore
+> checks ((While e loop ):ss) store = (res, sstore)
+>       where (True, sstore) = checks loop store
+>             (res, _) =  checks ss sstore
+>
+> checkexp :: Exp -> Store -> Val
+> checkexp (Const v) _ = v
+> checkexp (Var v) store
+>           | hasVal v store = getVal v store
+>           | otherwise      = error "used variable before assignment"
+> checkexp (Bin _ ex1 ex2) s = cmpType (cmpType (checkexp ex1 s) (Int 0)) (checkexp ex2 s)
+> checkexp (ConNot ex1) s    = checkexp ex1 s
+> checkexp (Con _ ex1 ex2) s = cmpType (cmpType (checkexp ex1 s) (Bool True)) (checkexp ex2 s)
 
 \subsection{VM Code Execute}
 
@@ -215,6 +249,14 @@ Assign a value to a variable in the store
 > setVal v x (o@(u,w):s)
 >               | v == u = (v,(cmpType x w)):s
 > 	     	    | otherwise = o:setVal v x s -- fix setVal losing values
+
+\subsection{hasVal}
+
+> hasVal :: Var -> Store -> Bool
+> hasVal _ [] = False
+> hasVal a ((x, _):xs)
+>           | a == x = True
+>           | otherwise = False
 
 \section{Type checking}
 
