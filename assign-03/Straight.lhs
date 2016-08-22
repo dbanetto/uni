@@ -5,6 +5,7 @@ Compiler and interpreter for simple straight line programs.
 A straight line program is just a list of assignment statements, where an
 expression can contain variables, integer constants and arithmetic operators.
 
+> import qualified Data.List as L
 > data Prog = Prog [Stmt]
 >             deriving (Show)
 
@@ -16,12 +17,14 @@ The If statement is similar to the While statement expect in how it uses an
 expression to find out which branch it should be using and the list of statements
 allow them to be wrapped with the necessary jump statements to give the correct behaviour.
 
-> data Stmt = Asgn Var Exp
+> data Stmt = Decl [(Var, Type)]
+>           | Asgn Var Exp
 >      	    | While Exp [Stmt]
 >      	    | If Exp [Stmt] [Stmt]
 >             deriving (Show)
 
 > data Exp = Const Val
+>          | ConstB CBool
 >          | Var Char
 >      	   | Bin Op Exp Exp
 >      	   | ConNot Exp
@@ -31,7 +34,10 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 > data Op = Plus | Minus | Times | Div
 >           deriving (Show, Eq)
 
-> data Val = Bool Bool | Int Int
+> data Type = TBool | TInt
+>             deriving (Show, Eq)
+
+> data CBool = BTrue | BFalse
 >              deriving (Show, Eq)
 
 > data CondOp = And | Or | Not
@@ -43,6 +49,7 @@ now is just a single character and a value is an integer.
 > type Store = [(Var, Val)]
 > type Var = Char
 > type Label = Int
+> type Val = Int
 
 Straight line programs are translated into code for a simple stack-oriented
 virtual machine.
@@ -66,7 +73,7 @@ the result).
 >              | ConJump Label -- jump to label target if Var == 0
 >               deriving (Show, Eq)
 >
-> type Stack = [Val]
+> type Stack = [Int]
 
 Run a program, by compiling and then executing the resulting code
 The program is run with an initially empty store and empty stack, and the
@@ -107,6 +114,16 @@ makes for much more plumbing code to make sure the next translation gets the new
 >           (rest, _) = transn stmts m
 >
 > trans' :: Stmt -> Int -> (Code, Int)
+
+The `Decl` statement declares the list of variables with their given type and set them with a
+zero value (so Int's = 0, and Bools = False).
+
+> trans' (Decl vars) n = (transvars vars [], n)
+>       where transvars [] vs = vs
+>             transvars ((v, _):vv) vs = transvars vv ([LoadI 0, Store v] ++ vs)
+
+
+
 > trans' (Asgn var exp) n = ((transexp exp) ++ [Store var], n)
 > trans' (While exp loop) n = (cmds, label)
 >       where cmds = [Target start] ++ (transexp exp) ++ [ConJump end] ++ loopstmts ++ [Jump start, Target end]
@@ -123,6 +140,9 @@ makes for much more plumbing code to make sure the next translation gets the new
 >
 > transexp :: Exp -> Code
 > transexp (Const n) = [LoadI n]
+> transexp (ConstB n) = [LoadI (x n) ]
+>           where x BTrue = 1
+>                 x BFalse = 0
 > transexp (Var v) = [Load v]
 > transexp (Bin op e1 e2) = transexp e1 ++ transexp e2 ++ [BinOp op]
 > transexp (ConNot exp) = (transexp exp) ++ [BoolOp Not]
@@ -133,8 +153,9 @@ makes for much more plumbing code to make sure the next translation gets the new
 This section does static checking on the static constraints of the language.
 These include only assigning a variable once, only having one type for a variable
 operators being constricted to their types and not being able to declare a variable twice.
-This 
+This
 
+> type TStore = [(Var, Type)]
 > check :: [Stmt] -> [Stmt]
 > check [] = []
 > check stmts
@@ -143,23 +164,46 @@ This
 >       where c (True, ss) = seq ss True
 >             c _ =  False
 >
-> checks :: [Stmt] -> Store -> (Bool, Store)
+> checks :: [Stmt] -> TStore -> (Bool, TStore)
 > checks [] ss = (length ss > 0, ss)
-> checks ((Asgn v e):ss) store = (res, sstore)
->       where sstore = True `seq` (setVal v (checkexp e store) store)
->             (res, _) = checks ss sstore
-> checks ((While e loop ):ss) store = (res, sstore)
->       where (True, sstore) = checks loop store
+> checks ((Decl vars):ss) store = (res, sstore)
+>          where sstore = addVar vars store
+>                (res, _) = checks ss sstore
+>                addVar [] ts = ts
+>                addVar ((v, t):vs) ts = addVar vs (setValT v t ts)
+> checks ((Asgn v e):ss) store = (has && res, store)
+>       where has
+>               | (getValT v store) == (checkexp e store) = True
+>               | otherwise = error ("assignment of variable '" ++ [v] ++ "' does not match type")
+>             (res, _) = checks ss store
+> checks ((While e loop ):ss) store = (exp && t && res, sstore)
+>       where exp
+>               | TBool == (checkexp e store) = True
+>               | otherwise = error "while loop expression not a bool"
+>             (t, sstore) = checks loop store
 >             (res, _) =  checks ss sstore
->
-> checkexp :: Exp -> Store -> Val
-> checkexp (Const v) _ = v
+> checks ((If e succ fail):ss) store = ((exp && suc && fai && res), sstore)
+>           where exp
+>                   | TBool == (checkexp e store) = True
+>                   | otherwise = error "if expression not bool"
+>                 (suc, sst) = checks succ store
+>                 (fai, fst) = checks fail store
+>                 sstore = sst `L.union` fst
+>                 (res, _) = checks ss store
+
+The `checkexp` function asserts that the types used in the sub-expression
+are correct and also checks if the variable has been declared before hand and
+if it is the correct type.
+
+> checkexp :: Exp -> TStore -> Type
+> checkexp (Const v) _ = TInt
+> checkexp (ConstB v) _ = TBool
 > checkexp (Var v) store
->           | hasVal v store = getVal v store
+>           | hasValT v store = getValT v store
 >           | otherwise      = error "used variable before assignment"
-> checkexp (Bin _ ex1 ex2) s = cmpType (cmpType (checkexp ex1 s) (Int 0)) (checkexp ex2 s)
-> checkexp (ConNot ex1) s    = checkexp ex1 s
-> checkexp (Con _ ex1 ex2) s = cmpType (cmpType (checkexp ex1 s) (Bool True)) (checkexp ex2 s)
+> checkexp (Bin _ ex1 ex2) s = cmpType (cmpType (checkexp ex1 s) (TInt)) (checkexp ex2 s)
+> checkexp (ConNot ex1) s    = cmpType (checkexp ex1 s) (TBool)
+> checkexp (Con _ ex1 ex2) s = cmpType (cmpType (checkexp ex1 s) (TBool)) (checkexp ex2 s)
 
 \subsection{VM Code Execute}
 
@@ -192,7 +236,7 @@ of bugs in translate.
 > exec ((ConJump l) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
 >   where nx = dropWhile (\ c -> c /= (Target l)) prog
 >         next
->           | isBool x = cmds
+>           | toBool x = cmds
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
 >
@@ -207,13 +251,21 @@ of bugs in translate.
 > exec' (Store v) (x:stack, store, p) = (stack, store', p)
 > 	where store' = setVal v x store
 >
-> exec' (BinOp op)  (x:y:stack, store, p) = ((Int z):stack, store, p)
-> 	where z = apply op (isInt x) (isInt y)
->
-> exec' (BoolOp Not)  (x:stack, store, p) = ((Bool z):stack, store, p)
-> 	where z = not (isBool x)
-> exec' (BoolOp op)  (x:y:stack, store, p) = ((Bool z):stack, store, p)
-> 	where z = apply op (isBool x) (isBool y)
+> exec' (BinOp op)  (x:y:stack, store, p) = (z:stack, store, p)
+> 	where z = apply op x y
+
+Since the stack is a list of Int's to complete boolean operations
+the integer values would need to be converted to booleans and back
+into integers after completing the calculation. An alternative would
+to change the stack to have an ADT representing different types
+such as Int's and Bool and hold the real values as they are in Haskell,
+however I chose to keep everything as Int's because it makes the VM code layer
+to be closer representation of actual compilers.
+
+> exec' (BoolOp Not)  (x:stack, store, p) = (z:stack, store, p)
+> 	where z = fromBool (not (toBool x))
+> exec' (BoolOp op)  (x:y:stack, store, p) = (z:stack, store, p)
+> 	where z = fromBool (apply op (toBool x) (toBool y))
 > 	      apply And a b = a && b
 > 	      apply Or  a b = a || b
 
@@ -247,8 +299,8 @@ Assign a value to a variable in the store
 > setVal :: Var -> Val -> Store -> Store
 > setVal v x [] = [(v,x)]
 > setVal v x (o@(u,w):s)
->               | v == u = (v,(cmpType x w)):s
-> 	     	    | otherwise = o:setVal v x s -- fix setVal losing values
+>               | v == u = (v,x):s
+> 	     	    | otherwise = (o:(setVal v x s)) -- fix setVal losing values
 
 \subsection{hasVal}
 
@@ -261,19 +313,52 @@ Assign a value to a variable in the store
 \section{Type checking}
 
 Checks if two values have the same types
+and returns the type. This is useful for
+asserting the type of an expression.
 
-> cmpType :: Val -> Val -> Val
-> cmpType a@(Int _) (Int _) = a
-> cmpType a@(Bool _) (Bool _) = a
-> cmpType _ _ = error "mismatched types"
+> cmpType :: Type -> Type -> Type
+> cmpType a b
+>       | a == b = a
+>       | otherwise = error "mismatched types"
 
-> isInt :: Val -> Int
-> isInt (Int n) = n
-> isInt _ = error "Is not integer"
+Utility functions to handle VM bools into haskell bool's
+for ease of use.
 
-> isBool :: Val -> Bool
-> isBool (Bool n) = n
-> isBool _ = error "Is not boolean"
+> toBool :: Int -> Bool
+> toBool n
+>       | n == 0 = False
+>       | otherwise = True
+
+> fromBool :: Bool -> Int
+> fromBool n
+>       | False = 0
+>       | otherwise = 1
+
+\subsection{Type Store methods}
+
+Type Store is a collection used in the static checking portion
+of the translation to keep track the type of a variable during the
+program's reasoning. Hard errors are used in failure cases
+because the plumping to make them into `Maybe`'s is a bit too
+complicated for me.
+
+> hasValT :: Var -> TStore -> Bool
+> hasValT _ [] = False
+> hasValT v ((x, _):xs)
+>           | v == x = True
+>           | otherwise = hasValT v xs
+
+> getValT :: Var -> TStore -> Type
+> getValT _ [] = error "does not exist"
+> getValT v ((x, t):xs)
+>           | v == x = t
+>           | otherwise = getValT v xs
+
+> setValT :: Var -> Type -> TStore -> TStore
+> setValT v t [] = [(v, t)]
+> setValT v t (o@(x, _):xs)
+>           | v == x = error "already declared"
+>           | otherwise = (o:(setValT v t xs))
 
 \section{Testing}
 
@@ -281,20 +366,30 @@ Checks if two values have the same types
 
 Some examples for testing
 
-> s1 = Asgn 'b' (Const (Bool True))
-> s2 = Asgn 'a' (Const (Int 0))
-> s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const (Int 1))), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const (Int 1)))]]
-> p1 = Prog [s1, s2, s3]
+> s0 = Decl [('a', TInt), ('b', TBool)]
+> s1 = Asgn 'b' (ConstB BFalse)
+> s2 = Asgn 'a' (Const 0)
+> s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1)), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1))]]
+> p1 = Prog [s0, s1, s2, s3]
 
-> testIfTrue = run (Prog [(Asgn 'a' (Const (Bool True))), If (Var 'a') [(Asgn 'a' (Const (Int 10)))] [(Asgn 'a' (Const (Int 0)))]]) == [('a', (Int 10))]
-> testIfFalse = run (Prog [(Asgn 'a' (Const (Bool False))), If (Var 'a') [(Asgn 'a' (Const (Int 10)))] [(Asgn 'a' (Const (Int 0)))]]) == [('a', (Int 0))]
+> testIfTrue    = run (Prog [(Decl [('a', TInt), ('b', TBool)]), (Asgn 'b' (ConstB BTrue)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
+> testIfFalse   = run (Prog [(Decl [('a', TInt), ('b', TBool)]), (Asgn 'b' (ConstB BFalse)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
+
+Static checks tests
+
+> useBeforeDecl = checks [(Asgn 'a' (Const 0))] [] == (False, [])
+> assgnVar      = checks [(Decl [('a', TInt)]), (Asgn 'a' (Const 0))] []  == (True, [('a', TInt)])
+> misAssgnVar   = checks [(Decl [('a', TBool)]), (Asgn 'a' (Const 0))] [] == (False, [('a', TBool)])
 
 > main = do
 >
 >   putStr("Tests\n")
 >   print(testIfTrue)
 >   print(testIfFalse)
+>   -- print(useBeforeDecl) -- cannot be run because it rightfully error
+>   print(assgnVar) --
+>   print(misAssgnVar) --
 >
->   putStr("Test program\n")
+>   putStr("\n\nTest program\n")
 >   print(translate p1)
 >   print(run p1)
