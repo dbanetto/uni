@@ -278,11 +278,10 @@ of bugs in translate.
 >
 > exec ((StackJump) : _) ([], _, _) = error "StackJump requires an element in the stack"
 > exec ((StackJump) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
->   where nx = dropWhile (\ c -> c /= (Target 1)) prog
+>   where nx = dropWhile (\ c -> c /= (Target x)) prog
 >         next
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
->
 >
 > exec (cmd : cmds) ss = exec cmds (exec' cmd ss)
 
@@ -292,7 +291,6 @@ of bugs in translate.
 > 	where x = getVal v store
 > exec' (Store v) (x:stack, store, p) = (stack, store', p)
 > 	where store' = setVal v x store
->
 > exec' (BinOp op)  (x:y:stack, store, p) = (z:stack, store, p)
 > 	where z = apply op x y
 
