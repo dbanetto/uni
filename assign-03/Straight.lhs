@@ -6,7 +6,7 @@ A straight line program is just a list of assignment statements, where an
 expression can contain variables, integer constants and arithmetic operators.
 
 > import qualified Data.List as L
-> data Prog = Prog [Stmt]
+> data Prog = Prog Decl [Stmt]
 >             deriving (Show)
 
 While is added as an expression and a list of statements to always have the ability to
@@ -17,8 +17,7 @@ The If statement is similar to the While statement expect in how it uses an
 expression to find out which branch it should be using and the list of statements
 allow them to be wrapped with the necessary jump statements to give the correct behaviour.
 
-> data Stmt = Decl [(Var, Type)]
->           | Asgn Var Exp
+> data Stmt = Asgn Var Exp
 >      	    | While Exp [Stmt]
 >      	    | If Exp [Stmt] [Stmt]
 >             deriving (Show)
@@ -33,6 +32,9 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 
 > data Op = Plus | Minus | Times | Div
 >           deriving (Show, Eq)
+
+
+> type Decl = [(Var, Type)]
 
 > data Type = TBool | TInt
 >             deriving (Show, Eq)
@@ -92,7 +94,9 @@ initial store.
 Translate straight line program into stack machine code
 
 > translate :: Prog -> Code
-> translate (Prog stmts) = trans stmts
+> translate (Prog decl stmts) = trans stmts (tstore decl [])
+>       where tstore [] st = st
+>             tstore ((v, t):vs) st = tstore vs (setValT v t st)
 
 To ensure that every label has a unique label each statement to be translated
 will be allocated 2 labels to be unique to it by incrementing the label counter `n`.
@@ -101,10 +105,10 @@ the `n` variable. Another way of implementing this would be to return the value 
 `trans'` functions and allowing them to update the counter as needed. Though I think that way
 makes for much more plumbing code to make sure the next translation gets the new label counter.
 
-> trans :: [Stmt] -> Code
-> trans [] = []
-> trans stmts = code
->       where checked = check stmts
+> trans :: [Stmt] -> TStore -> Code
+> trans [] _ = []
+> trans stmts tstore = code
+>       where checked = check stmts tstore
 >             (code, _) = transn checked 0
 >
 > transn :: [Stmt] -> Int -> (Code, Int)
@@ -114,15 +118,6 @@ makes for much more plumbing code to make sure the next translation gets the new
 >           (rest, _) = transn stmts m
 >
 > trans' :: Stmt -> Int -> (Code, Int)
-
-The `Decl` statement declares the list of variables with their given type and set them with a
-zero value (so Int's = 0, and Bools = False).
-
-> trans' (Decl vars) n = (transvars vars [], n)
->       where transvars [] vs = vs
->             transvars ((v, _):vv) vs = transvars vv ([LoadI 0, Store v] ++ vs)
-
-
 
 > trans' (Asgn var exp) n = ((transexp exp) ++ [Store var], n)
 > trans' (While exp loop) n = (cmds, label)
@@ -153,57 +148,61 @@ zero value (so Int's = 0, and Bools = False).
 This section does static checking on the static constraints of the language.
 These include only assigning a variable once, only having one type for a variable
 operators being constricted to their types and not being able to declare a variable twice.
-This
+`checks` returns a Result ADT which has `Ok` and `Err` so the errors are wrapped and can
+be folding & checked by `foldres` so `Err`'s can bubble up. An alternative architecture
+would be just throw hard errors. However `check` does throw the `Err` as a hard error
+because pluming up higher would
 
 > type TStore = [(Var, Type)]
-> check :: [Stmt] -> [Stmt]
-> check [] = []
-> check stmts
->       | c (checks stmts []) = stmts
->       | otherwise = error "failed static check"
->       where c (True, ss) = seq ss True
->             c _ =  False
+> data Result = Ok | Err [Char]
+>               deriving (Eq, Show)
 >
-> checks :: [Stmt] -> TStore -> (Bool, TStore)
-> checks [] ss = (length ss > 0, ss)
-> checks ((Decl vars):ss) store = (res, sstore)
->          where sstore = addVar vars store
->                (res, _) = checks ss sstore
->                addVar [] ts = ts
->                addVar ((v, t):vs) ts = addVar vs (setValT v t ts)
-> checks ((Asgn v e):ss) store = (has && res, store)
+> check :: [Stmt] -> TStore -> [Stmt]
+> check [] _ = []
+> check stmts ts = stmts' (checks stmts ts)
+>           where stmts' (Ok) = stmts
+>                 stmts' (Err e) = error e
+>
+> checks :: [Stmt] -> TStore -> Result
+> checks [] ss = Ok
+> checks ((Asgn v e):ss) store = foldres [has, ty, res]
 >       where has
->               | (getValT v store) == (checkexp e store) = True
->               | otherwise = error ("assignment of variable '" ++ [v] ++ "' does not match type")
->             (res, _) = checks ss store
-> checks ((While e loop ):ss) store = (exp && t && res, sstore)
->       where exp
->               | TBool == (checkexp e store) = True
->               | otherwise = error "while loop expression not a bool"
->             (t, sstore) = checks loop store
->             (res, _) =  checks ss sstore
-> checks ((If e succ fail):ss) store = ((exp && suc && fai && res), sstore)
->           where exp
->                   | TBool == (checkexp e store) = True
->                   | otherwise = error "if expression not bool"
->                 (suc, sst) = checks succ store
->                 (fai, fst) = checks fail store
->                 sstore = sst `L.union` fst
->                 (res, _) = checks ss store
+>               | hasValT v store == False = Err ("variable '" ++ [v] ++ "' is not declared")
+>               | otherwise = Ok
+>             ty = checkexp e (getValT v store) store
+>             res = checks ss store
+> checks ((While e loop):ss) store = foldres [exp, t, res]
+>       where exp = checkexp e TBool store
+>             t = checks loop store
+>             res =  checks ss store
+> checks ((If e succ fail):ss) store = foldres [exp, suc, fai, res]
+>           where exp = checkexp e TBool store
+>                 suc = checks succ store
+>                 fai = checks fail store
+>                 res = checks ss store
+>
+> foldres :: [Result] -> Result
+> foldres [] = Ok
+> foldres ((Ok):xs) = foldres xs
+> foldres ((Err e):xs) = (Err e)
 
 The `checkexp` function asserts that the types used in the sub-expression
 are correct and also checks if the variable has been declared before hand and
 if it is the correct type.
 
-> checkexp :: Exp -> TStore -> Type
-> checkexp (Const v) _ = TInt
-> checkexp (ConstB v) _ = TBool
-> checkexp (Var v) store
->           | hasValT v store = getValT v store
->           | otherwise      = error "used variable before assignment"
-> checkexp (Bin _ ex1 ex2) s = cmpType (cmpType (checkexp ex1 s) (TInt)) (checkexp ex2 s)
-> checkexp (ConNot ex1) s    = cmpType (checkexp ex1 s) (TBool)
-> checkexp (Con _ ex1 ex2) s = cmpType (cmpType (checkexp ex1 s) (TBool)) (checkexp ex2 s)
+> checkexp :: Exp -> Type -> TStore -> Result
+> checkexp (Const v) TInt _ = Ok
+> checkexp (Const v) _ _ = Err "Const expects Int type"
+> checkexp (ConstB v) TBool _ = Ok
+> checkexp (ConstB v) _ _ = Err "ConstB expects Bool type"
+> checkexp (Var v) t store
+>           | not (hasValT v store) = Err "used variable undeclared variable"
+>           | getValT v store == t = Ok
+>           | otherwise       = Err "used incorrect type for variable"
+> checkexp (Bin _ ex1 ex2) TInt s = foldres [(checkexp ex1 TInt s), (checkexp ex2 TInt s)]
+> checkexp (ConNot ex1) TBool s    = checkexp ex1 TBool s
+> checkexp (Con _ ex1 ex2) TBool s = foldres [(checkexp ex1 TBool s), (checkexp ex2 TBool s)]
+> checkexp _ _ _ = Err "incorrect usage of types"
 
 \subsection{VM Code Execute}
 
@@ -336,11 +335,10 @@ for ease of use.
 
 \subsection{Type Store methods}
 
-Type Store is a collection used in the static checking portion
-of the translation to keep track the type of a variable during the
-program's reasoning. Hard errors are used in failure cases
-because the plumping to make them into `Maybe`'s is a bit too
-complicated for me.
+The `TStore` is used in statically checking the program
+for well-formness by using the TStore to track the types of variables
+that have been declared and using those declarations to reason the types
+of expressions.
 
 > hasValT :: Var -> TStore -> Bool
 > hasValT _ [] = False
@@ -366,29 +364,34 @@ complicated for me.
 
 Some examples for testing
 
-> s0 = Decl [('a', TInt), ('b', TBool)]
+> decl = [('a', TInt), ('b', TBool)]
 > s1 = Asgn 'b' (ConstB BFalse)
 > s2 = Asgn 'a' (Const 0)
 > s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1)), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1))]]
-> p1 = Prog [s0, s1, s2, s3]
 
-> testIfTrue    = run (Prog [(Decl [('a', TInt), ('b', TBool)]), (Asgn 'b' (ConstB BTrue)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
-> testIfFalse   = run (Prog [(Decl [('a', TInt), ('b', TBool)]), (Asgn 'b' (ConstB BFalse)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
+
+> p1 = Prog decl [s1, s2, s3]
+> testIfTrue    = run (Prog [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB BTrue)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
+> testIfFalse   = run (Prog [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB BFalse)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
 
 Static checks tests
 
-> useBeforeDecl = checks [(Asgn 'a' (Const 0))] [] == (False, [])
-> assgnVar      = checks [(Decl [('a', TInt)]), (Asgn 'a' (Const 0))] []  == (True, [('a', TInt)])
-> misAssgnVar   = checks [(Decl [('a', TBool)]), (Asgn 'a' (Const 0))] [] == (False, [('a', TBool)])
+> useBeforeDecl = checks [(Asgn 'a' (Const 0))] [] == Err "variable 'a' is not declared"
+> assgnVar      = checks [(Asgn 'a' (Const 0))] [('a', TInt)]  == Ok
+> misAssgnVar   = checks [(Asgn 'a' (Const 0))] [('a', TBool)] == Err "Const expects Int type"
+> opWrongType   = checks [(Asgn 'a' (ConNot (ConstB BTrue)))] [('a', TInt)] == Err "incorrect usage of types"
+> opRightType   = checks [(Asgn 'a' (ConNot (ConstB BTrue)))] [('a', TBool)] == Ok
 
 > main = do
 >
 >   putStr("Tests\n")
 >   print(testIfTrue)
 >   print(testIfFalse)
->   -- print(useBeforeDecl) -- cannot be run because it rightfully error
->   print(assgnVar) --
->   print(misAssgnVar) --
+>   print(useBeforeDecl)
+>   print(assgnVar)
+>   print(misAssgnVar)
+>   print(opWrongType)
+>   print(opRightType)
 >
 >   putStr("\n\nTest program\n")
 >   print(translate p1)
