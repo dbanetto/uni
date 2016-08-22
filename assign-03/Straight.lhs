@@ -23,7 +23,7 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 >             deriving (Show)
 
 > data Exp = Const Val
->          | ConstB CBool
+>          | ConstB Bool
 >          | Var Char
 >      	   | Bin Op Exp Exp
 >      	   | ConNot Exp
@@ -33,14 +33,16 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 > data Op = Plus | Minus | Times | Div
 >           deriving (Show, Eq)
 
+The declaration section contains a pair of variable names and types
+to be used throughout the program.
 
 > type Decl = [(Var, Type)]
 
+The `Type` ADT is used to represent the two different type
+of variables that exist.
+
 > data Type = TBool | TInt
 >             deriving (Show, Eq)
-
-> data CBool = BTrue | BFalse
->              deriving (Show, Eq)
 
 > data CondOp = And | Or | Not
 >               deriving (Show, Eq)
@@ -136,8 +138,8 @@ makes for much more plumbing code to make sure the next translation gets the new
 > transexp :: Exp -> Code
 > transexp (Const n) = [LoadI n]
 > transexp (ConstB n) = [LoadI (x n) ]
->           where x BTrue = 1
->                 x BFalse = 0
+>           where x True = 1
+>                 x False = 0
 > transexp (Var v) = [Load v]
 > transexp (Bin op e1 e2) = transexp e1 ++ transexp e2 ++ [BinOp op]
 > transexp (ConNot exp) = (transexp exp) ++ [BoolOp Not]
@@ -180,7 +182,10 @@ because pluming up higher would
 >                 suc = checks succ store
 >                 fai = checks fail store
 >                 res = checks ss store
->
+
+`foldres` takes a list of results and checks that all of the elements are
+`Ok` otherwise returns the 1st `Err` case.
+
 > foldres :: [Result] -> Result
 > foldres [] = Ok
 > foldres ((Ok):xs) = foldres xs
@@ -215,7 +220,7 @@ The Jump statement enables movement around the Code and is required in
 exec because it has control over what is the next command to be executed in
 the list. Another option to implement the jump would be to split the jump into
 forward and back jumps to allow for the optimised case of foward jumps of just dropping from
-the current position and make a backwards jump use the ineffiecent way of looking from the
+the current position and make a backwards jump use the inefficient way of looking from the
 start of the VM code. Run time errors are included to ensure correct execution in case
 of bugs in translate.
 
@@ -365,22 +370,22 @@ of expressions.
 Some examples for testing
 
 > decl = [('a', TInt), ('b', TBool)]
-> s1 = Asgn 'b' (ConstB BFalse)
+> s1 = Asgn 'b' (ConstB False)
 > s2 = Asgn 'a' (Const 0)
 > s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1)), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1))]]
 
 
 > p1 = Prog decl [s1, s2, s3]
-> testIfTrue    = run (Prog [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB BTrue)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
-> testIfFalse   = run (Prog [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB BFalse)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
+> testIfTrue    = run (Prog [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB True)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
+> testIfFalse   = run (Prog [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB False)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
 
 Static checks tests
 
 > useBeforeDecl = checks [(Asgn 'a' (Const 0))] [] == Err "variable 'a' is not declared"
 > assgnVar      = checks [(Asgn 'a' (Const 0))] [('a', TInt)]  == Ok
 > misAssgnVar   = checks [(Asgn 'a' (Const 0))] [('a', TBool)] == Err "Const expects Int type"
-> opWrongType   = checks [(Asgn 'a' (ConNot (ConstB BTrue)))] [('a', TInt)] == Err "incorrect usage of types"
-> opRightType   = checks [(Asgn 'a' (ConNot (ConstB BTrue)))] [('a', TBool)] == Ok
+> opWrongType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TInt)] == Err "incorrect usage of types"
+> opRightType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TBool)] == Ok
 
 > main = do
 >
