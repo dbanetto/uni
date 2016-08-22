@@ -85,7 +85,7 @@ the result).
 >
 > type Stack = [Int]
 > type TStore = [(Var, Type)]
-> type VTable = [(ProcName, Int)]
+> type VTable = [(ProcName, Label)]
 
 Run a program, by compiling and then executing the resulting code
 The program is run with an initially empty store and empty stack, and the
@@ -117,19 +117,19 @@ the `n` variable. Another way of implementing this would be to return the value 
 `trans'` functions and allowing them to update the counter as needed. Though I think that way
 makes for much more plumbing code to make sure the next translation gets the new label counter.
 
-> trans :: [Stmt] -> TStore -> VTable -> Int -> Code
+> trans :: [Stmt] -> TStore -> VTable -> Label -> Code
 > trans [] _ _ _ = []
 > trans stmts tstore vtable n = code
 >       where checked = check stmts tstore
 >             (code, _) = transn checked vtable n
 >
-> transn :: [Stmt] -> VTable -> Int -> (Code, Int)
+> transn :: [Stmt] -> VTable -> Label -> (Code, Int)
 > transn [] _ n = ([], n)
 > transn (stmt:stmts) vt n = (t ++ rest, m)
 >     where (t, m)    = trans' stmt vt  n
 >           (rest, _) = transn stmts vt m
 >
-> trans' :: Stmt -> VTable -> Int -> (Code, Int)
+> trans' :: Stmt -> VTable -> Label -> (Code, Int)
 > trans' (Asgn var exp) vt n = ((transexp exp) ++ [Store var], n)
 >
 > trans' (Call proc) vt n = ([LoadI n, Jump p, Target n], n + 1)
@@ -159,18 +159,18 @@ makes for much more plumbing code to make sure the next translation gets the new
 > transexp (ConNot exp) = (transexp exp) ++ [BoolOp Not]
 > transexp (Con op e1 e2) = transexp e1 ++ transexp e2 ++ [BoolOp op]
 
-> transprocs :: [Proc] -> TStore -> Int -> (VTable, Code, Int)
+> transprocs :: [Proc] -> TStore -> Label -> (VTable, Code, Int)
 > transprocs [] _ n = ([], [], n)
 > transprocs procs ts n =  (vtable, code, nn)
 >               where (vtable, code, nn) = transprocn procs ts [] [] n
 >
-> transprocn :: [Proc] -> TStore -> VTable -> Code -> Int -> (VTable, Code, Int)
+> transprocn :: [Proc] -> TStore -> VTable -> Code -> Label -> (VTable, Code, Int)
 > transprocn [] ts vt code n = (vt, code, n)
 > transprocn (p@(Proc name _):ps) ts vt c n = transprocn ps ts vtable (c ++ code) nn
 >           where (code, nn) = transproc p ts vtable n
 >                 vtable = setValT name n vt
 >
-> transproc :: Proc -> TStore -> VTable -> Int -> (Code, Int)
+> transproc :: Proc -> TStore -> VTable -> Label -> (Code, Int)
 > transproc (Proc _ []) _ _ n = ([], n)
 > transproc (Proc _ stmts) ts vt n = ([Target n] ++ code ++ [StackJump], nn)
 >               where checked = check stmts ts
