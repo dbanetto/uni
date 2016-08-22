@@ -6,7 +6,7 @@ A straight line program is just a list of assignment statements, where an
 expression can contain variables, integer constants and arithmetic operators.
 
 > import qualified Data.List as L
-> data Prog = Prog Decl [Stmt]
+> data Prog = Prog Decl [Proc] [Stmt]
 >             deriving (Show)
 
 While is added as an expression and a list of statements to always have the ability to
@@ -20,6 +20,7 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 > data Stmt = Asgn Var Exp
 >      	    | While Exp [Stmt]
 >      	    | If Exp [Stmt] [Stmt]
+>      	    | Call ProcName
 >             deriving (Show)
 
 > data Exp = Const Val
@@ -32,6 +33,10 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 
 > data Op = Plus | Minus | Times | Div
 >           deriving (Show, Eq)
+
+> type ProcName = [Char]
+> data Proc = Proc ProcName [Stmt]
+>       deriving (Show)
 
 The declaration section contains a pair of variable names and types
 to be used throughout the program.
@@ -79,6 +84,8 @@ the result).
 >               deriving (Show, Eq)
 >
 > type Stack = [Int]
+> type TStore = [(Var, Type)]
+> type VTable = [(ProcName, Int)]
 
 Run a program, by compiling and then executing the resulting code
 The program is run with an initially empty store and empty stack, and the
@@ -97,9 +104,11 @@ initial store.
 Translate straight line program into stack machine code
 
 > translate :: Prog -> Code
-> translate (Prog decl stmts) = trans stmts (tstore decl [])
->       where tstore [] st = st
->             tstore ((v, t):vs) st = tstore vs (setValT v t st)
+> translate (Prog decl procs stmts) = (trans stmts tstore vtable n) ++ [Jump 0] ++ code ++ [Target 0]
+>       where tstore = tstore' decl []
+>             tstore' [] st = st
+>             tstore' ((v, t):vs) st = tstore' vs (setValT v t st)
+>             (vtable, code, n) = transprocs procs tstore 1
 
 To ensure that every label has a unique label each statement to be translated
 will be allocated 2 labels to be unique to it by incrementing the label counter `n`.
@@ -108,30 +117,34 @@ the `n` variable. Another way of implementing this would be to return the value 
 `trans'` functions and allowing them to update the counter as needed. Though I think that way
 makes for much more plumbing code to make sure the next translation gets the new label counter.
 
-> trans :: [Stmt] -> TStore -> Code
-> trans [] _ = []
-> trans stmts tstore = code
+> trans :: [Stmt] -> TStore -> VTable -> Int -> Code
+> trans [] _ _ _ = []
+> trans stmts tstore vtable n = code
 >       where checked = check stmts tstore
->             (code, _) = transn checked 0
+>             (code, _) = transn checked vtable n
 >
-> transn :: [Stmt] -> Int -> (Code, Int)
-> transn [] n = ([], n)
-> transn (stmt:stmts) n = (t ++ rest, m)
->     where (t, m)    = trans' stmt  n
->           (rest, _) = transn stmts m
+> transn :: [Stmt] -> VTable -> Int -> (Code, Int)
+> transn [] _ n = ([], n)
+> transn (stmt:stmts) vt n = (t ++ rest, m)
+>     where (t, m)    = trans' stmt vt  n
+>           (rest, _) = transn stmts vt m
 >
-> trans' :: Stmt -> Int -> (Code, Int)
-
-> trans' (Asgn var exp) n = ((transexp exp) ++ [Store var], n)
-> trans' (While exp loop) n = (cmds, label)
+> trans' :: Stmt -> VTable -> Int -> (Code, Int)
+> trans' (Asgn var exp) vt n = ((transexp exp) ++ [Store var], n)
+>
+> trans' (Call proc) vt n = ([LoadI n, Jump p, Target n], n + 1)
+>                   where p | not (hasVal proc vt) = error (proc ++ " not found") | otherwise = getVal proc vt
+>
+> trans' (While exp loop) vt n = (cmds, label)
 >       where cmds = [Target start] ++ (transexp exp) ++ [ConJump end] ++ loopstmts ++ [Jump start, Target end]
->             (loopstmts, label) = transn loop (n + 2)
+>             (loopstmts, label) = transn loop vt (n + 2)
 >             end   = n
 >             start = n + 1
-> trans' (If exp succ fail) n = (cmds, label )
+>
+> trans' (If exp succ fail) vt n = (cmds, label )
 >        where cmds =  (transexp exp) ++ [ConJump lfail] ++ truetmt ++ [Jump end, Target lfail] ++ falsestmt  ++ [Target end]
->              (truetmt, n1) = transn succ (n + 2)
->              (falsestmt, label) = transn fail n1
+>              (truetmt, n1) = transn succ vt (n + 2)
+>              (falsestmt, label) = transn fail vt n1
 >              end   = n
 >              lfail = n + 1
 >
@@ -146,6 +159,24 @@ makes for much more plumbing code to make sure the next translation gets the new
 > transexp (ConNot exp) = (transexp exp) ++ [BoolOp Not]
 > transexp (Con op e1 e2) = transexp e1 ++ transexp e2 ++ [BoolOp op]
 
+> transprocs :: [Proc] -> TStore -> Int -> (VTable, Code, Int)
+> transprocs [] _ n = ([], [], n)
+> transprocs procs ts n =  (vtable, code, nn)
+>               where (vtable, code, nn) = transprocn procs ts [] [] n
+>
+> transprocn :: [Proc] -> TStore -> VTable -> Code -> Int -> (VTable, Code, Int)
+> transprocn [] ts vt code n = (vt, code, n)
+> transprocn (p@(Proc name _):ps) ts vt c n = transprocn ps ts vtable (c ++ code) nn
+>           where (code, nn) = transproc p ts vtable n
+>                 vtable = setValT name n vt
+>
+> transproc :: Proc -> TStore -> VTable -> Int -> (Code, Int)
+> transproc (Proc _ []) _ _ n = ([], n)
+> transproc (Proc _ stmts) ts vt n = ([Target n] ++ code ++ [StackJump], nn)
+>               where checked = check stmts ts
+>                     (code, nn) =  (transn checked vt (n+1))
+
+
 \section{check}
 
 This section does static checking on the static constraints of the language.
@@ -156,7 +187,6 @@ be folding & checked by `foldres` so `Err`'s can bubble up. An alternative archi
 would be just throw hard errors. However `check` does throw the `Err` as a hard error
 because pluming up higher would
 
-> type TStore = [(Var, Type)]
 > data Result = Ok | Err [Char]
 >               deriving (Eq, Show)
 >
@@ -168,11 +198,12 @@ because pluming up higher would
 >
 > checks :: [Stmt] -> TStore -> Result
 > checks [] ss = Ok
+> checks ((Call _):ss) s = Ok
 > checks ((Asgn v e):ss) store = foldres [has, ty, res]
 >       where has
->               | hasValT v store == False = Err ("variable '" ++ [v] ++ "' is not declared")
+>               | hasVal v store == False = Err ("variable '" ++ [v] ++ "' is not declared")
 >               | otherwise = Ok
->             ty = checkexp e (getValT v store) store
+>             ty = checkexp e (getVal v store) store
 >             res = checks ss store
 > checks ((While e loop):ss) store = foldres [exp, t, res]
 >       where exp = checkexp e TBool store
@@ -202,8 +233,8 @@ if it is the correct type.
 > checkexp (ConstB v) TBool _ = Ok
 > checkexp (ConstB v) _ _ = Err "ConstB expects Bool type"
 > checkexp (Var v) t store
->           | not (hasValT v store) = Err "used variable undeclared variable"
->           | getValT v store == t = Ok
+>           | not (hasVal v store) = Err "used variable undeclared variable"
+>           | getVal v store == t = Ok
 >           | otherwise       = Err "used incorrect type for variable"
 > checkexp (Bin _ ex1 ex2) TInt s = foldres [(checkexp ex1 TInt s), (checkexp ex2 TInt s)]
 > checkexp (ConNot ex1) TBool s    = checkexp ex1 TBool s
@@ -239,7 +270,7 @@ of bugs in translate.
 
 > exec ((ConJump l) : _) ([], _, _) = error "Conditional jump requires an element on the stack"
 > exec ((ConJump l) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
->   where nx = dropWhile (\ c -> c /= (Target l)) prog
+>   where nx = dropWhile (\ c -> c /= (Target x)) prog
 >         next
 >           | toBool x = cmds
 >           | nx == [] = error "Label not found"
@@ -247,7 +278,7 @@ of bugs in translate.
 >
 > exec ((StackJump) : _) ([], _, _) = error "StackJump requires an element in the stack"
 > exec ((StackJump) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
->   where nx = dropWhile (\ c -> c /= (Target x)) prog
+>   where nx = dropWhile (\ c -> c /= (Target 1)) prog
 >         next
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
@@ -294,32 +325,7 @@ Apply an arithmetic operator
 > apply Times x y = x * y
 > apply Div x y = x `div` y
 
-\section{Store}
-
-\subsection{getVal}
-
-Look up a variable in the store
-
-> getVal :: Var -> Store -> Val
-> getVal v s = foldr (\(u,x) r -> if u == v then x else r) (error "Variable not found") s
-
-\subsection{setVal}
-
-Assign a value to a variable in the store
-
-> setVal :: Var -> Val -> Store -> Store
-> setVal v x [] = [(v,x)]
-> setVal v x (o@(u,w):s)
->               | v == u = (v,x):s
-> 	     	    | otherwise = (o:(setVal v x s)) -- fix setVal losing values
-
-\subsection{hasVal}
-
-> hasVal :: Var -> Store -> Bool
-> hasVal _ [] = False
-> hasVal a ((x, _):xs)
->           | a == x = True
->           | otherwise = False
+\section{Stores}
 
 \section{Type checking}
 
@@ -352,23 +358,32 @@ for well-formness by using the TStore to track the types of variables
 that have been declared and using those declarations to reason the types
 of expressions.
 
-> hasValT :: Var -> TStore -> Bool
-> hasValT _ [] = False
-> hasValT v ((x, _):xs)
->           | v == x = True
->           | otherwise = hasValT v xs
+\subsection{Set Functions}
 
-> getValT :: Var -> TStore -> Type
-> getValT _ [] = error "does not exist"
-> getValT v ((x, t):xs)
->           | v == x = t
->           | otherwise = getValT v xs
+> hasVal :: (Eq a) => a -> [(a, b)]  -> Bool
+> hasVal _ [] = False
+> hasVal a ((x, _):xs)
+>       | a == x = True
+>       | otherwise = hasVal a xs
 
-> setValT :: Var -> Type -> TStore -> TStore
-> setValT v t [] = [(v, t)]
-> setValT v t (o@(x, _):xs)
->           | v == x = error "already declared"
->           | otherwise = (o:(setValT v t xs))
+> getVal :: (Eq a) => a -> [(a, b)] -> b
+> getVal _ [] = error "Element does not exist"
+> getVal a ((x, y):xs)
+>       | a == x = y
+>       | otherwise = getVal a xs
+
+> setValT :: (Eq a) => a -> b -> [(a, b)]  -> [(a, b)]
+> setValT a b [] = [(a, b)]
+> setValT a b (xy@(x, y):xs)
+>       | a == x = error "already exists"
+>       | otherwise = xy:(setValT a b xs)
+
+> setVal :: (Eq a) => a -> b -> [(a, b)]  -> [(a, b)]
+> setVal a b [] = [(a, b)]
+> setVal a b (xy@(x, y):xs)
+>       | a == x = (x,b):xs
+>       | otherwise = xy:(setVal a b xs)
+
 
 \section{Testing}
 
@@ -382,9 +397,9 @@ Some examples for testing
 > s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1)), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1))]]
 
 
-> p1 = Prog decl [s1, s2, s3]
-> testIfTrue    = run (Prog [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB True)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
-> testIfFalse   = run (Prog [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB False)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
+> p1 = Prog decl [] [s1, s2, s3]
+> testIfTrue    = run (Prog [('a', TInt), ('b', TBool)] [] [(Asgn 'b' (ConstB True)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
+> testIfFalse   = run (Prog [('a', TInt), ('b', TBool)] [] [(Asgn 'b' (ConstB False)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
 
 Static checks tests
 
