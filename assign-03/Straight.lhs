@@ -75,6 +75,7 @@ the result).
 >              | Target Label  -- jump target
 >              | Jump Label    -- jump to label target
 >              | ConJump Label -- jump to label target if Var == 0
+>              | StackJump
 >               deriving (Show, Eq)
 >
 > type Stack = [Int]
@@ -244,9 +245,15 @@ of bugs in translate.
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
 >
+> exec ((StackJump) : _) ([], _, _) = error "StackJump requires an element in the stack"
+> exec ((StackJump) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
+>   where nx = dropWhile (\ c -> c /= (Target x)) prog
+>         next
+>           | nx == [] = error "Label not found"
+>           | otherwise = tail nx
+>
 >
 > exec (cmd : cmds) ss = exec cmds (exec' cmd ss)
->
 
 > exec' :: Command -> (Stack, Store, Code) -> (Stack, Store, Code)
 > exec' (LoadI n) (stack, store, p) = (n:stack, store, p)
