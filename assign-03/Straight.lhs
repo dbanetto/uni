@@ -422,11 +422,11 @@ Some examples for testing
 > s1 = Asgn 'b' (ConstB False)
 > s2 = Asgn 'a' (Const 0)
 > s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1)), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1))]]
-
-
 > p1 = Prog decl [] [s1, s2, s3]
+
 > testIfTrue    = run (Prog [('a', TInt), ('b', TBool)] [] [(Asgn 'b' (ConstB True)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
 > testIfFalse   = run (Prog [('a', TInt), ('b', TBool)] [] [(Asgn 'b' (ConstB False)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
+> callsProc = run (Prog [('a', TInt)] [(Proc "10" [(Asgn 'a' (Const 10))])] [(Asgn 'a' (Const 0)), (Call "10")]) == [('a', 10)]
 
 Static checks tests
 
@@ -443,6 +443,8 @@ Static checks tests
 >   putStr("Tests\n")
 >   print(testIfTrue)
 >   print(testIfFalse)
+>   print(callsProc)
+>
 >   print(useBeforeDecl)
 >   print(assgnVar)
 >   print(misAssgnVar)
