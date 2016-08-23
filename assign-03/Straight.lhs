@@ -103,12 +103,19 @@ initial store.
 
 Translate straight line program into stack machine code
 
+The `translate` function appends a jump to the end of the VM code
+at the end of the body code so the program will complete and not run into
+the procedure section of the code.
+All of the variables and procedures are translated before the main body
+so all the critical information is present for checking and translating.
+
 > translate :: Prog -> Code
-> translate (Prog decl procs stmts) = (trans stmts tstore vtable n) ++ [Jump 0] ++ code ++ [Target 0]
+> translate (Prog decl procs stmts) = body  ++ [Jump 0] ++ code ++ [Target 0]
 >       where tstore = tstore' decl []
 >             tstore' [] st = st
 >             tstore' ((v, t):vs) st = tstore' vs (setValT v t st)
 >             (vtable, code, n) = transprocs procs tstore 1
+>             body = trans stmts tstore vtable n
 
 To ensure that every label has a unique label each statement to be translated
 will be allocated 2 labels to be unique to it by incrementing the label counter `n`.
@@ -120,7 +127,7 @@ makes for much more plumbing code to make sure the next translation gets the new
 > trans :: [Stmt] -> TStore -> VTable -> Label -> Code
 > trans [] _ _ _ = []
 > trans stmts tstore vtable n = code
->       where checked = check stmts tstore
+>       where checked = check stmts tstore vtable
 >             (code, _) = transn checked vtable n
 >
 > transn :: [Stmt] -> VTable -> Label -> (Code, Int)
@@ -159,6 +166,16 @@ makes for much more plumbing code to make sure the next translation gets the new
 > transexp (ConNot exp) = (transexp exp) ++ [BoolOp Not]
 > transexp (Con op e1 e2) = transexp e1 ++ transexp e2 ++ [BoolOp op]
 
+A procedure is translated in a similar fashion to how the body of the
+program is translated. This includes the static checking of variables.
+The main difference is that the entire procedure is wrapped in a `Target`
+with the label of the procedure given from the `VTable` and a `StackJump`
+to return back to the call site.
+The call site is a `Call <procedure name>` statement in the AST which
+is translated into storing the return site's label into the stack, jumping and completing
+the procedure to be jumped back to the return site's label which is after the jump to
+the procedure.
+
 > transprocs :: [Proc] -> TStore -> Label -> (VTable, Code, Int)
 > transprocs [] _ n = ([], [], n)
 > transprocs procs ts n =  (vtable, code, nn)
@@ -173,7 +190,7 @@ makes for much more plumbing code to make sure the next translation gets the new
 > transproc :: Proc -> TStore -> VTable -> Label -> (Code, Int)
 > transproc (Proc _ []) _ _ n = ([], n)
 > transproc (Proc _ stmts) ts vt n = ([Target n] ++ code ++ [StackJump], nn)
->               where checked = check stmts ts
+>               where checked = check stmts ts vt
 >                     (code, nn) =  (transn checked vt (n+1))
 
 
@@ -184,36 +201,44 @@ These include only assigning a variable once, only having one type for a variabl
 operators being constricted to their types and not being able to declare a variable twice.
 `checks` returns a Result ADT which has `Ok` and `Err` so the errors are wrapped and can
 be folding & checked by `foldres` so `Err`'s can bubble up. An alternative architecture
-would be just throw hard errors. However `check` does throw the `Err` as a hard error
-because pluming up higher would
+would be just throw hard errors. However `check` does throw the `Err` as a hard error.
+The `check` function returns the statements that have been validated so it can easily
+be used just before the statements are translated in the body or procedures.
 
 > data Result = Ok | Err [Char]
 >               deriving (Eq, Show)
 >
-> check :: [Stmt] -> TStore -> [Stmt]
-> check [] _ = []
-> check stmts ts = stmts' (checks stmts ts)
+> check :: [Stmt] -> TStore -> VTable -> [Stmt]
+> check [] _ _ = []
+> check stmts ts vt = stmts' (checks stmts ts vt)
 >           where stmts' (Ok) = stmts
 >                 stmts' (Err e) = error e
 >
-> checks :: [Stmt] -> TStore -> Result
-> checks [] ss = Ok
-> checks ((Call _):ss) s = Ok
-> checks ((Asgn v e):ss) store = foldres [has, ty, res]
+> checks :: [Stmt] -> TStore -> VTable -> Result
+> checks [] ss vt = Ok
+> checks ((Call name):ss) s vt = foldres [has, res]
+>       where res = checks ss s vt
+>             has
+>               | hasVal name vt = Ok
+>               | otherwise = Err (name ++ " procedure does not exist")
+>
+> checks ((Asgn v e):ss) store vt = foldres [has, ty, res]
 >       where has
 >               | hasVal v store == False = Err ("variable '" ++ [v] ++ "' is not declared")
 >               | otherwise = Ok
 >             ty = checkexp e (getVal v store) store
->             res = checks ss store
-> checks ((While e loop):ss) store = foldres [exp, t, res]
+>             res = checks ss store vt
+>
+> checks ((While e loop):ss) store vt = foldres [exp, t, res]
 >       where exp = checkexp e TBool store
->             t = checks loop store
->             res =  checks ss store
-> checks ((If e succ fail):ss) store = foldres [exp, suc, fai, res]
+>             t = checks loop store vt
+>             res =  checks ss store vt
+>
+> checks ((If e succ fail):ss) store vt = foldres [exp, suc, fai, res]
 >           where exp = checkexp e TBool store
->                 suc = checks succ store
->                 fai = checks fail store
->                 res = checks ss store
+>                 suc = checks succ store vt
+>                 fai = checks fail store vt
+>                 res = checks ss store vt
 
 `foldres` takes a list of results and checks that all of the elements are
 `Ok` otherwise returns the 1st `Err` case.
@@ -256,8 +281,8 @@ the current position and make a backwards jump use the inefficient way of lookin
 start of the VM code. Run time errors are included to ensure correct execution in case
 of bugs in translate.
 
-> exec ((Jump l):_) ss@(_, _, prog) = exec next ss
->   where nx = dropWhile (\ c -> c /= (Target l)) prog
+> exec ((Jump t):_) ss@(_, _, prog) = exec next ss
+>   where nx = dropWhile (\ c -> c /= (Target t)) prog
 >         next
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
@@ -268,9 +293,9 @@ the stack to be consumed as the compared value. The Conditional jump (when using
 base) will jump if the value is not equal to 0. Run time errors are included to ensure correct execution in case
 of bugs in translate.
 
-> exec ((ConJump l) : _) ([], _, _) = error "Conditional jump requires an element on the stack"
-> exec ((ConJump l) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
->   where nx = dropWhile (\ c -> c /= (Target x)) prog
+> exec ((ConJump t) : _) ([], _, _) = error "Conditional jump requires an element on the stack"
+> exec ((ConJump t) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
+>   where nx = dropWhile (\ c -> c /= (Target t)) prog
 >         next
 >           | toBool x = cmds
 >           | nx == [] = error "Label not found"
@@ -358,6 +383,8 @@ of expressions.
 
 \subsection{Set Functions}
 
+Generic sets of pairs for easy of use between `TStore`, `Store` and `VTable`
+
 > hasVal :: (Eq a) => a -> [(a, b)]  -> Bool
 > hasVal _ [] = False
 > hasVal a ((x, _):xs)
@@ -370,18 +397,20 @@ of expressions.
 >       | a == x = y
 >       | otherwise = getVal a xs
 
-> setValT :: (Eq a) => a -> b -> [(a, b)]  -> [(a, b)]
-> setValT a b [] = [(a, b)]
-> setValT a b (xy@(x, y):xs)
->       | a == x = error "already exists"
->       | otherwise = xy:(setValT a b xs)
-
 > setVal :: (Eq a) => a -> b -> [(a, b)]  -> [(a, b)]
 > setVal a b [] = [(a, b)]
 > setVal a b (xy@(x, y):xs)
 >       | a == x = (x,b):xs
 >       | otherwise = xy:(setVal a b xs)
 
+
+A stronger `setVal` which errors if you override a value
+
+> setValT :: (Eq a) => a -> b -> [(a, b)]  -> [(a, b)]
+> setValT a b [] = [(a, b)]
+> setValT a b (xy@(x, y):xs)
+>       | a == x = error "already exists"
+>       | otherwise = xy:(setValT a b xs)
 
 \section{Testing}
 
@@ -401,11 +430,13 @@ Some examples for testing
 
 Static checks tests
 
-> useBeforeDecl = checks [(Asgn 'a' (Const 0))] [] == Err "variable 'a' is not declared"
-> assgnVar      = checks [(Asgn 'a' (Const 0))] [('a', TInt)]  == Ok
-> misAssgnVar   = checks [(Asgn 'a' (Const 0))] [('a', TBool)] == Err "Const expects Int type"
-> opWrongType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TInt)] == Err "incorrect usage of types"
-> opRightType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TBool)] == Ok
+> useBeforeDecl = checks [(Asgn 'a' (Const 0))] [] [] == Err "variable 'a' is not declared"
+> assgnVar      = checks [(Asgn 'a' (Const 0))] [('a', TInt)] []  == Ok
+> misAssgnVar   = checks [(Asgn 'a' (Const 0))] [('a', TBool)] [] == Err "Const expects Int type"
+> opWrongType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TInt)] [] == Err "incorrect usage of types"
+> opRightType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TBool)] [] == Ok
+> noProcuder    = checks [(Call "hs")] [] [] == Err "hs procedure does not exist"
+> hasProcuder   = checks [(Call "hs")] [] [("hs", 1)] == Ok
 
 > main = do
 >
@@ -417,6 +448,8 @@ Static checks tests
 >   print(misAssgnVar)
 >   print(opWrongType)
 >   print(opRightType)
+>   print(noProcuder)
+>   print(hasProcuder)
 >
 >   putStr("\n\nTest program\n")
 >   print(translate p1)
