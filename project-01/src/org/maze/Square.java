@@ -27,9 +27,6 @@ class Square {
         neighbours[Direction.East.toInt()] = east;
         neighbours[Direction.South.toInt()] = south;
         neighbours[Direction.West.toInt()] = west;
-
-        // init marks map
-        possiblePaths().forEach(d -> marks.put(d, Mark.NONE));
     }
 
     public @NotNull Tile getTile() {

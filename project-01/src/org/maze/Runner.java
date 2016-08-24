@@ -1,6 +1,7 @@
 package org.maze;
 
 import java.io.*;
+import java.util.Stack;
 
 public class Runner {
     public static void main(String[] args) {
@@ -10,14 +11,16 @@ public class Runner {
 
         try {
             Maze maze = MazeReader.fromFile(new File(args[0]));
-            maze.addCrawler(new Crawler(maze.getStartingPoint(), Direction.East, 1));
+            maze.addCrawler(new Crawler(maze.getStartingPoint(), Direction.West, 100, new Stack<>()));
 
             do {
                 maze.step();
-                System.out.println("Completed Step\n");
                 maze.display();
+                System.out.println("Completed Step\n");
+
             } while (!maze.isComplete());
 
+            maze.display();
         } catch (IOException e) {
             e.printStackTrace();
         }
