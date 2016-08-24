@@ -6,7 +6,9 @@ A straight line program is just a list of assignment statements, where an
 expression can contain variables, integer constants and arithmetic operators.
 
 > import qualified Data.List as L
-> data Prog = Prog Decl [Proc] [Stmt]
+> data Prog = Prog [Proc] Body
+>             deriving (Show)
+> data Body = Body Decl [Stmt]
 >             deriving (Show)
 
 While is added as an expression and a list of statements to always have the ability to
@@ -35,7 +37,7 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 >           deriving (Show, Eq)
 
 > type ProcName = [Char]
-> data Proc = Proc ProcName [Stmt]
+> data Proc = Proc ProcName Decl Body
 >       deriving (Show)
 
 The declaration section contains a pair of variable names and types
@@ -56,6 +58,7 @@ The store is a list of variable names and their values.  For now, a variable
 now is just a single character and a value is an integer.
 
 > type Store = [(Var, Val)]
+> type StoreStack = [Store]
 > type Var = Char
 > type Label = Int
 > type Val = Int
@@ -80,7 +83,9 @@ the result).
 >              | Target Label  -- jump target
 >              | Jump Label    -- jump to label target
 >              | ConJump Label -- jump to label target if Var == 0
->              | StackJump
+>              | StackJump     -- jump to label which is stored on the stack
+>              | PushScope     -- push current scope onto scope stack
+>              | PopScope      -- override current scope with top of scope stack
 >               deriving (Show, Eq)
 >
 > type Stack = [Int]
@@ -95,9 +100,9 @@ initial store.
 \subsection{run}
 
 > run :: Prog -> Store
-> run prog = snd (exec code ([], [], code))
+> run prog = snd (exec code ([], [], [], code))
 >      	     where code = translate prog
->      	           snd (_, s, _) = s
+>      	           snd (_, s, _, _) = s
 
 \section{Translate}
 
@@ -110,11 +115,11 @@ All of the variables and procedures are translated before the main body
 so all the critical information is present for checking and translating.
 
 > translate :: Prog -> Code
-> translate (Prog decl procs stmts) = body  ++ [Jump 0] ++ code ++ [Target 0]
+> translate (Prog procs (Body decl stmts)) = body  ++ [Jump 0] ++ code ++ [Target 0]
 >       where tstore = tstore' decl []
 >             tstore' [] st = st
 >             tstore' ((v, t):vs) st = tstore' vs (setValT v t st)
->             (vtable, code, n) = transprocs procs tstore 1
+>             (vtable, code, n) = transprocs procs 1
 >             body = trans stmts tstore vtable n
 
 To ensure that every label has a unique label each statement to be translated
@@ -139,7 +144,7 @@ makes for much more plumbing code to make sure the next translation gets the new
 > trans' :: Stmt -> VTable -> Label -> (Code, Int)
 > trans' (Asgn var exp) vt n = ((transexp exp) ++ [Store var], n)
 >
-> trans' (Call proc) vt n = ([LoadI n, Jump p, Target n], n + 1)
+> trans' (Call proc) vt n = ([LoadI n, PushScope, Jump p, Target n, PopScope], n + 1)
 >                   where p | not (hasVal proc vt) = error (proc ++ " not found") | otherwise = getVal proc vt
 >
 > trans' (While exp loop) vt n = (cmds, label)
@@ -176,20 +181,23 @@ is translated into storing the return site's label into the stack, jumping and c
 the procedure to be jumped back to the return site's label which is after the jump to
 the procedure.
 
-> transprocs :: [Proc] -> TStore -> Label -> (VTable, Code, Int)
-> transprocs [] _ n = ([], [], n)
-> transprocs procs ts n =  (vtable, code, nn)
->               where (vtable, code, nn) = transprocn procs ts [] [] n
+> transprocs :: [Proc] -> Label -> (VTable, Code, Int)
+> transprocs [] n = ([], [], n)
+> transprocs procs n =  (vtable, code, nn)
+>               where (vtable, code, nn) = transprocn procs [] [] n
 >
-> transprocn :: [Proc] -> TStore -> VTable -> Code -> Label -> (VTable, Code, Int)
-> transprocn [] ts vt code n = (vt, code, n)
-> transprocn (p@(Proc name _):ps) ts vt c n = transprocn ps ts vtable (c ++ code) nn
+> transprocn :: [Proc] -> VTable -> Code -> Label -> (VTable, Code, Int)
+> transprocn [] vt code n = (vt, code, n)
+> transprocn (p@(Proc name params (Body decl _)):ps) vt c n = transprocn ps vtable (c ++ code) nn
 >           where (code, nn) = transproc p ts vtable n
 >                 vtable = setValT name n vt
+>                 ts = tstore' (params ++ decl) []
+>                 tstore' [] st = st
+>                 tstore' ((v, t):vs) st = tstore' vs (setValT v t st)
 >
 > transproc :: Proc -> TStore -> VTable -> Label -> (Code, Int)
-> transproc (Proc _ []) _ _ n = ([], n)
-> transproc (Proc _ stmts) ts vt n = ([Target n] ++ code ++ [StackJump], nn)
+> transproc (Proc _ _ (Body _ [])) _ _ n = ([], n)
+> transproc (Proc _ _ (Body _ stmts)) ts vt n = ([Target n] ++ code ++ [StackJump], nn)
 >               where checked = check stmts ts vt
 >                     (code, nn) =  (transn checked vt (n+1))
 
@@ -270,7 +278,7 @@ if it is the correct type.
 
 Execute a stack code program
 
-> exec :: Code -> (Stack, Store, Code) -> (Stack, Store, Code)
+> exec :: Code -> (Stack, Store, StoreStack, Code) -> (Stack, Store, StoreStack, Code)
 > exec [] ss = ss
 
 The Jump statement enables movement around the Code and is required in
@@ -281,34 +289,50 @@ the current position and make a backwards jump use the inefficient way of lookin
 start of the VM code. Run time errors are included to ensure correct execution in case
 of bugs in translate.
 
-> exec ((Jump t):_) ss@(_, _, prog) = exec next ss
+> exec ((Jump t):_) ss@(_, _, _, prog) = exec next ss
 >   where nx = dropWhile (\ c -> c /= (Target t)) prog
 >         next
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
 
-Conditional jump is implemented using the same mechainics as the Jump statement.
+Conditional jump is implemented using the same mechanics as the Jump statement.
 This was done for ease of use. The Conditional jump relies on there being a value on
 the stack to be consumed as the compared value. The Conditional jump (when using Int's as
 base) will jump if the value is not equal to 0. Run time errors are included to ensure correct execution in case
 of bugs in translate.
 
-> exec ((ConJump t) : _) ([], _, _) = error "Conditional jump requires an element on the stack"
-> exec ((ConJump t) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
+> exec ((ConJump t) : _) ([], _, _, _) = error "Conditional jump requires an element on the stack"
+> exec ((ConJump t) : cmds) (x:stack, store, sstack, prog) = exec next (stack, store, sstack, prog)
 >   where nx = dropWhile (\ c -> c /= (Target t)) prog
 >         next
 >           | toBool x = cmds
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
 >
-> exec ((StackJump) : _) ([], _, _) = error "StackJump requires an element in the stack"
-> exec ((StackJump) : cmds) (x:stack, store, prog) = exec next (stack, store, prog)
+> exec ((StackJump) : _) ([], _, _, _) = error "StackJump requires an element in the stack"
+> exec ((StackJump) : cmds) (x:stack, store, sstack, prog) = exec next (stack, store, sstack, prog)
 >   where nx = dropWhile (\ c -> c /= (Target x)) prog
 >         next
 >           | nx == [] = error "Label not found"
 >           | otherwise = tail nx
+
+PushScope and PopScope are two commands to control the current scope of the store and allow
+for having the same name variables in both a procedure and the main body and not mutate each other.
+The main motivation for making this a pair of commands is so looking at the VM code it is obvious where
+the scopes change. A possible alternative for scopes would be adding a scope label to each value in the
+store and increment the scope label when you enter a new scope by would cause difficulties when leaving
+a scope as you would have to remove all elements in the store that correlate to the scope, however
+it would be easier to implement looking up through scopes to find a variable, such as in an if statement
+trying to access a variable defined outside of its inner-scope.
+
+> exec ((PushScope) : cmds) (stack, store, sstack, prog)  = exec cmds (stack, [], store:sstack, prog)
+> exec ((PopScope) : cmds) (stack, _, store:sstack, prog) = exec cmds (stack, store, sstack, prog)
 >
-> exec (cmd : cmds) ss = exec cmds (exec' cmd ss)
+> exec (cmd : cmds) ss = exec cmds exece
+>               where ss' = (a, b, c)
+>                     (a, b, s, c) = ss
+>                     (x, y, z) = exec' cmd ss'
+>                     exece = (x, y, s, z)
 
 > exec' :: Command -> (Stack, Store, Code) -> (Stack, Store, Code)
 > exec' (LoadI n) (stack, store, p) = (n:stack, store, p)
@@ -422,11 +446,13 @@ Some examples for testing
 > s1 = Asgn 'b' (ConstB False)
 > s2 = Asgn 'a' (Const 0)
 > s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1)), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1))]]
-> p1 = Prog decl [] [s1, s2, s3]
+> p1 = Prog [] (Body decl  [s1, s2, s3])
+> p2 = Prog [(Proc "10" [] (Body [('b', TInt)] [(Asgn 'b' (Const 10))]))] (Body [('a', TBool)] [(Asgn 'a' (ConstB False)), (Call "10")])
 
-> testIfTrue    = run (Prog [('a', TInt), ('b', TBool)] [] [(Asgn 'b' (ConstB True)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 1), ('a', 10)]
-> testIfFalse   = run (Prog [('a', TInt), ('b', TBool)] [] [(Asgn 'b' (ConstB False)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]]) == [('b', 0), ('a', 0)]
-> callsProc = run (Prog [('a', TInt)] [(Proc "10" [(Asgn 'a' (Const 10))])] [(Asgn 'a' (Const 0)), (Call "10")]) == [('a', 10)]
+> testIfTrue  = run (Prog [] (Body [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB True)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]])) == [('b', 1), ('a', 10)]
+> testIfFalse = run (Prog [] (Body [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB False)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]])) == [('b', 0), ('a', 0)]
+> callsProc   = run (Prog [(Proc "10" [] (Body [('a', TInt)] [(Asgn 'a' (Const 10))]))] (Body [('a', TInt)]  [(Asgn 'a' (Const 0)), (Call "10")])) == [('a', 0)]
+> callsProc2  = run p2 == [('a', 0)]
 
 Static checks tests
 
@@ -444,6 +470,7 @@ Static checks tests
 >   print(testIfTrue)
 >   print(testIfFalse)
 >   print(callsProc)
+>   print(callsProc2)
 >
 >   print(useBeforeDecl)
 >   print(assgnVar)
@@ -454,5 +481,4 @@ Static checks tests
 >   print(hasProcuder)
 >
 >   putStr("\n\nTest program\n")
->   print(translate p1)
->   print(run p1)
+>   print(translate p2)
