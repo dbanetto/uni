@@ -22,7 +22,7 @@ allow them to be wrapped with the necessary jump statements to give the correct 
 > data Stmt = Asgn Var Exp
 >      	    | While Exp [Stmt]
 >      	    | If Exp [Stmt] [Stmt]
->      	    | Call ProcName
+>      	    | Call ProcName [Exp]
 >             deriving (Show)
 
 > data Exp = Const Val
@@ -90,7 +90,7 @@ the result).
 >
 > type Stack = [Int]
 > type TStore = [(Var, Type)]
-> type VTable = [(ProcName, Label)]
+> type VTable = [(ProcName, (Label, TStore))]
 
 Run a program, by compiling and then executing the resulting code
 The program is run with an initially empty store and empty stack, and the
@@ -144,8 +144,12 @@ makes for much more plumbing code to make sure the next translation gets the new
 > trans' :: Stmt -> VTable -> Label -> (Code, Int)
 > trans' (Asgn var exp) vt n = ((transexp exp) ++ [Store var], n)
 >
-> trans' (Call proc) vt n = ([LoadI n, PushScope, Jump p, Target n, PopScope], n + 1)
->                   where p | not (hasVal proc vt) = error (proc ++ " not found") | otherwise = getVal proc vt
+> trans' (Call proc exps) vt n = ((code exps []) ++ [LoadI n, PushScope, Jump p, Target n, PopScope], n + 1)
+>                   where code [] c = c
+>                         code (e:es) c = code es (c ++ transexp e)
+>                         p
+>                          | not (hasVal proc vt) = error (proc ++ " not found")
+>                          | otherwise = fst (getVal proc vt)
 >
 > trans' (While exp loop) vt n = (cmds, label)
 >       where cmds = [Target start] ++ (transexp exp) ++ [ConJump end] ++ loopstmts ++ [Jump start, Target end]
@@ -190,7 +194,8 @@ the procedure.
 > transprocn [] vt code n = (vt, code, n)
 > transprocn (p@(Proc name params (Body decl _)):ps) vt c n = transprocn ps vtable (c ++ code) nn
 >           where (code, nn) = transproc p ts vtable n
->                 vtable = setValT name n vt
+>                 vtable = setValT name (n, paramts) vt
+>                 paramts = tstore' (params) []
 >                 ts = tstore' (params ++ decl) []
 >                 tstore' [] st = st
 >                 tstore' ((v, t):vs) st = tstore' vs (setValT v t st)
@@ -224,8 +229,15 @@ be used just before the statements are translated in the body or procedures.
 >
 > checks :: [Stmt] -> TStore -> VTable -> Result
 > checks [] ss vt = Ok
-> checks ((Call name):ss) s vt = foldres [has, res]
+> checks ((Call name params):ss) s vt = foldres ([has, correctParams] ++ (exps params expts []) ++ [res])
 >       where res = checks ss s vt
+>             expts = snd (getVal name vt)
+>             correctParams
+>               | length expts == length params = Ok
+>               | otherwise = Err "Incorrect number of parameters"
+>             exps [] [] c = c
+>             exps (e:es) ((_, t):ets) c = exps es ets ((checkexp e t s):c)
+>
 >             has
 >               | hasVal name vt = Ok
 >               | otherwise = Err (name ++ " procedure does not exist")
@@ -447,11 +459,12 @@ Some examples for testing
 > s2 = Asgn 'a' (Const 0)
 > s3 = While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1)), While (Var 'b') [Asgn 'a' (Bin Plus (Var 'a') (Const 1))]]
 > p1 = Prog [] (Body decl  [s1, s2, s3])
-> p2 = Prog [(Proc "10" [] (Body [('b', TInt)] [(Asgn 'b' (Const 10))]))] (Body [('a', TBool)] [(Asgn 'a' (ConstB False)), (Call "10")])
+> p2 = Prog [(Proc "10" [] (Body [('b', TInt)] [(Asgn 'b' (Const 10))]))] (Body [('a', TBool)] [(Asgn 'a' (ConstB False)), (Call "10" [])])
+> p3 = Prog [(Proc "x" [('x', TInt)] (Body [] [(Asgn 'x' (Const 10))]))] (Body [('a', TInt)] [(Asgn 'a' (Const 0)), (Call "x" [(Var 'a')])])
 
 > testIfTrue  = run (Prog [] (Body [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB True)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]])) == [('b', 1), ('a', 10)]
 > testIfFalse = run (Prog [] (Body [('a', TInt), ('b', TBool)] [(Asgn 'b' (ConstB False)), If (Var 'b') [(Asgn 'a' (Const 10))] [(Asgn 'a' (Const 0))]])) == [('b', 0), ('a', 0)]
-> callsProc   = run (Prog [(Proc "10" [] (Body [('a', TInt)] [(Asgn 'a' (Const 10))]))] (Body [('a', TInt)]  [(Asgn 'a' (Const 0)), (Call "10")])) == [('a', 0)]
+> callsProc   = run (Prog [(Proc "10" [] (Body [('a', TInt)] [(Asgn 'a' (Const 10))]))] (Body [('a', TInt)]  [(Asgn 'a' (Const 0)), (Call "10" [])])) == [('a', 0)]
 > callsProc2  = run p2 == [('a', 0)]
 
 Static checks tests
@@ -461,8 +474,8 @@ Static checks tests
 > misAssgnVar   = checks [(Asgn 'a' (Const 0))] [('a', TBool)] [] == Err "Const expects Int type"
 > opWrongType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TInt)] [] == Err "incorrect usage of types"
 > opRightType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TBool)] [] == Ok
-> noProcuder    = checks [(Call "hs")] [] [] == Err "hs procedure does not exist"
-> hasProcuder   = checks [(Call "hs")] [] [("hs", 1)] == Ok
+> noProcuder    = checks [(Call "hs" [])] [] [] == Err "hs procedure does not exist"
+> hasProcuder   = checks [(Call "hs" [])] [] [("hs", (1, []))] == Ok
 
 > main = do
 >
