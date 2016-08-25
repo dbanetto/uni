@@ -53,6 +53,7 @@ public class Crawler {
             if (!pathTaken.isEmpty()) {
                 pathTaken.pop();
             }
+            attemptMerge(maze);
 
         } else {
             possibilities.remove(from);
@@ -63,6 +64,7 @@ public class Crawler {
 
             if (!golden.isEmpty()) {
                 move(golden.get(0));
+                attemptMerge(maze);
             } else if (!unvisited.isEmpty()) {
                 splitAtIntersection(maze, unvisited);
 
@@ -73,9 +75,13 @@ public class Crawler {
 
 
         if (!isAtGoal()) {
-            maze.addCrawler(this);
+            // let 0 zero groups die out
+            if (this.groupSize > 0) {
+                maze.addCrawler(this);
+            }
         } else {
             maze.addCompletedCrawler(this);
+            // won't be taking next step so store it now
             pathTaken.push(from);
         }
     }
@@ -94,7 +100,9 @@ public class Crawler {
             splitGroup.move(moving);
             location.getMarks().putIfAbsent(splitGroup.from, Mark.ALIVE);
 
-            maze.addCrawler(splitGroup);
+            if (!attemptMerge(maze)) {
+                maze.addCrawler(splitGroup);
+            }
         }
 
         Direction moving = options.remove(0);
@@ -103,6 +111,20 @@ public class Crawler {
         location.getMarks().putIfAbsent(from, Mark.ALIVE);
 
         groupSize = groupSize - (split * (groups - 1));
+        attemptMerge(maze);
+    }
+
+    private boolean attemptMerge(Maze maze) {
+        Optional<Crawler> collision = maze.getCrawlerAt(location, this);
+
+        if (collision.isPresent()) {
+            Crawler merged = collision.get();
+            merged.groupSize += this.groupSize;
+            this.groupSize = 0;
+            System.out.println("Merged with another group!");
+            return true;
+        }
+        return false;
     }
 
     public boolean isAtGoal() {
@@ -124,5 +146,11 @@ public class Crawler {
         return location.equals(this.location);
     }
 
-
+    @Override
+    public String toString() {
+        return "Crawler{" +
+                "from=" + from +
+                ", groupSize=" + groupSize +
+                '}';
+    }
 }

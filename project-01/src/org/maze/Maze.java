@@ -6,6 +6,7 @@ public class Maze {
     private final Square[][] grid;
     private List<Crawler> crawlers;
     private List<Crawler> crawlersBuffer;
+
     private List<Crawler> completed;
 
     private boolean runComplete = false;
@@ -60,9 +61,8 @@ public class Maze {
         for (int x = 0 ; x < grid.length; x++) {
             for (int y = 0 ; y < grid[x].length; y++) {
                 Square square = grid[x][y];
-                Optional<Crawler> crawler = crawlers.stream().filter(c -> c.isAt(square)).findFirst();
+                Optional<Crawler> crawler = getCrawlerAt(square, null);
                 Optional<Crawler> complete = completed.stream().filter(c -> c.isAt(square)).findFirst();
-
 
                 if (crawler.isPresent()) {
                     System.out.print('C');
@@ -78,8 +78,8 @@ public class Maze {
         }
     }
 
-    private Optional<Crawler> getCrawlerAt(Square location) {
-        return crawlers.stream().filter(c -> c.isAt(location)).findFirst();
+    public Optional<Crawler> getCrawlerAt(Square location, Crawler not) {
+        return crawlers.stream().filter(c -> c != not && c.isAt(location)).findFirst();
     }
 
 }
