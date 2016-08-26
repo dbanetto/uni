@@ -1,20 +1,24 @@
 package org.maze;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class Crawler {
     private Square location;
     private Direction from;
-    private int groupSize;
+    private AtomicInteger groupSize;
+
+
+
+    private boolean isGolden;
     private final Stack<Direction> pathTaken;
 
     public Crawler(Square starting, Direction from, int groupSize, Stack<Direction> path) {
         location = starting;
-        this.groupSize = groupSize;
+        this.groupSize = new AtomicInteger(groupSize);
         if (groupSize < 1) {
             throw new IllegalArgumentException();
         }
@@ -22,18 +26,31 @@ public class Crawler {
         pathTaken = (Stack<Direction>)path.clone();
     }
 
-    public void goldStep(Maze maze) {
-        System.out.println("Runner:" + pathTaken);
+    public boolean goldStep(Maze maze) {
+        // System.out.println("Runner:" + pathTaken);
         if (!pathTaken.empty()) {
             Direction next = pathTaken.pop();
+            location.getMarks().put(from, Mark.GOLD);
             move(next);
             location.getMarks().put(from, Mark.GOLD);
+
         } else {
-            maze.addCrawler(this);
+            maze.completedGoldCrawl(this);
+            this.isGolden = false;
         }
+        return true;
     }
 
-    public void step(Maze maze) {
+    public boolean step(Maze maze) {
+
+        if (this.isGolden) {
+            return goldStep(maze);
+        }
+
+        if (groupSize.get() < 1) {
+            location.getPerson().compareAndSet(this, null);
+            return false;
+        }
 
         List<Direction> possibilities = location.possiblePaths()
                 .stream()
@@ -45,6 +62,7 @@ public class Crawler {
         }
 
         if (possibilities.size() == 1) {
+
             Direction moving = possibilities.get(0);
 
             location.getMarks().put(moving, Mark.ALIVE);
@@ -53,7 +71,6 @@ public class Crawler {
             if (!pathTaken.isEmpty()) {
                 pathTaken.pop();
             }
-            attemptMerge(maze);
 
         } else {
             possibilities.remove(from);
@@ -64,93 +81,130 @@ public class Crawler {
 
             if (!golden.isEmpty()) {
                 move(golden.get(0));
-                attemptMerge(maze);
             } else if (!unvisited.isEmpty()) {
                 splitAtIntersection(maze, unvisited);
 
             } else if (!alive.isEmpty()) {
                 splitAtIntersection(maze, alive);
+
             }
+
         }
 
 
-        if (!isAtGoal()) {
-            // let 0 zero groups die out
-            if (this.groupSize > 0) {
-                maze.addCrawler(this);
-            }
-        } else {
-            maze.addCompletedCrawler(this);
-            // won't be taking next step so store it now
+        if (isAtGoal(maze)) {
+            maze.completedCrawl(this);
             pathTaken.push(from);
+            return false;
         }
+        return true;
     }
 
     private void splitAtIntersection(Maze maze, List<Direction> options) {
+        int groupSize, groups, split, newGroupSize;
 
-        // groupSize >= options
-        int groups = Math.min(groupSize, options.size());
-        int split = Math.round((float)groupSize / (float)groups);
+        do {
+            groupSize = this.groupSize.get();
+            groups = Math.min(groupSize, options.size());
+            split = Math.round((float) groupSize / (float) groups);
+
+
+
+            newGroupSize = groupSize - (split * (groups - 1));
+
+        } while(!this.groupSize.compareAndSet(groupSize, newGroupSize));
+
+        if (split == 0 || groupSize == 0) {
+            System.out.print("AAHHH");
+        }
 
         for (int i = 1; i < groups; i++) {
             Direction moving = options.remove(0);
             Crawler splitGroup = new Crawler(location, from, split, pathTaken);
 
-            location.getMarks().putIfAbsent(moving, Mark.ALIVE);
+            splitGroup.getLocation().getMarks().putIfAbsent(moving, Mark.ALIVE);
             splitGroup.move(moving);
-            location.getMarks().putIfAbsent(splitGroup.from, Mark.ALIVE);
+            splitGroup.getLocation().getMarks().putIfAbsent(splitGroup.from, Mark.ALIVE);
 
-            if (!attemptMerge(maze)) {
-                maze.addCrawler(splitGroup);
-            }
+            maze.addCrawler(splitGroup);
         }
 
         Direction moving = options.remove(0);
         location.getMarks().putIfAbsent(moving, Mark.ALIVE);
         move(moving);
         location.getMarks().putIfAbsent(from, Mark.ALIVE);
-
-        groupSize = groupSize - (split * (groups - 1));
-        attemptMerge(maze);
     }
 
-    private boolean attemptMerge(Maze maze) {
-        Optional<Crawler> collision = maze.getCrawlerAt(location, this);
-
-        if (collision.isPresent()) {
-            Crawler merged = collision.get();
-            merged.groupSize += this.groupSize;
-            this.groupSize = 0;
-            System.out.println("Merged with another group!");
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isAtGoal() {
-        return Arrays.stream(Direction.values()).anyMatch(d -> location.getNeighbour(d) == null);
+    public boolean isAtGoal(Maze maze) {
+        return maze.getExits().stream().anyMatch(this::isAt);
     }
 
     private void move(Direction direction) {
-        System.out.println(this + " moved " + direction);
+        //System.out.println(this + " moved " + direction);
 
         from = direction.turnAround();
-        location = location.getNeighbour(direction);
+        Square movingTo = location.getNeighbour(direction);
 
-        if (location == null) {
-            throw new IllegalStateException("Moved to null tile");
+        if (attemptMerge(location.getPerson(), movingTo.getPerson())) {
+            location = movingTo;
         }
+
+    }
+
+    private boolean attemptMerge(AtomicReference<Crawler> from, AtomicReference<Crawler> to) {
+        Crawler mergeTo = to.get();
+
+        if (mergeTo == null) {
+            if (!to.compareAndSet(null, this)) {
+                return false;
+            }
+            //System.out.println("Smooth sailing");
+        } else if (this.isGolden) {
+            //System.out.println("GOLD!");
+            return false;
+        }  else {
+            //System.out.println("MERGE!");
+            int toGroupSize, mergedGroupSize, fromGroupSize;
+
+            toGroupSize = mergeTo.getGroupSize().get();
+            fromGroupSize = this.groupSize.get();
+
+            mergedGroupSize = toGroupSize + fromGroupSize;
+
+            if (to.get() != mergeTo) {
+                return false;
+            }
+            if (!this.groupSize.compareAndSet(fromGroupSize, 0)) {
+                return false;
+            }
+            if (!mergeTo.getGroupSize().compareAndSet(toGroupSize, mergedGroupSize)) {
+                this.groupSize.compareAndSet(0, fromGroupSize);
+                return false;
+            }
+            //System.out.println("MERGE COMPLETE!");
+        }
+
+        from.compareAndSet(this, null);
+        return true;
     }
 
     public boolean isAt(Square location) {
         return location.equals(this.location);
     }
 
-    @Override
-    public String toString() {
-        return "Crawler{" +
-                "from=" + from +
-                ", groupSize=" + groupSize +
-                '}';
+    public boolean isGolden() {
+        return isGolden;
+    }
+
+    public void setGolden(boolean golden) {
+        isGolden = golden;
+    }
+
+    public Square getLocation() {
+        return location;
+    }
+
+    public AtomicInteger getGroupSize() {
+        return groupSize;
     }
 }

@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.Scanner;
 
 public class MazeReader {
-    public static Maze fromFile(File mazeFile) throws IOException {
+    public static Maze fromFile(File mazeFile, int groupSize) throws IOException {
         FileReader stream = new FileReader(mazeFile);
         BufferedReader reader = new BufferedReader(stream);
 
@@ -15,7 +15,7 @@ public class MazeReader {
         int size = settingsScanner.nextInt();
         int startY = settingsScanner.nextInt();
         int startX = settingsScanner.nextInt();
-        System.out.printf("Size: %d, Entry: (%d, %d)\n", size, startX, startY);
+        // System.out.printf("Size: %d, Entry: (%d, %d)\n", size, startX, startY);
 
         grid = new Square[size][size];
 
@@ -24,12 +24,11 @@ public class MazeReader {
         while (reader.ready()) {
             String line = reader.readLine();
             for (char ele : line.toCharArray()) {
-                grid[y][x] = fromCharacter(ele);
+                grid[y][x] = fromCharacter(ele, x, y);
                 x++;
             }
             y++;
             x = 0;
-            System.out.println(line);
         }
 
         // link up all the squares
@@ -53,15 +52,15 @@ public class MazeReader {
             }
         }
 
-        return new Maze(grid, startX, startY);
+        return new Maze(grid, groupSize, startX, startY);
     }
 
-    private static Square fromCharacter(char tile) {
+    private static Square fromCharacter(char tile, int x, int y) {
         switch (tile) {
             case 'X':
-                return new Square(Tile.WALL);
+                return new Square(Tile.WALL, x ,y);
             case ' ':
-                return new Square(Tile.SPACE);
+                return new Square(Tile.SPACE, x, y);
             default:
                 throw new IllegalArgumentException("Unexpected tile: " + tile);
         }
