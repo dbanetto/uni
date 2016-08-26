@@ -60,7 +60,9 @@ public class Runner {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                System.out.print(".");
             }
+            System.out.print("\n");
 
             double avgTime = (double)(samples.stream().reduce(0L, (a, b) -> a + b )) / (double)sampleSize;
             System.out.printf("Took %fms with to get all %d friends to the pub\n", avgTime, friends);

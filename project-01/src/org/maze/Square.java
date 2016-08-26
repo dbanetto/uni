@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 class Square {
@@ -24,7 +25,7 @@ class Square {
 
     public Square(@NotNull Tile tile, int x, int y) {
         this.tile = tile;
-        this.marks = new HashMap<>();
+        this.marks = new ConcurrentHashMap<>(4);
         this.x = x;
         this.y = y;
         this.person = new AtomicReference<>(null);
@@ -89,7 +90,6 @@ class Square {
 
         if (x != square.x) return false;
         return y == square.y;
-
     }
 
     @Override

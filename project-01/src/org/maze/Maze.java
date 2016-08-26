@@ -1,6 +1,7 @@
 package org.maze;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -23,12 +24,12 @@ public class Maze {
         this.groupSize = groupSize;
         exitGolden = new HashMap<>();
 
-        crawlerQueue = new LinkedBlockingQueue<>();
+        crawlerQueue = new ConcurrentLinkedQueue<>();
     }
 
 
     public synchronized void addCrawler(Crawler crawler) {
-        crawlerQueue.add(crawler);
+        crawlerQueue.offer(crawler);
     }
 
     public void completedCrawl(Crawler crawler) {
@@ -111,7 +112,7 @@ public class Maze {
         return finishes.stream().filter(p -> p.getTile() == Tile.SPACE).collect(Collectors.toList());
     }
 
-    public synchronized void display() {
+    public void display() {
         for (int y = 0; y < grid.length; y++) {
             for (int x = 0; x < grid[y].length; x++) {
                 Square square = grid[y][x];
@@ -122,7 +123,7 @@ public class Maze {
         }
     }
 
-    public synchronized List<Crawler> findWanders() {
+    public List<Crawler> findWanders() {
         List<Crawler> wanders = new ArrayList<>();
         for (int y = 0; y < grid.length; y++) {
             for (int x = 0; x < grid[y].length; x++) {
