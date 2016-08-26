@@ -2,7 +2,7 @@ package org.maze;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -13,7 +13,7 @@ public class Maze {
 
     private final Square starting;
     private final int groupSize;
-    private int exited;
+    private final AtomicInteger exited;
     private final List<Square> exits;
     private final Map<Square, Seeker> exitGolden;
 
@@ -22,47 +22,46 @@ public class Maze {
         this.starting = grid[startY][startX];
         this.exits = buildFinishPoints();
         this.groupSize = groupSize;
-        exitGolden = new HashMap<>();
+        this.exitGolden = new HashMap<>(exits.size());
+        this.exited = new AtomicInteger(0);
+
+        this.exits.forEach(e -> exitGolden.put(e, new Seeker()));
 
         crawlerQueue = new ConcurrentLinkedQueue<>();
     }
 
 
-    public synchronized void addCrawler(Crawler crawler) {
+    public void addCrawler(Crawler crawler) {
         crawlerQueue.offer(crawler);
     }
 
     public void completedCrawl(Crawler crawler) {
-        if (!exitGolden.containsKey(crawler.getLocation())) {
+        Square exitPoint = crawler.getLocation();
+        Seeker exitSeeker = exitGolden.get(exitPoint);
 
-            Seeker out = exitGolden.put(crawler.getLocation(), new Seeker(crawler));
-            if (out != null) {
-                System.out.print("m8");
-            }
+        if (exitSeeker.crawler.compareAndSet(null, crawler)) {
             crawler.setGolden(true);
             addCrawler(crawler);
-        } else {
-            this.exited = exits.stream().mapToInt(e -> {
-                AtomicReference<Crawler> person = e.getPerson();
-                if (person.get() != null) {
-                    return person.get().getGroupSize().get();
-                }
-                return 0;
-            }).sum();
+            return;
         }
+
+        this.exited.addAndGet(crawler.getGroupSize().get());
     }
 
     public void completedGoldCrawl(Crawler crawler) {
-        Map.Entry<Square, Seeker> seeker = exitGolden.entrySet().stream()
-                .filter(e -> e.getValue().crawler == crawler)
-                .findFirst().get();
-        seeker.getValue().complete = true;
+        Optional<Map.Entry<Square, Seeker>> isSeeker = exitGolden.entrySet().stream()
+                .filter(e -> e.getValue().crawler.get() == crawler)
+                .findFirst();
 
-        exitGolden.put(seeker.getKey(), seeker.getValue());
+        if (isSeeker.isPresent()) {
+            Map.Entry<Square, Seeker> seeker = isSeeker.get();
+            seeker.getValue().complete = true;
+            exitGolden.put(seeker.getKey(), seeker.getValue());
+        }
     }
 
     public boolean isComplete() {
-        return exited == groupSize;
+        return exited.get() == groupSize;
     }
 
     public Square getStartingPoint() {
@@ -112,6 +111,24 @@ public class Maze {
         return finishes.stream().filter(p -> p.getTile() == Tile.SPACE).collect(Collectors.toList());
     }
 
+
+    public void step() {
+        Crawler crawler = crawlerQueue.poll();
+        if (crawler != null && crawler.step(this)) {
+            crawlerQueue.add(crawler);
+        }
+    }
+
+    private class Seeker {
+        final AtomicReference<Crawler> crawler;
+        boolean complete = false;
+
+        public Seeker() {
+            this.crawler = new AtomicReference<>(null);
+        }
+    }
+
+    // Utility Function which is good for debugging
     public void display() {
         for (int y = 0; y < grid.length; y++) {
             for (int x = 0; x < grid[y].length; x++) {
@@ -123,6 +140,7 @@ public class Maze {
         }
     }
 
+    // Utility Function which is good for debugging
     public List<Crawler> findWanders() {
         List<Crawler> wanders = new ArrayList<>();
         for (int y = 0; y < grid.length; y++) {
@@ -140,21 +158,5 @@ public class Maze {
             }
         }
         return wanders;
-    }
-
-    public void step() {
-        Crawler crawler = crawlerQueue.poll();
-        if (crawler != null && crawler.step(this)) {
-            crawlerQueue.add(crawler);
-        }
-    }
-
-    private class Seeker {
-        final Crawler crawler;
-        boolean complete = false;
-
-        public Seeker(Crawler crawler) {
-            this.crawler = crawler;
-        }
     }
 }

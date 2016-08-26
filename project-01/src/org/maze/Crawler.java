@@ -1,5 +1,6 @@
 package org.maze;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,8 +34,8 @@ public class Crawler {
             Square before = location;
 
             if (move(next)) {
-                before.getMarks().put(from, Mark.GOLD);
-                location.getMarks().put(from, Mark.GOLD);
+                before.getMark(from).set(Mark.GOLD);
+                location.getMark(from).set(Mark.GOLD);
             } else {
                 pathTaken.push(next);
             }
@@ -66,7 +67,7 @@ public class Crawler {
 
         List<Direction> possibilities = location.possiblePaths()
                 .stream()
-                .filter(p -> location.getMarks().get(p) != Mark.DEAD)
+                .filter(p -> location.getMark(p).get() != Mark.DEAD)
                 .collect(Collectors.toList());
 
         if (possibilities.size() == 1) {
@@ -75,9 +76,12 @@ public class Crawler {
             Square current = location;
 
             if (move(moving)) {
-                current.getMarks().put(moving, Mark.ALIVE);
-                location.getMarks().put(from, Mark.DEAD);
+                current.getMark(moving).compareAndSet(null, Mark.ALIVE);
+                location.getMark(from).set(Mark.DEAD);
 
+                if (!pathTaken.isEmpty()) {
+                    pathTaken.pop();
+                }
                 if (!pathTaken.isEmpty()) {
                     pathTaken.pop();
                 }
@@ -86,9 +90,26 @@ public class Crawler {
         } else {
             possibilities.remove(from);
 
-            List<Direction> golden = possibilities.stream().filter(p -> location.getMarks().get(p) == Mark.GOLD).collect(Collectors.toList());
-            List<Direction> unvisited = possibilities.stream().filter(p -> location.getMarks().get(p) == null).collect(Collectors.toList());
-            List<Direction> alive = possibilities.stream().filter(p -> location.getMarks().get(p) == Mark.ALIVE).collect(Collectors.toList());
+            List<Direction> golden = new ArrayList<>();
+            List<Direction> unvisited = new ArrayList<>();
+            List<Direction> alive = new ArrayList<>();
+            for (Direction possible : possibilities) {
+                Mark mark = location.getMark(possible).get();
+
+                if (mark == null) {
+                    unvisited.add(possible);
+                    continue;
+                }
+
+                switch (mark) {
+                    case ALIVE:
+                        alive.add(possible);
+                        break;
+                    case GOLD:
+                        unvisited.add(possible);
+                        break;
+                }
+            }
 
             if (!golden.isEmpty()) {
                 move(golden.get(0));
@@ -105,8 +126,8 @@ public class Crawler {
 
         inUse = false;
         if (isAtGoal(maze)) {
+            location.getPerson().compareAndSet(this, null);
             maze.completedCrawl(this);
-
             return false;
         }
         return true;
@@ -131,18 +152,19 @@ public class Crawler {
             Crawler splitGroup = new Crawler(location, from, split, pathTaken);
 
             if (splitGroup.move(moving)) {
-                location.getMarks().putIfAbsent(moving, Mark.ALIVE);
-                splitGroup.getLocation().getMarks().putIfAbsent(splitGroup.from, Mark.ALIVE);
+                location.getMark(moving).compareAndSet(null, Mark.ALIVE);
+                splitGroup.getLocation().getMark(splitGroup.from).compareAndSet(null, Mark.ALIVE);
+                maze.addCrawler(splitGroup);
+            } else {
+                this.groupSize.addAndGet(split);
             }
-
-            maze.addCrawler(splitGroup);
         }
 
         Direction moving = options.remove(0);
         Square current = location;
         if (move(moving)) {
-            current.getMarks().putIfAbsent(moving, Mark.ALIVE);
-            location.getMarks().putIfAbsent(from, Mark.ALIVE);
+            current.getMark(moving).compareAndSet(null, Mark.ALIVE);
+            location.getMark(from).compareAndSet(null, Mark.ALIVE);
         }
     }
 
@@ -163,7 +185,7 @@ public class Crawler {
         location = movingTo;
         from = direction.turnAround();
 
-        if (location.getMarks().get(from) != Mark.DEAD && !isGolden) {
+        if (!isGolden) {
             pathTaken.push(from);
         }
         return true;
@@ -186,12 +208,9 @@ public class Crawler {
             }
 
             //System.out.println("MERGE!");
-            int toGroupSize, mergedGroupSize, fromGroupSize, total;
+            int fromGroupSize;
 
-            toGroupSize = mergeTo.getGroupSize().get();
             fromGroupSize = this.groupSize.get();
-
-            mergedGroupSize = toGroupSize + fromGroupSize;
 
             if (to.get() != mergeTo) {
                 return false;

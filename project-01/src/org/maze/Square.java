@@ -3,10 +3,7 @@ package org.maze;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,13 +16,15 @@ class Square {
 
     private Square[] neighbours;
 
-    private Map<Direction, Mark> marks;
+    private Map<Direction, AtomicReference<Mark>> marks;
 
 
 
     public Square(@NotNull Tile tile, int x, int y) {
         this.tile = tile;
         this.marks = new ConcurrentHashMap<>(4);
+        Arrays.stream(Direction.values()).forEach(d -> marks.put(d, new AtomicReference<>(null)));
+
         this.x = x;
         this.y = y;
         this.person = new AtomicReference<>(null);
@@ -44,8 +43,8 @@ class Square {
         return tile;
     }
 
-    public Map<Direction, Mark> getMarks() {
-        return marks;
+    public AtomicReference<Mark> getMark(Direction direction) {
+        return marks.get(direction);
     }
 
     public @Nullable Square getNeighbour(@NotNull Direction direction) {

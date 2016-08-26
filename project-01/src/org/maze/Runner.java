@@ -13,59 +13,60 @@ public class Runner {
             System.out.println("Invalid number of arguments. Expected file path to maze");
         }
         boolean firstRun = true;
+        for (int threadCount = 1; threadCount < 24; threadCount++) {
+            for (int friends = 10; friends < Math.pow(10, 8); friends *= 10) {
 
-        for (int i = 10; i < Math.pow(10, 8); i *= 10) {
-            int friends = i;
+                int sampleSize = 100;
+                List<Long> samples = new ArrayList<>();
 
-            int sampleSize = 100;
-            List<Long> samples = new ArrayList<>();
+                for (int sample = 0; sample < sampleSize; sample++) {
+                    try {
+                        // Setup the Map
+                        Maze maze = MazeReader.fromFile(new File(args[0]), friends);
+                        maze.addCrawler(new Crawler(maze.getStartingPoint(), Direction.West, friends, new Stack<>()));
 
-            for (int sample = 0; sample < sampleSize; sample++) {
-                try {
-                    Maze maze = MazeReader.fromFile(new File(args[0]), friends);
-                    maze.addCrawler(new Crawler(maze.getStartingPoint(), Direction.West, friends, new Stack<>()));
+                        List<Thread> threads = new ArrayList<>();
 
-                    List<Thread> threads = new ArrayList<>();
+                        for (int n = 0; n < threadCount; n++) {
+                            threads.add(new Thread(() -> {
+                                while (!maze.isComplete()) {
+                                    maze.step();
+                                    // maze.display();
+                                }
+                            }));
+                        }
 
-                    for (int n = 0; n < 2; n++) {
-                        threads.add(new Thread(() -> {
-                            while(!maze.isComplete()) {
-                                maze.step();
-                                // maze.display();
-                            }
-                        }));
+                        long startTime = System.currentTimeMillis();
+
+                        threads.forEach(Thread::start);
+                        for (Thread t : threads) {
+                            t.join();
+                        }
+
+                        long endTime = System.currentTimeMillis();
+
+                        // ignore the result of the 1st run as the JVM has not warmed up
+                        if (firstRun) {
+                            sample--;
+                            firstRun = false;
+                            continue;
+                        }
+                        // maze.display();
+
+                        samples.add(endTime - startTime);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-
-                    long startTime = System.currentTimeMillis();
-
-                    threads.forEach(Thread::start);
-                    for (Thread t : threads) {
-                        t.join();
-                    }
-
-                    long endTime = System.currentTimeMillis();
-
-                    // ignore the result of the 1st run as the JVM has not warmed up
-                    if (firstRun) {
-                        sample--;
-                        firstRun = false;
-                        continue;
-                    }
-                    // maze.display();
-
-                    samples.add(endTime - startTime);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    System.out.print(".");
                 }
-                System.out.print(".");
-            }
-            System.out.print("\n");
+                System.out.print("\n");
 
-            double avgTime = (double)(samples.stream().reduce(0L, (a, b) -> a + b )) / (double)sampleSize;
-            System.out.printf("Took %fms with to get all %d friends to the pub\n", avgTime, friends);
+                double avgTime = (double) (samples.stream().reduce(0L, (a, b) -> a + b)) / (double) sampleSize;
+                System.out.printf("Took %fms with to get all %d friends to the pub with %d threads\n", avgTime, friends, threadCount);
+            }
         }
     }
 }
