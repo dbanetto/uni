@@ -144,7 +144,7 @@ makes for much more plumbing code to make sure the next translation gets the new
 > trans' :: Stmt -> VTable -> Label -> (Code, Int)
 > trans' (Asgn var exp) vt n = ((transexp exp) ++ [Store var], n)
 >
-> trans' (Call proc exps) vt n = ((code exps []) ++ [LoadI n, PushScope, Jump p, Target n, PopScope], n + 1)
+> trans' (Call proc exps) vt n = ( [LoadI n] ++ (code exps []) ++ [ PushScope, Jump p, Target n, PopScope], n + 1)
 >                   where code [] c = c
 >                         code (e:es) c = code es (c ++ transexp e)
 >                         p
@@ -202,8 +202,11 @@ the procedure.
 >
 > transproc :: Proc -> TStore -> VTable -> Label -> (Code, Int)
 > transproc (Proc _ _ (Body _ [])) _ _ n = ([], n)
-> transproc (Proc _ _ (Body _ stmts)) ts vt n = ([Target n] ++ code ++ [StackJump], nn)
->               where checked = check stmts ts vt
+> transproc (Proc _ params (Body _ stmts)) ts vt n = ([Target n] ++ paramexp ++ code ++ [StackJump], nn)
+>               where paramexp = paramexp' params
+>                     paramexp' [] = []
+>                     paramexp' ((n, _):ps) = ((Store n):(paramexp' ps))
+>                     checked = check stmts ts vt
 >                     (code, nn) =  (transn checked vt (n+1))
 
 
@@ -229,8 +232,12 @@ be used just before the statements are translated in the body or procedures.
 >
 > checks :: [Stmt] -> TStore -> VTable -> Result
 > checks [] ss vt = Ok
-> checks ((Call name params):ss) s vt = foldres ([has, correctParams] ++ (exps params expts []) ++ [res])
->       where res = checks ss s vt
+
+To check if a procedure call is correct the paramter list is validated and we can assume that since
+we got here the procedure is valid.
+
+> checks ((Call name params):ss) s vt = foldres ([has, correctParams] ++ (exps params expts []) ++ [rest])
+>       where rest = checks ss s vt
 >             expts = snd (getVal name vt)
 >             correctParams
 >               | length expts == length params = Ok
@@ -242,12 +249,12 @@ be used just before the statements are translated in the body or procedures.
 >               | hasVal name vt = Ok
 >               | otherwise = Err (name ++ " procedure does not exist")
 >
-> checks ((Asgn v e):ss) store vt = foldres [has, ty, res]
+> checks ((Asgn v e):ss) store vt = foldres [has, exp, rest]
 >       where has
 >               | hasVal v store == False = Err ("variable '" ++ [v] ++ "' is not declared")
 >               | otherwise = Ok
->             ty = checkexp e (getVal v store) store
->             res = checks ss store vt
+>             exp = checkexp e (getVal v store) store
+>             rest = checks ss store vt
 >
 > checks ((While e loop):ss) store vt = foldres [exp, t, res]
 >       where exp = checkexp e TBool store
@@ -261,7 +268,7 @@ be used just before the statements are translated in the body or procedures.
 >                 res = checks ss store vt
 
 `foldres` takes a list of results and checks that all of the elements are
-`Ok` otherwise returns the 1st `Err` case.
+`Ok` otherwise returns the 1st `Err` case. 
 
 > foldres :: [Result] -> Result
 > foldres [] = Ok
@@ -467,7 +474,7 @@ Some examples for testing
 > callsProc   = run (Prog [(Proc "10" [] (Body [('a', TInt)] [(Asgn 'a' (Const 10))]))] (Body [('a', TInt)]  [(Asgn 'a' (Const 0)), (Call "10" [])])) == [('a', 0)]
 > callsProc2  = run p2 == [('a', 0)]
 
-Static checks tests
+Static checks tests which can return `Ok` or `Err e`
 
 > useBeforeDecl = checks [(Asgn 'a' (Const 0))] [] [] == Err "variable 'a' is not declared"
 > assgnVar      = checks [(Asgn 'a' (Const 0))] [('a', TInt)] []  == Ok
@@ -476,6 +483,8 @@ Static checks tests
 > opRightType   = checks [(Asgn 'a' (ConNot (ConstB True)))] [('a', TBool)] [] == Ok
 > noProcuder    = checks [(Call "hs" [])] [] [] == Err "hs procedure does not exist"
 > hasProcuder   = checks [(Call "hs" [])] [] [("hs", (1, []))] == Ok
+> notEnoughParams = checks [(Call "hs" [])] [] [("hs", (1, [('a', TInt)]))] == Err "Incorrect number of parameters"
+> wrongTypeParams = checks [(Call "hs" [(Var 'a')])] [('a', TBool)] [("hs", (1, [('a', TInt)]))] == Err "used incorrect type for variable"
 
 > main = do
 >
@@ -492,6 +501,8 @@ Static checks tests
 >   print(opRightType)
 >   print(noProcuder)
 >   print(hasProcuder)
+>   print(notEnoughParams)
+>   print(wrongTypeParams)
 >
 >   putStr("\n\nTest program\n")
 >   print(translate p2)
