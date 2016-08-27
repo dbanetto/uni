@@ -1,6 +1,7 @@
 package org.maze;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,11 +52,11 @@ public class Crawler {
 
     public boolean step(Maze maze) {
         if (inUse.get()) {
-            return false;
+            return true;
         }
 
         if (!inUse.compareAndSet(false, true)) {
-            return false;
+            return true;
         }
 
         if (this.isGolden) {
@@ -94,6 +95,7 @@ public class Crawler {
 
         } else {
             possibilities.remove(from);
+            Collections.shuffle(possibilities);
 
             List<Direction> golden = new ArrayList<>();
             List<Direction> unvisited = new ArrayList<>();
@@ -123,9 +125,9 @@ public class Crawler {
                 splitAtIntersection(maze, unvisited);
 
             } else if (!alive.isEmpty()) {
-                splitAtIntersection(maze, alive);
+                // splitAtIntersection(maze, alive);
+                move(alive.get(0));
             }
-
         }
 
         if (groupSize.get() < 1) {
@@ -146,6 +148,7 @@ public class Crawler {
 
     private void splitAtIntersection(Maze maze, List<Direction> options) {
         int groupSize, groups, split, newGroupSize;
+
 
         do {
             groupSize = this.groupSize.get();

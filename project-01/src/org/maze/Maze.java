@@ -15,6 +15,7 @@ public class Maze {
     private final int groupSize;
     private final AtomicInteger exited;
     private final List<Square> exits;
+    private final Queue<Crawler> done;
     private final Map<Square, Seeker> exitGolden;
 
     public Maze(Square[][] grid, int groupSize, int startX, int startY) {
@@ -24,6 +25,7 @@ public class Maze {
         this.groupSize = groupSize;
         this.exitGolden = new HashMap<>(exits.size());
         this.exited = new AtomicInteger(0);
+        this.done = new ConcurrentLinkedQueue<>();
 
         this.exits.forEach(e -> exitGolden.put(e, new Seeker()));
 
@@ -45,7 +47,7 @@ public class Maze {
             return;
         }
 
-        this.exited.addAndGet(crawler.getGroupSize().get());
+        this.done.add(crawler);
     }
 
     public void completedGoldCrawl(Crawler crawler) {
@@ -61,7 +63,7 @@ public class Maze {
     }
 
     public boolean isComplete() {
-        return exited.get() == groupSize;
+        return this.done.stream().mapToInt(c -> c.getGroupSize().get()).sum() == groupSize;
     }
 
     public Square getStartingPoint() {

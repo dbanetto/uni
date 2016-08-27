@@ -13,10 +13,10 @@ public class Runner {
             System.out.println("Invalid number of arguments. Expected file path to maze");
         }
         boolean firstRun = true;
-        for (int threadCount = 1; threadCount <= 16; threadCount++) {
-            for (int friends = 10; friends < Math.pow(10, 8); friends *= 10) {
+        for (int threadCount = 1; threadCount <= 32; threadCount++) {
+            for (int friends = 10; friends < Math.pow(10, 9); friends *= 10) {
 
-                int sampleSize = 30;
+                int sampleSize = 100;
                 List<Long> samples = new ArrayList<>();
 
                 for (int sample = 0; sample < sampleSize; sample++) {
