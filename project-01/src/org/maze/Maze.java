@@ -111,11 +111,12 @@ public class Maze {
         return finishes.stream().filter(p -> p.getTile() == Tile.SPACE).collect(Collectors.toList());
     }
 
-
     public void step() {
         Crawler crawler = crawlerQueue.poll();
         if (crawler != null && crawler.step(this)) {
             crawlerQueue.add(crawler);
+        } else {
+            // crawlerQueue.addAll(findWanders());
         }
     }
 
@@ -148,15 +149,29 @@ public class Maze {
                 Square square = grid[y][x];
 
                 Crawler wander = square.getPerson().get();
-                if (wander != null && !exits.contains(square)) {
+                if (wander != null && !wander.inUse().get() && !exits.contains(square) && !crawlerQueue.contains(wander)) {
                     if (wander.getGroupSize().get() > 0) {
                         wanders.add(wander);
-                    } else {
-                        square.getPerson().compareAndSet(wander, null);
                     }
                 }
             }
         }
         return wanders;
+    }
+
+    // Utility Function which is good for debugging
+    public int countFriends() {
+        int count = crawlerQueue.stream().mapToInt(c -> c.getGroupSize().get()).sum();
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[y].length; x++) {
+                Square square = grid[y][x];
+
+                Crawler wander = square.getPerson().get();
+                if (wander != null && !crawlerQueue.contains(wander)) {
+                    count += wander.getGroupSize().get();
+                }
+            }
+        }
+        return count;
     }
 }

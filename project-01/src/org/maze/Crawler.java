@@ -3,6 +3,7 @@ package org.maze;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -10,8 +11,8 @@ import java.util.stream.Collectors;
 public class Crawler {
     private Square location;
     private Direction from;
-    private AtomicInteger groupSize;
-    private boolean inUse = false;
+    private final AtomicInteger groupSize;
+    private final AtomicBoolean inUse;
 
 
     private boolean isGolden;
@@ -24,6 +25,7 @@ public class Crawler {
             throw new IllegalArgumentException();
         }
         this.from = from;
+        this.inUse = new AtomicBoolean(false);
         pathTaken = (Stack<Direction>) path.clone();
     }
 
@@ -48,20 +50,23 @@ public class Crawler {
     }
 
     public boolean step(Maze maze) {
-        if (inUse) {
+        if (inUse.get()) {
             return false;
         }
 
-        inUse = true;
+        if (!inUse.compareAndSet(false, true)) {
+            return false;
+        }
+
         if (this.isGolden) {
             goldStep(maze);
-            inUse = false;
+            inUse.set(false);
             return true;
         }
 
         if (groupSize.get() < 1) {
             location.getPerson().compareAndSet(this, null);
-            inUse = false;
+            inUse.set(false);
             return false;
         }
 
@@ -119,17 +124,23 @@ public class Crawler {
 
             } else if (!alive.isEmpty()) {
                 splitAtIntersection(maze, alive);
-
             }
 
         }
 
-        inUse = false;
+        if (groupSize.get() < 1) {
+            location.getPerson().compareAndSet(this, null);
+            inUse.set(false);
+            return false;
+        }
+
         if (isAtGoal(maze)) {
             location.getPerson().compareAndSet(this, null);
             maze.completedCrawl(this);
+            inUse.set(false);
             return false;
         }
+        inUse.set(false);
         return true;
     }
 
@@ -203,16 +214,12 @@ public class Crawler {
             //System.out.println("GOLD!");
             return false;
         } else {
-            if (mergeTo.inUse) {
-                return false;
-            }
-
             //System.out.println("MERGE!");
             int fromGroupSize;
 
             fromGroupSize = this.groupSize.get();
 
-            if (to.get() != mergeTo) {
+            if (mergeTo.inUse.get() || to.get() != mergeTo) {
                 return false;
             }
             if (!this.groupSize.compareAndSet(fromGroupSize, 0)) {
@@ -246,4 +253,6 @@ public class Crawler {
     public AtomicInteger getGroupSize() {
         return groupSize;
     }
+
+    public AtomicBoolean inUse() { return inUse; }
 }

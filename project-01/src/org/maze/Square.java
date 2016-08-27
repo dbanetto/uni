@@ -18,8 +18,6 @@ class Square {
 
     private Map<Direction, AtomicReference<Mark>> marks;
 
-
-
     public Square(@NotNull Tile tile, int x, int y) {
         this.tile = tile;
         this.marks = new ConcurrentHashMap<>(4);
