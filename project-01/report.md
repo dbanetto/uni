@@ -8,6 +8,18 @@ peculiarly placed maze.
 
 # Solution
 
+## How to run
+
+I would recommend the usage of IntelliJ's IDEA IDE and unzipping the `code.zip`, 
+this should just be a simple 'project with existing source' import _fingers crossed_ .
+
+The main function of the program expects the first parameter to be the path from the working
+directory to a map, in most cases it should just be something like: `grid1.txt`
+
+The program will then start running the experiment, some debugging functions have been
+left, primarily in the `Maze` class and most notably `Maze.display` which is handy for
+inspecting the entire maze in a breakpoint.
+
 ## Architecture
 
 The main classes of this program are:
@@ -75,6 +87,13 @@ Mutating the `Square`'s markings is only done by the single Crawler that is curr
 square. This is governed by the `AtomicReference<Crawler>` in the Square class which is updated
 as a part of the Crawler's method `step`.
 
+The square has no interaction to other threads but multiple threads could access a thread and mutate
+at once. To control these interactions Atomic References are used to ensure a one thread does not override
+the progress made by another thread. This is done for keeping track of who is on the square and what marks
+have been placed, in particular the protocol around updating a mark from unvisited to alive to throughly checked
+to ensure it does not override a more important marking such as golden route or dead end.
+
+
 ### Maze
 
 _The one thing stopping this good night_
@@ -111,19 +130,40 @@ splitting up at all intersections.
 One variation tried on the specified algorithm was changing the behaviour to split at an
 intersection of all alive routes to randomly pick one path to go down in this case.
 The results of the (below, figures 3 and 4 for the 8 core dataset) show a large amount of
-variation
-
-There is a large amount of variance between each number of threads but still show the general
+variation between the number of threads. This greatly increased the time to complete the 
+maze as it reduced the number of total crawlers in the maze at one time and sped up the process
+to have little different between each magnitude of friends.
+There is however a large amount of noticeable variance between each number of threads but still show the general
 trend, the variance is very likely a side-affect of the design decision of backing off from
 moving or merging Crawlers as it they fail to complete their operation they add another to
 the queue so the total number of items processed increases with the number of threads with
-the exception of thread counts under the processor's CPU count.
+the exception of thread counts under the processor's CPU count. This behaviour is also
+apart of having split at all intersections but is less noticeable as the affect of
+having greatly more Crawlers in the maze cause more of a slow down.
 
+Further improvements that could be made to the algorithm could be to reduce the number of cases
+where the crawler will back-off from an action or allow it to make another decision in that step
+to reduce the number of repeated steps computed.
+
+Lighthouse was not tested as my program used many Java 8 features what were very troublesome to
+port back to Java 7 (which lighthouse runs).
+
+## Thoughts
+
+My solution to the problem does not give a well suited solution to painting more than 
+one golden path from the start to the end goal. The main hurdle to achieve this
+is to deicide which paths are good enough to go back and paint gold and how to tell the
+difference between, which may result in needed some kind of diffing algorithm to decide if
+a path was different enough. Another hurdle would be how to differentiate gold paths in-case
+painting two gold paths create a loop for a naive walker or coming to an intersection where they
+diverge and having to choose one. However without this a lot of stragglers in the are not likely
+to find the golden path as they would of most likely gone a wildly different path that only would
+intercept at the start of the maze to the last few in the maze and having many gold paths would
+reduce this in larger mazes.
 
 ## Data
 
 #### 8-Core 
-
 
 Always splits at intersections
 
