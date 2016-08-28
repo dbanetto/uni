@@ -86,3 +86,74 @@ to ensure no one is left behind or find a cloning machine along the way.
 The major concurrent component in the `Maze` class is the `crawlersQueue` which holds all the
 `Crawler`'s that have steps to be computed. This is filled by checking the result of the `Crawler`'s
 `step` method which flags it to say it has more steps to be computed or is at the end / an empty group.
+
+### Handling Threads
+
+All threads are created before the start of searching though
+the maze. They all compete for a crawler's step to compute which
+is stored in a non-blocking queue from the Java standard library.
+This does imply that some threads will be in a busy wait loop trying to
+get the next element.
+
+# Results
+
+From the data collected (below, primarily figures 1 and 2) I have found that solving the
+maze concurrently does improve the speed of solving the maze overall till the number of 
+threads excessed the computer's CPU count.
+This is best illustrated by the first and last graphs. In general the graphs
+show a small trend of increasing in time to complete is correlated to the number of threads
+used, with the exception of a minimum around the core count of the computer the data is from.
+The data also shows a common theme of layering with the number of friends showing that
+the number of friends in the party has greater general affect on the total time than
+the number of threads, this is most likely causes by the common case of the group
+splitting up at all intersections.
+
+One variation tried on the specified algorithm was changing the behaviour to split at an
+intersection of all alive routes to randomly pick one path to go down in this case.
+The results of the (below, figures 3 and 4 for the 8 core dataset) show a large amount of
+variation
+
+There is a large amount of variance between each number of threads but still show the general
+trend, the variance is very likely a side-affect of the design decision of backing off from
+moving or merging Crawlers as it they fail to complete their operation they add another to
+the queue so the total number of items processed increases with the number of threads with
+the exception of thread counts under the processor's CPU count.
+
+
+## Data
+
+#### 8-Core 
+
+
+Always splits at intersections
+
+![All Friends](./yomi-grid1.txt-threads-vs-time.png)
+
+![Smallest group and Largest group](./yomi-grid1.txt-threads-vs-time-first-last.png)
+
+Only splits only for unvisited intersection and picks a random
+path on alive intersections.
+
+![All Friends](./yomi-grid1.txt-threads-vs-time-nosplit.png)
+
+![Smallest Group and Largest group](./yomi-grid1.txt-threads-vs-time-first-last-nosplit.png)
+
+Alternate maze design
+
+![](./yomi-grid2.txt-threads-vs-time-first-last-nosplit.png)
+
+#### 4-Core 
+
+Always splits at intersections
+
+![All Friends](./david.local-grid1.txt-threads-vs-time-split.png)
+
+![Smallest Group and largest group](./david.local-grid1.txt-threads-vs-time-first-last-split.png)
+
+Only splits only for unvisited intersection and picks a random
+path on alive intersections.
+
+![All Friends](./david.local-grid1.txt-threads-vs-time.png)
+
+![Smallest group and largest group](./david.local-grid1.txt-threads-vs-time-first-last.png)
+
