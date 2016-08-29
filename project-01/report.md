@@ -73,7 +73,8 @@ only ever merge into other crawlers when they hit them to prevent any Crawler ha
 if their group suddenly got stolen, only if they get added to.
 This comes into play when a Crawler reaches an intersection where it has to split and walk down
 every interaction. To achieve this the crawler repeats attempts at trying to lower its own group size
-to a minimum of 1 so it can split up into smaller groups and make new Crawlers to look down other paths. When splitting up the group the original crawler will compute one `move` for each of the
+to a minimum of 1 so it can split up into smaller groups and make new Crawlers to look down other paths. 
+When splitting up the group the original crawler will compute one `move` for each of the
 new crawlers and add them to the `Maze`'s queue if they succeed otherwise merges them back into the
 original group.
 
@@ -160,6 +161,34 @@ diverge and having to choose one. However without this a lot of stragglers in th
 to find the golden path as they would of most likely gone a wildly different path that only would
 intercept at the start of the maze to the last few in the maze and having many gold paths would
 reduce this in larger mazes.
+
+### Freedom from deadlocks
+
+I believe there is to be no deadlocks in my solution. This is because
+the solution does not use any synchronize blocks or generic Java locks
+expect for a simple lock on processing a single crawler at a time to ensure
+mutual exclusion while working on it. The usage of this one lock is simple to naively
+check for deadlock conditions, such as ensuring the lock is released at the end of the
+computation of the step.
+
+### Freedom from starvation
+
+I do not believe my solution has complete freedom from starvation.
+This is because of my usage of back-offs and no way to solve them in a
+single step as I do not have the Java concurrency to ensure that the
+program will never get stuck in a loop of busy waiting. This can be caused
+by an unknown I have observed sometimes which a crawler never finds the exit
+after taking a path that is orders of magnitude greater than the total area
+of the maze but gave up hunting down the exact reason of what caused it due to time
+constraints.
+
+### Mutual Exclusion
+
+I designed my solution to have as small amount of absolute exclusion as possible and
+came down to only having to ensure mutual exclusion on crawlers that were currently
+being computed. To ensure other shared resources such as the working queue or the marks
+on the walls, they used other Java concurrency library data structures, such as the nonblocking
+queue for the working queue and atomic objects for the markings.
 
 ## Data
 
