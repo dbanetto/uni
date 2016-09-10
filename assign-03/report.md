@@ -1,4 +1,4 @@
-% NWEN304 Assignment 3
+% NWEN303 Assignment 3
 % David Barnett (3003133764)
 
 # Question 1
