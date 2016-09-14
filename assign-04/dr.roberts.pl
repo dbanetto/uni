@@ -1,5 +1,5 @@
 %% Questions and expected outputs
-question([i, am, fantasised, about, fast, cars]).
+question([i, fantasised, about, fast, cars]).
 % expected: [have, you, ever, fantasised, about, fast, cars, before, qm]
 question([i, feel, bad, about, my, brother]).
 % expected: [what, makes, you, feel, bad, about, your, brother, qm] 
@@ -31,8 +31,18 @@ answer(Question, Answer):-
      answer(Rest, Partial),
      append(Out, Partial, Answer).
 
-match(Q, Out, Rest):-
-    [ i, W | Rest] = Q -> translate(W, Out) ; [ W | Rest ] = Q, Out = [W].
+% match(Q, Out, Rest):-
+%     [ i, W | Rest] = Q -> translate(W, Out) ; [ W | Rest ] = Q, Out = [W].
+
+match([i, know | Tail], [are, you, sure, you, know, that], Tail).
+match([i, feel | Tail], [what, makes, you, feel], Tail).
+match([i, fantasised | Rest], [have, you, ever, fantasised], Tail):- append(Rest, [before], Tail).
+match([not, working | Tail], [have, you tired, turning, it, off, and, on, again], Tail).
+match([my | Tail], [your], Tail).
+match([you | Tail], [me], Tail).
+match([i | Tail], [you], Tail).
+match([am | Tail], [me], Tail).
+match([Word | Tail], [Word], Tail).
 
 %
 translate(know, [are, you, sure, you, know, that]).
