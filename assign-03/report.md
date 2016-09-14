@@ -5,9 +5,18 @@
 
 ## A)
 
+Parallel would be the most appropriate.
+<!-- WHY -->
 ## B)
 
+Given that the web server is serving a static web page a parallel architecture
+would be the most appropriate.
+<!-- WHY -->
+
 ## C)
+
+
+<!-- WHY -->
 
 ## D)
 
@@ -19,11 +28,7 @@ The parallelized version is ran on 10 nodes for 48 hours, so
 the total number of compute hours is $10 * 48 = 480$, 480 hours 
 of total compute time.
 
-The speedup is the percentage increase between sequential and parallelized versions
-of the program. In this case it would be $\frac{480}{24} = 20$, a 20 times increase in the
-total time to calculate. Thus the total speed up from parallelizing the program resulted
-in a 20 times slower program.
-
+The speedup is $\fract{T(1)}{T(10)} = \fract{24}{48} = 0.5$ 
 
 # Question 2
 
@@ -61,5 +66,9 @@ requested value.
 # Question 4
 
 # Question 5
+
+The pipeline can start computation can begin once all the workers in the pipeline
+has received all their rows and the first worker has been sent to the next worker.
+This occurs at `T7` in the lecture slides.
 
 # Question 6
