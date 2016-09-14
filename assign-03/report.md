@@ -5,20 +5,41 @@
 
 ## A)
 
-Parallel would be the most appropriate.
-<!-- WHY -->
+For a weather forecasting system, a parallel architecture would be the most appropriate.
+This is because most weather forecasting algorithm's operate with historic data
+and a costly calculation to predict a region's weather and you can parallelized
+non-neighbouring regions well as they will not affect each other and can be computed
+in isolation.
+
 ## B)
 
 Given that the web server is serving a static web page a parallel architecture
 would be the most appropriate.
-<!-- WHY -->
+The web server will be parallel because a request for a static asset has no need
+to interact with a shared resources because the file system or the blob storage
+will allow multiple reads at once.
+Unless the web server running a web application that interacts with a shared
+resource such as a database or a cache then the web application will be more likely
+to have distributed characteristics.
 
 ## C)
 
-
-<!-- WHY -->
+An appropriate architecture for a airline booking system that checks many fares
+would be a concurrent architecture, given that the checking and the viewing systems
+are running independently and update the same shared resource.
+This would be appropriate as there will be concurrent problems with the consistency
+of the database between the time of the user viewing the page and the freshest batch
+from then a scraper of other booking sites.
 
 ## D)
+
+Latency is the time it take for a single piece of information, such as bits, to travel from
+it's source to its destination, the most commonly known form of latency is time between
+a client and a remote server in gaming situation.
+
+Bandwidth is the number of pieces of information, such as bits, per unit of
+time that can be inputted into a communication channel. A common example
+is the bandwidth of a Ethernet network, such as 1GBS (1 Gigabit per second).
 
 ## E)
 
@@ -28,7 +49,7 @@ The parallelized version is ran on 10 nodes for 48 hours, so
 the total number of compute hours is $10 * 48 = 480$, 480 hours 
 of total compute time.
 
-The speedup is $\fract{T(1)}{T(10)} = \fract{24}{48} = 0.5$ 
+The speedup is $\frac{T(1)}{T(10)} = \frac{24}{48} = 0.5$.
 
 # Question 2
 
@@ -65,10 +86,27 @@ requested value.
 
 # Question 4
 
+I would suspect in general the time taken to request a read on a 
+NUMA architecture would be faster than a write. 
+This is given that the common overhead of accessing the router and network
+is the same and the main difference in time coming from how the other processing unit
+handles the request.
+Since a read is not modifying a resource many can occur at once while a write
+may need to block while waiting for other write operations being currently executing
+on the same resource. 
+
+
 # Question 5
 
 The pipeline can start computation can begin once all the workers in the pipeline
 has received all their rows and the first worker has been sent to the next worker.
-This occurs at `T7` in the lecture slides.
+This occurs at `T7` in the lecture slides. The pipeline can begin computation because
+`Worker 0` has completed its first task of passing on the column to the next work
+so it is clear to start computing a cell of the result matrix.
 
 # Question 6
+
+<!-- 6 rows by 3 columns -->
+
+The pipeline for the dot product of a `6x3` matrix by a `3x3` matrix would mostly be
+the same. Each worker could be 
