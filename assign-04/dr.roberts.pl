@@ -31,18 +31,26 @@ answer(Question, Answer):-
      answer(Rest, Partial),
      append(Out, Partial, Answer).
 
-% match(Q, Out, Rest):-
-%     [ i, W | Rest] = Q -> translate(W, Out) ; [ W | Rest ] = Q, Out = [W].
+match(Match, Out, Tail):-
+    Match = [M | RestMatch],
+    (
+        M = i -> matchI(RestMatch, Out, Tail) ;
+        M = you -> ( Out = [your], Tail = RestMatch ) ;
+        M = am -> ( Out = [me], Tail = RestMatch ) ;
+        M = my -> ( Out = [your], Tail = RestMatch ) ;
+        (Out = [M], Tail = RestMatch) 
+    ).
 
-match([i, know | Tail], [are, you, sure, you, know, that], Tail).
-match([i, feel | Tail], [what, makes, you, feel], Tail).
-match([i, fantasised | Rest], [have, you, ever, fantasised], Tail):- append(Rest, [before], Tail).
-match([not, working | Tail], [have, you tired, turning, it, off, and, on, again], Tail).
-match([my | Tail], [your], Tail).
-match([you | Tail], [me], Tail).
-match([i | Tail], [you], Tail).
-match([am | Tail], [me], Tail).
-match([Word | Tail], [Word], Tail).
+matchI(Match, Out, Tail):-
+    Match = [M | Rest],
+    (
+        M = know -> (Out = [are, you, sure, you, know, that], Tail = Rest) ;
+        M = feel -> (Out = [what, makes, you, feel], Tail = Rest) ;
+        M = am   -> (Out = [you, are], Tail = Rest) ;
+        M = fantasised -> (Out = [have, you, ever, fantasised], 
+                           append(Rest, [before], Tail)) ;
+        (Out = [you], Tail = Match) 
+    ).
 
 %
 translate(know, [are, you, sure, you, know, that]).
