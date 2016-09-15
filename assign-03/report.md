@@ -6,30 +6,23 @@
 ## A)
 
 For a weather forecasting system, a parallel architecture would be the most appropriate.
-This is because most weather forecasting algorithm's operate with historic data
-and a costly calculation to predict a region's weather and you can parallelized
-non-neighbouring regions well as they will not affect each other and can be computed
-in isolation.
+This is because weather forecasting can be broken down into smaller tasks that can
+ run simultaneously.
 
 ## B)
 
-Given that the web server is serving a static web page a parallel architecture
-would be the most appropriate.
-The web server will be parallel because a request for a static asset has no need
-to interact with a shared resources because the file system or the blob storage
-will allow multiple reads at once.
-Unless the web server running a web application that interacts with a shared
-resource such as a database or a cache then the web application will be more likely
-to have distributed characteristics.
+For a web server concurrent architecture would be the most appropriate.
+This is because there are multiple parts, such as database connections, sending/receiving requests,
+accessing cache stores and more that have been designed to be able to handle simultaneous 
+requests from many clients
 
 ## C)
 
 An appropriate architecture for a airline booking system that checks many fares
-would be a concurrent architecture, given that the checking and the viewing systems
-are running independently and update the same shared resource.
-This would be appropriate as there will be concurrent problems with the consistency
-of the database between the time of the user viewing the page and the freshest batch
-from then a scraper of other booking sites.
+would be a distributed architecture.
+This is because the booking system will be made up of many different physical machines,
+such as one machine dedicated to serving the web application, one to find the airline
+fares and another to interact with the booking system securely.
 
 ## D)
 
@@ -50,6 +43,9 @@ the total number of compute hours is $10 * 48 = 480$, 480 hours
 of total compute time.
 
 The speedup is $\frac{T(1)}{T(10)} = \frac{24}{48} = 0.5$.
+
+The speedup is actually a slow down and this could be due the overhead
+and setup costs associated with adding more nodes.
 
 # Question 2
 
