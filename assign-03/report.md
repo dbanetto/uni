@@ -103,6 +103,24 @@ so it is clear to start computing a cell of the result matrix.
 # Question 6
 
 <!-- 6 rows by 3 columns -->
+<!-- results in a 6x3 matrix -->
 
-The pipeline for the dot product of a `6x3` matrix by a `3x3` matrix would mostly be
-the same. Each worker could be 
+The pipeline for the dot product of a `6x3` matrix by a `3x3` matrix has a few potential
+solutions. One of them could be splitting the matrix into two $3x3 \dot 3x3$ 
+calculations and compose the two matrix together at the end to form the
+`6x3` matrix. 
+This could be achieved by the coordinator sending out the first half of the calculation
+as shown in the slides but at when collecting the slides the coordinator has a field
+to remind itself that these are the first 3 rows of the matrix and stores them accordingly
+and then flushes the entire pipeline to start again with the second half of the `6x3` matrix.
+Following the same procedure expect for collecting the resulting values from the pipeline
+into the last 3 rows of the resulting matrix.
+
+An optimisation that could be obtained is instead of flushing the entire pipeline
+the coordinator could update the rows used by each worker in the same manner used
+to initially set them. After that is done the works will still have one column of the
+other matrix and will be able to calculate the last column of the resulting matrix
+and the coordinator could then iterate and feed in the columns in reverse order so the
+workers can fill from right to left. However this optimisation increases the complexity of
+the pipeline's control flow as workers will need state so they know if they are currently
+receiving reversed data or not.
