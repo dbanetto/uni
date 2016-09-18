@@ -28,44 +28,43 @@ writeWord(Word):- write(Word), write(" ").
 answer([], []).
 answer(Question, Answer):-
      match(Question, Out, Rest),
-     answer(Rest, Partial),
+     ( Rest = [] -> Partial = [qm] ; answer(Rest, Partial)),
      append(Out, Partial, Answer).
 
+match([], [], []).
 match(Match, Out, Tail):-
     Match = [M | RestMatch],
     (
-        M = i -> matchI(RestMatch, Out, Tail) ;
+        M = i   -> matchI(RestMatch, Out, Tail) ;
         M = you -> ( Out = [your], Tail = RestMatch ) ;
-        M = am -> ( Out = [me], Tail = RestMatch ) ;
-        M = my -> ( Out = [your], Tail = RestMatch ) ;
+        M = am  -> ( Out = [me], Tail = RestMatch ) ;
+        M = my  -> ( Out = [your], Tail = RestMatch ) ;
         (Out = [M], Tail = RestMatch) 
     ).
 
+matchI([], [you], []).
 matchI(Match, Out, Tail):-
     Match = [M | Rest],
     (
-        M = know -> (Out = [are, you, sure, you, know, that], Tail = Rest) ;
-        M = feel -> (Out = [what, makes, you, feel], Tail = Rest) ;
-        M = am   -> (Out = [you, are], Tail = Rest) ;
-        M = fantasised -> (Out = [have, you, ever, fantasised], 
-                           append(Rest, [before], Tail)) ;
+        M = know ->       (Out = [are, you, sure, you, know, that], Tail = Rest) ;
+        M = feel ->       (Out = [what, makes, you, feel], Tail = Rest) ;
+        M = am   ->       (Out = [you, are], Tail = Rest) ;
+        M = fantasised -> (Out = [have, you, ever, fantasised], append(Rest, [before], Tail)) ;
         (Out = [you], Tail = Match) 
     ).
-
-%
-translate(know, [are, you, sure, you, know, that]).
-translate(am, [you, are]).
-translate(feel, [what, makes, you, feel]).
-
-matches([], _).
-matches(Keys, Rest):-
-    [ K | Eys ] = Keys,
-    [ R | Est ] = Rest,
-    K == R -> matches(Eys, Est).
-    
 
 % printReply
 printReply(Question):- answer(Question, Answer), printSentance(Answer).
 
+%% Tests
+% basic tests
+:- answer([hello], [hello, qm]).
+:- answer([], []).
+:- answer([i], [you, qm]).
+
+% questions and answers from the handout
+:- answer([i, fantasised, about, fast, cars], [have, you, ever, fantasised, about, fast, cars, before, qm]).
+:- answer([i, feel, bad, about, my, brother], [what, makes, you, feel, bad, about, your, brother, qm]). 
+:- answer([i, know, i, am, insecure], [are, you, sure, you, know, that, you, are, insecure, qm]).
 
 % vim: set sw=4 ts=4 expandtab ft=prolog: 
