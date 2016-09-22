@@ -5,6 +5,8 @@ question([i, feel, bad, about, my, brother]).
 % expected: [what, makes, you, feel, bad, about, your, brother, qm] 
 question([i, know, i, am, insecure]). 
 % expected:  [are, you, sure, you, know, that, you, are, insecure, qm]
+question([i, like, my, mother]). 
+% expected:  [why, you, like, your, mother, qm]
 
 %% printSentence, expects a list
 % if it is an empty list we know we are at the end of the sentence so put a new line
@@ -46,6 +48,7 @@ matchI([], [you], []).
 matchI(Match, Out, Tail):-
     Match = [M | Rest],
     (
+        M = like ->       (Out = [why, you, like], Tail = Rest) ;
         M = know ->       (Out = [are, you, sure, you, know, that], Tail = Rest) ;
         M = feel ->       (Out = [what, makes, you, feel], Tail = Rest) ;
         M = am   ->       (Out = [you, are], Tail = Rest) ;
@@ -66,5 +69,7 @@ printReply(Question):- answer(Question, Answer), printSentance(Answer).
 :- answer([i, fantasised, about, fast, cars], [have, you, ever, fantasised, about, fast, cars, before, qm]).
 :- answer([i, feel, bad, about, my, brother], [what, makes, you, feel, bad, about, your, brother, qm]). 
 :- answer([i, know, i, am, insecure], [are, you, sure, you, know, that, you, are, insecure, qm]).
+
+:- answer([i, like, my, mother], [why, you, like, your, mother, qm]).
 
 % vim: set sw=4 ts=4 expandtab ft=prolog: 
