@@ -1,3 +1,5 @@
+import barnetdavi.keycrack.shared.Blowfish;
+
 import java.math.BigInteger;
 
 /**

@@ -1,3 +1,5 @@
+import barnetdavi.keycrack.shared.Blowfish;
+
 import java.security.*;
 import javax.crypto.*;
 import javax.crypto.spec.*;
