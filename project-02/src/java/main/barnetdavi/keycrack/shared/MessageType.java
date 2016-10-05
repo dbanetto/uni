@@ -2,14 +2,17 @@ package barnetdavi.keycrack.shared;
 
 
 public enum MessageType {
-    INITIAL_CONNECTION,
-
-    ;
+    // client -> server, on 1st connection
+    CLIENT_INTRODUCTION,
+    // server -> client, response to CLIENT_INTRODUCTION
+    SETUP_CLIENT,;
 
     public byte toByte() {
         switch (this) {
-            case INITIAL_CONNECTION:
+            case CLIENT_INTRODUCTION:
                 return 0x00;
+            case SETUP_CLIENT:
+                return 0x01;
             default:
                 throw new IllegalStateException();
         }
@@ -18,7 +21,9 @@ public enum MessageType {
     public static MessageType fromByte(byte value) {
         switch (value) {
             case (0x00):
-                return INITIAL_CONNECTION;
+                return CLIENT_INTRODUCTION;
+            case (0x01):
+                return SETUP_CLIENT;
             default:
                 throw new IllegalStateException();
         }

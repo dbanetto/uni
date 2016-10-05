@@ -2,7 +2,9 @@ package barnetdavi.keycrack.shared.messages;
 
 import barnetdavi.keycrack.shared.MessageType;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public abstract class Message {
 
@@ -21,8 +23,10 @@ public abstract class Message {
         MessageType messageType = MessageType.fromByte(type[0]);
 
         switch (messageType) {
-            case INITIAL_CONNECTION:
-                return InitialMessage.readFromStream(contents);
+            case CLIENT_INTRODUCTION:
+                return ClientIntroductionMessage.fromInputStream(contents);
+            case SETUP_CLIENT:
+                return SetupClientMessage.fromInputStream(contents);
             default:
                 throw new IllegalStateException();
         }
