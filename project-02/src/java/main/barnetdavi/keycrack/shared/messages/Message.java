@@ -16,17 +16,21 @@ public abstract class Message {
 
     public abstract void writeContents(OutputStream contents) throws IOException;
 
-    public static Message readFromStream(InputStream contents) throws IOException {
+    public static Message readFromStream(InputStream contents, int keySize) throws IOException {
         byte[] type = new byte[1];
         contents.read(type);
 
         MessageType messageType = MessageType.fromByte(type[0]);
 
         switch (messageType) {
-            case CLIENT_INTRODUCTION:
-                return ClientIntroductionMessage.fromInputStream(contents);
-            case SETUP_CLIENT:
-                return SetupClientMessage.fromInputStream(contents);
+            case REQUEST_KEYS:
+            case REQUEST_KEYS_WITH_CIPHER:
+                return RequestKeysMessage.fromInputStream(messageType, contents);
+            case KEY_BLOCK:
+            case KEY_BLOCK_WITH_CIPHER:
+                return KeyBlockMessage.fromInputStream(messageType, keySize, contents);
+            case POST_RESULTS:
+                return PostResultsMessage.fromInputStream(contents);
             default:
                 throw new IllegalStateException();
         }

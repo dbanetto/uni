@@ -24,4 +24,22 @@ public class Util {
 
         return new BigInteger(value).intValue();
     }
+
+    public static byte[] toByteArray(BigInteger value, int arraySize) {
+        byte[] buffer = new byte[arraySize];
+        byte[] valueBuffer = value.toByteArray();
+
+        if (valueBuffer.length > buffer.length) {
+            throw new IllegalArgumentException();
+        }
+
+        for (int i = 1; i <= valueBuffer.length; i++) {
+            buffer[buffer.length - i] = valueBuffer[valueBuffer.length - 1];
+        }
+        return buffer;
+    }
+
+    public static BigInteger fromByteArrayToBigInt(byte[] value) {
+       return new BigInteger(value);
+    }
 }

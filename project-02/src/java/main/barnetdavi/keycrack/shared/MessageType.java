@@ -2,17 +2,32 @@ package barnetdavi.keycrack.shared;
 
 
 public enum MessageType {
-    // client -> server, on 1st connection
-    CLIENT_INTRODUCTION,
-    // server -> client, response to CLIENT_INTRODUCTION
-    SETUP_CLIENT,;
+    // client -> server, asks for chunk size number of keys
+    REQUEST_KEYS,
+    // client -> server, asks for chunk size number of keys + the cipher text
+    REQUEST_KEYS_WITH_CIPHER,
+
+    // client -> server, the results of the given keys
+    POST_RESULTS,
+
+    // client -> server, the list of requested keys to try
+    KEY_BLOCK,
+    // client -> server, the list of requested keys to try + the cipher text
+    KEY_BLOCK_WITH_CIPHER
+    ;
 
     public byte toByte() {
         switch (this) {
-            case CLIENT_INTRODUCTION:
+            case REQUEST_KEYS:
+                return 0x7F;
+            case REQUEST_KEYS_WITH_CIPHER:
+                return 0x70;
+            case POST_RESULTS:
+                return 0x35;
+            case KEY_BLOCK:
                 return 0x00;
-            case SETUP_CLIENT:
-                return 0x01;
+            case KEY_BLOCK_WITH_CIPHER:
+                return 0x10;
             default:
                 throw new IllegalStateException();
         }
@@ -20,10 +35,16 @@ public enum MessageType {
 
     public static MessageType fromByte(byte value) {
         switch (value) {
+            case (0x7F):
+                return REQUEST_KEYS;
+            case (0x70):
+                return REQUEST_KEYS_WITH_CIPHER;
+            case (0x35):
+                return POST_RESULTS;
             case (0x00):
-                return CLIENT_INTRODUCTION;
-            case (0x01):
-                return SETUP_CLIENT;
+                return KEY_BLOCK;
+            case (0x10):
+                return KEY_BLOCK_WITH_CIPHER;
             default:
                 throw new IllegalStateException();
         }
