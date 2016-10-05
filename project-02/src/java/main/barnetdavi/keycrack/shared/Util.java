@@ -34,12 +34,8 @@ public class Util {
         }
 
         for (int i = 1; i <= valueBuffer.length; i++) {
-            buffer[buffer.length - i] = valueBuffer[valueBuffer.length - 1];
+            buffer[buffer.length - i] = valueBuffer[valueBuffer.length - i];
         }
         return buffer;
-    }
-
-    public static BigInteger fromByteArrayToBigInt(byte[] value) {
-       return new BigInteger(value);
     }
 }

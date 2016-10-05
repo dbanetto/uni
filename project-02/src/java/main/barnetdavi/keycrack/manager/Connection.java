@@ -35,7 +35,7 @@ public class Connection implements Runnable {
 
             handleMessage(received);
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             System.err.printf("Error in main loop client : %s\n", ex.toString());
             ex.printStackTrace();
         } finally {

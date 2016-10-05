@@ -16,12 +16,12 @@ public class KeySpace implements Iterable<BigInteger> {
     }
 
     public void writeToStream(OutputStream stream, int keySize) throws IOException {
-        stream.write(Util.toByteArray(start, keySize));
-        stream.write(Util.toByteArray(limit, keySize));
+        stream.write(Util.toByteArray(start, keySize + 1));
+        stream.write(Util.toByteArray(limit, keySize + 1));
     }
 
     public static KeySpace readFromStream(InputStream stream, int keySize) throws IOException {
-        byte[] buffer = new byte[keySize];
+        byte[] buffer = new byte[keySize + 1];
 
         stream.read(buffer);
         BigInteger start = new BigInteger(buffer);

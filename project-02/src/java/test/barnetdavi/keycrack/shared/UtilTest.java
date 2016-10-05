@@ -35,6 +35,6 @@ public class UtilTest {
 
     @Test
     public void fromByteArrayBigIntSame() {
-        Assert.assertArrayEquals(new byte[] {0x01, 0x01}, Util.toByteArray(BigInteger.valueOf(1025), 2));
+        Assert.assertArrayEquals(new byte[] {0x04, 0x01}, Util.toByteArray(BigInteger.valueOf(1025), 2));
     }
 }
