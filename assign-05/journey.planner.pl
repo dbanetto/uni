@@ -18,9 +18,10 @@ roaded(rotorua,          hamilton,         109).
 roaded(hamilton,         auckland,         126).
 
 % road/3
-% To   - 
-% From - 
+% To   -
+% From -
 % make the roads symmetric
+% holds true if there is a road between X and Y with the distance D
 road(X, Y, D):- roaded(X, Y, D).
 road(X, Y, D):- roaded(Y, X, D).
 
@@ -43,7 +44,7 @@ route(Start, Finish, Visits):-
 % Finish   - is the destination of the journey
 % Visits   - is a list of destinations that need to visited on the route
 % Distance - is the total distance the route takes
-% returns True if there exists a route from start to finish and visits all destinations
+% holds true if there exists a route from start to finish and visits all destinations
 route(Start, Finish, Visits, Distance):-
     find_route(Start, Finish, [], Route),
     visits_all(Route, Visits),
@@ -54,6 +55,7 @@ route(Start, Finish, Visits, Distance):-
 % Start              - is the starting position of the journey
 % Finish             - is the destination of the journey
 % RoutesAndDistances - is the output, which is a list of tuples in the form (Route, Distance)
+% always hold true, given no path  RoutesAndDistances is empty
 choice(Start, Finish, RoutesAndDistances):-
     findall((R, D), (
         find_route(Start, Finish, [], R),
@@ -66,6 +68,7 @@ choice(Start, Finish, RoutesAndDistances):-
 % Finish             - is the destination of the journey
 % Via                - is the list of destinations that the route must go through
 % RoutesAndDistances - is the output, which is a list of tuples in the form (Route, Distance)
+% always hold true, given no path  RoutesAndDistances is empty
 via(Start, Finish, Via, RoutesAndDistances):-
     findall((R, D), (
         find_route(Start, Finish, [], R),
@@ -80,6 +83,7 @@ via(Start, Finish, Via, RoutesAndDistances):-
 % Finish             - is the destination of the journey
 % Avoiding           - is the list of destinations that the route must not go through
 % RoutesAndDistances - is the output, which is a list of tuples in the form (Route, Distance)
+% always hold true, given no path  RoutesAndDistances is empty
 avoiding(Start, Finish, Avoiding, RoutesAndDistances):-
     findall((R, D), (
         find_route(Start, Finish, Avoiding, AR),
@@ -91,7 +95,11 @@ avoiding(Start, Finish, Avoiding, RoutesAndDistances):-
 % checks if the Route visits all of the destinations
 % Route  - The route taken
 % Visits - The list of destinations to check
-visits_all(_, []). % base case of none left is true
+
+% base case of none left is true
+visits_all(_, []).
+
+% recursive case
 visits_all(Route, Visits):-
     Visits = [Visit | Rest], % check a destination along the route
     member(Visit, Route),
@@ -102,7 +110,10 @@ visits_all(Route, Visits):-
 % Route - the rest of the route to calculate in cost
 % Base  - the amount calculated before
 % Total - the total amount of distance
-sum_route([_], 0).  % base case of none left the total is the base
+
+% base case of a single destination
+sum_route([_], 0).
+
 % recursive case, removes one city from the route and puts back the other
 % this is so you can do: a -> b -> c then b -> c.
 sum_route(Route, Total):-
@@ -117,9 +128,12 @@ sum_route(Route, Total):-
 % In     - the array that will get elements removed from
 % Remove - the array of elements that should be removed
 % Out    - the resulting array with removed elements
-remove_list(Out, [], Out). % nothing to remove so pipe the input as output
-remove_list(In, Remove, Out):-
-    [Rm | Rest] = Remove,
+
+% base case where there is no elements to remove
+remove_list(Out, [], Out).
+
+% recursive case where the top of Remove is from the In list and outputed via Out
+remove_list(In, [Rm | Rest], Out):-
     delete(In, Rm, Mod),
     remove_list(Mod, Rest, Out).
 
@@ -128,18 +142,20 @@ remove_list(In, Remove, Out):-
 % Start  - is the starting location of the search
 % Finish - is the ending location of the search
 % Taken  - is the path taken so far
-% Route  - is the route from the 
+% Route  - is the route from the
 
 % base case of Start = Finish, so the Route to the end should be the
-% route taken so far + the end location. 
+% route taken so far + the end location.
 % The list is reversed as it is built out from the Finish point
-find_route(Start, Finish, Taken, Route):- Start = Finish, [Finish | Taken] = Route.
+find_route(Start, Finish, Taken, Route):-
+    Start = Finish,
+    [Finish | Taken] = Route.
 
-% recursive case, steps the Start point forward 
+% recursive case, steps the Start point forward
 find_route(Start, Finish, Taken, Route):-
     road(Start, Next, _),    % assuming non-directional graph.
     \+ member(Start, Taken), % make sure we have not been there before
-    \+ member(Next, Taken),  % cut down on checks if we have been to Next before 
+    \+ member(Next, Taken),  % cut down on checks if we have been to Next before
     find_route(Next, Finish, [Start | Taken], Route). % take the next step to completion
 
 %% tests
@@ -165,28 +181,29 @@ find_route(Start, Finish, Taken, Route):-
 :- route(hamilton, napier, [], 615).
 :- route(napier, hamilton, [], 615).
 
-:- choice(wellington, palmerston_north, RD), length(RD, 1). 
-:- choice(palmerston_north, wellington, RD), length(RD, 1). 
+:- choice(wellington, palmerston_north, RD), length(RD, 1).
+:- choice(palmerston_north, wellington, RD), length(RD, 1).
 
-:- choice(wellington, auckland, RD), length(RD, 52). 
-:- choice(auckland, wellington, RD), length(RD, 52). 
+:- choice(wellington, auckland, RD), length(RD, 52).
+:- choice(auckland, wellington, RD), length(RD, 52).
 
-:- choice(gisborne, rotorua, RD), length(RD, 35). 
-:- choice(rotorua, gisborne, RD), length(RD, 35). 
+:- choice(gisborne, rotorua, RD), length(RD, 35).
+:- choice(rotorua, gisborne, RD), length(RD, 35).
 
-:- via(wellington, palmerston_north, [], RD), length(RD, 1). 
-:- via(wellington, palmerston_north, [wellington], RD), length(RD, 1). 
-:- via(wellington, palmerston_north, [auckland], RD), length(RD, 0). 
+:- via(wellington, palmerston_north, [], RD), length(RD, 1).
+:- via(wellington, palmerston_north, [wellington], RD), length(RD, 1).
+:- via(wellington, palmerston_north, [auckland], RD), length(RD, 0).
 
-:- via(wellington, auckland, [], RD), length(RD, 52). 
-:- via(wellington, auckland, [rotorua], RD), length(RD, 29). 
-:- via(wellington, auckland, [wanganui], RD), length(RD, 37). 
+:- via(wellington, auckland, [], RD), length(RD, 52).
+:- via(wellington, auckland, [rotorua], RD), length(RD, 29).
+:- via(wellington, auckland, [wanganui], RD), length(RD, 37).
 
 :- remove_list([], [], []).
 :- remove_list([], [1], []).
 :- remove_list([1], [1], []).
 :- remove_list([1, 2], [1], [2]).
 
+:- avoiding(wellington, apia, [], RD), length(RD, 0).
 :- avoiding(wellington, auckland, [], RD), length(RD, 52).
 :- avoiding(wellington, auckland, [hamilton], RD), length(RD, 0).
 :- avoiding(wellington, auckland, [wanganui], RD), length(RD, 15).
