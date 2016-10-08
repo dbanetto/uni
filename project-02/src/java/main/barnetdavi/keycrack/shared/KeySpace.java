@@ -1,5 +1,6 @@
 package barnetdavi.keycrack.shared;
 
+import java.util.List;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +31,14 @@ public class KeySpace implements Iterable<BigInteger> {
         BigInteger limit = new BigInteger(buffer);
 
         return new KeySpace(start, limit);
+    }
+
+    public int size() {
+        return limit.subtract(start).intValue();
+    }
+
+    public boolean isEmpty() {
+        return this.size() == 0;
     }
 
     @Override

@@ -4,6 +4,7 @@ import barnetdavi.keycrack.shared.KeySpace;
 import barnetdavi.keycrack.shared.MessageType;
 import barnetdavi.keycrack.shared.messages.KeyBlockMessage;
 import barnetdavi.keycrack.shared.messages.Message;
+import barnetdavi.keycrack.shared.messages.PostResultsMessage;
 import barnetdavi.keycrack.shared.messages.RequestKeysMessage;
 
 import java.util.List;
@@ -31,7 +32,6 @@ public class Connection implements Runnable {
             outputStream = clientSocket.getOutputStream();
 
             Message received = Message.readFromStream(inputStream, manager.getKeySize());
-            System.out.println(received);
 
             handleMessage(received);
 
@@ -50,21 +50,29 @@ public class Connection implements Runnable {
     }
 
     private void handleMessage(Message received) throws IOException {
+        // System.out.println("Got: " + received);
 
-        if (received instanceof RequestKeysMessage) {
+        if (received.getType() == MessageType.REQUEST_KEYS_WITH_CIPHER || received.getType() == MessageType.REQUEST_KEYS) {
             RequestKeysMessage request = (RequestKeysMessage) received;
 
             List<KeySpace> keys = manager.requestKeys(request.getChunkSize());
 
             Message toSend;
             if (request.getType() == MessageType.REQUEST_KEYS_WITH_CIPHER) {
-                toSend = new KeyBlockMessage(keys, manager.getKeySize(), manager.getCipherText());
+                toSend = new KeyBlockMessage(keys, manager.getKeySize(), manager.getCipherText(), manager.getPlainText());
             } else {
                 toSend = new KeyBlockMessage(keys, manager.getKeySize());
             }
-
-            System.out.println("Sent: " + toSend.toString());
             toSend.writeContents(outputStream);
+
+        } else if (received.getType() == MessageType.POST_RESULTS) {
+            // TODO: register that keys failed
+
+        } else if (received.getType() == MessageType.POST_RESULTS_FOUND) {
+            PostResultsMessage results = (PostResultsMessage)received;
+
+            // TODO: FOUND IT
+            manager.keyFound(results.getFoundKey());
         }
 
     }

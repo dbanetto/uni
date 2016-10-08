@@ -7,16 +7,26 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class KeyManager {
 
+    /**
+     *
+     * args[0] -> initial key to try
+     * args[1] -> key size in number of bytes
+     * args[2] -> cipher text in Base64
+     * args[3] -> decrypted plain text from the cipher text
+     * @param args
+     */
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.err.println("Expected 3 arguments");
+        if (args.length != 4) {
+            System.err.println("Expected 4 arguments");
             System.exit(1);
         }
 
@@ -24,8 +34,10 @@ public class KeyManager {
         int keySize = Integer.parseInt(args[1]);
 
         String cipherText = args[2];
+        // This is from a talk with Matt.
+        String plainText = args[3];
 
-        KeyManager manager = new KeyManager(initialKey, keySize, Blowfish.fromBase64(cipherText));
+        KeyManager manager = new KeyManager(initialKey, keySize, Blowfish.fromBase64(cipherText), plainText);
         manager.run();
     }
 
@@ -33,14 +45,16 @@ public class KeyManager {
     private final int keySize;
     private final byte[] cipherText;
     private final AtomicBoolean keyFound = new AtomicBoolean(false);
+    private final String plainText;
     private ExecutorService threadPool;
 
-    public KeyManager(BigInteger currentKey, int keySize, byte[] cipherText) {
+    public KeyManager(BigInteger currentKey, int keySize, byte[] cipherText, String plainText) {
         this.currentKey = currentKey;
         this.keySize = keySize;
         this.cipherText = cipherText;
+        this.plainText = plainText;
 
-        threadPool = java.util.concurrent.Executors.newCachedThreadPool();
+        threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     public void run() {
@@ -48,15 +62,20 @@ public class KeyManager {
 
         try {
             serverSocket = new ServerSocket(getPort());
+            serverSocket.setSoTimeout(1000);
             // Tell the user what port we are running on
             System.out.printf("Running on %s:%d\n", serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
 
-            // TODO: check if the code is cracked
             while (!keyFound.get()) {
-                Socket connectionSocket = serverSocket.accept();
+                try {
+                    Socket connectionSocket = serverSocket.accept();
 
-                Connection connection = new Connection(this, connectionSocket);
-                threadPool.submit(connection);
+                    Connection connection = new Connection(this, connectionSocket);
+                    threadPool.submit(connection);
+                } catch (SocketTimeoutException timeout) {
+                    // accept() timeout hit, allows us to not block for ever if a single client
+                    // finds the key so we can terminate the while loop.
+                }
             }
 
         } catch (IOException ex) {
@@ -70,6 +89,9 @@ public class KeyManager {
                 }
             }
         }
+
+        // prepare for shutdown
+        threadPool.shutdown();
     }
 
     /**
@@ -106,5 +128,15 @@ public class KeyManager {
         // record when this was sent out
 
         return Collections.singletonList(new KeySpace(current, limit));
+    }
+
+    public String getPlainText() {
+        return plainText;
+    }
+
+    public void keyFound(BigInteger key) {
+        this.keyFound.set(true);
+
+        System.out.println("Found key: " + key);
     }
 }

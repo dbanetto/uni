@@ -30,7 +30,8 @@ public abstract class Message {
             case KEY_BLOCK_WITH_CIPHER:
                 return KeyBlockMessage.fromInputStream(messageType, keySize, contents);
             case POST_RESULTS:
-                return PostResultsMessage.fromInputStream(contents);
+            case POST_RESULTS_FOUND:
+                return PostResultsMessage.fromInputStream(messageType, keySize, contents);
             default:
                 throw new IllegalStateException();
         }

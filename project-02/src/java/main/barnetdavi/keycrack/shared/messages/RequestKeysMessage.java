@@ -40,7 +40,8 @@ public class RequestKeysMessage extends Message {
     @Override
     public String toString() {
         return "RequestKeysMessage{" +
-                "chunkSize=" + chunkSize +
+                "type=" + getType() +
+                ", chunkSize=" + chunkSize +
                 '}';
     }
 }
