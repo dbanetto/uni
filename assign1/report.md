@@ -2,14 +2,11 @@
 % Assignemnt 1 - David Barnett (300313764)
 
 <!--
-This assignment addresses course learning objectives:
-
-    Communicate at a professional level orally and in writing, to a varied range of audiences.
-    Function effectively in a team in a variety of roles. 
-
 using the recruitment exercise for the ENGR 301 projects as the subject.
-In the recruitment exercise you have been asked to form selection panels and consider aspects of communication between applicants and panel.
-The first assignment is to write a short report on your personal experiences in the recruitment exercise, focussing on communication and functioning in a team.
+In the recruitment exercise you have been asked to form selection panels and consider
+aspects of communication between applicants and panel.
+The first assignment is to write a short report on your personal experiences in the recruitment exercise,
+focussing on communication and functioning in a team.
 Aspects of communication and team roles you should give thought to are:
 
  *  verbal communication, both written and oral, and both applicant and panel.
@@ -68,3 +65,19 @@ notes:
  * could of been clearer about brief description about project we needed to give
 
 -->
+
+This report will describe the recruitment for Project 6, ADRI, and my
+experience through the recruitment process.
+Focusing on the communication between applicants and the panel and how the
+panel team functioned.
+<!-- ADD THINGS THAT WILL BE COVERED -->
+
+The panel team for project 6, ADRI Online repository of Arabic digital content,
+with Peter Scriven and Reuben Puketapu.
+The outline for the project describes its purpose in two stages.
+The first stage is to investigate a range of open source repository tools and
+create a report about the suitability of them.
+The second stage is to create tools to deploy the chosen repository with
+a range of different tools. From this outline our panel chose 
+a willingness to learn as a favourable attribute for a candidate to have since
+a majority of the project will be spent learning how to use new tools.
