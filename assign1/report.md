@@ -22,11 +22,6 @@ Some suggested questions which might be reflected upon in the assignment are:
  *  What was it like to be on the other side of the table?
     - hetic
     - not nervous since this time it did not decide what I was goning to do for a year just what I will be dicussing for the next week.
- *  What where the good things and the bad things you saw in the Project Applications you read?
-    - having only one canidate that placed our project in top 3 we read all the applications for other projects on their CVs
-    - Good: gems that would give some insight of what the person is like, such as showing some passion for external acticities or quick stories.
-    - Bad: very loose reasoning about why they wanted to be in a project, such as 'I played a card game once'
-    - Ugly: 
  *  What were the good things and bad things you observed during the interviews?
      - Good: even though some of the candidates did not pick our project they still did some research before the interview
      - Bad: One interviewee was very disinterested in our project, ended with "Please do not give me the job".
@@ -71,6 +66,19 @@ experience through the recruitment process.
 Focusing on the communication between applicants and the panel and how the
 panel team functioned.
 <!-- ADD THINGS THAT WILL BE COVERED -->
+<!-- 
+    Conflict resalotion:
+        - two conflicts
+            - Johnathan - RC
+            - Robert - Catalyst
+        - how it was resolved
+            - telling other panel members
+            - a moved back out of the interview
+        - was it fair to the applicants
+            - left them with only 2 panel members to interview them
+        - was it nessacarry
+            - 
+-->
 
 The panel team for project 6, ADRI Online repository of Arabic digital content,
 with Peter Scriven and Reuben Puketapu.
@@ -78,6 +86,22 @@ The outline for the project describes its purpose in two stages.
 The first stage is to investigate a range of open source repository tools and
 create a report about the suitability of them.
 The second stage is to create tools to deploy the chosen repository with
-a range of different tools. From this outline our panel chose 
-a willingness to learn as a favourable attribute for a candidate to have since
-a majority of the project will be spent learning how to use new tools.
+a range of different tools. From this outline our panel decided the attributes we
+were looking for in an ideal candidates is the willingness to learn a range of new
+tools and a bonus would be if they were confident with being able to
+teach what they have learnt to other team members.
+
+The panel used the CVs given to us to try to identify candidates that show 
+these attributes. Since the project 6 was not a popular choice we had only 1 CV with a
+direct application to our project.
+Form this we needed to read their applications to other projects
+to give everyone a fair chance and to attempt to gauge their suitability for the project.
+From reading all of the applications there was some common aspects that made a good
+CV and conversely some that hurt the CV.
+<!-- 
+    talk about good & bad points of CVs (written communication)
+ *  What where the good things and the bad things you saw in the Project Applications you read?
+    -   having only one canidate that placed our project in top 3 we read all the applications for other projects on their CVs
+    -   Good: gems that would give some insight of what the person is like, such as showing some passion for external acticities or quick stories.
+    -   Bad: very loose reasoning about why they wanted to be in a project, such as 'I played a card game once'
+-->
