@@ -66,19 +66,6 @@ experience through the recruitment process.
 Focusing on the communication between applicants and the panel and how the
 panel team functioned.
 <!-- ADD THINGS THAT WILL BE COVERED -->
-<!-- 
-    Conflict resalotion:
-        - two conflicts
-            - Johnathan - RC
-            - Robert - Catalyst
-        - how it was resolved
-            - telling other panel members
-            - a moved back out of the interview
-        - was it fair to the applicants
-            - left them with only 2 panel members to interview them
-        - was it nessacarry
-            - 
--->
 
 The panel team for project 6, ADRI Online repository of Arabic digital content,
 with Peter Scriven and Reuben Puketapu.
