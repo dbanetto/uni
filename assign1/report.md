@@ -1,5 +1,5 @@
-% ENGR401 Report
-% Assignemnt 1 - David Barnett (300313764)
+% Case Study: Communication and Teamwork
+% ENGR401 - Assignemnt 1 - David Barnett (300313764)
 
 <!--
 using the recruitment exercise for the ENGR 301 projects as the subject.
@@ -61,23 +61,35 @@ notes:
 
 -->
 
-This report will describe the recruitment for Project 6, ADRI, and my
+<!-- abstract -->
+
+This case study will describe the recruitment process for Project 6, ADRI, and my
 experience through the recruitment process.
 Focusing on the communication between applicants and the panel and how the
 panel team functioned.
 <!-- ADD THINGS THAT WILL BE COVERED -->
 
+<!-- describe main issues -->
+
 The panel team for project 6, ADRI Online repository of Arabic digital content,
-with Peter Scriven and Reuben Puketapu.
+ Peter Scriven Reuben Puketapu and I.
+We had the task of selecting candidates for interviews and ultimately 
 The outline for the project describes its purpose in two stages.
 The first stage is to investigate a range of open source repository tools and
 create a report about the suitability of them.
 The second stage is to create tools to deploy the chosen repository with
-a range of different tools. From this outline our panel decided the attributes we
+a range of different tools.
+From this outline our panel decided the attributes we
 were looking for in an ideal candidates is the willingness to learn a range of new
 tools and a bonus would be if they were confident with being able to
 teach what they have learnt to other team members.
 
+<!--
+    quality of CVs, writen communication
+    fair interviews, oral communication, responibility of interviewer
+-->
+
+<!-- CVs -->
 The panel used the CVs given to us to try to identify candidates that show 
 these attributes. Since the project 6 was not a popular choice we had only 1 CV with a
 direct application to our project.
@@ -94,6 +106,7 @@ take to writing my next CV due to positive impact it had on my impression from t
 CVs that lacked this aspect were harder to judge as they become difficult to
 understand how the skills they describe are backed by any passion for the subject 
 or how they would be in an environment with pressure to learn new tools.
+
 <!-- 
     talk about good & bad points of CVs (written communication)
  *  What where the good things and the bad things you saw in the Project Applications you read?
@@ -101,6 +114,8 @@ or how they would be in an environment with pressure to learn new tools.
     -   Good: gems that would give some insight of what the person is like, such as showing some passion for external acticities or quick stories.
     -   Bad: very loose reasoning about why they wanted to be in a project, such as 'I played a card game once'
 -->
+
+<!-- interviews -->
 
 These interviews were my first time interviewing a candidate for a position.
 From being an interviewer I noticed more about with how interviewees and interviewers
@@ -128,11 +143,20 @@ took holist notes at the end of the interview.
 These notes reflected the entire interview more then answers to individual questions.
 The main consequence of this was it became a lot harder to retrace our
 decision process of how we came to the suitability of the candidate since we lost
-our intermediate.
+our intermediate steps.
+The lack of notes did also hurt our ability to refine our selection after the interviews
+as it become more difficult when reviewing the candidates.
+In hindsight this was less fair to the candidates that did not standout positively or negatively
+as they were more difficult to recall and to give a judgement afterwards.
+From this I would recommend more notes then just a holist description 
 
+<!-- 
+
+-->
+
+<!-- conflict of interest -->
 
 During the interviews I had two interviewees that were conflicts of interest.
-
 
 <!-- 
 Other side of the table
@@ -149,3 +173,7 @@ Other side of the table
         - was it nessacarry
             - 
 -->
+
+<!-- refs -->
+https://www.forbes.com/sites/dailymuse/2012/02/07/how-to-nail-the-interview-when-youre-the-interviewer/#621b24a16acd
+http://thegreatworkplace.com/199/the-role-and-goals-of-the-interviewer/
