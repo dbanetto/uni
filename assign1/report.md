@@ -98,10 +98,67 @@ Form this we needed to read their applications to other projects
 to give everyone a fair chance and to attempt to gauge their suitability for the project.
 From reading all of the applications there was some common aspects that made a good
 CV and conversely some that hurt the CV.
+A common aspect of a good CV that I saw was a well written application that also 
+included some insight about the character of the applicant generally expressed in a
+story of how they obtained some experience such as participating in hackathons or their own side-projects.
+I found this style of expressing their skills and interests to be effective to
+establish their character and skills with strong credibility and is something I will
+take to writing my next CV due to positive impact it had on my impression from the applicant.
+CVs that lacked this aspect were harder to judge as they become difficult to
+understand how the skills they describe are backed by any passion for the subject 
+or how they would be in an environment with pressure to learn new tools.
 <!-- 
     talk about good & bad points of CVs (written communication)
  *  What where the good things and the bad things you saw in the Project Applications you read?
     -   having only one canidate that placed our project in top 3 we read all the applications for other projects on their CVs
     -   Good: gems that would give some insight of what the person is like, such as showing some passion for external acticities or quick stories.
     -   Bad: very loose reasoning about why they wanted to be in a project, such as 'I played a card game once'
+-->
+
+These interviews were my first time interviewing a candidate for a position.
+From being an interviewer I noticed more about with how interviewees and interviewers
+interact then I had being on the other side of the table.
+A majority of our interviewees did not select our project so our panel decided
+to brief description of the project, which included our expectations of a member of the
+project.
+One of the most important details I found was the panel comes to the interview
+with a set of attributes that they want to confirm that the interviewee has given
+that their CV outlined them.
+This puts the interviewee at a disadvantage with trying to meet these hidden attributes
+and shows the power advantage the interviewers has.
+Our panel tried to mitigate this in the brief of the project we gave to our interviewees.
+In hindsight this mitigation might not of been fair as we hoped for as we dumping
+these expectations onto them during the interview with no time to prepare for them,
+although the ability to react could be an attribute we are looking for.
+From past experience of nerves with interviews lead to our panel to start the
+interview with handshakes.
+This had the aim to set a friendly atmosphere instead of that of judging.
+We attempted to carry this atmosphere by making the interview more of a
+conversation about the project and the interviewee's experiences then
+drilling them with questions. 
+A side-effect of this is we did not take notes during the interviews but
+took holist notes at the end of the interview.
+These notes reflected the entire interview more then answers to individual questions.
+The main consequence of this was it became a lot harder to retrace our
+decision process of how we came to the suitability of the candidate since we lost
+our intermediate.
+
+
+During the interviews I had two interviewees that were conflicts of interest.
+
+
+<!-- 
+Other side of the table
+    - 
+    Conflict resalotion:
+        - two conflicts
+            - Johnathan - RC
+            - Robert - Catalyst
+        - how it was resolved
+            - telling other panel members
+            - a moved back out of the interview
+        - was it fair to the applicants
+            - left them with only 2 panel members to interview them
+        - was it nessacarry
+            - 
 -->
