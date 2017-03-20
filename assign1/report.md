@@ -91,7 +91,7 @@ teach what they have learnt to other team members.
 
 <!-- CVs -->
 The panel used the CVs given to us to try to identify candidates that show 
-these attributes. Since the project 6 was not a popular choice we had only 1 CV with a
+these attributes. Since the project 6 was not a popular choice we had only one CV with a
 direct application to our project.
 Form this we needed to read their applications to other projects
 to give everyone a fair chance and to attempt to gauge their suitability for the project.
@@ -99,7 +99,8 @@ From reading all of the applications there was some common aspects that made a g
 CV and conversely some that hurt the CV.
 A common aspect of a good CV that I saw was a well written application that also 
 included some insight about the character of the applicant generally expressed in a
-story of how they obtained some experience such as participating in hackathons or their own side-projects.
+story of how they obtained some experience such as participating in hackathons or
+their own side-projects.
 I found this style of expressing their skills and interests to be effective to
 establish their character and skills with strong credibility and is something I will
 take to writing my next CV due to positive impact it had on my impression from the applicant.
@@ -132,14 +133,14 @@ Our panel tried to mitigate this in the brief of the project we gave to our inte
 In hindsight this mitigation might not of been fair as we hoped for as we dumping
 these expectations onto them during the interview with no time to prepare for them,
 although the ability to react could be an attribute we are looking for.
-From past experience of nerves with interviews lead to our panel to start the
-interview with handshakes.
-This had the aim to set a friendly atmosphere instead of that of judging.
+From past experience we knew the interviews were probably nervous so we started it
+by introducing ourselves to help them be at ease.
+This had the aim to set a welcoming atmosphere which is commonly advised [@nailinterview2012]. 
 We attempted to carry this atmosphere by making the interview more of a
 conversation about the project and the interviewee's experiences then
 drilling them with questions. 
 A side-effect of this is we did not take notes during the interviews but
-took holist notes at the end of the interview.
+took holistic notes at the end of the interview.
 These notes reflected the entire interview more then answers to individual questions.
 The main consequence of this was it became a lot harder to retrace our
 decision process of how we came to the suitability of the candidate since we lost
@@ -148,17 +149,17 @@ The lack of notes did also hurt our ability to refine our selection after the in
 as it become more difficult when reviewing the candidates.
 In hindsight this was less fair to the candidates that did not standout positively or negatively
 as they were more difficult to recall and to give a judgement afterwards.
-From this I would recommend more notes then just a holist description 
+From this I would recommend more notes then just a holistic description 
 
 <!-- 
 
 -->
 
-<!-- conflict of interest -->
-
+<!-- conflict of interest
 During the interviews I had two interviewees that were conflicts of interest.
 
-<!-- 
+* might not have space for this. *
+
 Other side of the table
     - 
     Conflict resalotion:
@@ -174,6 +175,4 @@ Other side of the table
             - 
 -->
 
-<!-- refs -->
-https://www.forbes.com/sites/dailymuse/2012/02/07/how-to-nail-the-interview-when-youre-the-interviewer/#621b24a16acd
-http://thegreatworkplace.com/199/the-role-and-goals-of-the-interviewer/
+<!-- conculsions -->
