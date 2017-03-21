@@ -24,6 +24,10 @@ This case study will describe the recruitment process for Project 6, ADRI, and m
 experience through the recruitment process.
 Focusing on the communication between applicants and the panel and how the
 panel team functioned.
+This case study outlines the context in which our panel worked in,
+the written communication to the panel via CVs from the applicants
+and the oral communication between the panel and interviewees.
+
 <!-- ADD THINGS THAT WILL BE COVERED -->
 
 <!-- describe main issues -->
@@ -35,11 +39,11 @@ The outline for the project describes its purpose in two stages.
 The first stage is to investigate a range of open source repository tools and
 create a report about the suitability of them.
 The second stage is to create tools to deploy the chosen repository with
-a range of different tools.
+a range of different tools [@project6outline].
 From this outline our panel decided the attributes we
-were looking for in an ideal candidates is the willingness to learn a range of new
+were looking for in an ideal candidate has the willingness to learn a range of new
 tools and a bonus would be if they were confident with being able to
-teach what they have learnt to other team members.
+teach what they have learnt to their other team members.
 
 <!--
     quality of CVs, writen communication
@@ -52,19 +56,17 @@ The panel used the CVs given to us to try to identify candidates that displayed
 the attributes we identified through written communication.
 This was challenged as the project was not a popular choice, with only one candidate with
 a direct application to this project.
-The consequence of this was we needed to read candidate's applications to other projects
+The consequence of this was we were not reading the CVs to be persuaded by the candidate's
+writing but needed to read their applications to other projects
 with the mindset of how could their skills and experiences could be transfered and benefit our
 project.
-For example a candidate was successful possum hunter but that is not as transferable
-to our project as someone else with a passion for other cultures.
 However since the candidates are applying for other projects want they are less
 likely to list skills relevant to our project unless another project
 had similar requirements [@careersnzcv][@engr301interview].
-<!-- review down -->
 From reading all of the applications there was some common aspects that made a
-CV standout and conversely some that moved CV the down the rankings.
-A common aspect of a standout CV was not just listing down their skills
-but also backed it up with evidence.
+CV standout.
+The main aspect of a standout CV for our panel was not just listing down their skills
+but also backed it up with evidence instead of .
 This came in the form of either recounting an experience, project or an accomplishment, such as
 winning a hackathon.
 This evidence based description of their skills were effective in helping
@@ -72,10 +74,12 @@ the panel get some insight of their character, where their passions lie and how 
 to our key attribute of being willing to learn something entirely new.
 The CVs that lacked this quality were harder to judge highly as we had to rely more on the
 technical skills listed as basis to evaluate their suitability to project.
+This technique is described by different job hunting bodies [@careersnzdescribe] and
+is something I will be taking away to improve my own CVs in the future.
 The end result of reading the CVs have left a ring of truth to common advice about
 aiming for CV for the position you want [@careersnzcv][@careersnzdescribe] and in
 the case of our panel it is still useful if your CV is passed around to other positions
-you did not aim for to begin with.
+you did not aim for to begin with such as our project.
 
 <!-- 
     talk about good & bad points of CVs (written communication)
@@ -85,7 +89,11 @@ you did not aim for to begin with.
     -   Bad: very loose reasoning about why they wanted to be in a project, such as 'I played a card game once'
 -->
 
-<!-- interviews -->
+<!--
+interviews
+issue: verbal & non-verbal communication between interviewer & 'ee
+       power balance
+-->
 
 These interviews were my first time interviewing a candidate for a position.
 From being an interviewer I noticed more about with how interviewees and interviewers
@@ -94,8 +102,7 @@ A majority of our interviewees did not select our project so our panel decided
 to brief description of the project, which included our expectations of a member of the
 project.
 One of the most important details I found was the panel comes to the interview
-with a set of attributes that they want to confirm that the interviewee has given
-that their CV outlined them.
+with a set of attributes that they want to confirm that the interviewee.
 This puts the interviewee at a disadvantage with trying to meet these hidden attributes
 and shows the power advantage the interviewers has.
 Our panel tried to mitigate this in the brief of the project we gave to our interviewees.
@@ -118,7 +125,7 @@ The lack of notes did also hurt our ability to refine our selection after the in
 as it become more difficult when reviewing the candidates.
 In hindsight this was less fair to the candidates that did not standout positively or negatively
 as they were more difficult to recall and to give a judgement afterwards.
-From this I would recommend more notes then just a holistic description 
+From this I would recommend more notes then just a holistic description.
 
 <!-- 
 needs citations and relating to real world
@@ -139,24 +146,10 @@ needs citations and relating to real world
     - that it was OK to not know anything about the tools being used just a willing to learn them & explain them to your team.
 -->
 
-<!-- conflict of interest
-During the interviews I had two interviewees that were conflicts of interest.
-
-* might not have space for this. *
-
-Other side of the table
-    - 
-    Conflict resalotion:
-        - two conflicts
-            - Johnathan - RC
-            - Robert - Catalyst
-        - how it was resolved
-            - telling other panel members
-            - a moved back out of the interview
-        - was it fair to the applicants
-            - left them with only 2 panel members to interview them
-        - was it nessacarry
-            - 
--->
-
 <!-- conculsions -->
+From this case study I have found places where I can improve as an interviewer and interviewee
+as well as confirming advise from supporting agencies.
+
+
+
+\pagebreak
