@@ -47,23 +47,35 @@ teach what they have learnt to other team members.
 -->
 
 <!-- CVs -->
-The panel used the CVs given to us to try to identify candidates that show 
-these attributes. Since the project 6 was not a popular choice we had only one CV with a
-direct application to our project.
-Form this we needed to read their applications to other projects
-to give everyone a fair chance and to attempt to gauge their suitability for the project.
-From reading all of the applications there was some common aspects that made a good
-CV and conversely some that hurt the CV.
-A common aspect of a good CV that I saw was a well written application that also 
-included some insight about the character of the applicant generally expressed in a
-story of how they obtained some experience such as participating in hackathons or
-their own side-projects.
-I found this style of expressing their skills and interests to be effective to
-establish their character and skills with strong credibility and is something I will
-take to writing my next CV due to positive impact it had on my impression from the applicant.
-CVs that lacked this aspect were harder to judge as they become difficult to
-understand how the skills they describe are backed by any passion for the subject 
-or how they would be in an environment with pressure to learn new tools.
+
+The panel used the CVs given to us to try to identify candidates that displayed
+the attributes we identified through written communication.
+This was challenged as the project was not a popular choice, with only one candidate with
+a direct application to this project.
+The consequence of this was we needed to read candidate's applications to other projects
+with the mindset of how could their skills and experiences could be transfered and benefit our
+project.
+For example a candidate was successful possum hunter but that is not as transferable
+to our project as someone else with a passion for other cultures.
+However since the candidates are applying for other projects want they are less
+likely to list skills relevant to our project unless another project
+had similar requirements [@careersnzcv][@engr301interview].
+<!-- review down -->
+From reading all of the applications there was some common aspects that made a
+CV standout and conversely some that moved CV the down the rankings.
+A common aspect of a standout CV was not just listing down their skills
+but also backed it up with evidence.
+This came in the form of either recounting an experience, project or an accomplishment, such as
+winning a hackathon.
+This evidence based description of their skills were effective in helping
+the panel get some insight of their character, where their passions lie and how well they fit
+to our key attribute of being willing to learn something entirely new.
+The CVs that lacked this quality were harder to judge highly as we had to rely more on the
+technical skills listed as basis to evaluate their suitability to project.
+The end result of reading the CVs have left a ring of truth to common advice about
+aiming for CV for the position you want [@careersnzcv][@careersnzdescribe] and in
+the case of our panel it is still useful if your CV is passed around to other positions
+you did not aim for to begin with.
 
 <!-- 
     talk about good & bad points of CVs (written communication)
