@@ -147,9 +147,15 @@ needs citations and relating to real world
 -->
 
 <!-- conculsions -->
+
 From this case study I have found places where I can improve as an interviewer and interviewee
 as well as confirming advise from supporting agencies.
-
-
+Reading the CVs of the applicants confirmed the advice[@careersnzdescribe] to not just
+list your skills but provide backing evidence and when accompanied by experiences help
+to give the interviewer insight into the candidate.
+Being on the panel revealed that the interview is a two way street of
+interviewer wanting to give the interviewee their best chance to confirm what
+the interviewer has read about them in their CV as well as the importance of
+notes about the interview for an interviewer.
 
 \pagebreak
