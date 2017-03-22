@@ -26,7 +26,7 @@ Focusing on the communication between applicants and the panel and how the
 panel team functioned.
 This case study outlines the context in which our panel worked in,
 the written communication to the panel via CVs from the applicants
-and the oral communication between the panel and interviewees.
+and the verbal and non-verbal communication between the panel and interviewees.
 
 <!-- ADD THINGS THAT WILL BE COVERED -->
 
