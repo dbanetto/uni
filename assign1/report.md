@@ -92,40 +92,44 @@ you did not aim for to begin with such as our project.
 <!--
 interviews
 issue: verbal & non-verbal communication between interviewer & 'ee
-       power balance
+       power balance?
 -->
 
 These interviews were my first time interviewing a candidate for a position.
 From being an interviewer I noticed more about with how interviewees and interviewers
 interact then I had being on the other side of the table.
-A majority of our interviewees did not select our project so our panel decided
-to brief description of the project, which included our expectations of a member of the
-project.
-One of the most important details I found was the panel comes to the interview
-with a set of attributes that they want to confirm that the interviewee.
-This puts the interviewee at a disadvantage with trying to meet these hidden attributes
-and shows the power advantage the interviewers has.
-Our panel tried to mitigate this in the brief of the project we gave to our interviewees.
-In hindsight this mitigation might not of been fair as we hoped for as we dumping
-these expectations onto them during the interview with no time to prepare for them,
-although the ability to react could be an attribute we are looking for.
-From past experience we knew the interviews were probably nervous so we started it
-by introducing ourselves to help them be at ease.
-This had the aim to set a welcoming atmosphere which is commonly advised [@nailinterview2012]. 
-We attempted to carry this atmosphere by making the interview more of a
-conversation about the project and the interviewee's experiences then
-drilling them with questions. 
-A side-effect of this is we did not take notes during the interviews but
-took holistic notes at the end of the interview.
-These notes reflected the entire interview more then answers to individual questions.
-The main consequence of this was it became a lot harder to retrace our
-decision process of how we came to the suitability of the candidate since we lost
-our intermediate steps.
-The lack of notes did also hurt our ability to refine our selection after the interviews
-as it become more difficult when reviewing the candidates.
-In hindsight this was less fair to the candidates that did not standout positively or negatively
-as they were more difficult to recall and to give a judgement afterwards.
-From this I would recommend more notes then just a holistic description.
+There were two tough constraints on the interviews.
+The first was that the majority of our interviewees did not select our project, and
+the other was we only had 4 minutes with the interviewee.
+Our first constraint lead us to giving each interviewee a brief overview of project's goals
+and highlighting the project is focused on learning new tools.
+Though we had to forego the time to ask another questions the brief gave us a chance to see
+the interviewee's reaction of if they were disinterested or excited.
+This was a must know aspect as most candidates did not apply to be on this project.
+The brief was prefaced with a friendly introduction of the panel which is a technique
+to put the interviewee at ease [@nailinterview2012] and allows us to frame the interview
+as more of a conversation then a panel of judges but we also put the note till the
+end of the interview to keep this atmosphere.
+Taking the notes at the end allowed us to only record what was standout during the interview
+and to discuss the panel's overall thoughts on the interview.
+However this left answers to individual questions, such as critical ones as team cooperation,
+out of the notes.
+The most felt consequence of this decision was the following day while updating the
+rankings of the candidates.
+The notes gave a good indication of who we liked but it lacked the ability to be able
+to retrace the steps we came to the decision.
+With the loss of these steps we could not reproduce our chain of thought or be able to
+differentiate similar candidates.
+In hindsight we could of kept the conversation atmosphere with the interviewee with a
+panel member taking notes and is a recommended [@nailinterview2012] method to give effective
+interviews.
+The note taker would have to be mindful of how their action effect the interview, such
+as franticly writing down everything the interviewee says might make them more nervous
+and harder to interview.
+Going through this interview process has highlighted the importance of the interviewers
+giving the interviewee a good chance at the interview, with one method being to make
+them feel comfortable in a conversation, and the importance for interviewers to take notes
+for review later.
 
 <!-- 
 needs citations and relating to real world
