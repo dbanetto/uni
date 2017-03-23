@@ -128,6 +128,8 @@ public class Interpreter {
             return execute((Expr.Invoke) stmt, frame);
         } else if (stmt instanceof Stmt.Skip) {
             return execute((Stmt.Skip) stmt, frame);
+        } else if (stmt instanceof Stmt.DoWhile) {
+            return execute((Stmt.DoWhile) stmt, frame);
         } else {
             internalFailure("unknown statement encountered (" + stmt + ")", file.filename, stmt);
             return null;
@@ -199,6 +201,21 @@ public class Interpreter {
                 return ret;
             }
         }
+        return null;
+    }
+
+
+    private Object execute(Stmt.DoWhile stmt, HashMap<String, Object> frame) {
+        do  {
+            Object ret = execute(stmt.getBody(), frame);
+            if (ret == BREAK_CONSTANT) {
+                break;
+            } else if (ret == CONTINUE_CONSTANT) {
+                // continue :)
+            } else if (ret != null) {
+                return ret;
+            }
+        } while ((Boolean) execute(stmt.getCondition(), frame));
         return null;
     }
 

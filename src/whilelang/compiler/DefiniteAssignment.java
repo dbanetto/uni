@@ -87,7 +87,7 @@ public class DefiniteAssignment {
      * assigned. Furthermore, update the set of definitely assigned variables to
      * include any which are definitely assigned after this statement.
      *
-     * @param statement   The statement to check.
+     * @param stmt   The statement to check.
      * @param environment The set of variables which are definitely assigned.
      * @return The updated set of variables which are now definitely assigned,
      * or null if the method has terminated.
@@ -116,6 +116,8 @@ public class DefiniteAssignment {
             return check((Stmt.For) stmt, environment);
         } else if (stmt instanceof Stmt.While) {
             return check((Stmt.While) stmt, environment);
+        } else if (stmt instanceof Stmt.DoWhile) {
+            return check((Stmt.DoWhile) stmt, environment);
         } else if (stmt instanceof Stmt.Switch) {
             return check((Stmt.Switch) stmt, environment);
         } else if (stmt instanceof Stmt.Skip) {
@@ -206,6 +208,15 @@ public class DefiniteAssignment {
         check(stmt.getBody(), environment);
         //
         return new ControlFlow(environment, null);
+    }
+
+    public ControlFlow check(Stmt.DoWhile stmt, Defs environment) {
+        ControlFlow flow = check(stmt.getBody(), environment);
+        Defs firstRun = flow.breakEnvironment != null ? flow.breakEnvironment : flow.nextEnvironment;
+        //
+        check(stmt.getCondition(), firstRun);
+        //
+        return new ControlFlow(firstRun, null);
     }
 
     public ControlFlow check(Stmt.Switch stmt, Defs environment) {

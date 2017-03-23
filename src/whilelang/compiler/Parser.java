@@ -197,6 +197,11 @@ public class Parser {
             stmt = parseIfStmt(context);
         } else if (token.text.equals("while")) {
             stmt = parseWhileStmt(context);
+        } else if (token.text.equals("do")) {
+            stmt = parseDoWhileStmt(context);
+            if (withSemiColon) {
+                match(";");
+            }
         } else if (token.text.equals("for")) {
             stmt = parseForStmt(context);
         } else if (token.text.equals("switch")) {
@@ -242,6 +247,27 @@ public class Parser {
             }
         }
         return stmt;
+    }
+
+    /**
+     * Parse a do-While statement of the form:
+     * <p>
+     * <pre>
+     * WhileStmt ::= 'do'  StmtBlock 'while' '(' Expr ')' ';'
+     * </pre>
+     *
+     * @return
+     */
+    private Stmt.DoWhile parseDoWhileStmt(Context context) {
+            int start = index;
+            matchKeyword("do");
+            List<Stmt> blk = parseStatementBlock(context.setInLoop().clone());
+            matchKeyword("while");
+            match("(");
+            Expr condition = parseExpr(context);
+            match(")");
+            int end = index;
+            return new Stmt.DoWhile(condition, blk, sourceAttr(start, end - 1));
     }
 
     /**

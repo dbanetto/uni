@@ -116,6 +116,8 @@ public class TypeChecker {
             check((Stmt.For) stmt, environment);
         } else if (stmt instanceof Stmt.While) {
             check((Stmt.While) stmt, environment);
+        } else if (stmt instanceof Stmt.DoWhile) {
+            check((Stmt.DoWhile) stmt, environment);
         } else if (stmt instanceof Stmt.Switch) {
             check((Stmt.Switch) stmt, environment);
         } else if (stmt instanceof Stmt.Skip) {
@@ -197,6 +199,14 @@ public class TypeChecker {
         // Make sure condition has bool type
         checkInstanceOf(ct, stmt.getCondition(), Type.Bool.class);
         check(stmt.getBody(), environment);
+    }
+
+    public void check(Stmt.DoWhile stmt, Map<String, Type> environment) {
+        check(stmt.getBody(), environment);
+
+        Type ct = check(stmt.getCondition(), environment);
+        // Make sure condition has bool type
+        checkInstanceOf(ct, stmt.getCondition(), Type.Bool.class);
     }
 
     public void check(Stmt.Switch stmt, Map<String, Type> environment) {
