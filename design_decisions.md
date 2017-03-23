@@ -112,9 +112,16 @@ if (x == 0) {
 }
 ```
 
-TODO: decide if it is worth checking if skip is the only thing in the block or just
-another statement.
-( former: edit parseStatementBlock to check for `skip` before parsing all statements )
+It is a syntax error to have any other statements in the same block
+as a `skip` e.g.
+
+```
+if (true) {
+    skip;
+    int i = 1; // error
+}
+```
+
 
 ## `switch` `case` with ranges and more
 

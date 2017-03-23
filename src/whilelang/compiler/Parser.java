@@ -156,9 +156,16 @@ public class Parser {
     private List<Stmt> parseStatementBlock(Context context) {
         match("{");
 
+        Token token = tokens.get(index);
         ArrayList<Stmt> stmts = new ArrayList<Stmt>();
-        while (index < tokens.size() && !(tokens.get(index) instanceof RightCurly)) {
-            stmts.add(parseStatement(true, context));
+
+        if (token.text.equals("skip")) {
+            stmts.add(parseSkipStmt(context));
+            match(";");
+        } else {
+            while (index < tokens.size() && !(tokens.get(index) instanceof RightCurly)) {
+                stmts.add(parseStatement(true, context));
+            }
         }
 
         match("}");
@@ -216,11 +223,6 @@ public class Parser {
             if (withSemiColon) {
                 match(";");
             }
-        } else if (token.text.equals("skip")) {
-            stmt = parseSkipStmt(context);
-            if (withSemiColon) {
-                match(";");
-            }
         } else if ((index + 1) < tokens.size() && tokens.get(index + 1) instanceof LeftBrace) {
             // must be a method invocation
             stmt = parseInvokeExprOrStmt(context);
@@ -232,6 +234,9 @@ public class Parser {
             if (withSemiColon) {
                 match(";");
             }
+        } else if (token.text.equals("skip")) {
+            stmt = null;
+            syntaxError("skip must be the only statement in a block", token);
         } else {
             // invocation or assignment
             int start = index;
