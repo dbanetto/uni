@@ -4,10 +4,10 @@ Summary of changes to the while compiler and the decisions that were made.
 
 ## Do-While
 
-```java
-do {
-    // Statements
-} while( BOOL_EXPR );
+Changes to the grammar:
+
+```
+DoWhileStmt ::= 'do' '{' Stmt* '}' 'while' '(' Expr ')' ';'
 ```
 
 The syntax for the `do-while` block is the same as described in 2016's Assignment 1
@@ -42,15 +42,23 @@ Already implemented, missed it in the keywords list.
 
 ## `const` declaration
 
+Changes to the grammar:
+
+```
+ConstVarDeclearationStmt ::= 'const' Type Ident '=' ConstExpr ';'
+
+ConstVarExpr ::= Ident
+```
+
 The design of the `const` semantics is to follow what other languages do
 to handle them. 
-Java's closest construct to `const` is the `final` modifier, which makes the variable
-be immutable after first assignment.
+Java's closest idea to `const` is the `final` modifier, which makes the variable
+be immutable after its first assignment.
 
-There are different interpretations of `const` in different languages.
+Other languages use the keyword `const` but have different interpretations of it.
 In `C` it is seen as an extension to the type to denote that it is immutable 
 as opposed to something like `D` or `rust` where they are treated as
-essentially aliases to a constant value and could be replaces into constant expressions.
+essentially aliases to a constant value and could be used in constant expressions.
 
 In all of these languages they must be assigned a value at declaration unlike normal
 variables.
@@ -76,7 +84,15 @@ let n = 10;
 const i: i32 = n; // err: attempt to use a non-constant value in a constant 
 ```
 
+TODO: actually implement the const type & make the design decisions final
+
 ## `skip` statement
+
+Changes to the grammar:
+
+```
+SkipStmt ::= 'skip' ';'
+```
 
 The `skip` statement is implemented as a no-op for a block.
 
