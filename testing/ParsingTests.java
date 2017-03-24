@@ -69,6 +69,7 @@ public class ParsingTests {
             fail();
         } catch (Exception e) {
             // Success!
+            System.out.println(e);
         }
     }
 }

@@ -122,6 +122,8 @@ public class Interpreter {
             return execute((Stmt.Return) stmt, frame);
         } else if (stmt instanceof Stmt.VariableDeclaration) {
             return execute((Stmt.VariableDeclaration) stmt, frame);
+        } else if (stmt instanceof Stmt.ConstVariableDeclaration) {
+            return execute((Stmt.ConstVariableDeclaration) stmt, frame);
         } else if (stmt instanceof Stmt.Print) {
             return execute((Stmt.Print) stmt, frame);
         } else if (stmt instanceof Expr.Invoke) {
@@ -264,6 +266,22 @@ public class Interpreter {
     }
 
     private Object execute(Stmt.VariableDeclaration stmt,
+                           HashMap<String, Object> frame) {
+        Expr re = stmt.getExpr();
+        Object value;
+        if (re != null) {
+            value = execute(re, frame);
+        } else {
+            value = Collections.EMPTY_SET; // used to indicate a variable has
+            // been declared
+        }
+        // We need to perform a deep clone here to ensure the value
+        // semantics used in While are preserved.
+        frame.put(stmt.getName(), deepClone(value));
+        return null;
+    }
+
+    private Object execute(Stmt.ConstVariableDeclaration stmt,
                            HashMap<String, Object> frame) {
         Expr re = stmt.getExpr();
         Object value;

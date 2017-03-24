@@ -34,6 +34,14 @@ do {
 
 ## Input statement
 
+Make it an expression or make it a function that is always defined?
+
+`get` vs. `readline()`
+
+If it is a function, swap print to be one too? what would
+be the implementation of the function? Need special case for
+built-ins / syscalls ?
+
 TODO
 
 ## Switch `default` case
@@ -84,7 +92,23 @@ let n = 10;
 const i: i32 = n; // err: attempt to use a non-constant value in a constant 
 ```
 
-TODO: actually implement the const type & make the design decisions final
+From researching the different styles of `const`'s in other languages the
+final semantics implemented is:
+
+ * a `const` can only be set to a constant value
+ * a `const` must be initialized at declaration (parser ensures)
+ * a `const` is usable in any constant expression (e.g. defining another `const` or a `switch` statement)
+
+```java
+int n = 10;
+const int i = 100;
+switch (n) {
+    case i:
+        break;
+    default:
+        break;
+}
+```
 
 ## `skip` statement
 
@@ -141,3 +165,5 @@ switch (n)
 ```
 
 ## union types
+
+`UnionType ::= Type|Type`

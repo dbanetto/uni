@@ -889,4 +889,98 @@ public interface Stmt extends SyntacticElement {
         }
     }
 
+
+    /**
+     * Represents a constant variable declaration which is made up from a type, a
+     * variable name and an (optional) initialiser expression. If an initialiser
+     * is given, then this will be evaluated and assigned to the variable when
+     * the declaration is executed. Some example declarations:
+     * <p>
+     * <pre>
+     * int x;
+     * int y = 1;
+     * int z = x + y;
+     * </pre>
+     * <p>
+     * Observe that, unlike C and Java, declarations that declare multiple
+     * variables (separated by commas) are not permitted.
+     *
+     * @author David Barnett
+     */
+    public static final class ConstVariableDeclaration extends SyntacticElement.Impl implements
+            Stmt {
+        private final Type type;
+        private final String name;
+        private final Expr expr;
+
+        /**
+         * Construct a variable declaration from a given type, variable name and
+         * optional initialiser expression.
+         *
+         * @param type       Type of variable being declared.
+         * @param name       Name of varaible being declared.
+         * @param expr       Optional initialiser expression, which may be null.
+         * @param attributes
+         */
+        public ConstVariableDeclaration(Type type, String name, Expr expr,
+                                   Attribute... attributes) {
+            super(attributes);
+            this.type = type;
+            this.name = name;
+            this.expr = expr;
+        }
+
+        /**
+         * Construct a variable declaration from a given type, variable name and
+         * optional initialiser expression.
+         *
+         * @param type       Type of variable being declared.
+         * @param name       Name of varaible being declared.
+         * @param expr       Optional initialiser expression, which may be null.
+         * @param attributes
+         */
+        public ConstVariableDeclaration(Type type, String name, Expr expr,
+                                   Collection<Attribute> attributes) {
+            super(attributes);
+            this.type = type;
+            this.name = name;
+            this.expr = expr;
+        }
+
+        public String toString() {
+            String r = "const " + getType() + " " + getName();
+            if (getExpr() != null) {
+                r = r + " = " + getExpr();
+            }
+            return r;
+        }
+
+        /**
+         * Get the type of the variable being declared.
+         *
+         * @return Guaranteed to be non-null.
+         */
+        public Type getType() {
+            return type;
+        }
+
+        /**
+         * Get the name of the variable being declared.
+         *
+         * @return Guaranteed to be non-null.
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * Get the initialiser expression of the variable being declared (if
+         * present).
+         *
+         * @return May be null.
+         */
+        public Expr getExpr() {
+            return expr;
+        }
+    }
 }

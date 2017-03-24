@@ -87,6 +87,7 @@ public class UnreachableCode {
                 stmt instanceof Stmt.Assign ||
                 stmt instanceof Stmt.Print ||
                 stmt instanceof Stmt.VariableDeclaration ||
+                stmt instanceof Stmt.ConstVariableDeclaration ||
                 stmt instanceof Expr.Invoke ||
                 stmt instanceof Stmt.Skip) {
             // These are all the easy cases!

@@ -108,6 +108,8 @@ public class TypeChecker {
             // nothing to do
         } else if (stmt instanceof Stmt.VariableDeclaration) {
             check((Stmt.VariableDeclaration) stmt, environment);
+        } else if (stmt instanceof Stmt.ConstVariableDeclaration) {
+            check((Stmt.ConstVariableDeclaration) stmt, environment);
         } else if (stmt instanceof Expr.Invoke) {
             check((Expr.Invoke) stmt, false, environment);
         } else if (stmt instanceof Stmt.IfElse) {
@@ -129,6 +131,17 @@ public class TypeChecker {
 
 
     public void check(Stmt.VariableDeclaration stmt, Map<String, Type> environment) {
+        if (environment.containsKey(stmt.getName())) {
+            syntaxError("variable already declared: " + stmt.getName(),
+                    file.filename, stmt);
+        } else if (stmt.getExpr() != null) {
+            Type type = check(stmt.getExpr(), environment);
+            checkSubtype(stmt.getType(), type, stmt.getExpr());
+        }
+        environment.put(stmt.getName(), stmt.getType());
+    }
+
+    public void check(Stmt.ConstVariableDeclaration stmt, Map<String, Type> environment) {
         if (environment.containsKey(stmt.getName())) {
             syntaxError("variable already declared: " + stmt.getName(),
                     file.filename, stmt);

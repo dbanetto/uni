@@ -237,6 +237,11 @@ public class Parser {
         } else if (token.text.equals("skip")) {
             stmt = null;
             syntaxError("skip must be the only statement in a block", token);
+        } else if (token.text.equals("const")) {
+            stmt = parseConstVariableDeclaration(context);
+            if (withSemiColon) {
+                match(";");
+            }
         } else {
             // invocation or assignment
             int start = index;
@@ -341,6 +346,14 @@ public class Parser {
         if (!(lhs instanceof Expr.LVal)) {
             syntaxError("expecting lval, found " + lhs + ".", lhs);
         }
+        // check if assignment is to a const
+        if (lhs instanceof Expr.Variable) {
+            Expr.Variable  var = (Expr.Variable) lhs;
+            if (context.isConst(var.getName())) {
+                syntaxError("Cannot assign to a const variable", lhs);
+            }
+        }
+
         match("=");
         Expr rhs = parseExpr(context);
         int end = index;
@@ -394,6 +407,42 @@ public class Parser {
         }
         // Done.
         return new Stmt.VariableDeclaration(type, id.text, initialiser, sourceAttr(start, index - 1));
+    }
+
+    /**
+     * Parse a const variable declaration, of the form:
+     * <p>
+     * <pre>
+     * ConstVarDecl ::= 'const' Type Ident [ '=' Expr ] ';'
+     * </pre>
+     *
+     * @return
+     */
+    private Stmt.ConstVariableDeclaration parseConstVariableDeclaration(Context context) {
+        int start = index;
+        // Every variable declaration consists of a declared type and variable
+        // name.
+        match("const");
+
+        Type type = parseType();
+        Identifier id = matchIdentifier();
+        if (context.isDeclared(id.text)) {
+            syntaxError("variable " + id.text + " already declared", id);
+        }
+        // A variable declaration may optionally be assigned an initializer
+        // expression.
+        Expr initializer = null;
+        if (index < tokens.size() && tokens.get(index) instanceof Equals) {
+            match("=");
+            initializer = parseConstant(context);
+        } else {
+            syntaxError("const variable is required to be initialized at declaration", tokens.get(start));
+        }
+
+        context.declareConst(id.text, initializer);
+
+        // Done.
+        return new Stmt.ConstVariableDeclaration(type, id.text, initializer, sourceAttr(start, index - 1));
     }
 
     /**
@@ -569,7 +618,7 @@ public class Parser {
             if (lookahead.text.equals("case")) {
                 // This is a case block
                 matchKeyword("case");
-                value = parseConstant();
+                value = parseConstant(context);
                 if (values.contains(value.getValue())) {
                     syntaxError("duplicate case", value);
                 } else {
@@ -594,29 +643,35 @@ public class Parser {
         return cases;
     }
 
-    private Expr.Constant parseConstant() {
-        Expr e = parseExpr(new Context());
-        Object constant = parseConstant(e);
+    private Expr.Constant parseConstant(Context context) {
+        Expr e = parseExpr(context);
+        Object constant = parseConstant(context, e);
         return new Expr.Constant(constant, e.attributes());
     }
 
-    private Object parseConstant(Expr e) {
+    private Object parseConstant(Context context, Expr e) {
         if (e instanceof Expr.Constant) {
             return ((Expr.Constant) e).getValue();
         } else if (e instanceof Expr.ArrayInitialiser) {
             Expr.ArrayInitialiser ai = (Expr.ArrayInitialiser) e;
             ArrayList<Object> vals = new ArrayList<Object>();
             for (Expr element : ai.getArguments()) {
-                vals.add(parseConstant(element));
+                vals.add(parseConstant(context, element));
             }
             return vals;
         } else if (e instanceof Expr.RecordConstructor) {
             Expr.RecordConstructor rc = (Expr.RecordConstructor) e;
             HashMap<String, Object> vals = new HashMap<String, Object>();
             for (Pair<String, Expr> p : rc.getFields()) {
-                vals.put(p.first(), parseConstant(p.second()));
+                vals.put(p.first(), parseConstant(context, p.second()));
             }
             return vals;
+        } else if (e instanceof Expr.Variable) {
+            Expr.Variable v = (Expr.Variable) e;
+            if (!context.isConst(v.getName())) {
+                syntaxError("non-constant variable used in context expression expected", e);
+            }
+            return ((Expr.Constant) context.getConstDeclaration(v.getName())).getValue();
         } else {
             // Problem
             syntaxError("constant expression expected", e);
@@ -1113,15 +1168,15 @@ public class Parser {
         /**
          * indicates the set of declared variables within the current context;
          */
-        private final Set<String> environment;
+        private final Map<String, Var> environment;
 
         public Context() {
             this.inLoop = false;
             this.inSwitch = false;
-            this.environment = new HashSet<String>();
+            this.environment = new HashMap<>();
         }
 
-        private Context(boolean inLoop, boolean inSwitch, Set<String> environment) {
+        private Context(boolean inLoop, boolean inSwitch, Map<String, Var> environment) {
             this.inLoop = inLoop;
             this.inSwitch = inSwitch;
             this.environment = environment;
@@ -1152,11 +1207,33 @@ public class Parser {
          * @return
          */
         public boolean isDeclared(String variable) {
-            return environment.contains(variable);
+            return environment.containsKey(variable);
+        }
+
+
+        public boolean isConst(String variable) {
+            // cannot index a set
+            Var var = environment.get(variable);
+            if (var != null) {
+                return var.constant;
+            }
+            return false;
         }
 
         public void declare(String variable) {
-            environment.add(variable);
+            environment.put(variable, new Var(false, null));
+        }
+
+        public void declareConst(String variable, Expr declaration) {
+            environment.put(variable, new Var(true, declaration));
+        }
+
+        public Expr getConstDeclaration(String variable) {
+            Var var = environment.get(variable);
+            if (var != null) {
+                return var.declaration;
+            }
+            return null;
         }
 
         /**
@@ -1183,7 +1260,17 @@ public class Parser {
          * Create a new clone of this context
          */
         public Context clone() {
-            return new Context(inLoop, inSwitch, new HashSet<String>(environment));
+            return new Context(inLoop, inSwitch, new HashMap<>(environment));
+        }
+    }
+
+    private static class Var {
+        final boolean constant;
+        final Expr declaration;
+
+        public Var(boolean constant, Expr declaration) {
+            this.constant = constant;
+            this.declaration = declaration;
         }
     }
 }

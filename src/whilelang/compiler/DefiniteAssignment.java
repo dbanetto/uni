@@ -107,6 +107,8 @@ public class DefiniteAssignment {
             return check((Stmt.Return) stmt, environment);
         } else if (stmt instanceof Stmt.VariableDeclaration) {
             return check((Stmt.VariableDeclaration) stmt, environment);
+        } else if (stmt instanceof Stmt.ConstVariableDeclaration) {
+            return check((Stmt.ConstVariableDeclaration) stmt, environment);
         } else if (stmt instanceof Expr.Invoke) {
             check((Expr.Invoke) stmt, environment);
             return new ControlFlow(environment, null);
@@ -175,6 +177,16 @@ public class DefiniteAssignment {
     }
 
     public ControlFlow check(Stmt.VariableDeclaration stmt, Defs environment) {
+        if (environment.contains(stmt.getName())) {
+            syntaxError("variable already declared: " + stmt.getName(), file.filename, stmt);
+        } else if (stmt.getExpr() != null) {
+            check(stmt.getExpr(), environment);
+            environment = environment.add(stmt.getName());
+        }
+        return new ControlFlow(environment, null);
+    }
+
+    public ControlFlow check(Stmt.ConstVariableDeclaration stmt, Defs environment) {
         if (environment.contains(stmt.getName())) {
             syntaxError("variable already declared: " + stmt.getName(), file.filename, stmt);
         } else if (stmt.getExpr() != null) {
