@@ -6,13 +6,22 @@
 \documentclass[11pt, a4paper, twoside, openright]{report}
 
 \usepackage{float} % lets you have non-floating floats
-
+\usepackage{listings}
+\usepackage{color}
 \usepackage{url} % for typesetting urls
 
 %  We don't want figures to float so we define
 %
 \newfloat{fig}{thp}{lof}[chapter]
 \floatname{fig}{Figure}
+
+\definecolor{grey}{rgb}{0.95,0.95,0.95}
+
+\lstset{ %
+    backgroundcolor=\color{grey},
+    frame=single,
+    numbers=left
+}
 
 %% These are standard LaTeX definitions for the document
 %%
@@ -33,7 +42,7 @@
 % [font|image]            Use a font or an image for the VUW logo
 %                          The font option will only work on ECS systems
 %
-\usepackage[image,ecs]{vuwproject} 
+\usepackage[image,ecs]{vuwproject}
 
 % You should specifiy your supervisor here with
 %     \supervisor{Firstname Lastname}
@@ -56,9 +65,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{abstract}
-  This document gives some ideas about how to write a project
-  proposal, and provides a template for a proposal. You should discuss
-  your proposal with your supervisor.
+    This document gives some ideas about how to write a project
+    proposal, and provides a template for a proposal. You should discuss
+    your proposal with your supervisor.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,9 +87,19 @@
 
 \section*{1. Introduction}
 
-% Whiley is a programming language designed to support formal verification, and now using in teacher SWEN224 at VUW.  One of the biggest obstacles to practical use of Whiley, especially in a teaching context, is the need for  the programmer to provide detailed loop invariants, many of which are stating trivial or obvious properties.  The aim of this prioject is to develop techniques to generate simlpe loop invariants for Whiley, so as to ease the burden on the programmer, allowiong them to focus on more interesting ihvariants that relate directly to the properties the are trying to establish.
+% Whiley is a programming language designed to support formal verification, and now using in teacher SWEN224 at VUW.
+% One of the biggest obstacles to practical use of Whiley,
+% especially in a teaching context, is the need for  the programmer to provide detailed loop invariants,
+% many of which are stating trivial or obvious properties.
+% The aim of this project is to develop techniques to generate simlpe loop invariants for Whiley,
+% so as to ease the burden on the programmer,
+% allowiong them to focus on more interesting invariants that relate directly to the properties the are trying to establish.
 
-% It is well taht generating loop invariants is very hard - indeed, it is uncomputable in general.  The emphasis in this project is not on generality but on practicality.  The first step will be to look at some of the approaches that have been described in the literature, and then implement one of them, or some combination, in Whiley, then look at ways in which this can be improved.  Ideally, then implementation will be available in time to be evaluated with SWEN224 students in Trimester 2.
+% It is well taht generating loop invariants is very hard - indeed, it is uncomputable in general.
+% The emphasis in this project is not on generality but on practicality.
+% The first step will be to look at some of the approaches that have been described in the literature,
+% and then implement one of them, or some combination, in Whiley, then look at ways in which this can be improved.
+% Ideally, then implementation will be available in time to be evaluated with SWEN224 students in Trimester 2.
 
 In this section you should include a very brief introduction to the
 problem to the problem and the project.
@@ -88,18 +107,55 @@ problem to the problem and the project.
 Your project proposal should cover the following points:
 
 \begin{itemize}
-\item the engineering problem that you are going to solve;
-\item how you plan to solve your problem;
-\item how you intend to evaluate your solution; and
-\item any resource requirements for your project such as software,
-  hardware or other resources that will be needed in the course of the
-  project.
+    \item the engineering problem that you are going to solve;
+    \item how you plan to solve your problem;
+    \item how you intend to evaluate your solution; and
+    \item any resource requirements for your project such as software,
+        hardware or other resources that will be needed in the course of the
+        project.
 \end{itemize}
+
 
 Your proposal should be not more than than 4 pages long with about 2 pages of content.
 
 \section*{2. The Problem}
 
+% Whiley is a programming language designed to support formal verification, and now using in teacher SWEN224 at VUW.
+% One of the biggest obstacles to practical use of Whiley,
+% especially in a teaching context, is the need for  the programmer to provide detailed loop invariants,
+% many of which are stating trivial or obvious properties.
+% The aim of this project is to develop techniques to generate simple loop invariants for Whiley,
+% so as to ease the burden on the programmer,
+% allowing them to focus on more interesting invariants that relate directly to the properties the are trying to establish.
+
+% problem: Whiley requires detailed loop invariants to be provided
+% some of these are tedious and can be to make, index within bound of array, &
+% the reader can see these from inspection (trivial and tedious).
+%
+% Why is this important:
+% * Whiley is used in SWEN224 to teach the younglings about verified code & software correctness
+% * Obstacle to practical use of Whiley, in a teaching context and industry
+%
+% Aim:
+% * Make it easier to program by reducing the amount of tedious/trivial proofs (demonstrate less code)
+% * generate loop invariants based off code using methods described in literature. (implement algorithms from literature)
+% * to make it modular and be able to turn off generation to let
+%   students think about these easy loop invariants (implement modularity)
+\begin{lstlisting}
+function indexOf(int[] items, int item) -> (int r)
+    ensures r == |items| || items[r] == item:
+
+    int i = 0
+
+    while i < |items|
+    where i >= 0 && i <= |items|:
+
+        if items[i] == item:
+            break
+        i = i + 1
+
+    return i
+\end{lstlisting}
 In this section you should give a brief description of the problem
 itself. You want to briefly explain the problem, why it is important
 to solve the problem and define your project aims. After reading this
@@ -115,13 +171,13 @@ specific, measurable words like `implement', `demonstrate', `show',
 For example:
 
 \begin{itemize}
-\item[\bf Good] The aim of this project is to implement and evaluate a
-  management system for network switches;
+    \item[\bf Good] The aim of this project is to implement and evaluate a
+        management system for network switches;
 \end{itemize}
 is much better than:
 \begin{itemize}
-\item[\bf Bad] The aim of this project is to investigate management
-  systems for network switches.
+    \item[\bf Bad] The aim of this project is to investigate management
+        systems for network switches.
 \end{itemize}
 
 In the second case there is no idea of how much work is involved, and
@@ -132,6 +188,19 @@ the task you set yourself is not achievable, but if you are clear from
 the outset this is less likely, and will more easily be corrected.
 
 \section*{3. Proposed Solution}
+
+% plan:
+%  * find papers about generating loop invariants
+%  * read and understand them (out: bibliography)
+%  * compare different methods of invariant generation (out: section in report) [ 70's vs. Modern techniques ]
+%  * read and understand the Whiley compiler
+%  * choose a small test project to compare the end-results with (e.g. game of tic-tac-toe)
+%  * design a modular system to enable loop invariant generation (out: design documents)
+%  * Implement the simplest loop invariant generator (out: code)
+%  * refactor sample project to use new generator
+%
+%
+%  note: accompany each invariant generator with a sample of before & after
 
 In this section you will explain how solve the problem, that is, how
 you intend to carry the project out. At this early stage you need to
@@ -154,11 +223,11 @@ specific, measurable goals, you should describe this part of your
 project as:
 
 \begin{itemize}
-\item[\bf Good] Produce bibliography (est: 2 weeks)
+    \item[\bf Good] Produce bibliography (est: 2 weeks)
 \end{itemize}
 rather than
 \begin{itemize}
-\item[\bf Bad] Background reading (est: 2 weeks)
+    \item[\bf Bad] Background reading (est: 2 weeks)
 \end{itemize}
 
 Note that the methodology you outline here is dependent upon the type
@@ -167,6 +236,11 @@ about this.
 
 \section*{4. Evaluating your Solution}
 
+% comparing the code reduction in sample programs to see how much is saved
+% with using the generators
+% * compare performance ?
+% * evaluate how strong / buggy / crashy the new generators are
+
 In this section you will explain how you will evaluate your solution
 once you have built it. The method of evaluation will be domain
 specific. Your supervisor should provide guidance as to what is an
@@ -174,6 +248,12 @@ appropriate form of evaluation. For example, user testing for a HCI
 project or performance measurement for a Network Engineering project.
 
 \section*{5. Resource Requirements}
+
+% resources:
+%   * a computer
+%   * access to food
+%   * access to the literature
+%   * a line of communication to the main developer of Whiley
 
 In this section you will detail any resource requirements such as
 hardware, software or access to subjects.
