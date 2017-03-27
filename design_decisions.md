@@ -34,15 +34,17 @@ do {
 
 ## Input statement
 
-Make it an expression or make it a function that is always defined?
+To get a working input statement (`readline()`) the addition of
+two other features were added, a standard library and a `syscall` statement.
 
-`get` vs. `readline()`
+The standard library was introduced so `readline()` was not an expression or a
+statement but a method call.
 
-If it is a function, swap print to be one too? what would
-be the implementation of the function? Need special case for
-built-ins / syscalls ?
-
-TODO
+The `syscall` statement is an internal use only for being able to interface
+with operating system given functionality such as I/O.
+So far only `readline()` uses this, `print` could be transfered into this as well
+but has the additional problem of being able to take any expression an argument which
+a method cannot give the same functionality without overloads of `print()` for every time.
 
 ## Switch `default` case
 
