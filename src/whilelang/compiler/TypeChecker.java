@@ -50,6 +50,11 @@ public class TypeChecker {
         this.methods = new HashMap<String, WhileFile.MethodDecl>();
         this.types = new HashMap<String, WhileFile.TypeDecl>();
 
+        // add stdlib to scope
+        for  (WhileFile.MethodDecl method : Stdlib.getStdLib()) {
+            methods.put(method.name(), method);
+        }
+
         for (WhileFile.Decl declaration : wf.declarations) {
             if (declaration instanceof WhileFile.MethodDecl) {
                 WhileFile.MethodDecl fd = (WhileFile.MethodDecl) declaration;

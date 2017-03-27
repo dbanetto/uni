@@ -8,8 +8,10 @@ import whilelang.ast.WhileFile;
 import whilelang.compiler.WhileCompiler;
 import whilelang.util.Interpreter;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -55,6 +57,11 @@ public class RuntimeValidTests {
     private void runTest(String testname) throws IOException {
         WhileCompiler compiler = new WhileCompiler(WHILE_SRC_DIR + testname + ".while");
         WhileFile ast = compiler.compile();
+
+        // mocks stdin so tests with readline() can pass
+        InputStream mocked = new ByteArrayInputStream("Hello World\n".getBytes());
+        System.setIn(mocked);
+
         new Interpreter().run(ast);
     }
 }

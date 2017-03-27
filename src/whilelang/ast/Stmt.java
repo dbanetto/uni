@@ -983,4 +983,52 @@ public interface Stmt extends SyntacticElement {
             return expr;
         }
     }
+
+
+    /**
+     * A non-parsable
+     */
+    public static final class Syscall extends SyntacticElement.Impl implements
+            Stmt {
+
+        private final Call call;
+        public static enum Call {
+           READLINE,
+        }
+
+        /**
+         * Construct a print statement from a given expression.
+         *
+         * @param call       May not be null.
+         * @param attributes
+         */
+        public Syscall(Call call, Attribute... attributes) {
+            super(attributes);
+            this.call = call;
+        }
+
+        /**
+         * Construct a print statement from a given expression.
+         *
+         * @param call       May not be null.
+         * @param attributes
+         */
+        public Syscall(Call call, Collection<Attribute> attributes) {
+            super(attributes);
+            this.call = call;
+        }
+
+        public String toString() {
+            return "syscall " + call;
+        }
+
+        /**
+         * Get the expression whose value is to be printed.
+         *
+         * @return Guaranteed to be non-null.
+         */
+        public Call getCall() {
+            return call;
+        }
+    }
 }

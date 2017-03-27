@@ -21,6 +21,8 @@ package whilelang.util;
 import whilelang.ast.Expr;
 import whilelang.ast.Stmt;
 import whilelang.ast.WhileFile;
+import whilelang.compiler.Stdlib;
+import whilelang.compiler.UnreachableCode;
 
 import java.util.*;
 
@@ -41,6 +43,12 @@ public class Interpreter {
     public void run(WhileFile wf) {
         // First, initialise the map of declaration names to their bodies.
         declarations = new HashMap<String, WhileFile.Decl>();
+
+        // setup stdlib
+        for (WhileFile.Decl decl : Stdlib.getStdLib()) {
+            declarations.put(decl.name(), decl);
+        }
+
         for (WhileFile.Decl decl : wf.declarations) {
             declarations.put(decl.name(), decl);
         }
@@ -132,6 +140,8 @@ public class Interpreter {
             return execute((Stmt.Skip) stmt, frame);
         } else if (stmt instanceof Stmt.DoWhile) {
             return execute((Stmt.DoWhile) stmt, frame);
+        } else if (stmt instanceof Stmt.Syscall) {
+            return execute((Stmt.Syscall) stmt, frame);
         } else {
             internalFailure("unknown statement encountered (" + stmt + ")", file.filename, stmt);
             return null;
@@ -548,4 +558,16 @@ public class Interpreter {
     };
     private Object CONTINUE_CONSTANT = new Object() {
     };
+
+    private Object execute(Stmt.Syscall stmt, HashMap<String, Object> frame) {
+        switch (stmt.getCall()) {
+            case READLINE:
+                Scanner sc = new Scanner(System.in);
+                return sc.nextLine();
+            default:
+                internalFailure("unknown syscall " + stmt.getCall(),
+                        file.filename, stmt);
+        }
+        throw new IllegalStateException();
+    }
 }

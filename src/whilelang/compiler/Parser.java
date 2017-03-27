@@ -41,6 +41,11 @@ public class Parser {
         this.tokens = new ArrayList<Token>(tokens);
         this.userDefinedMethods = new HashMap<String, WhileFile.MethodDecl>();
         this.userDefinedTypes = new HashSet<String>();
+
+        // add stdlib to scope
+        for  (WhileFile.MethodDecl method : Stdlib.getStdLib()) {
+            userDefinedMethods.put(method.name(), method);
+        }
     }
 
     /**

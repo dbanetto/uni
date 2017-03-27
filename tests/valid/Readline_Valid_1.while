@@ -1,0 +1,5 @@
+void main() {
+    string s = readline();
+
+    assert s == "Hello World";
+}
