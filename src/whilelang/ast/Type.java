@@ -189,6 +189,35 @@ public interface Type extends SyntacticElement {
     }
 
     /**
+     * Represents the range type <code>T .. T</code> which describes any ordered sequence
+     * between a lower and upper bound of type <code>Integer</code>
+     *
+     * @author David J. Pearce
+     */
+    public static final class Range extends SyntacticElement.Impl implements
+            Type {
+
+        private final Type element = new Type.Array(new Type.Int());
+
+        public Range(Attribute... attributes) {
+            super(attributes);
+        }
+
+        /**
+         * Get the element type of this list.
+         *
+         * @return
+         */
+        public Type getElement() {
+            return element;
+        }
+
+        public String toString() {
+            return element + ".." + element;
+        }
+    }
+
+    /**
      * Represents a record type, such as <code>{int x, int y}</code>, which
      * consists of one or more (named) field types. Observe that records exhibit
      * <i>depth</i> subtyping, but not <i>width</i> subtyping.

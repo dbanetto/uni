@@ -21,16 +21,14 @@ package whilelang.ast;
 import whilelang.util.Pair;
 import whilelang.util.SyntacticElement;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents an expression in the source code of a While program. Many standard
  * expression kinds are provided, including unary operations (e.g.
  * <code>!e</code>, <code>-e</code>, <code>|e|</code>), binary operations (e.g.
  * <code>x==y</code>, <code>x!=y</code>, <code>x+y</code>, etc), list
- * expressions (e.g. <code>ls[i]</code>, <code>[1,2,3]</code>, etc), record
+ * expressions (e.g. <code>ls[i]</code>, <code>[1,2,3]</code>, <code>1 .. 10</code>, etc), record
  * expressions (e.g. <code>r.f</code>, <code>{x: 1, y: 2}</code>, etc).
  */
 public interface Expr extends SyntacticElement {
@@ -672,6 +670,86 @@ public interface Expr extends SyntacticElement {
          */
         public List<Expr> getArguments() {
             return arguments;
+        }
+    }
+
+
+
+
+    /**
+     * Represents the occurrence of a range value within an expression. For
+     * example, in the expression <code>1 .. 2</code>, an instance of
+     * <code>Range</code> is used to represent the value <code>1 .. 2</code>.
+     *
+     * @author David Barnett
+     */
+    public static class Range extends SyntacticElement.Impl implements Expr {
+
+        private Expr.Constant start;
+        private Expr.Constant end;
+
+        /**
+         * Construct a constant expression from a given (primitive) value. The
+         * value must be either a boolean, character, integer, real, or string
+         * constant; alternative, it can be null (to signal the null constant).
+         *
+         * @param value      Must be an instance of <code>java.lang.Boolean</code>,
+         *                   <code>java.lang.Character</code>,
+         *                   <code>java.lang.Integer</code>,
+         *                   <code>java.lang.String</code>.
+         * @param attributes
+         */
+        public Range(Expr.Constant start, Expr.Constant end, Attribute... attributes) {
+            super(attributes);
+            this.start = start;
+            this.end = end;
+        }
+
+        /**
+         * Construct a constant expression from a given (primitive) value. The
+         * value must be either a boolean, character, integer, real, or string
+         * constant; alternative, it can be null (to signal the null constant).
+         *
+         * @param value      Must be an instance of <code>java.lang.Boolean</code>,
+         *                   <code>java.lang.Character</code>,
+         *                   <code>java.lang.Integer</code>,
+         *                   <code>java.lang.String</code>.
+         * @param attributes
+         */
+        public Range(Expr.Constant start, Expr.Constant end, Collection<Attribute> attributes) {
+            super(attributes);
+            this.start = start;
+            this.end = end;
+        }
+
+        public String toString() {
+            StringBuilder string = new StringBuilder();
+            string.append(this.start != null ? this.start.toString() : "null");
+            string.append("..");
+            string.append(this.end != null ? this.end.toString() : "null");
+
+            return string.toString();
+        }
+
+        /**
+         * Get the value represented by this constant, which must be an instance
+         * of <code>java.lang.Boolean</code>, <code>java.lang.Character</code>,
+         * <code>java.lang.Integer</code>, <code>java.lang.Double</code>,
+         * <code>java.lang.String</code> or <code>null</code>.
+         *
+         * @return
+         */
+        public Object getValue() {
+            // generate an array from start to end
+            int start = (Integer) this.start.getValue();
+            int end = (Integer) this.end.getValue();
+
+            List<Integer> values = new ArrayList<>(Math.max(end - start, 0));
+            for (int i = start; i <= end; i++) {
+                values.add(i);
+            }
+
+            return values;
         }
     }
 }

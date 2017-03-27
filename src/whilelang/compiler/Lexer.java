@@ -233,7 +233,12 @@ public class Lexer {
         char c = input.charAt(pos);
 
         if (c == '.') {
-            return new Dot(pos++);
+            if ((pos + 1) < input.length() && input.charAt(pos + 1) == '.') {
+                pos += 2;
+                return new DoubleDot(pos - 2);
+            } else {
+                return new Dot(pos++);
+            }
         } else if (c == ',') {
             return new Comma(pos++);
         } else if (c == ';') {
@@ -615,6 +620,13 @@ public class Lexer {
 
         public Dot(int pos) {
             super(".", pos);
+        }
+    }
+
+    public static class DoubleDot extends Token {
+
+        public DoubleDot(int pos) {
+            super("..", pos);
         }
     }
 

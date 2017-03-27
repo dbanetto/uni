@@ -624,11 +624,13 @@ public class Parser {
                 // This is a case block
                 matchKeyword("case");
                 value = parseConstant(context);
-                if (values.contains(value.getValue())) {
-                    syntaxError("duplicate case", value);
-                } else {
-                    values.add(value.getValue());
-                }
+
+                /// TODO: fix duplication cases later in parsing
+                //if (values.contains(value.getValue())) {
+                //    syntaxError("duplicate case", value);
+                //} else {
+                //    values.add(value.getValue());
+                //}
                 match(":");
             } else {
                 // This must be a default block
@@ -654,8 +656,26 @@ public class Parser {
         return new Expr.Constant(constant, e.attributes());
     }
 
+    private Expr.Range parseRange(Context context, Expr.Constant start) {
+        Token token = match(DoubleDot.class, "range");
+        Expr.Constant end = parseConstant(context);
+
+        if (!start.getValue().getClass().equals(end.getValue().getClass())) {
+            syntaxError("Start and end of range must be the same type", token);
+        }
+
+        if (!(start.getValue() instanceof Integer)) {
+            syntaxError("Can have a range of integers", token);
+        }
+
+        return new Expr.Range(start, end);
+    }
+
     private Object parseConstant(Context context, Expr e) {
         if (e instanceof Expr.Constant) {
+            if (tokens.get(index) instanceof  DoubleDot) {
+                return parseRange(context, (Expr.Constant) e).getValue();
+            }
             return ((Expr.Constant) e).getValue();
         } else if (e instanceof Expr.ArrayInitialiser) {
             Expr.ArrayInitialiser ai = (Expr.ArrayInitialiser) e;
