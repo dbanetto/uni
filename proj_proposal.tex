@@ -175,7 +175,8 @@ less obstacle to this goal.
 This project has three main aims.
 The primary aim is to implement a loop invariant generator that can remove
 some trivial and tedious invariants, would be demonstrated through reduced required
-amount of code. An example of this would being able to remove line 7 of figure \ref{fig:whiley-ex-1}.
+amount of code. An example of this would being able to remove line 7 of figure
+\ref{fig:whiley-ex-1}.
 The secondary aim is to research methods to generate invariants from literature 
 and implement them into Whiley.
 A supplementary aim is to make the generator a modular system where specific generators
@@ -262,12 +263,12 @@ twenty-five weeks are allocated as slip is expected
     \item Produce a bibliography (est: 2 weeks) 
     \item Survey loop invariant literature for report (est: 1 weeks) 
     \item Survey the Whiley system (est: 1 weeks)
-    \item Identify loop invariant generator methods to implement (est: 2 weeks)
-    \item Implement loop invariant generators identified (est: 8 weeks)
+    \item Identify appropriate loop invariant generator methods (est: 2 weeks)
     \item Write preliminary report (est: 2 weeks)
-
+    \item Implement loop invariant generators identified (est: 8 weeks)
+    \item Experiment with loop invariant generator's practical use (est: 2 weeks)
     \item Write final report (est: 3 weeks)
-    \item Write and perform final presentation (est: 3 weeks)
+    \item Write and present the final presentation (est: 3 weeks)
 \end{itemize}
 
 %%% Given text
@@ -312,11 +313,16 @@ twenty-five weeks are allocated as slip is expected
 % * compare performance ?
 % * evaluate how strong / buggy / crashy the new generators are
 
-To evaluate the solution built from the project is to compare code 
-examples.
-The comparison is focused on the reduction of the need of the programmer 
-to provide loop invariants with and without a generator.
-
+To evaluate the solution built from the project a comparison will
+be made between what code was necessary to verify the software with and without
+the generator.
+The comparison will take into account the volume of code needed, the
+success rate of generating a loop invariant in different scenarios.
+This is to evaluate if the aim of having a practical generation of invariants
+is meet.
+The solution will also be evaluated in terms of code quality if it is
+to contributed back to the Whiley language. This includes documentation
+of the code and accompanying tests to give confidence of the implementation.
 
 %%% Given text
 %% In this section you will explain how you will evaluate your solution
@@ -333,10 +339,11 @@ to provide loop invariants with and without a generator.
 %   * access to the literature
 %   * a line of communication to the main developer of Whiley
 
-It is assumed that the majority of the resources that are required  are already being
+It is assumed that the majority of the resources that are required are already being
 provided by Victoria University of Wellington.
-This includes the access to a workstation computer and access to literature around the
-topics of software verification and generating loop invariants.
+This includes the access to a workstation computer with software for Java development
+and access to literature on the topics of software verification
+and generating loop invariants.
 An optional resource that would help the project would be communication
 with Whiley's core developer, Dr. David J. Pearce.
 No other resources have been identified.
