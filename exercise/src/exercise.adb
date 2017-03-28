@@ -1,25 +1,23 @@
 with Ada.Text_IO;
 with Ada.Assertions; use Ada.Assertions;
 
-package body Exercise with Spark_Mode is
+package body Exercise with
+     Spark_Mode is
 
-   function InArray (value : Integer; input : IntArray) return Boolean is
-   begin
-      for i in input'Range loop
-         if input (i) = value then
-            return True;
-         end if;
-      end loop;
-      return False;
-   end InArray;
+   function InArray
+     (value : Integer;
+      input : IntArray) return Boolean is
+     (for some i in input'Range => input (i) = value);
 
    function DeleteValue
      (value :    Integer;
-      input : in IntArray) return IntArray is
+      input : in IntArray) return IntArray
+   is
    begin
       for i in input'Range loop
-         if input(i) = value then
-            return input(input'First .. i - 1) & DeleteValue(value, input(i + 1 .. input'Last));
+         if input (i) = value then
+            return input (input'First .. i - 1) &
+              DeleteValue (value, input (i + 1 .. input'Last));
          end if;
       end loop;
 
@@ -28,12 +26,8 @@ package body Exercise with Spark_Mode is
 
    function ContcatArray
      (a : OrderedIntArray;
-      b : OrderedIntArray) return OrderedIntArray
-   is
-      output : OrderedIntArray := a & b;
-   begin
-      return output;
-   end ContcatArray;
+      b : OrderedIntArray) return OrderedIntArray is
+     (a & b);
 
    function MergeArray
      (a : OrderedIntArray;
