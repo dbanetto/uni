@@ -1,0 +1,13 @@
+obj/
+build/
+*.npp
+*.o
+.#*
+*.al
+*.ali
+b__*
+gnatinspect.db*
+*.bexch
+*-loc.xml
+gnatprove/
+gpsauto.cgpr

@@ -1,0 +1,17 @@
+project Firewall is
+
+   for Source_Dirs use ("src/**");
+
+   package Ide is
+      for Vcs_Kind use "Git";
+   end Ide;
+
+   for Object_Dir use "build/";
+   for Main use ("main.adb");
+
+   package Pretty_Printer is
+      for Default_Switches ("ada") use ("-i4");
+   end Pretty_Printer;
+
+end Firewall;
+

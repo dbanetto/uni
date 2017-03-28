@@ -1,0 +1,12 @@
+project Race is
+
+   for Source_Dirs use ("./**");
+
+   package Ide is
+      for Vcs_Kind use "Git";
+   end Ide;
+
+   for Main use ("main.adb");
+
+end Race;
+
