@@ -120,6 +120,8 @@ Your proposal should be not more than than 4 pages long with about 3 pages of co
 
 \section*{2. The Problem}
 
+%%% WHAT
+
 % problem: Whiley requires detailed loop invariants to be provided
 % some of these are tedious and can be to make, index within bound of array, &
 % the reader can see these from inspection (trivial and tedious).
@@ -173,7 +175,7 @@ less obstacle to this goal.
 This project has three main aims.
 The primary aim is to implement a loop invariant generator that can remove
 some trivial and tedious invariants, would be demonstrated through reduced required
-amount of code.
+amount of code. An example of this would being able to remove line 7 of figure \ref{fig:whiley-ex-1}.
 The secondary aim is to research methods to generate invariants from literature 
 and implement them into Whiley.
 A supplementary aim is to make the generator a modular system where specific generators
@@ -214,31 +216,66 @@ could be turned on or off depending on the circumstances.
 
 \section*{3. Proposed Solution}
 
+%%% HOW
+
 % plan:
 %  * find papers about generating loop invariants
 %  * read and understand them (out: bibliography)
-%  * compare different methods of invariant generation (out: section in report) [ 70's vs. Modern techniques ]
-%  * read and understand the Whiley compiler
-%  * choose a small test project to compare the end-results with (e.g. game of tic-tac-toe)
-%  * design a modular system to enable loop invariant generation (out: design documents)
-%  * Implement the simplest loop invariant generator (out: code)
-%  * refactor sample project to use new generator
-%
+%  * compare different methods of invariant generation (out: section in report) [ 70's vs. Modern techniques ] ( 2 weeks )
+%  * read and understand the Whiley compiler ( 1 weel )
+%  * write priminaly report ( est: 2 weeks )
+%  * choose a small test project to compare the end-results with (e.g. game of tic-tac-toe) ( est: 1 week )
+%  * design a modular system to enable loop invariant generation (out: design documents) ( est: 1 week )
+%  * Implement the simplest loop invariant generator (out: code) ( est: 2 weeks )
+%  * refactor sample project to use new generator (out: code) (est: 1 week)
+%  * write report (out: report ) (est: 1 month )
+%  * give presentation of work (out: presentation ) (est: 3 weeks)
 %
 %  note: accompany each invariant generator with a sample of before & after
 
+The proposed solution for this problem has multiple parts.
+The first part of the project is background reading with a focus on
+methods to invariants generate loop invariants and software
+verification. From these readings a bibliography will be produced
+as well as a survey of different methods to generate loop invariants.
+From the literature identify a selection of possible loop invariant
+generators that would be implementable and useful to the aim of the project.
+During which it would be reasonable to also be surveying the Whiley
+compiler and theorem prover on how these methods could be integrated into the Whiley language
+and what would be the most appropriate class of loop invariants to reduce.
+
+% FIXME: I do not like how this part reads
+From the methods that were identified and ranked to be most appropriate
+will be implemented over the majority of the project.
+The number of generators implemented will depend on how reasonable
+it is to implement them in the limited time frame.
 
 
+Below is an itemized list of each section of the project and includes an
+estimation of time to complete in chronological ordering.
+The time allocated of the twenty-five weeks from proposal hand-in to
+final report is due is allocated as such. Note that not all of the
+twenty-five weeks are allocated as slip is expected
+
+% TODO: finalize how this looks
 \begin{itemize}
-    \item Produce a bibliography around 
+    \item Produce a bibliography (est: 2 weeks) 
+    \item Survey loop invariant literature for report (est: 1 weeks) 
+    \item Survey the Whiley system (est: 1 weeks)
+    \item Identify loop invariant generator methods to implement (est: 2 weeks)
+    \item Implement loop invariant generators identified (est: 8 weeks)
+    \item Write preliminary report (est: 2 weeks)
 
+    \item Write final report (est: 3 weeks)
+    \item Write and perform final presentation (est: 3 weeks)
 \end{itemize}
 
 %%% Given text
 %% In this section you will explain how solve the problem, that is, how
 %% you intend to carry the project out. At this early stage you need to
 %% be both clear about what you are going to do and flexible enough to
-%% adapt to changing circumstances. Making an early plan will not prevent%% you from running into trouble, but it will help you identify possible
+%% adapt to changing circumstances. Making an early plan will not prevent
+%% you from running into trouble, but it will help you identify possible
 %% problems early. For example, if you intended to run an experiment in
 %% HCI, you might realise early on that there would be problems gathering
 %% sufficient data to get reliable results, and that you should re-design
@@ -268,16 +305,19 @@ could be turned on or off depending on the circumstances.
 
 \section*{4. Evaluating your Solution}
 
+%%% WITH
+
 % comparing the code reduction in sample programs to see how much is saved
 % with using the generators
 % * compare performance ?
 % * evaluate how strong / buggy / crashy the new generators are
 
-In this section you will explain how you will evaluate your solution
-once you have built it. The method of evaluation will be domain
-specific. Your supervisor should provide guidance as to what is an
-appropriate form of evaluation. For example, user testing for a HCI
-project or performance measurement for a Network Engineering project.
+%%% Given text
+%% In this section you will explain how you will evaluate your solution
+%% once you have built it. The method of evaluation will be domain
+%% specific. Your supervisor should provide guidance as to what is an
+%% appropriate form of evaluation. For example, user testing for a HCI
+%% project or performance measurement for a Network Engineering project.
 
 \section*{5. Resource Requirements}
 
@@ -287,8 +327,18 @@ project or performance measurement for a Network Engineering project.
 %   * access to the literature
 %   * a line of communication to the main developer of Whiley
 
-In this section you will detail any resource requirements such as
-hardware, software or access to subjects.
+It is assumed that the majority of the resources that are required  are already being
+provided by Victoria University of Wellington.
+This includes the access to a workstation computer and access to literature around the
+topics of software verification and generating loop invariants.
+An optional resource that would help the project would be communication
+with Whiley's core developer, Dr. David J. Pearce.
+No other resources have been identified.
+
+
+%%% Given text
+%% In this section you will detail any resource requirements such as
+%% hardware, software or access to subjects.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \backmatter
