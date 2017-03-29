@@ -24,7 +24,9 @@ import whilelang.ast.WhileFile;
 import whilelang.compiler.Stdlib;
 import whilelang.compiler.UnreachableCode;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import static whilelang.util.SyntaxError.internalFailure;
 
@@ -252,8 +254,33 @@ public class Interpreter {
         boolean fallThru = false;
         Object value = execute(stmt.getExpr(), frame);
         for (Stmt.Case c : stmt.getCases()) {
+
+            boolean match = false;
             Expr e = c.getValue();
-            if (fallThru || e == null || value.equals(execute(e, frame))) {
+            Object exprVal = null;
+
+            if (e != null) {
+                exprVal = execute(e, frame);
+
+                // HACK: detect if the type is an array
+                // have to cast to it to an array list instead
+                // HACK: only allows range check if value of the switch statement is
+                // not an array type
+                if (!exprVal.getClass().equals(value.getClass()) &&  exprVal instanceof ArrayList) {
+                   ArrayList exprList = (ArrayList) exprVal;
+                   for (Object val : exprList) {
+                       if (value.equals(val)) {
+                           match = true;
+                           break;
+                       }
+                   }
+                } else {
+                    match = value.equals(exprVal);
+                }
+            }
+
+
+            if (fallThru || e == null || match) {
                 Object ret = execute(c.getBody(), frame);
                 if (ret == BREAK_CONSTANT) {
                     break;

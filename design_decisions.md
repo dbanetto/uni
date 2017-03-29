@@ -46,9 +46,13 @@ So far only `readline()` uses this, `print` could be transfered into this as wel
 but has the additional problem of being able to take any expression an argument which
 a method cannot give the same functionality without overloads of `print()` for every time.
 
+The alternative way to implement an input statement would be to make it an
+expression that would take no arguments and always return a string type.
+
 ## Switch `default` case
 
-Already implemented, missed it in the keywords list.
+This feature was already implemented and I missed that during my read
+of the compiler.
 
 ## `const` declaration
 
@@ -148,8 +152,18 @@ if (true) {
 }
 ```
 
+A possible extension to the `skip` statement could be made if the
+compiler has different modes for development and production compilation.
+In development mode skips would emit warnings and errors in production
+mode. This would be due to `skip` implies that not all functionality
+has been implemented and there is still development to be done.
 
 ## `switch` `case` with ranges and more
+
+There are two extensions to the `switch` statement added.
+
+ * Allow `case` statements handle ranges of values.
+ * Allow `case` statements to have alternatives cases.
 
 ```java
 switch (n)

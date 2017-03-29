@@ -233,7 +233,9 @@ public class TypeChecker {
         for (Stmt.Case c : stmt.getCases()) {
             if (!c.isDefault()) {
                 Type et = check(c.getValue(), environment);
-                checkSubtype(ct, et, c.getValue());
+                if (!isSubtype(new Type.Array(ct), et, c.getValue())) {
+                    checkSubtype(ct, et, c.getValue());
+                }
             }
             check(c.getBody(), environment);
         }
