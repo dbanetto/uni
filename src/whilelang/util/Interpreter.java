@@ -264,16 +264,15 @@ public class Interpreter {
 
                 // HACK: detect if the type is an array
                 // have to cast to it to an array list instead
-                // HACK: only allows range check if value of the switch statement is
-                // not an array type
-                if (!exprVal.getClass().equals(value.getClass()) &&  exprVal instanceof ArrayList) {
-                   ArrayList exprList = (ArrayList) exprVal;
-                   for (Object val : exprList) {
-                       if (value.equals(val)) {
-                           match = true;
-                           break;
-                       }
-                   }
+                if (exprVal instanceof ArrayList) {
+                    ArrayList exprList = (ArrayList) exprVal;
+                    for (Object val : exprList) {
+                        if (value.equals(val)) {
+                            match = true;
+                            break;
+                        }
+                    }
+                    match |= value.equals(exprList);
                 } else {
                     match = value.equals(exprVal);
                 }
