@@ -180,6 +180,18 @@ switch (n)
         // ...
 ```
 
+A method to implement these features would be to allow `case` to allow an array of the
+`switch`'s type so that a range of values could be checked.
+This would allow the user to use cases such as `case [1,4,6,7]:` for an integer.
+The implementation of `range`s and `alternative`s would take advantage of this by 
+just making a `range` be equivalent to stating an array of the same range and 
+an `alternative` would just be summing the different arrays together to form an array
+of all cases which the `case` will pass on.
+
+However an implementation issue arose with this method, it is impossible distinguishable
+between a natural array type, `int[]`, versus multiple cases of a single type, `int`.
+To over come this issue all a `case` always is given an array of the type of the `switch`.
+
 ## union types
 
 `UnionType ::= Type|Type`

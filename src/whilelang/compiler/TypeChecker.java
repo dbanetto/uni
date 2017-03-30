@@ -264,6 +264,8 @@ public class TypeChecker {
             type = check((Expr.Unary) expr, environment);
         } else if (expr instanceof Expr.Variable) {
             type = check((Expr.Variable) expr, environment);
+        } else if (expr instanceof Expr.Alternative) {
+            type = check((Expr.Alternative) expr, environment);
         } else {
             internalFailure("unknown expression encountered (" + expr + ")", file.filename, expr);
             return null; // dead code
@@ -418,6 +420,24 @@ public class TypeChecker {
         Type type = environment.get(expr.getName());
         if (type == null) {
             syntaxError("unknown variable encountered: " + expr.getName(),
+                    file.filename, expr);
+        }
+        return type;
+    }
+
+    public Type check(Expr.Alternative expr, Map<String, Type> environment) {
+        Type type = null;
+
+        for (Expr.Constant constant : expr.getAlternatives()) {
+            Type exprType = check(constant, environment);
+
+            if (type == null) {
+                type = exprType;
+            }
+        }
+
+        if (type == null) {
+            syntaxError("unknown of alternative",
                     file.filename, expr);
         }
         return type;
