@@ -692,16 +692,16 @@ public interface Stmt extends SyntacticElement {
      * @author David J. Pearce
      */
     public static final class Case extends SyntacticElement.Impl {
-        private final Expr.Constant value;
+        private final Expr.Alternative value;
         private final ArrayList<Stmt> body;
 
-        public Case(Expr.Constant value, List<Stmt> body, Attribute... attributes) {
+        public Case(Expr.Alternative value, List<Stmt> body, Attribute... attributes) {
             super(attributes);
             this.value = value;
             this.body = new ArrayList<Stmt>(body);
         }
 
-        public Case(Expr.Constant value, List<Stmt> body, Collection<Attribute> attributes) {
+        public Case(Expr.Alternative value, List<Stmt> body, Collection<Attribute> attributes) {
             super(attributes);
             this.value = value;
             this.body = new ArrayList<Stmt>(body);

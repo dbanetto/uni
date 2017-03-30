@@ -752,4 +752,50 @@ public interface Expr extends SyntacticElement {
             return values;
         }
     }
+
+    public static class Alternative extends SyntacticElement.Impl implements Expr {
+
+        private final List<Expr.Constant> alternatives;
+
+        /**
+         *
+         * @param value      Must be an instance of <code>java.lang.Boolean</code>,
+         *                   <code>java.lang.Character</code>,
+         *                   <code>java.lang.Integer</code>,
+         *                   <code>java.lang.String</code>.
+         * @param attributes
+         */
+        public Alternative(List<Expr.Constant> alternatives, Attribute... attributes) {
+            super(attributes);
+            this.alternatives = alternatives;
+        }
+
+        /**
+         *
+         * @param value      Must be an instance of <code>java.lang.Boolean</code>,
+         *                   <code>java.lang.Character</code>,
+         *                   <code>java.lang.Integer</code>,
+         *                   <code>java.lang.String</code>.
+         * @param attributes
+         */
+        public Alternative(List<Expr.Constant> alternatives, Collection<Attribute> attributes) {
+            super(attributes);
+            this.alternatives = alternatives;
+        }
+
+        public String toString() {
+            StringBuilder string = new StringBuilder();
+            for (Constant constant : this.alternatives) {
+                string.append(constant.toString());
+                string.append(" | ");
+            }
+            // remove the last ' | ' as it is not needed
+            string.delete( string.length() - 4, string.length() - 1);
+            return string.toString();
+        }
+
+        public List<Constant> getAlternatives() {
+            return alternatives;
+        }
+    }
 }

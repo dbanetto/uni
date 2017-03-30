@@ -618,19 +618,31 @@ public class Parser {
 
         while (index < tokens.size() && !(tokens.get(index) instanceof RightCurly)) {
             int start = index;
-            Expr.Constant value;
+            Expr.Alternative value;
             Token lookahead = tokens.get(index);
             if (lookahead.text.equals("case")) {
                 // This is a case block
                 matchKeyword("case");
-                value = parseConstant(context);
+                value = parseAlternatives(context);
 
-                /// TODO: fix duplication cases later in parsing
-                //if (values.contains(value.getValue())) {
-                //    syntaxError("duplicate case", value);
-                //} else {
-                //    values.add(value.getValue());
-                //}
+                // FIXME: This is broken, cannot handle the switched type being
+                // an array
+                /*if (value.getValue() instanceof ArrayList) {
+                    ArrayList valueList = (ArrayList) value.getValue();
+
+                    for (Object v : valueList) {
+                        if (values.contains(v)) {
+                            syntaxError("duplicate case", value);
+                        } else {
+                            values.add(v);
+                        }
+                    }
+                }
+                if (values.contains(value.getValue())) {
+                    syntaxError("duplicate case", value);
+                } else {
+                    values.add(value.getValue());
+                }*/
                 match(":");
             } else {
                 // This must be a default block
@@ -648,6 +660,17 @@ public class Parser {
             cases.add(new Stmt.Case(value, body, sourceAttr(start, end - 1)));
         }
         return cases;
+    }
+
+    private Expr.Alternative parseAlternatives(Context context) {
+        List<Expr.Constant> consts = new ArrayList<>();
+        consts.add(parseConstant(context));
+
+        while (tokens.get(index) instanceof Bar) {
+            consts.add(parseConstant(context));
+        }
+
+        return new Expr.Alternative(consts);
     }
 
     private Expr.Constant parseConstant(Context context) {

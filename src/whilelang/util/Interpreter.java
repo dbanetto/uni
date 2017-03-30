@@ -257,7 +257,7 @@ public class Interpreter {
 
             boolean match = false;
             Expr e = c.getValue();
-            Object exprVal = null;
+            Object exprVal;
 
             if (e != null) {
                 exprVal = execute(e, frame);
@@ -277,7 +277,6 @@ public class Interpreter {
                     match = value.equals(exprVal);
                 }
             }
-
 
             if (fallThru || e == null || match) {
                 Object ret = execute(c.getBody(), frame);
