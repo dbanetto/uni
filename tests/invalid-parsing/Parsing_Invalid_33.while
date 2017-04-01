@@ -2,7 +2,7 @@ void main() {
     switch (2) {
         case 1:
             break;
-        case [1, 2]:
+        case 1 .. 2:
             break;
     }
 }

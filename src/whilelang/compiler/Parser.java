@@ -625,24 +625,28 @@ public class Parser {
                 matchKeyword("case");
                 value = parseAlternatives(context);
 
-                // FIXME: This is broken, cannot handle the switched type being
-                // an array
-                /*if (value.getValue() instanceof ArrayList) {
-                    ArrayList valueList = (ArrayList) value.getValue();
+                // duplication of cases check
+                for (Expr e : value.getAlternatives()) {
+                    if (e instanceof Expr.Constant) {
+                        Expr.Constant constant = (Expr.Constant) e;
 
-                    for (Object v : valueList) {
-                        if (values.contains(v)) {
+                        if (values.contains(constant.getValue())) {
                             syntaxError("duplicate case", value);
                         } else {
-                            values.add(v);
+                            values.add(constant.getValue());
+                        }
+                    } else if (e instanceof Expr.Range) {
+                        Expr.Range range = (Expr.Range) e;
+                        for (Object val : range.getValue()) {
+                            if (values.contains(val)) {
+                                syntaxError("duplicate case", e);
+                            } else {
+                                values.add(val);
+                            }
                         }
                     }
                 }
-                if (values.contains(value.getValue())) {
-                    syntaxError("duplicate case", value);
-                } else {
-                    values.add(value.getValue());
-                }*/
+
                 match(":");
             } else {
                 // This must be a default block
@@ -663,14 +667,26 @@ public class Parser {
     }
 
     private Expr.Alternative parseAlternatives(Context context) {
-        List<Expr.Constant> consts = new ArrayList<>();
-        consts.add(parseConstant(context));
+        List<Expr> consts = new ArrayList<>();
+        consts.add(parseAlternativeCandidate(context));
 
         while (tokens.get(index) instanceof Bar) {
-            consts.add(parseConstant(context));
+            match("|");
+
+            consts.add(parseAlternativeCandidate(context));
         }
 
         return new Expr.Alternative(consts);
+    }
+
+    private Expr parseAlternativeCandidate(Context context) {
+        Expr expr = parseConstant(context);
+
+        if (tokens.get(index) instanceof  DoubleDot) {
+            expr = parseRange(context, (Expr.Constant) expr);
+        }
+
+        return expr;
     }
 
     private Expr.Constant parseConstant(Context context) {
@@ -688,7 +704,7 @@ public class Parser {
         }
 
         if (!(start.getValue() instanceof Integer)) {
-            syntaxError("Can have a range of integers", token);
+            syntaxError("Can only have a range of integers", token);
         }
 
         return new Expr.Range(start, end);
@@ -696,9 +712,6 @@ public class Parser {
 
     private Object parseConstant(Context context, Expr e) {
         if (e instanceof Expr.Constant) {
-            if (tokens.get(index) instanceof  DoubleDot) {
-                return parseRange(context, (Expr.Constant) e).getValue();
-            }
             return ((Expr.Constant) e).getValue();
         } else if (e instanceof Expr.ArrayInitialiser) {
             Expr.ArrayInitialiser ai = (Expr.ArrayInitialiser) e;

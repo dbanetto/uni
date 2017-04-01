@@ -233,9 +233,7 @@ public class TypeChecker {
         for (Stmt.Case c : stmt.getCases()) {
             if (!c.isDefault()) {
                 Type et = check(c.getValue(), environment);
-                if (!isSubtype(new Type.Array(ct), et, c.getValue())) {
-                    checkSubtype(ct, et, c.getValue());
-                }
+                checkSubtype(ct, et, c.getValue());
             }
             check(c.getBody(), environment);
         }
@@ -266,6 +264,8 @@ public class TypeChecker {
             type = check((Expr.Variable) expr, environment);
         } else if (expr instanceof Expr.Alternative) {
             type = check((Expr.Alternative) expr, environment);
+        } else if (expr instanceof Expr.Range) {
+            type = check((Expr.Range) expr, environment);
         } else {
             internalFailure("unknown expression encountered (" + expr + ")", file.filename, expr);
             return null; // dead code
@@ -428,11 +428,16 @@ public class TypeChecker {
     public Type check(Expr.Alternative expr, Map<String, Type> environment) {
         Type type = null;
 
-        for (Expr.Constant constant : expr.getAlternatives()) {
-            Type exprType = check(constant, environment);
+        for (Expr alt : expr.getAlternatives()) {
+            Type exprType = check(alt, environment);
 
             if (type == null) {
                 type = exprType;
+            }
+
+            if (!equivalent(type, exprType, alt)) {
+                syntaxError("inconsistent types in alternative",
+                        file.filename, alt);
             }
         }
 
@@ -441,6 +446,21 @@ public class TypeChecker {
                     file.filename, expr);
         }
         return type;
+    }
+
+    public Type check(Expr.Range expr, Map<String, Type> environment) {
+        Type start = check(expr.getStart(), environment);
+        Type end = check(expr.getEnd(), environment);
+
+        if (!equivalent(start, end, expr)) {
+             syntaxError("types of start and end are not equivalent", file.filename, expr);
+        }
+
+        if (!(start instanceof Type.Int)) {
+           syntaxError("only allowed to use ranges of integers", file.filename, expr);
+        }
+
+        return start;
     }
 
     /**

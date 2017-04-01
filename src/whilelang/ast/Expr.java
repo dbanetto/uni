@@ -685,8 +685,8 @@ public interface Expr extends SyntacticElement {
      */
     public static class Range extends SyntacticElement.Impl implements Expr {
 
-        private Expr.Constant start;
-        private Expr.Constant end;
+        private final Expr.Constant start;
+        private final Expr.Constant end;
 
         /**
          * Construct a constant expression from a given (primitive) value. The
@@ -739,23 +739,31 @@ public interface Expr extends SyntacticElement {
          *
          * @return
          */
-        public Object getValue() {
+        public List<Object> getValue() {
             // generate an array from start to end
             int start = (Integer) this.start.getValue();
             int end = (Integer) this.end.getValue();
 
-            List<Integer> values = new ArrayList<>(Math.max(end - start, 0));
+            List<Object> values = new ArrayList<>(Math.max(end - start, 0));
             for (int i = start; i <= end; i++) {
                 values.add(i);
             }
 
             return values;
         }
+
+        public Constant getStart() {
+            return start;
+        }
+
+        public Constant getEnd() {
+            return end;
+        }
     }
 
     public static class Alternative extends SyntacticElement.Impl implements Expr {
 
-        private final List<Expr.Constant> alternatives;
+        private final List<Expr> alternatives;
 
         /**
          *
@@ -765,7 +773,7 @@ public interface Expr extends SyntacticElement {
          *                   <code>java.lang.String</code>.
          * @param attributes
          */
-        public Alternative(List<Expr.Constant> alternatives, Attribute... attributes) {
+        public Alternative(List<Expr> alternatives, Attribute... attributes) {
             super(attributes);
             this.alternatives = alternatives;
         }
@@ -778,14 +786,14 @@ public interface Expr extends SyntacticElement {
          *                   <code>java.lang.String</code>.
          * @param attributes
          */
-        public Alternative(List<Expr.Constant> alternatives, Collection<Attribute> attributes) {
+        public Alternative(List<Expr> alternatives, Collection<Attribute> attributes) {
             super(attributes);
             this.alternatives = alternatives;
         }
 
         public String toString() {
             StringBuilder string = new StringBuilder();
-            for (Constant constant : this.alternatives) {
+            for (Expr constant : this.alternatives) {
                 string.append(constant.toString());
                 string.append(" | ");
             }
@@ -794,7 +802,7 @@ public interface Expr extends SyntacticElement {
             return string.toString();
         }
 
-        public List<Constant> getAlternatives() {
+        public List<Expr> getAlternatives() {
             return alternatives;
         }
     }

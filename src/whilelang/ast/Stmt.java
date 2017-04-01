@@ -707,7 +707,7 @@ public interface Stmt extends SyntacticElement {
             this.body = new ArrayList<Stmt>(body);
         }
 
-        public Expr getValue() {
+        public Expr.Alternative getValue() {
             return value;
         }
 

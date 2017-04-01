@@ -256,26 +256,12 @@ public class Interpreter {
         for (Stmt.Case c : stmt.getCases()) {
 
             boolean match = false;
-            Expr e = c.getValue();
-            Object exprVal;
+            Expr.Alternative e = c.getValue();
+            List<Object> exprVal;
 
             if (e != null) {
-                exprVal = execute(e, frame);
-
-                // HACK: detect if the type is an array
-                // have to cast to it to an array list instead
-                if (exprVal instanceof ArrayList) {
-                    ArrayList exprList = (ArrayList) exprVal;
-                    for (Object val : exprList) {
-                        if (value.equals(val)) {
-                            match = true;
-                            break;
-                        }
-                    }
-                    match |= value.equals(exprList);
-                } else {
-                    match = value.equals(exprVal);
-                }
+                exprVal = (List<Object>) execute(e, frame);
+                match = exprVal.contains(value);
             }
 
             if (fallThru || e == null || match) {
@@ -505,6 +491,28 @@ public class Interpreter {
         // skip is a no-op
         return null;
     }
+
+
+    private List<Object> execute(Expr.Alternative expr, HashMap<String, Object> frame) {
+
+        List<Object> candiates = new ArrayList<>();
+
+        for (Expr e : expr.getAlternatives()) {
+            if (e instanceof Expr.Range) {
+               Expr.Range range = (Expr.Range) e;
+
+               candiates.addAll(range.getValue());
+            } else if (e instanceof Expr.Constant) {
+                Expr.Constant constant = (Expr.Constant) e;
+
+                candiates.add(constant.getValue());
+            } else {
+                internalFailure("Alteratives should only have Ranges and Constants", file.filename, expr);
+            }
+        }
+       return candiates;
+    }
+
     /**
      * Perform a deep clone of the given object value. This is either a
      * <code>Boolean</code>, <code>Integer</code>, , <code>Character</code>,
