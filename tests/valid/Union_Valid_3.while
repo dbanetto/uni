@@ -1,0 +1,8 @@
+int|int i(int i) {
+    return i;
+}
+
+void main() {
+    assert i(1) == 1;
+    assert i(i(1)) == 1;
+}

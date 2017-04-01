@@ -667,6 +667,27 @@ public class TypeChecker {
                 syntaxError("unknown type encountered: " + t2, file.filename,
                         element);
             }
+
+        } else if (t1 instanceof Type.Union && t2 instanceof Type.Union) {
+            Type.Union superUnion = (Type.Union) t1;
+            Type.Union subUnion = (Type.Union) t2;
+
+            return (isSubtype(superUnion.getLeft(), subUnion.getLeft(), element) &&
+                    isSubtype(superUnion.getRight(), subUnion.getRight(), element)
+                    ) ||
+                    (isSubtype(superUnion.getLeft(), subUnion.getRight(), element) &&
+                            isSubtype(superUnion.getRight(), subUnion.getLeft(), element)
+                    );
+
+        } else if (t1 instanceof Type.Union) {
+            Type.Union union = (Type.Union) t1;
+
+            return isSubtype(union.getLeft(), t2, element) || isSubtype(union.getRight(), t2, element);
+        } else if (t2 instanceof Type.Union) {
+            Type.Union union = (Type.Union) t2;
+
+
+            return isSubtype(t1, union.getLeft(), element) && isSubtype(t1, union.getRight(), element);
         }
         return false;
     }

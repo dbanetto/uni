@@ -261,4 +261,30 @@ public interface Type extends SyntacticElement {
             return "{" + r + "}";
         }
     }
+
+
+    public static final class Union extends SyntacticElement.Impl implements Type {
+        private final Type left;
+        private final Type right;
+
+        public Union(Type left, Type right, Attribute... attributes) {
+            super(attributes);
+            this.left = left;
+            this.right = right;
+
+        }
+
+        public Type getLeft() {
+            return left;
+        }
+
+        public Type getRight() {
+            return right;
+        }
+
+        @Override
+        public String toString() {
+            return left.toString() + "|" + right.toString();
+        }
+    }
 }

@@ -1056,6 +1056,16 @@ public class Parser {
             match("]");
             type = new Type.Array(type, sourceAttr(start, index - 1));
         }
+
+        if (index < tokens.size() && tokens.get(index) instanceof Bar) {
+            match("|");
+           // union type
+           Type right = parseType();
+
+           type = new Type.Union(type, right);
+        }
+
+
         // Done
         return type;
     }
