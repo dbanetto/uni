@@ -158,19 +158,19 @@ In development mode skips would emit warnings and errors in production
 mode. This would be due to `skip` implies that not all functionality
 has been implemented and there is still development to be done.
 
-## `switch` `case` with ranges and more
+## `switch` `case` with ranges and alternatives
 
 There are two extensions to the `switch` statement added.
 
- * Allow `case` statements handle ranges of values.
- * Allow `case` statements to have alternatives cases.
+ * Allow `case` statements handle ranges of values, e.g. `1..10`.
+ * Allow `case` statements to have alternatives cases, e.g. `1 | 3 | 5`.
 
 ```java
-switch (n)
+switch (n) {
     case 0:
         // ...
         break;
-    case 1 .. 10:
+    case 1 .. 10 | 30 .. 40:
         // ...
         break;
     case -10 .. -1:
@@ -178,6 +178,7 @@ switch (n)
         break;
     default:
         // ...
+}
 ```
 
 A method to implement these features would be to allow `case` to allow an array of the
@@ -188,9 +189,34 @@ just making a `range` be equivalent to stating an array of the same range and
 an `alternative` would just be summing the different arrays together to form an array
 of all cases which the `case` will pass on.
 
-However an implementation issue arose with this method, it is impossible distinguishable
+However a severe implementation issue arose with this method, it is impossible distinguishable
 between a natural array type, `int[]`, versus multiple cases of a single type, `int`.
-To over come this issue all a `case` always is given an array of the type of the `switch`.
+This prevents the static check of distinct value for each `case` and being able to
+correctly evaluate a `case` for an array type.
+To get past this the idea that a switch case was just an array of candidates was dropped
+by not making a `RangeExpr` a constant expression.
+
+The final method used to determine a case with a Range and Alternatives was to make cases only take
+an Alternative expression (defined below). This made a `case` have one or more alternatives
+separated by a bar `|`. By not making `RangeExpr` a constant expression it allows a distinction 
+between a natural `int[]` and a range of values `N..M` which solves the problems that arose
+in the previous method but does limit the usage of `RangeExpr` but still keeps the expressiveness
+of `case`'s but with only one syntax.
+
+```
+CaseStmt ::= AlternativeExpr
+AlternativeExpr ::= ConstExpr | RangeExpr ( '|' AlternativeExpr )*
+
+RangeExpr ::= ConstExpr '..' ConstExpr
+```
+
+Ranges are only implemented for integers and is validated in the type checker.
+Since it is using a `ConstExpr` it does mean that `const int`'s are acceptable as
+ranges.
+
+In the previous method a `case` could describe a set of candidates either in an array form or
+with alternatives, e.g. `[1, 2, 3] == 1..3`, but arrays allowed for any sequence such as
+`[1,2,5,6]` where ranges would need to be combined with alternatives `1..2 | 4..6`.
 
 ## union types
 
