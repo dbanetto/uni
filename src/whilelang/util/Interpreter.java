@@ -491,6 +491,7 @@ public class Interpreter {
 
     private Object execute(Expr.Cast expr, HashMap<String, Object> frame) {
         // Could do a cast assertion here to see if the resulting type really is the type it says
+        // would need runtime type checks
         return execute(expr.getExpression(), frame);
     }
 

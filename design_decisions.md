@@ -42,7 +42,7 @@ statement but a method call.
 
 The `syscall` statement is an internal use only for being able to interface
 with operating system given functionality such as I/O.
-So far only `readline()` uses this, `print` could be transfered into this as well
+So far only `readline()` uses this, `print` could be transferred into this as well
 but has the additional problem of being able to take any expression an argument which
 a method cannot give the same functionality without overloads of `print()` for every time.
 
@@ -221,3 +221,25 @@ with alternatives, e.g. `[1, 2, 3] == 1..3`, but arrays allowed for any sequence
 ## union types
 
 `UnionType ::= Type|Type`
+
+This section is implemented as described in [Assignment 2](http://homepages.ecs.vuw.ac.nz/~lindsay/S430/assignment-2.pdf).
+
+During the testing for casting I found that the width-subtype check for records
+was not working correctly:
+
+```java
+type A is {int f, int g}
+type B is {int f}
+
+A a = { f: 1, b: 2}
+B b = (B) a;
+
+assert b.f == 1;
+```
+
+This was caused by the algorithm was checking that the subtype had more fields,
+greater width, then the super type which is incorrect as `B` is a subset of
+values of `A` and thus the subtype.
+
+An extension to this would be to add runtime type checks or flow typing
+to ensure that the cast is valid
