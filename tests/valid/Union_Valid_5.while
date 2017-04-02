@@ -1,0 +1,14 @@
+type A is { int|string f }
+type B is { int f }|{ string f }
+
+A test(B val) {
+    return val;
+}
+
+void main() {
+    B a = { f: 1 };
+    B b = { f: "hello"};
+
+    assert test(a) == a;
+    assert test(b) == b;
+}
