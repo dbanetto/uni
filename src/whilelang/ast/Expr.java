@@ -806,4 +806,34 @@ public interface Expr extends SyntacticElement {
             return alternatives;
         }
     }
+
+    public static class Cast extends SyntacticElement.Impl implements Expr {
+        private final Type castTo;
+        private final Expr expression;
+
+        public Cast(Type castTo, Expr expression, Collection<Attribute> attributes) {
+            super(attributes);
+            this.castTo = castTo;
+            this.expression = expression;
+        }
+
+        public Cast(Type castTo, Expr expression, Attribute... attributes) {
+            super(attributes);
+            this.castTo = castTo;
+            this.expression = expression;
+        }
+
+        public Type getCastTo() {
+            return castTo;
+        }
+
+        public Expr getExpression() {
+            return expression;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + castTo + ") "+ expression;
+        }
+    }
 }

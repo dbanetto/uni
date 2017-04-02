@@ -352,6 +352,8 @@ public class Interpreter {
             return execute((Expr.Unary) expr, frame);
         } else if (expr instanceof Expr.Variable) {
             return execute((Expr.Variable) expr, frame);
+        } else if (expr instanceof Expr.Cast) {
+            return execute((Expr.Cast) expr, frame);
         } else {
             internalFailure("unknown expression encountered (" + expr + ")", file.filename, expr);
             return null;
@@ -485,6 +487,11 @@ public class Interpreter {
 
     private Object execute(Expr.Variable expr, HashMap<String, Object> frame) {
         return frame.get(expr.getName());
+    }
+
+    private Object execute(Expr.Cast expr, HashMap<String, Object> frame) {
+        // Could do a cast assertion here to see if the resulting type really is the type it says
+        return execute(expr.getExpression(), frame);
     }
 
     private Object execute(Stmt.Skip expr, HashMap<String, Object> frame) {

@@ -863,10 +863,22 @@ public class Parser {
         Token token = tokens.get(index);
 
         if (token instanceof LeftBrace) {
+            Expr e = null;
+            Type castTo = null;
+
             match("(");
-            Expr e = parseExpr(context);
+            if (isTypeAhead(index)) {
+                castTo = parseType();
+            } else{
+                e = parseExpr(context);
+            }
             checkNotEof();
             match(")");
+
+            if (castTo != null) {
+                e = new Expr.Cast(castTo, parseExpr(context));
+            }
+
             return e;
         } else if ((index + 1) < tokens.size() && token instanceof Identifier
                 && tokens.get(index + 1) instanceof LeftBrace) {

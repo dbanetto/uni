@@ -266,6 +266,8 @@ public class TypeChecker {
             type = check((Expr.Alternative) expr, environment);
         } else if (expr instanceof Expr.Range) {
             type = check((Expr.Range) expr, environment);
+        } else if (expr instanceof Expr.Cast) {
+            type = check((Expr.Cast) expr, environment);
         } else {
             internalFailure("unknown expression encountered (" + expr + ")", file.filename, expr);
             return null; // dead code
@@ -463,6 +465,19 @@ public class TypeChecker {
         return start;
     }
 
+    public Type check(Expr.Cast expr, Map<String, Type> environment) {
+
+        Type target = expr.getCastTo();
+        Type exprType = check(expr.getExpression(), environment);
+
+        if (!isSubtype(exprType, target, expr)) {
+            syntaxError("Can only cast to a subtype, " + target + " is not a subtype of " + exprType,
+                    file.filename, expr);
+        }
+
+        return target;
+    }
+
     /**
      * Determine the type of a constant value
      *
@@ -632,10 +647,10 @@ public class TypeChecker {
             List<Pair<Type, String>> r1Fields = r1.getFields();
             List<Pair<Type, String>> r2Fields = r2.getFields();
             // Implement "width" subtyping
-            if (r1Fields.size() > r2Fields.size()) {
+            if (r1Fields.size() < r2Fields.size()) {
                 return false;
             } else {
-                for (int i = 0; i != r1Fields.size(); ++i) {
+                for (int i = 0; i != r2Fields.size(); ++i) {
                     Pair<Type, String> p1Field = r1Fields.get(i);
                     Pair<Type, String> p2Field = r2Fields.get(i);
                     if (!isSubtype(p1Field.first(), p2Field.first(), element)) {

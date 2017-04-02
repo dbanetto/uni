@@ -1,0 +1,6 @@
+type IntString is int|string
+
+void main() {
+    IntString a = "string";
+    string b = (string) a;
+}
