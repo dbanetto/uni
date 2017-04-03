@@ -9,6 +9,7 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{url} % for typesetting urls
+\usepackage[parfill]{parskip}
 
 %  We don't want figures to float so we define
 %
@@ -51,7 +52,7 @@
 
 % Unless you've used the bschonscomp or mcompsci
 %  options above use
-%   \otherdegree{OTHER DEGREE OR DIPLOMA NAME}
+\otherdegree{Bachelor of Engineering with Honours in Software Engineering}
 % here to specify degree
 
 % Comment this out if you want the date printed.
@@ -65,9 +66,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{abstract}
-    This document gives some ideas about how to write a project
-    proposal, and provides a template for a proposal. You should discuss
-    your proposal with your supervisor.
+    % This document gives some ideas about how to write a project
+    % proposal, and provides a template for a proposal. You should discuss
+    % your proposal with your supervisor.
+    This report gives a brief overview of the project to generate simple loop
+    invariants for Whiley.
+    This includes scope of the problem to use methods described in literature
+    to generate loop invariants ; the proposed solution to the problem ; how
+    the project will be evaluated ; and an outline of required resources to
+    complete the project.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,22 +108,31 @@
 
 \section*{1. Introduction}
 
-In this section you should include a very brief introduction to the
-problem to the problem and the project.
+%%% Given text
+%% In this section you should include a very brief introduction to the
+%% problem to the problem and the project.
+%
+%% Your project proposal should cover the following points:
+%
+%% \begin{itemize}
+%%     \item the engineering problem that you are going to solve;
+%%     \item how you plan to solve your problem;
+%%     \item how you intend to evaluate your solution; and
+%%     \item any resource requirements for your project such as software,
+%%         hardware or other resources that will be needed in the course of the
+%%         project.
+%% \end{itemize}
 
-Your project proposal should cover the following points:
+This project is to generate simple loop invariants for the Whiley language.
+The problem that faces the Whiley language is that there is some simple
+loop invariants that are trivial and cumbersome to always have to specify and this project
+aims to generate these simple invariants for the programmer.
+To solve this problem there will need to be research into known methods
+of how to generate invariants and how to integrate them to Whiley.
+This project will be evaluated on its ability to reduce the amount of trivial
+loop invariants needed to be given by the programmer.
 
-\begin{itemize}
-    \item the engineering problem that you are going to solve;
-    \item how you plan to solve your problem;
-    \item how you intend to evaluate your solution; and
-    \item any resource requirements for your project such as software,
-        hardware or other resources that will be needed in the course of the
-        project.
-\end{itemize}
-
-
-Your proposal should be not more than than 4 pages long with about 3 pages of content.
+% Your proposal should be not more than than 4 pages long with about 3 pages of content.
 
 \section*{2. The Problem}
 
@@ -128,14 +144,16 @@ Your proposal should be not more than than 4 pages long with about 3 pages of co
 
 The problem that this project aims to address is that the Whiley programming language
 requires too much detail in loop invariants.
-Whiley is a programming language built with support to create formally verified
+Whiley is a programming language built with support to formally verify
 software and aspect of this is proving loop invariants.
 The current method of programming with loop invariants is that the programmer will supply
-all of the invariants to be proved, example given in figure \ref{fig:whiley-ex-1}.
+all of the invariants to be proved, example given in figure~\ref{fig:whiley-ex-1}.
 However this becomes cumbersome as some of the invariants are trivial or obvious
 and the programmer has to begrudgingly retype or copy and paste the invariants
 from the last loop.
-
+Generating invariants or other proofs from the given code poses the problem
+of generating a specification that the code can never fail as it is derived
+from the code itself.
 
 \begin{figure}[h]
     \begin{lstlisting}
@@ -244,13 +262,10 @@ generators that would be implementable and useful to the aim of the project.
 During which it would be reasonable to also be surveying the Whiley
 compiler and theorem prover on how these methods could be integrated into the Whiley language
 and what would be the most appropriate class of loop invariants to reduce.
-
-% FIXME: I do not like how this part reads
-From the methods that were identified and ranked to be most appropriate
+From the methods that are to be identified and prioritized 
 will be implemented over the majority of the project.
-The number of generators implemented will depend on how reasonable
-it is to implement them in the limited time frame.
-
+The number of generators implemented will depend on how possible
+it is to implement multiple methods and test them in the given time frame.
 
 Below is an itemized list of each section of the project and includes an
 estimation of time to complete in chronological ordering.
