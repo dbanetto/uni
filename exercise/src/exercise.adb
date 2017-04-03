@@ -43,15 +43,18 @@ package body Exercise with
          exit when aIndex > a'Last and bIndex > b'Last;
 
          if aIndex > a'Last then
+            -- Completed merging A, just need to tack on the rest of B
             c (cIndex) := b (bIndex);
             cIndex     := cIndex + 1;
             bIndex     := bIndex + 1;
          elsif bIndex > b'Last then
+            -- Completed merging B, just need to tack on the rest of A
             c (cIndex) := a (aIndex);
             cIndex     := cIndex + 1;
             aIndex     := aIndex + 1;
          else
-            -- need to compare
+            -- There is some left in A & B
+            -- need to compare to see which is the lesser to keep ordering
             if a (aIndex) <= b (bIndex) then
                c (cIndex) := a (aIndex);
                cIndex     := cIndex + 1;

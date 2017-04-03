@@ -4,12 +4,14 @@ package Exercise with
    type IntArray is array (Integer range <>) of Integer with
         Predicate => IntArray'Length >= 0;
 
+   -- util function for spec
    function Contains
      (values : IntArray;
       value  : Integer) return Boolean is
      (for some v of values => v = value) with
       Post => Contains'Result = (for some v of values => value = v);
 
+   -- Ordered (acending) array of integers
    subtype OrderedIntArray is IntArray with
         Predicate =>
         (for all i in OrderedIntArray'First .. OrderedIntArray'Last - 1 =>
@@ -29,7 +31,7 @@ package Exercise with
    function ContcatArray
      (a : OrderedIntArray;
       b : OrderedIntArray) return OrderedIntArray with
-      -- ensure that a is lees than b so no merges are required
+      -- ensure that a is lees than b so a ordered con
       Pre  => (a (a'Last) <= b (b'First)),
       Post => ContcatArray'Result = a & b;
 
