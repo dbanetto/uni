@@ -57,6 +57,7 @@
 
 % Comment this out if you want the date printed.
 \date{}
+\newcommand{\code}[1]{\texttt{#1}}
 
 \begin{document}
 
@@ -69,12 +70,14 @@
     % This document gives some ideas about how to write a project
     % proposal, and provides a template for a proposal. You should discuss
     % your proposal with your supervisor.
-    This report gives a brief overview of the project to generate simple loop
-    invariants for Whiley.
-    This includes scope of the problem to use methods described in literature
-    to generate loop invariants ; the proposed solution to the problem ; how
-    the project will be evaluated ; and an outline of required resources to
-    complete the project.
+    An obstacle to using Whiley for formally verified software is the 
+    repetition of simple loop invariants.
+    This project is to generate simple loop invariants using
+    known techniques, such as static analysis and post-condition mutation.
+    The project will research these methods and implement some techniques
+    into the Whiley language.
+    The success of this project is evaluated based off the reduction
+    of simple loop invariants for the general Whiley programmer.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -123,16 +126,29 @@
 %%         project.
 %% \end{itemize}
 
+Formal verification is an important tool to ensure the correctness of software.
+This generally requires the programmer to specify invariants such as
+pre- and post-conditions for procedures or invariants for a type and many more.
+One type of invariant is the loop invariant,
+which must hold upon entering the loop, each iteration of the loop 
+and on termination of the loop \cite{invarints-classifiction}.
+To specify these invariants correctly it takes expert knowledge and is an obstacle
+to adoption of formal verification.
 
+Whiley is a programming language for formal verification which loop invariants 
+is an obstacle for the programmer. This project aims to reduce this 
+burden by generating simple loop invariants for the programmer through different
+techniques.
 
-This project is to generate simple loop invariants for the Whiley language.
-The problem that faces the Whiley language is that there is some simple
-loop invariants that are trivial and cumbersome to always have to specify and this project
-aims to generate these simple invariants for the programmer.
-To solve this problem there will need to be research into known methods
-of how to generate invariants and how to integrate them to Whiley.
-This project will be evaluated on its ability to reduce the amount of trivial
-loop invariants needed to be given by the programmer.
+These techniques could include static analysis of the program, mutating specification
+given or any other technique described in the literature. Thus the project
+will start with a survey of existing literature and learning the Whiley language
+and compiler. This leads to implementing techniques that are identified to be a
+benefit to Whiley.
+
+The resources needed to complete this project are generally provided by the University.
+However it would be a great addition to be able to communicate with the lead developer
+of Whiley, David J. Pearce.
 
 % Your proposal should be not more than than 4 pages long with about 3 pages of content.
 
@@ -144,23 +160,26 @@ loop invariants needed to be given by the programmer.
 % some of these are tedious and can be to make, index within bound of array, &
 % the reader can see these from inspection (trivial and tedious).
 
-\cite{infer-dynamic}
-\cite{infer-postconditions}
-\cite{invarints-classifiction}
-\cite{whiley-design}
+%\cite{infer-dynamic}
+%\cite{infer-postconditions}
+%\cite{invarints-classifiction}
+%\cite{whiley-design}
 
-The problem that this project aims to address is that the Whiley programming language
-requires too much detail in loop invariants.
-Whiley is a programming language built with support to formally verify
-software and aspect of this is proving loop invariants.
-The current method of programming with loop invariants is that the programmer will supply
-all of the invariants to be proved, example given in figure~\ref{fig:whiley-ex-1}.
-However this becomes cumbersome as some of the invariants are trivial or obvious
-and the programmer has to begrudgingly retype or copy and paste the invariants
-from the last loop.
-Generating invariants or other proofs from the given code poses the problem
-of generating a specification that the code can never fail as it is derived
-from the code itself.
+The programming language Whiley is designed for software verification \cite{whiley-design} and
+faces the issue of simple loop invariants are a burden to implement.
+This project aims to lift some of the burden from the programmer to specify loop invariants
+by generating simple loop invariants from the provided code and specification.
+This project will not generate loop invariants in general as it is known to be incomputable
+in general but a sub-set of loop invariants are possible and has been generated \cite{infer-dynamic} \cite{infer-postconditions}.
+These use methods such as dynamically testing the code for invariants, mutating the post condition of the loop
+and using static analysis to determine invariants \cite{infer-dynamic} \cite{infer-postconditions}.
+
+Figure \ref{fig:whiley-ex-1} shows an example snippet of Whiley shows a simple invariant.
+The invariant ensures that the index \code{i} keeps within the bounds of \code{items}.
+This can be verified by sight from the termination condition of the loop and how \code{i} is modified.
+The aim of the project is to reduce the need to invariants such as this by implementing
+a loop invariant generator for the Whiley language so that the programmer will not have
+to specify simple invariants like this so they could focus on more interesting invariants.
 
 \begin{figure}[h]
     \begin{lstlisting}
@@ -186,10 +205,6 @@ from the code itself.
 % * Whiley is used in SWEN224 to teach the younglings about verified code & software correctness
 % * Obstacle to practical use of Whiley, in a teaching context and industry
 
-The Whiley language has a goal of being used practically.
-The main focus for now is being used as a teaching tool in SWEN224.
-With the removal of trivial and tedious loop invariants would be one 
-less obstacle to this goal.
 
 % Aim:
 % * Make it easier to program by reducing the amount of tedious/trivial proofs (demonstrate less code)
@@ -197,15 +212,6 @@ less obstacle to this goal.
 % * to make it modular and be able to turn off generation to let
 %   students think about these easy loop invariants (implement modularity)
 
-This project has three main aims.
-The primary aim is to implement a loop invariant generator that can remove
-some trivial and tedious invariants, would be demonstrated through reduced required
-amount of code. An example of this would being able to remove line 7 of figure
-\ref{fig:whiley-ex-1}.
-The secondary aim is to research methods to generate invariants from literature 
-and implement them into Whiley.
-A supplementary aim is to make the generator a modular system where specific generators
-could be turned on or off depending on the circumstances.
 
 %%% Given text
 %% In this section you should give a brief description of the problem
@@ -259,32 +265,27 @@ could be turned on or off depending on the circumstances.
 %
 %  note: accompany each invariant generator with a sample of before & after
 
-The proposed solution for this problem has multiple parts.
-The first part of the project is background reading with a focus on
-methods to invariants generate loop invariants and software
-verification. From these readings a bibliography will be produced
-as well as a survey of different methods to generate loop invariants.
-From the literature identify a selection of possible loop invariant
-generators that would be implementable and useful to the aim of the project.
-During which it would be reasonable to also be surveying the Whiley
-compiler and theorem prover on how these methods could be integrated into the Whiley language
-and what would be the most appropriate class of loop invariants to reduce.
-From the methods that are to be identified and prioritized 
-will be implemented over the majority of the project.
-The number of generators implemented will depend on how possible
-it is to implement multiple methods and test them in the given time frame.
+The literature for loop invariants describe some techniques to generate
+invariants from static analysis or mutating the post-condition and a 
+combination. The first step of this project would be to survey the techniques
+in the literature for techniques that can be translated to the Whiley setting.
+During this time a review of the Whiley language, compiler and theorem prover
+will be necessary to understand how these techniques would fit in.
 
-Below is an itemized list of each section of the project and includes an
-estimation of time to complete in chronological ordering.
+From the identified techniques some of them will be implemented into the
+Whiley language with the aim to remove the burden of a class of simple invariants,
+such as keeping the index within bounds of array.
+Each generator and targeted simple invariants will require already existing
+or new sample code to verify that the changes to Whiley have been successful.
+
+Below is an itemized list of an estimation of each section of the project.
 The time allocated of the twenty-five weeks from proposal hand-in to
-final report is due is allocated as such. Note that not all of the
-twenty-five weeks are allocated as slip is expected
+final report is due is allocated as such. 
 
 % TODO: finalize how this looks
 \begin{itemize}
-    \item Produce a bibliography (est: 2 weeks) 
-    \item Survey loop invariant literature for report (est: 1 weeks) 
-    \item Survey the Whiley system (est: 1 weeks)
+    \item Survey loop invariant literature for report (est: 2 weeks) 
+    \item Review the Whiley language and tools (est: 2 weeks)
     \item Identify appropriate loop invariant generator methods (est: 2 weeks)
     \item Write preliminary report (est: 2 weeks)
     \item Implement loop invariant generators identified (est: 8 weeks)
@@ -335,16 +336,11 @@ twenty-five weeks are allocated as slip is expected
 % * compare performance ?
 % * evaluate how strong / buggy / crashy the new generators are
 
-To evaluate the solution built from the project a comparison will
-be made between what code was necessary to verify the software with and without
-the generator.
-The comparison will take into account the volume of code needed, the
-success rate of generating a loop invariant in different scenarios.
-This is to evaluate if the aim of having a practical generation of invariants
-is meet.
-The solution will also be evaluated in terms of code quality if it is
-to contributed back to the Whiley language. This includes documentation
-of the code and accompanying tests to give confidence of the implementation.
+The project is evaluated in how it has reduced the burden for a Whiley programmer.
+The main measure to quantify the change will be a comparison of the code required
+to specify a problem with and without the generated invariants.
+Other metrics will be considered while evaluating the project are 
+the success rate of the generators to provide a valid loop invariant.
 
 %%% Given text
 %% In this section you will explain how you will evaluate your solution
@@ -367,7 +363,7 @@ This includes the access to a workstation computer with software for Java develo
 and access to literature on the topics of software verification
 and generating loop invariants.
 An optional resource that would help the project would be communication
-with Whiley's core developer, Dr. David J. Pearce.
+with Whiley's core developer, David J. Pearce.
 No other resources have been identified.
 
 
