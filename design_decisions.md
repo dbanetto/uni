@@ -242,4 +242,9 @@ greater width, then the super type which is incorrect as `B` is a subset of
 values of `A` and thus the subtype.
 
 An extension to this would be to add runtime type checks or flow typing
-to ensure that the cast is valid
+to ensure that the cast is valid.
+This could come in the form of a `Expr 'is' Type` expression returning a boolean,
+that will check the type of an object at runtime.
+However since all type checks are currently static only to implement this 
+would  most likely require needing to wrap all objects with some metadata
+about what their types.
