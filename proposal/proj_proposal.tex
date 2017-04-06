@@ -135,10 +135,10 @@ and on termination of the loop \cite{invarints-classifiction}.
 To specify these invariants correctly it takes expert knowledge and is an obstacle
 to adoption of formal verification.
 
-Whiley is a programming language for formal verification which loop invariants 
-is an obstacle for the programmer. This project aims to reduce this 
-burden by generating simple loop invariants for the programmer through different
-techniques.
+Whiley is a programming language for formal verification in
+which writing loop invariants is an obstacle for the programmer.
+This project aims to reduce the burden of providing loop invariants by generating
+simple loop invariants for the programmer through different techniques.
 
 These techniques could include static analysis of the program, mutating specification
 given or any other technique described in the literature. Thus the project
@@ -148,7 +148,8 @@ benefit to Whiley.
 
 The resources needed to complete this project are generally provided by the University.
 However it would be a great addition to be able to communicate with the lead developer
-of Whiley, David J. Pearce.
+of Whiley, David J. Pearce, as he is on sabbatical leave for the duration
+of the project.
 
 % Your proposal should be not more than than 4 pages long with about 3 pages of content.
 
@@ -174,7 +175,7 @@ in general but a sub-set of loop invariants are possible and has been generated 
 These use methods such as dynamically testing the code for invariants, mutating the post condition of the loop
 and using static analysis to determine invariants \cite{infer-dynamic} \cite{infer-postconditions}.
 
-Figure \ref{fig:whiley-ex-1} shows an example snippet of Whiley shows a simple invariant.
+Figure \ref{fig:whiley-ex-1} is an example of Whiley code that has a simple loop invariant.
 The invariant ensures that the index \code{i} keeps within the bounds of \code{items}.
 This can be verified by sight from the termination condition of the loop and how \code{i} is modified.
 The aim of the project is to reduce the need to invariants such as this by implementing
@@ -267,8 +268,9 @@ to specify simple invariants like this so they could focus on more interesting i
 
 The literature for loop invariants describe some techniques to generate
 invariants from static analysis or mutating the post-condition and a 
-combination. The first step of this project would be to survey the techniques
-in the literature for techniques that can be translated to the Whiley setting.
+combination.
+The first step of this project will be to survey the literature
+for techniques that can be translated to the Whiley setting.
 During this time a review of the Whiley language, compiler and theorem prover
 will be necessary to understand how these techniques would fit in.
 
@@ -363,7 +365,8 @@ This includes the access to a workstation computer with software for Java develo
 and access to literature on the topics of software verification
 and generating loop invariants.
 An optional resource that would help the project would be communication
-with Whiley's core developer, David J. Pearce.
+with Whiley's core developer, David J. Pearce, as he is on sabbatical leave for the duration
+of the project.
 No other resources have been identified.
 
 
