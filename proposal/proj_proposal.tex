@@ -76,7 +76,7 @@
     known techniques, such as static analysis and post-condition mutation.
     The project will research these methods and implement some techniques
     into the Whiley language.
-    The success of this project is evaluated based off the reduction
+    The success of this project is evaluated based on the reduction
     of simple loop invariants for the general Whiley programmer.
 \end{abstract}
 
@@ -128,7 +128,7 @@
 
 Formal verification is an important tool to ensure the correctness of software.
 This generally requires the programmer to specify invariants such as
-pre- and post-conditions for procedures or invariants for a type and many more.
+pre- and post-conditions for procedures or invariants for a type and much more.
 One type of invariant is the loop invariant,
 which must hold upon entering the loop, each iteration of the loop 
 and on termination of the loop \cite{invarints-classifiction}.
@@ -141,13 +141,13 @@ This project aims to reduce the burden of providing loop invariants by generatin
 simple loop invariants for the programmer through different techniques.
 
 These techniques could include static analysis of the program, mutating specification
-given or any other technique described in the literature. Thus the project
-will start with a survey of existing literature and learning the Whiley language
+given or any other technique described in the literature. Thus, the project
+will start with a survey of existing literature and learn the Whiley language
 and compiler. This leads to implementing techniques that are identified to be a
 benefit to Whiley.
 
 The resources needed to complete this project are generally provided by the University.
-However it would be a great addition to be able to communicate with the lead developer
+However, it would be a great addition to be able to communicate with the lead developer
 of Whiley, David J. Pearce, as he is on sabbatical leave for the duration
 of the project.
 
@@ -168,10 +168,10 @@ of the project.
 
 The programming language Whiley is designed for software verification \cite{whiley-design} and
 faces the issue of simple loop invariants are a burden to implement.
-This project aims to lift some of the burden from the programmer to specify loop invariants
+This project aims to lift some from the programmer to specify loop invariants
 by generating simple loop invariants from the provided code and specification.
 This project will not generate loop invariants in general as it is known to be incomputable
-in general but a sub-set of loop invariants are possible and has been generated \cite{infer-dynamic} \cite{infer-postconditions}.
+in general but a subset of loop invariants are possible and has been generated \cite{infer-dynamic} \cite{infer-postconditions}.
 These use methods such as dynamically testing the code for invariants, mutating the post condition of the loop
 and using static analysis to determine invariants \cite{infer-dynamic} \cite{infer-postconditions}.
 
@@ -271,12 +271,12 @@ invariants from static analysis or mutating the post-condition and a
 combination.
 The first step of this project will be to survey the literature
 for techniques that can be translated to the Whiley setting.
-During this time a review of the Whiley language, compiler and theorem prover
+During this time a review of the Whiley language, compiler, and theorem prover
 will be necessary to understand how these techniques would fit in.
 
-From the identified techniques some of them will be implemented into the
+From the identified techniques some of them will be implemented in the
 Whiley language with the aim to remove the burden of a class of simple invariants,
-such as keeping the index within bounds of array.
+such as keeping the index within bounds of the array.
 Each generator and targeted simple invariants will require already existing
 or new sample code to verify that the changes to Whiley have been successful.
 
