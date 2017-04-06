@@ -1,41 +1,46 @@
 with Vehicle;
-with common;
-use common;
+with common; use common;
 
 package Pump is
 
-type FuelType is (Octane_91, Octane_95, Diesel);
+   -- move to Fuel / Resivour package
+   type FuelType is (Octane_91, Octane_95, Diesel);
 
-type PumpBase is private;
-type PumpReady is private;
-type PumpPumping is private;
-type PumpWaiting is private;
+   -- could refactor into functions: IsBase, IsWaiting
+   type PumpState is (Base, Waiting);
 
-function LiftNozzle(this : PumpBase) return PumpReady;
+   type PumpUnit is private;
 
-function ReturnNozzle(this : PumpReady) return PumpBase;
-function StartPumpingFuel(this : PumpReady ; tank : Vehicle.Tank) return PumpPumping;
+   function Initialize return PumpUnit with
+      Post => GetState (Initialize'Result) = Base and
+      GetDebt (Initialize'Result) = MoneyUnit (0.00);
 
-function IsVehicleFull(this : PumpPumping) return Boolean;
-function IsReservoirEmpty(this : PumpPumping) return Boolean;
-function ReturnNozzleWaiting(this : PumpPumping) return PumpWaiting;
+   procedure LiftNozzle (this : in out PumpUnit; fuel : FuelType) with
+      Pre  => GetState (this) = Base,
+      Post => GetState (this) = Waiting;
+
+   procedure ReturnNozzle (this : in out PumpUnit) with
+      Pre  => GetState (this) = Waiting and GetDebt (this) = MoneyUnit (0.00),
+      Post => GetState (this) = Base;
+
+   procedure PumpFuel (this : in out PumpUnit; tank : in out Vehicle.Tank) with
+      Pre  => GetState (this) = Waiting and not Vehicle.IsFull (tank),
+      Post => GetDebt (this) > GetDebt (this'Old);
+
+   procedure Pay (this : in out PumpUnit; amount : MoneyUnit) with
+      Pre  => GetDebt (this) > MoneyUnit (0) and GetDebt (this) >= amount,
+      Post => GetDebt (this'Old) - GetDebt (this) = amount;
+
+   function GetState (this : in PumpUnit) return PumpState;
+
+   function GetDebt (this : in PumpUnit) return MoneyUnit;
 
 private
-   type PumpBase is record
-   Fuel : FuelType;
-end record;
 
-type PumpReady is record
-   null;
-end record;
-
-type PumpPumping is record
-      tank : Vehicle.Tank;
-      total_pumped : FuelUnit;
-end record;
-
-type PumpWaiting is record
-      null;
-end record;
+   type PumpUnit is record
+      state    : PumpState;
+      fuel     : FuelType;
+      moneyDue : MoneyUnit;
+   end record;
 
 end Pump;

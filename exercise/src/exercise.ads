@@ -18,15 +18,56 @@ package Exercise with
            OrderedIntArray (i) <= OrderedIntArray (i + 1));
 
    function InArray (value : Integer; input : IntArray) return Boolean with
-      Post => InArray'Result = (for some ele of input => ele = value);
+      Post => InArray'Result =
+      (for some k in input'Range => value = input (k));
+
+   function FirstIndexOf
+     (value : Integer;
+      input : IntArray) return Integer with
+      Pre  => InArray (value, input),
+      Post =>
+      (for some i in input'Range =>
+      -- ensure that the input has the value
+         value = input (i) and
+      -- ensure that the
+         i = FirstIndexOf'Result and
+      -- ensure that all values before the found index does not include the value
+      -- thus it is the first instance of the value
+         (for all k in 0 .. i => input (k) /= value));
+
+   function countValue
+     (value : Integer;
+      input : IntArray) return Integer is
+      -- use stack to store state, yippes
+      -- for each element we find in the list we add 1 and then add the rest
+      -- by recursively to the rest of the list
+     (if
+        (for some i in input'Range => i = value)
+      then
+        -- we make a sub array from the found element plus one to the end of the array
+        1 + (countValue(value, input (FirstIndexOf (value, input) + 1 .. input'Last)))
+      -- for the case of the sub array does not contain the value return 0
+      else 0) with
+      Post =>
+      (countValue'Result =
+       (if
+          (for some i in input'Range => i = value)
+        then
+          1 + (countValue(value, input (FirstIndexOf (value, input) + 1 .. input'Last)))
+        else 0));
 
    function DeleteValue
      (value :    Integer;
       input : in IntArray) return IntArray with
-      Post => (for all ele of DeleteValue'Result => ele /= value) and
-      (for all ele of DeleteValue'Result => Contains (input, ele)) and
-      (for all inEle of input =>
-         (inEle = value xor Contains (DeleteValue'Result, inEle)));
+     Post =>
+       -- check if result is a permutation of input
+       (for all i of DeleteValue'Result =>
+          countValue (i, DeleteValue'Result) = countValue (i, input)) and
+     -- the length of result array plus number of occurance of value in input is equal
+     -- to the size of the input array
+     DeleteValue'Result'Length + countValue(value, input) = input'Length and
+     -- the result does not include value
+      (for all i of DeleteValue'Result => i /= value);
 
    function ContcatArray
      (a : OrderedIntArray;
@@ -38,10 +79,10 @@ package Exercise with
    function MergeArray
      (a : OrderedIntArray;
       b : OrderedIntArray) return OrderedIntArray with
-      Post => MergeArray'Result'Length = a'Length + b'Length and
-      (for all o of MergeArray'Result =>
-         Contains (a, o) or Contains (b, o)) and
-      (for all x of a => Contains (MergeArray'Result, x)) and
-      (for all x of b => Contains (MergeArray'Result, x));
+      -- check if result is a permutation of a and b
+      Post =>
+      (for all i of MergeArray'Result =>
+         countValue (i, MergeArray'Result) =
+         countValue (i, a) + countValue (i, b));
 
 end Exercise;

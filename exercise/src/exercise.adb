@@ -24,6 +24,18 @@ package body Exercise with
       return input;
    end DeleteValue;
 
+   function FirstIndexOf (value : Integer; input : IntArray) return Integer is
+   begin
+      for i in input'Range loop
+         if input(i) = value then
+           return i;
+           end if;
+      end loop;
+
+      return 0;
+   end FirstIndexOf;
+
+
    function ContcatArray
      (a : OrderedIntArray;
       b : OrderedIntArray) return OrderedIntArray is
