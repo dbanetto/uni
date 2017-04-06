@@ -502,23 +502,24 @@ public class Interpreter {
 
 
     private List<Object> execute(Expr.Alternative expr, HashMap<String, Object> frame) {
+        // evaluates all candidates held in the expression
 
-        List<Object> candiates = new ArrayList<>();
+        List<Object> candidates = new ArrayList<>();
 
         for (Expr e : expr.getAlternatives()) {
             if (e instanceof Expr.Range) {
                Expr.Range range = (Expr.Range) e;
 
-               candiates.addAll(range.getValue());
+               candidates.addAll(range.getValue());
             } else if (e instanceof Expr.Constant) {
                 Expr.Constant constant = (Expr.Constant) e;
 
-                candiates.add(constant.getValue());
+                candidates.add(constant.getValue());
             } else {
-                internalFailure("Alteratives should only have Ranges and Constants", file.filename, expr);
+                internalFailure("Alternatives should only have Ranges and Constants", file.filename, expr);
             }
         }
-       return candiates;
+       return candidates;
     }
 
     /**

@@ -986,7 +986,13 @@ public interface Stmt extends SyntacticElement {
 
 
     /**
-     * A non-parsable
+     * Syscall or System Call is statement to encapsulate interaction with the
+     * operating system.
+     *
+     * This should NOT be parsable from normal While code but to be used in
+     * standard library functions, such as <code>readline</code>
+     *
+     * @author David Barnett
      */
     public static final class Syscall extends SyntacticElement.Impl implements
             Stmt {
@@ -997,7 +1003,7 @@ public interface Stmt extends SyntacticElement {
         }
 
         /**
-         * Construct a print statement from a given expression.
+         * Construct a system call.
          *
          * @param call       May not be null.
          * @param attributes
@@ -1008,7 +1014,7 @@ public interface Stmt extends SyntacticElement {
         }
 
         /**
-         * Construct a print statement from a given expression.
+         * Construct a system call.
          *
          * @param call       May not be null.
          * @param attributes
@@ -1023,7 +1029,7 @@ public interface Stmt extends SyntacticElement {
         }
 
         /**
-         * Get the expression whose value is to be printed.
+         * Get the type of system call
          *
          * @return Guaranteed to be non-null.
          */

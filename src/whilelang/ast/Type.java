@@ -263,6 +263,12 @@ public interface Type extends SyntacticElement {
     }
 
 
+    /**
+     * Represents a union between two types where the final type could
+     * be either type or sub-types of the union
+     *
+     * @author David Barnett
+     */
     public static final class Union extends SyntacticElement.Impl implements Type {
         private final Type left;
         private final Type right;

@@ -11,12 +11,25 @@ import java.util.List;
 
 public class Stdlib  {
 
+    /**
+     * Returns a list of methods that are defined as the standard library for While
+     *
+     * These methods are either general utility methods or methods that
+     * cannot be implemented with only Whiley (such as I/O)
+     **/
     public static List<WhileFile.MethodDecl> getStdLib() {
         return Arrays.asList(
                 readline()
         );
     }
 
+    /**
+     * method to read in a line of text from STDIN
+     *
+     * while signature: string readline()
+     *
+     * @return method for <code>readline</code>
+     */
     private static WhileFile.MethodDecl readline() {
         return new WhileFile.MethodDecl(
                 "readline",

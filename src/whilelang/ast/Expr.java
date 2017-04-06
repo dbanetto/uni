@@ -681,6 +681,8 @@ public interface Expr extends SyntacticElement {
      * example, in the expression <code>1 .. 2</code>, an instance of
      * <code>Range</code> is used to represent the value <code>1 .. 2</code>.
      *
+     * The range is inclusive of the start and end elements
+     *
      * @author David Barnett
      */
     public static class Range extends SyntacticElement.Impl implements Expr {
@@ -761,6 +763,12 @@ public interface Expr extends SyntacticElement {
         }
     }
 
+    /**
+     * Represents a list of expressions that could match in a <code>switch</code>
+     * case statement.
+     *
+     * @author David Barnett
+     */
     public static class Alternative extends SyntacticElement.Impl implements Expr {
 
         private final List<Expr> alternatives;
@@ -807,6 +815,12 @@ public interface Expr extends SyntacticElement {
         }
     }
 
+    /**
+     * Represents a runtime cast for an expression into another
+     * type.
+     *
+     * @author David Barnett
+     */
     public static class Cast extends SyntacticElement.Impl implements Expr {
         private final Type castTo;
         private final Expr expression;

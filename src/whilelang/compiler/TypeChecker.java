@@ -39,7 +39,7 @@ import static whilelang.util.SyntaxError.syntaxError;
  *
  * @author David J. Pearce
  */
-public class TypeChecker {
+public  class TypeChecker {
     private WhileFile file;
     private WhileFile.MethodDecl method;
     private HashMap<String, WhileFile.MethodDecl> methods;
@@ -646,6 +646,7 @@ public class TypeChecker {
             Type.Record r2 = (Type.Record) t2;
             List<Pair<Type, String>> r1Fields = r1.getFields();
             List<Pair<Type, String>> r2Fields = r2.getFields();
+
             // Implement "width" subtyping
             if (r1Fields.size() < r2Fields.size()) {
                 return false;
@@ -687,6 +688,8 @@ public class TypeChecker {
             Type.Union superUnion = (Type.Union) t1;
             Type.Union subUnion = (Type.Union) t2;
 
+            // a union should not care what order the types are listed
+            // int|string is same as string|int
             return (isSubtype(superUnion.getLeft(), subUnion.getLeft(), element) &&
                     isSubtype(superUnion.getRight(), subUnion.getRight(), element)
                     ) ||
@@ -697,11 +700,15 @@ public class TypeChecker {
         } else if (t1 instanceof Type.Union) {
             Type.Union union = (Type.Union) t1;
 
+            // common case of the t2 being a sub-type of one or more
+            // for a member of the union
+            // e.g. t1 := string|int to  t2 := int
             return isSubtype(union.getLeft(), t2, element) || isSubtype(union.getRight(), t2, element);
         } else if (t2 instanceof Type.Union) {
             Type.Union union = (Type.Union) t2;
 
-
+            // allow for a union being equivalent to another type
+            // int is the same as int|int
             return isSubtype(t1, union.getLeft(), element) && isSubtype(t1, union.getRight(), element);
         }
         return false;

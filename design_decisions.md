@@ -1,6 +1,7 @@
 # Assignment 1
 
-Summary of changes to the while compiler and the decisions that were made.
+Summary of changes to the while compiler
+and discussion of the decisions that were made.
 
 ## Do-While
 
@@ -22,8 +23,8 @@ do {
 } while( i == 1 );
 ```
 
-Dead-code analysis works the same as a `while` loop with the following code being
-invalid.
+Dead-code analysis and its interaction with `break` statements works the
+same as a `while` loop with the following code being invalid.
 
 ```java
 do {

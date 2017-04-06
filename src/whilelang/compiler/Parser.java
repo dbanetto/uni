@@ -627,6 +627,7 @@ public class Parser {
 
                 // duplication of cases check
                 for (Expr e : value.getAlternatives()) {
+                    // handle constants and ranges different
                     if (e instanceof Expr.Constant) {
                         Expr.Constant constant = (Expr.Constant) e;
 
@@ -636,6 +637,7 @@ public class Parser {
                             values.add(constant.getValue());
                         }
                     } else if (e instanceof Expr.Range) {
+                        // check every element in the range
                         Expr.Range range = (Expr.Range) e;
                         for (Object val : range.getValue()) {
                             if (values.contains(val)) {
@@ -655,12 +657,14 @@ public class Parser {
                 value = null;
             }
             int end = index;
+
             // Parse the case body
             ArrayList<Stmt> body = new ArrayList<Stmt>();
             while (index < tokens.size() && !(tokens.get(index) instanceof RightCurly)
                     && !(tokens.get(index).text.equals("case")) && !(tokens.get(index).text.equals("default"))) {
                 body.add(parseStatement(true, context));
             }
+
             cases.add(new Stmt.Case(value, body, sourceAttr(start, end - 1)));
         }
         return cases;
@@ -680,10 +684,11 @@ public class Parser {
     }
 
     private Expr parseAlternativeCandidate(Context context) {
-        Expr expr = parseConstant(context);
+        Expr.Constant expr = parseConstant(context);
 
-        if (tokens.get(index) instanceof  DoubleDot) {
-            expr = parseRange(context, (Expr.Constant) expr);
+        // check if the constant is a part of a range
+        if (tokens.get(index) instanceof DoubleDot) {
+            return parseRange(context, expr);
         }
 
         return expr;
