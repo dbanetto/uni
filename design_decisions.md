@@ -1,6 +1,6 @@
 # Assignment 1
 
-Summary of changes to the while compiler
+Summary of changes to the `while` compiler
 and discussion of the decisions that were made.
 
 ## Do-While
@@ -84,7 +84,7 @@ const int n;
 n = 1; // invalid
 ```
 
-However they differ in what they are allowed to be set to.
+However, they differ in what they are allowed to be set to.
 In `c` setting a `const` to an non-constant expression is allowed such as:
 
 ```c
@@ -190,7 +190,7 @@ just making a `range` be equivalent to stating an array of the same range and
 an `alternative` would just be summing the different arrays together to form an array
 of all cases which the `case` will pass on.
 
-However a severe implementation issue arose with this method, it is impossible distinguishable
+However, a severe implementation issue arose with this method, it is impossible distinguishable
 between a natural array type, `int[]`, versus multiple cases of a single type, `int`.
 This prevents the static check of distinct value for each `case` and being able to
 correctly evaluate a `case` for an array type.
@@ -212,7 +212,7 @@ RangeExpr ::= ConstExpr '..' ConstExpr
 ```
 
 Ranges are only implemented for integers and is validated in the type checker.
-Since it is using a `ConstExpr` it does mean that `const int`'s are acceptable as
+A consequence of using `ConstExpr` is that `const int`'s are acceptable in
 ranges.
 
 In the previous method a `case` could describe a set of candidates either in an array form or
@@ -244,8 +244,8 @@ values of `A` and thus the subtype.
 
 An extension to this would be to add runtime type checks or flow typing
 to ensure that the cast is valid.
-This could come in the form of a `Expr 'is' Type` expression returning a boolean,
-that will check the type of an object at runtime.
-However since all type checks are currently static only to implement this 
+This could come in the form of an expression, such as `Expr 'is' Type`, returning a boolean
+that will check the type of the expression at runtime.
+However, since all type checks are currently static only to implement this 
 would  most likely require needing to wrap all objects with some metadata
 about what their types.
