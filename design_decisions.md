@@ -1,4 +1,5 @@
-# Assignment 1
+% ENGR441 - Assignment 1
+% David Barnett (300313764)
 
 Summary of changes to the `while` compiler
 and discussion of the decisions that were made.
@@ -47,8 +48,9 @@ So far only `readline()` uses this, `print` could be transferred into this as we
 but has the additional problem of being able to take any expression an argument which
 a method cannot give the same functionality without overloads of `print()` for every time.
 
-The alternative way to implement an input statement would be to make it an
-expression that would take no arguments and always return a string type.
+An alternative way to implement this would be to make it an
+expression, such as `print`, that would which could look like a method call that take no arguments always
+and returns a string type.
 
 ## Switch `default` case
 
@@ -72,8 +74,9 @@ be immutable after its first assignment.
 
 Other languages use the keyword `const` but have different interpretations of it.
 In `C` it is seen as an extension to the type to denote that it is immutable 
+(which in true `C` fashion can be worked around by pointer magic)
 as opposed to something like `D` or `rust` where they are treated as
-essentially aliases to a constant value and could be used in constant expressions.
+a compile time constant that will replace instances of the variable with the value.
 
 In all of these languages they must be assigned a value at declaration unlike normal
 variables.
@@ -85,11 +88,11 @@ n = 1; // invalid
 ```
 
 However, they differ in what they are allowed to be set to.
-In `c` setting a `const` to an non-constant expression is allowed such as:
+In `c` setting a `const` to a non-constant expression is allowed such as:
 
 ```c
 int n = 10;
-const int i = n;
+const int i = n; // compiles fine
 ```
 
 But in `rust` the equivalent code is an error:
@@ -100,11 +103,16 @@ const i: i32 = n; // err: attempt to use a non-constant value in a constant
 ```
 
 From researching the different styles of `const`'s in other languages the
-final semantics implemented is:
+final semantics implemented were:
 
  * a `const` can only be set to a constant value
  * a `const` must be initialized at declaration (parser ensures)
- * a `const` is usable in any constant expression (e.g. defining another `const` or a `switch` statement)
+ * a `const` is usable in any constant expression (e.g. defining another `const` or a `case` in a `switch` statement)
+
+This was implemented by allowing the context in the parser to hold two types
+of variables, normal and constants.
+Constants were stored with their value, since it is constant we know the value at parser time, and replaces
+every usage of the variable with the given expression.
 
 ```java
 int n = 10;
@@ -248,4 +256,4 @@ This could come in the form of an expression, such as `Expr 'is' Type`, returnin
 that will check the type of the expression at runtime.
 However, since all type checks are currently static only to implement this 
 would  most likely require needing to wrap all objects with some metadata
-about what their types.
+to indicate what their type is.
