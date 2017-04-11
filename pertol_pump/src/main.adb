@@ -4,7 +4,7 @@ with common;
 with Ada.Text_IO;
 use common;
 
-procedure main is
+procedure main with SPARK_Mode is
    p : Pump.PumpUnit := Pump.Initialize;
    t : Vehicle.Tank := Vehicle.Initialize(current => FuelUnit(10),
                                           capacity => FuelUnit(100));

@@ -9,7 +9,10 @@ package Pump is
    -- could refactor into functions: IsBase, IsWaiting
    type PumpState is (Base, Waiting);
 
-   type PumpUnit is private;
+   type PumpUnit is private with
+     Type_Invariant =>
+       (GetState(PumpUnit) = Base and then GetDebt(PumpUnit) = MoneyUnit(0.0)) and
+       (GetState(PumpUnit) = Waiting and then GetDebt(PumpUnit) >= MoneyUnit(0.0));
 
    function Initialize return PumpUnit with
       Post => GetState (Initialize'Result) = Base and
@@ -28,7 +31,7 @@ package Pump is
       Post => GetDebt (this) > GetDebt (this'Old);
 
    procedure Pay (this : in out PumpUnit; amount : MoneyUnit) with
-      Pre  => GetDebt (this) > MoneyUnit (0) and GetDebt (this) >= amount,
+      Pre  => GetDebt (this) >= amount,
       Post => GetDebt (this'Old) - GetDebt (this) = amount;
 
    function GetState (this : in PumpUnit) return PumpState;
