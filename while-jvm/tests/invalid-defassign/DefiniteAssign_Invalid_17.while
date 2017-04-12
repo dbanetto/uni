@@ -1,3 +1,4 @@
-real f() {
-    return (real) i;
+bool f() {
+    bool i;
+    return i;
 }

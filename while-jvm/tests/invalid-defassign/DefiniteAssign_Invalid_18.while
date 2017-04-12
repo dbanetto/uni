@@ -1,7 +1,8 @@
-real g(real x) {
-    return x + 1.0;
+bool g(bool x) {
+    return (x || !x);
 }
 
-real f() {
+bool f() {
+    bool x;
     return g(x);
 }
