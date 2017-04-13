@@ -1,6 +1,6 @@
 with common; use common;
 
-package Vehicle is
+package Vehicle with SPARK_Mode is
 
    type Tank is private;
 

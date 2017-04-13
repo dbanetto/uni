@@ -13,7 +13,7 @@ package body Vehicle is
 
    function IsFull (this : Tank) return Boolean is
    begin
-      return this.current <= this.capacity;
+      return this.current = this.capacity;
    end IsFull;
 
    ----------

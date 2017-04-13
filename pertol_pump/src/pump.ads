@@ -1,7 +1,7 @@
 with Vehicle;
 with common; use common;
 
-package Pump is
+package Pump with SPARK_Mode is
 
    -- move to Fuel / Resivour package
    type FuelType is (Octane_91, Octane_95, Diesel);
@@ -27,16 +27,18 @@ package Pump is
       Post => GetState (this) = Base;
 
    procedure PumpFuel (this : in out PumpUnit; tank : in out Vehicle.Tank) with
-      Pre  => GetState (this) = Waiting and not Vehicle.IsFull (tank),
-      Post => GetDebt (this) > GetDebt (this'Old);
+      Pre  => GetState (this) = Waiting,
+      Post => GetState (this) = Waiting and GetDebt (this) >= GetDebt (this'Old);
 
    procedure Pay (this : in out PumpUnit; amount : MoneyUnit) with
-      Pre  => GetDebt (this) >= amount,
-      Post => GetDebt (this'Old) - GetDebt (this) = amount;
+      Pre  => GetDebt (this) >= amount and amount > MoneyUnit (0.00),
+      Post => GetDebt (this'Old) - GetDebt (this) = amount and GetState (this) = Waiting;
 
-   function GetState (this : in PumpUnit) return PumpState;
+   function GetState (this : in PumpUnit) return PumpState with
+     Post => GetState(this) = GetState(this'Old);
 
-   function GetDebt (this : in PumpUnit) return MoneyUnit;
+   function GetDebt (this : in PumpUnit) return MoneyUnit with
+     Post => GetDebt(this) = GetDebt(this'Old);
 
 private
 

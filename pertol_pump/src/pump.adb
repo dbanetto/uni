@@ -33,7 +33,7 @@ package body Pump is
    --------------
 
    procedure PumpFuel (this : in out PumpUnit; tank : in out Vehicle.Tank) is
-      amount : FuelUnit := 10;
+      amount : FuelUnit := FuelUnit'Last;
    begin
       Vehicle.Fill(tank, amount);
       -- TODO: fuel price for each fuel type
