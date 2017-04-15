@@ -11,3 +11,8 @@ void test() {
      assert id(1) == 1;
      assert id(-1) == -1;
 }
+
+// FIXME or maybe main methods aren't required
+void main() {
+
+}

@@ -1,0 +1,9 @@
+type IntList is int[]
+type A is { IntList xs }
+
+void main() {
+    IntList xs = [1, 2, 3];
+    A a = { xs: xs };
+    xs[0] = 0;
+    assert a.xs[0] == 1;
+}

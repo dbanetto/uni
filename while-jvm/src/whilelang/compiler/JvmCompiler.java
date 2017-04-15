@@ -14,17 +14,17 @@ import java.io.FileOutputStream;
  */
 public class JvmCompiler {
 
-    private final WhileFile file;
+    private final String fileName;
 
-    public JvmCompiler(WhileFile file) {
-        this.file = file;
+    public JvmCompiler(String fileName) {
+        this.fileName = fileName;
     }
 
-    public void compile() {
+    public void write(WhileFile ast) {
         try {
-            JasmFileWriter writer = new JasmFileWriter(new FileOutputStream(file.filename.replace("while", "class")));
+            JasmFileWriter writer = new JasmFileWriter(new FileOutputStream(fileName));
 
-            for (WhileFile.Decl decl : file.declarations) {
+            for (WhileFile.Decl decl : ast.declarations) {
 
             }
 

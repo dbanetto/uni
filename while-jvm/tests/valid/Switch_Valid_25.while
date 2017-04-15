@@ -1,0 +1,12 @@
+int f(string x) {
+  switch(x) {
+    case "ZERO":
+      return 0;
+  }
+  return -1;
+}
+
+void main() {
+    assert 0 == f("ZERO");
+    assert -1 == f("HELLO WORLD");
+}

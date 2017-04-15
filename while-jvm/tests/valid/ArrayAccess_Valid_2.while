@@ -1,0 +1,8 @@
+int first(int[] x) {
+    return x[0];
+}
+
+void main() {
+    int[] array = [1,2,3];
+    assert first(array) == 1;
+}
