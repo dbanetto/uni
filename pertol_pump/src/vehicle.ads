@@ -9,7 +9,7 @@ package Vehicle with SPARK_Mode is
    function IsFull (this : Tank) return Boolean;
 
    procedure Fill (this : in out Tank; amount :in out FuelUnit) with
-      Pre => not IsFull (this);
+     Pre => not IsFull (this);
 
 private
 

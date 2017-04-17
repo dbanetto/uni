@@ -7,25 +7,27 @@ use Ada.Assertions;
 use Pump;
 use common;
 
-procedure main with SPARK_Mode is
-   p : Pump.PumpUnit := Pump.Initialize;
+procedure main with SPARK_Mode => On is
    t : Vehicle.Tank := Vehicle.Initialize(current => FuelUnit(0),
                                           capacity => FuelUnit(100));
 begin
+   -- Pump.Initialize;
+   -- Pump.PumpFuel(t);
 
-   Pump.LiftNozzle(p, Pump.Octane_95);
-
-   if not Vehicle.IsFull(t) then
-      Pump.PumpFuel(p, t);
-   end if;
-
-   Ada.Text_IO.Put(Float'Image(Pump.GetDebt(p)));
-   Assert(Pump.GetState(p) = Pump.Waiting);
+   Pump.LiftNozzle(Pump.Octane_95);
 
    loop
-      exit when Pump.GetDebt(p) = MoneyUnit(0.0);
-      Pump.Pay(p, Pump.GetDebt(p));
+      exit when Vehicle.IsFull(t);
+      Pump.PumpFuel(t);
    end loop;
-   Assert(Pump.GetState(p) = Pump.Waiting);
-   Pump.ReturnNozzle(p);
+
+   Ada.Text_IO.Put(Float'Image(Pump.GetDebt));
+   Assert(Pump.GetState = Pump.Waiting);
+
+   loop
+      exit when Pump.GetDebt = MoneyUnit(0.0);
+      Pump.Pay(Pump.GetDebt);
+   end loop;
+   Assert(Pump.GetState = Pump.Waiting);
+   Pump.ReturnNozzle;
 end main;

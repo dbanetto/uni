@@ -1,51 +1,52 @@
 with Vehicle;
 with common; use common;
 
-package Pump with SPARK_Mode is
+package Pump with
+     Spark_Mode,
+  Abstract_State => (Unit, State),
+  Initializes => (Unit, State)
+is
 
    -- move to Fuel / Resivour package
-   type FuelType is (Octane_91, Octane_95, Diesel);
+   type FuelType is (Octane_91, Octane_95, Diesel, None);
 
    -- could refactor into functions: IsBase, IsWaiting
    type PumpState is (Base, Waiting);
 
-   type PumpUnit is private with
-     Type_Invariant =>
-       (GetState(PumpUnit) = Base and then GetDebt(PumpUnit) = MoneyUnit(0.0)) and
-       (GetState(PumpUnit) = Waiting and then GetDebt(PumpUnit) >= MoneyUnit(0.0));
+--     procedure Initialize with
+--       Global => (Output => (Unit, State)),
+--        Depends => ((Unit, State) => null),
+--        Post   => GetDebt = MoneyUnit (0.0) and GetState = Base;
 
-   function Initialize return PumpUnit with
-      Post => GetState (Initialize'Result) = Base and
-      GetDebt (Initialize'Result) = MoneyUnit (0.00);
+   procedure LiftNozzle (fuel : FuelType) with
+     Global => (In_Out => (State, Unit)),
+      Pre    => GetState = Base,
+      Post   => GetState = Waiting;
 
-   procedure LiftNozzle (this : in out PumpUnit; fuel : FuelType) with
-      Pre  => GetState (this) = Base,
-      Post => GetState (this) = Waiting;
+   procedure ReturnNozzle with
+     Global => (In_Out => State, Input => Unit),
+      Depends => (State => (State, Unit)),
+      Pre    => GetState = Waiting and GetDebt = MoneyUnit (0.00),
+      Post   => GetState = Base;
 
-   procedure ReturnNozzle (this : in out PumpUnit) with
-      Pre  => GetState (this) = Waiting and GetDebt (this) = MoneyUnit (0.00),
-      Post => GetState (this) = Base;
+   procedure PumpFuel (tank : in out Vehicle.Tank) with
+     Global => (In_Out => Unit, Input => State),
+      Depends => ((Unit, tank) => (tank, Unit, State)),
+      Pre    => GetState = Waiting,
+      Post   => GetState = Waiting and
+      GetDebt >= GetDebt'Old; -- get before & after snippets
 
-   procedure PumpFuel (this : in out PumpUnit; tank : in out Vehicle.Tank) with
-      Pre  => GetState (this) = Waiting,
-      Post => GetState (this) = Waiting and GetDebt (this) >= GetDebt (this'Old);
+   procedure Pay (amount : MoneyUnit) with
+      Global => (In_Out => Unit, Proof_In => State),
+      Pre    => GetDebt >= amount and amount >= MoneyUnit (0.00),
+      Post   => GetDebt'Old - GetDebt = amount and GetState = Waiting;
 
-   procedure Pay (this : in out PumpUnit; amount : MoneyUnit) with
-      Pre  => GetDebt (this) >= amount and amount > MoneyUnit (0.00),
-      Post => GetDebt (this'Old) - GetDebt (this) = amount and GetState (this) = Waiting;
+   function GetState return PumpState with
+      Global => (Input => State);
 
-   function GetState (this : in PumpUnit) return PumpState with
-     Post => GetState(this) = GetState(this'Old);
-
-   function GetDebt (this : in PumpUnit) return MoneyUnit with
-     Post => GetDebt(this) = GetDebt(this'Old);
+   function GetDebt return MoneyUnit with
+      Global => (Input => Unit);
 
 private
-
-   type PumpUnit is record
-      state    : PumpState;
-      fuel     : FuelType;
-      moneyDue : MoneyUnit;
-   end record;
 
 end Pump;
