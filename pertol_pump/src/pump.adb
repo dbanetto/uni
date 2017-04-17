@@ -1,20 +1,22 @@
 package body Pump with
      Spark_Mode,
-  Refined_State => (Unit => (moneyDue, fuelkind, totalPumped),
-                   State => nozzleState) is
+     Refined_State =>
+     (Unit  => (moneyDue, fuelkind, totalPumped),
+      State => nozzleState)
+is
 
    moneyDue    : MoneyUnit := MoneyUnit (0.0);
-   totalPumped : FuelUnit := FuelUnit (0);
+   totalPumped : FuelUnit  := FuelUnit (0);
    nozzleState : PumpState := Base;
-   fuelkind    : FuelType := None;
+   fuelkind    : FuelType  := None;
 
---     procedure Initialize is
---     begin
---        moneyDue    := MoneyUnit (0.0);
---        totalPumped := FuelUnit (0);
---        nozzleState := Base;
---        fuelkind    := None;
---     end Initialize;
+   procedure Initialize is
+   begin
+      moneyDue    := MoneyUnit (0.0);
+      totalPumped := FuelUnit (0);
+      nozzleState := Base;
+      fuelkind    := None;
+   end Initialize;
 
    ----------------
    -- LiftNozzle --
@@ -23,7 +25,7 @@ package body Pump with
    procedure LiftNozzle (fuel : FuelType) is
    begin
       nozzleState := Waiting;
-      fuelkind := fuel;
+      fuelkind    := fuel;
    end LiftNozzle;
 
    ------------------
@@ -32,7 +34,8 @@ package body Pump with
 
    procedure ReturnNozzle is
    begin
-      if moneyDue /= MoneyUnit(0.0) then
+      -- enforce pre-conditions
+      if nozzleState /= Waiting and moneyDue /= MoneyUnit (0.0) then
          return;
       end if;
 
@@ -43,14 +46,21 @@ package body Pump with
    -- PumpFuel --
    --------------
 
-   procedure PumpFuel (tank : in out Vehicle.Tank) is
+   procedure PumpFuelFull (tank : in out Vehicle.Tank) is
       amount : FuelUnit := FuelUnit'Last;
    begin
-      if not (nozzleState = Waiting) or Vehicle.IsFull (tank) then
+      PumpFuel(tank, amount);
+   end PumpFuelFull;
+
+   procedure PumpFuel (tank : in out Vehicle.Tank ; amount : in out FuelUnit) is
+   begin
+      -- enforce pre-conditions
+      if nozzleState /= Waiting or Vehicle.IsFull (tank) then
          return;
       end if;
 
       Vehicle.Fill (tank, amount);
+
       -- TODO: fuel price for each fuel type
       moneyDue := moneyDue + MoneyUnit (Float (amount) * 2.0);
    end PumpFuel;
@@ -61,6 +71,7 @@ package body Pump with
 
    procedure Pay (amount : MoneyUnit) is
    begin
+      -- enforcing pre-conditions
       if moneyDue < amount then
          return;
       end if;

@@ -34,4 +34,7 @@ package body Vehicle is
       end if;
    end Fill;
 
+   function GetCurrent (this : in Tank) return FuelUnit  is (this.current);
+   function GetCapacity (this : in Tank) return FuelUnit is (this.capacity);
+
 end Vehicle;

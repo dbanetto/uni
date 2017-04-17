@@ -1,33 +1,31 @@
 with Vehicle;
-with Pump;
-with common;
+with Pump;           use Pump;
+with common;         use common;
+with Reservoir;
 with Ada.Text_IO;
-with Ada.Assertions;
-use Ada.Assertions;
-use Pump;
-use common;
+with Ada.Assertions; use Ada.Assertions;
 
-procedure main with SPARK_Mode => On is
-   t : Vehicle.Tank := Vehicle.Initialize(current => FuelUnit(0),
-                                          capacity => FuelUnit(100));
+procedure main with
+   Spark_Mode => On is
+   t : Vehicle.Tank :=
+     Vehicle.Initialize (current => FuelUnit (0), capacity => FuelUnit (1000));
 begin
-   -- Pump.Initialize;
+   Pump.Initialize;
+   Reservoir.Initialize (FuelUnit (1000), FuelUnit (10), FuelUnit (100));
    -- Pump.PumpFuel(t);
+   Pump.LiftNozzle (Octane_95);
 
-   Pump.LiftNozzle(Pump.Octane_95);
 
-   loop
-      exit when Vehicle.IsFull(t);
-      Pump.PumpFuel(t);
-   end loop;
+   Pump.PumpFuelFull (t);
+   Assert (Vehicle.IsFull(t));
 
-   Ada.Text_IO.Put(Float'Image(Pump.GetDebt));
-   Assert(Pump.GetState = Pump.Waiting);
+   Ada.Text_IO.Put (Float'Image (Pump.GetDebt));
+   Assert (Pump.GetState = Waiting);
 
    loop
-      exit when Pump.GetDebt = MoneyUnit(0.0);
-      Pump.Pay(Pump.GetDebt);
+      exit when Pump.GetDebt = MoneyUnit (0.0);
+      Pump.Pay (Pump.GetDebt);
    end loop;
-   Assert(Pump.GetState = Pump.Waiting);
+   Assert (Pump.GetState = Waiting);
    Pump.ReturnNozzle;
 end main;

@@ -1,15 +1,31 @@
 with common; use common;
 
-package Vehicle with SPARK_Mode is
+package Vehicle with
+     Spark_Mode is
 
    type Tank is private;
 
-   function Initialize(capacity : FuelUnit; current  : FuelUnit)  return Tank;
+   function Initialize (capacity : FuelUnit; current : FuelUnit) return Tank;
 
-   function IsFull (this : Tank) return Boolean;
+   function GetCurrent (this : in Tank) return FuelUnit with
+      Global     => null,
+      Convention => Ghost;
 
-   procedure Fill (this : in out Tank; amount :in out FuelUnit) with
-     Pre => not IsFull (this);
+   function GetCapacity (this : in Tank) return FuelUnit with
+      Global     => null,
+      Convention => Ghost;
+
+   function IsFull (this : Tank) return Boolean with
+      Post => (IsFull'Result and GetCurrent (this) = GetCapacity (this)) or
+      (not IsFull'Result and GetCurrent (this) > GetCapacity (this));
+
+   procedure Fill (this : in out Tank; amount : in out FuelUnit) with
+      Global => null,
+      Post   => GetCurrent (this) <= GetCapacity (this) and
+      GetCurrent (this) >= GetCurrent (this'Old) and
+      amount <= amount'Old and
+      amount >= 0 and
+      amount = GetCurrent (this) - GetCurrent (this'Old);
 
 private
 
