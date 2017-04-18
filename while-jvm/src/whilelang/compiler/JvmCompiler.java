@@ -69,8 +69,12 @@ public class JvmCompiler {
 
         /// ------ setup method ------
         List<Modifier> funcModifiers = new ArrayList<>();
-        funcModifiers.add(Modifier.ACC_PUBLIC);
         funcModifiers.add(Modifier.ACC_STATIC);
+
+        // special case where main is a public method
+        if (methodDecl.getName().equals("main")) {
+            funcModifiers.add(Modifier.ACC_PUBLIC);
+        }
 
         List<JvmType> parameterTypes = new ArrayList<>(methodDecl.getParameters().size());
         for (WhileFile.Parameter param : methodDecl.getParameters()) {
@@ -305,7 +309,6 @@ public class JvmCompiler {
             // not implmented
             throw new UnsupportedOperationException();
         }
-
     }
 
     public void internalFailure(String msg, SyntacticElement elem) {
