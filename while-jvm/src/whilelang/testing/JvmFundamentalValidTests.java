@@ -60,7 +60,8 @@ public class JvmFundamentalValidTests extends AbstractJvmValidTests {
 			"String_Valid_6",
 			"String_Valid_7",
 			"BoolNot_Valid_1",
-            "OrAnd_Valid_1"
+            "OrAnd_Valid_1",
+			"Simple_Valid_1"
 	};
 	
 	public JvmFundamentalValidTests(String testName) {

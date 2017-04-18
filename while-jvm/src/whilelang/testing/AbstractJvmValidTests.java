@@ -67,7 +67,7 @@ public abstract class AbstractJvmValidTests {
 		String classFilename = WHILE_SRC_DIR + testname + ".class";
 		WhileCompiler compiler = new WhileCompiler(sourceFilename);
 		WhileFile ast = compiler.compile();
-		new JvmCompiler(classFilename).write(ast);
+		new JvmCompiler(classFilename, testname).write(ast);
 	}
 	
 	/**
