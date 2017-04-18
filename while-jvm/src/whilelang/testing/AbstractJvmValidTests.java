@@ -1,5 +1,10 @@
 package whilelang.testing;
 
+import org.junit.Test;
+import whilelang.ast.WhileFile;
+import whilelang.compiler.JvmCompiler;
+import whilelang.compiler.WhileCompiler;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -7,14 +12,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-
-import org.junit.*;
-import org.junit.runners.Parameterized.Parameters;
-
-import whilelang.ast.WhileFile;
-import whilelang.compiler.JvmCompiler;
-import whilelang.compiler.WhileCompiler;
-import whilelang.util.Interpreter;
 
 public abstract class AbstractJvmValidTests {
     private static final String WHILE_SRC_DIR = "tests/valid/".replace('/', File.separatorChar);

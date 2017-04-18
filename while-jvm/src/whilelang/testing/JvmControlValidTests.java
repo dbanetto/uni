@@ -1,11 +1,10 @@
 package whilelang.testing;
 
-import java.util.Collection;
-
-import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.util.Collection;
 
 
 @RunWith(Parameterized.class)

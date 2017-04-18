@@ -1,23 +1,20 @@
 package whilelang.testing;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import whilelang.ast.WhileFile;
+import whilelang.compiler.Lexer;
+import whilelang.compiler.Parser;
+import whilelang.compiler.TypeChecker;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
-
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import whilelang.ast.WhileFile;
-import whilelang.compiler.DefiniteAssignment;
-import whilelang.compiler.Lexer;
-import whilelang.compiler.Parser;
-import whilelang.compiler.TypeChecker;
-import whilelang.compiler.WhileCompiler;
+import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public class TypeCheckingTests {

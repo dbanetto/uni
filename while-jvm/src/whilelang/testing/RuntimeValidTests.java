@@ -1,19 +1,17 @@
 package whilelang.testing;
 
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import whilelang.ast.WhileFile;
+import whilelang.compiler.WhileCompiler;
+import whilelang.util.Interpreter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-
-import whilelang.ast.WhileFile;
-import whilelang.compiler.*;
-import whilelang.util.Interpreter;
 
 @RunWith(Parameterized.class)
 public class RuntimeValidTests {

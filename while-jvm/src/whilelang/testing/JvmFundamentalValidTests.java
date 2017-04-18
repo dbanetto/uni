@@ -1,11 +1,10 @@
 package whilelang.testing;
 
-import java.util.Collection;
-
-import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.util.Collection;
 
 
 @RunWith(Parameterized.class)
@@ -61,7 +60,8 @@ public class JvmFundamentalValidTests extends AbstractJvmValidTests {
             "String_Valid_7",
             "BoolNot_Valid_1",
             "OrAnd_Valid_1",
-            "Simple_Valid_1"
+            "Simple_Valid_1",
+            "Simple_Valid_2"
     };
 
     public JvmFundamentalValidTests(String testName) {
