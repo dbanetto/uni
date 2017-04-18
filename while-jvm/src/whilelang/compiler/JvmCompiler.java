@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
  * @author David Barnett
  */
 public class JvmCompiler {
@@ -41,7 +40,7 @@ public class JvmCompiler {
                     JvmTypes.JAVA_LANG_OBJECT,
                     Collections.EMPTY_LIST,
                     classModifiers
-                    );
+            );
 
             for (WhileFile.Decl decl : ast.declarations) {
 
@@ -104,6 +103,7 @@ public class JvmCompiler {
             compile(stmt, bytecode);
         }
     }
+
     private void compile(Stmt stmt, List<Bytecode> bytecode) {
         if (stmt instanceof Stmt.Assert) {
             compile((Stmt.Assert) stmt, bytecode);
@@ -139,27 +139,35 @@ public class JvmCompiler {
     private void compile(Stmt.VariableDeclaration stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.Assert stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.Break stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.Assign stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.Continue stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.For stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.IfElse stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.Print stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.Return stmt, List<Bytecode> bytecode) {
         if (stmt.getExpr() != null) {
             compile(stmt.getExpr(), bytecode);
@@ -167,12 +175,15 @@ public class JvmCompiler {
 
         bytecode.add(new Bytecode.Return(null)); // TODO: get return type from method
     }
+
     private void compile(Stmt.Switch stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.Case stmt, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Stmt.While stmt, List<Bytecode> bytecode) {
 
     }
@@ -212,15 +223,18 @@ public class JvmCompiler {
     private void compile(Expr.ArrayGenerator expr, List<Bytecode> bytecode) {
         throw new UnsupportedOperationException();
     }
+
     private void compile(Expr.ArrayInitialiser expr, List<Bytecode> bytecode) {
         throw new UnsupportedOperationException();
     }
+
     private void compile(Expr.Binary expr, List<Bytecode> bytecode) {
         expr.attributes();
         compile(expr.getLhs(), bytecode);
         compile(expr.getRhs(), bytecode);
         compile(expr.getOp(), bytecode);
     }
+
     private void compile(Expr.BOp expr, List<Bytecode> bytecode) {
         switch (expr) {
             case AND:
@@ -251,6 +265,7 @@ public class JvmCompiler {
                 break;
         }
     }
+
     private void compile(Expr.Constant expr, List<Bytecode> bytecode) {
 
     }
@@ -258,12 +273,15 @@ public class JvmCompiler {
     private void compile(Expr.IndexOf expr, List<Bytecode> bytecode) {
 
     }
+
     private void compile(Expr.RecordAccess expr, List<Bytecode> bytecode) {
         throw new UnsupportedOperationException();
     }
+
     private void compile(Expr.RecordConstructor expr, List<Bytecode> bytecode) {
         throw new UnsupportedOperationException();
     }
+
     private void compile(Expr.Unary expr, List<Bytecode> bytecode) {
         compile(expr.getExpr(), bytecode);
         compile(expr.getOp(), bytecode);
@@ -280,6 +298,7 @@ public class JvmCompiler {
                 break;
         }
     }
+
     private void compile(Expr.Variable expr, List<Bytecode> bytecode) {
 
     }
@@ -293,7 +312,7 @@ public class JvmCompiler {
      */
     private JvmType convertType(Type input) {
         if (input instanceof Type.Void) {
-           return JvmTypes.VOID;
+            return JvmTypes.VOID;
         } else if (input instanceof Type.Int) {
             return JvmTypes.INT;
         } else if (input instanceof Type.Bool) {
