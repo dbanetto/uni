@@ -116,7 +116,7 @@ public class JvmCompiler {
         } else if (stmt instanceof Stmt.VariableDeclaration) {
             compile((Stmt.VariableDeclaration) stmt, bytecode);
         } else if (stmt instanceof Expr.Invoke) {
-            compileExpr((Expr.Invoke) stmt, bytecode);
+            compile((Expr.Invoke) stmt, false, bytecode);
         } else if (stmt instanceof Stmt.IfElse) {
             compile((Stmt.IfElse) stmt, bytecode);
         } else if (stmt instanceof Stmt.For) {
@@ -158,7 +158,7 @@ public class JvmCompiler {
     }
     private void compile(Stmt.Return stmt, List<Bytecode> bytecode) {
         if (stmt.getExpr() != null) {
-            compileExpr(stmt.getExpr(), bytecode);
+            compile(stmt.getExpr(), bytecode);
         }
 
         bytecode.add(new Bytecode.Return(null)); // TODO: get return type from method
@@ -173,7 +173,110 @@ public class JvmCompiler {
 
     }
 
-    private void compileExpr(Expr expr, List<Bytecode> bytecode) {
+    private void compile(Expr expr, List<Bytecode> bytecode) {
+
+        if (expr instanceof Expr.Binary) {
+            compile((Expr.Binary) expr, bytecode);
+        } else if (expr instanceof Expr.Constant) {
+            compile((Expr.Constant) expr, bytecode);
+        } else if (expr instanceof Expr.IndexOf) {
+            compile((Expr.IndexOf) expr, bytecode);
+        } else if (expr instanceof Expr.Invoke) {
+            compile((Expr.Invoke) expr, true, bytecode);
+        } else if (expr instanceof Expr.ArrayGenerator) {
+            compile((Expr.ArrayGenerator) expr, bytecode);
+        } else if (expr instanceof Expr.ArrayInitialiser) {
+            compile((Expr.ArrayInitialiser) expr, bytecode);
+        } else if (expr instanceof Expr.RecordAccess) {
+            compile((Expr.RecordAccess) expr, bytecode);
+        } else if (expr instanceof Expr.RecordConstructor) {
+            compile((Expr.RecordConstructor) expr, bytecode);
+        } else if (expr instanceof Expr.Unary) {
+            compile((Expr.Unary) expr, bytecode);
+        } else if (expr instanceof Expr.Variable) {
+            compile((Expr.Variable) expr, bytecode);
+        } else {
+            internalFailure("unknown expression encountered (" + expr + ")", expr);
+        }
+    }
+
+
+    private void compile(Expr.Invoke expr, boolean inExpression, List<Bytecode> bytecode) {
+        throw new UnsupportedOperationException();
+    }
+
+    private void compile(Expr.ArrayGenerator expr, List<Bytecode> bytecode) {
+        throw new UnsupportedOperationException();
+    }
+    private void compile(Expr.ArrayInitialiser expr, List<Bytecode> bytecode) {
+        throw new UnsupportedOperationException();
+    }
+    private void compile(Expr.Binary expr, List<Bytecode> bytecode) {
+        expr.attributes();
+        compile(expr.getLhs(), bytecode);
+        compile(expr.getRhs(), bytecode);
+        compile(expr.getOp(), bytecode);
+    }
+    private void compile(Expr.BOp expr, List<Bytecode> bytecode) {
+        switch (expr) {
+            case AND:
+                break;
+            case OR:
+                break;
+            case ADD:
+                break;
+            case SUB:
+                break;
+            case MUL:
+                break;
+            case DIV:
+                break;
+            case REM:
+                break;
+            case EQ:
+                break;
+            case NEQ:
+                break;
+            case LT:
+                break;
+            case LTEQ:
+                break;
+            case GT:
+                break;
+            case GTEQ:
+                break;
+        }
+    }
+    private void compile(Expr.Constant expr, List<Bytecode> bytecode) {
+
+    }
+
+    private void compile(Expr.IndexOf expr, List<Bytecode> bytecode) {
+
+    }
+    private void compile(Expr.RecordAccess expr, List<Bytecode> bytecode) {
+        throw new UnsupportedOperationException();
+    }
+    private void compile(Expr.RecordConstructor expr, List<Bytecode> bytecode) {
+        throw new UnsupportedOperationException();
+    }
+    private void compile(Expr.Unary expr, List<Bytecode> bytecode) {
+        compile(expr.getExpr(), bytecode);
+        compile(expr.getOp(), bytecode);
+    }
+
+    private void compile(Expr.UOp expr, List<Bytecode> bytecode) {
+        switch (expr) {
+
+            case NOT:
+                break;
+            case NEG:
+                break;
+            case LENGTHOF:
+                break;
+        }
+    }
+    private void compile(Expr.Variable expr, List<Bytecode> bytecode) {
 
     }
 
