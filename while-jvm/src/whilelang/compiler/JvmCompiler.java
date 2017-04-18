@@ -4,6 +4,7 @@ import jasm.attributes.Code;
 import jasm.io.ClassFileWriter;
 import jasm.lang.*;
 import whilelang.ast.*;
+import whilelang.util.Pair;
 import whilelang.util.SyntacticElement;
 import whilelang.util.SyntaxError;
 
@@ -39,11 +40,23 @@ public class JvmCompiler {
                     classModifiers
             );
 
+            List<Pair<ClassFile.Method, WhileFile.MethodDecl>> methods = new ArrayList<>();
+            Environment env = new Environment();
+
             for (WhileFile.Decl decl : ast.declarations) {
 
                 if (decl instanceof WhileFile.MethodDecl) {
-                    compileMethod(classFile, (WhileFile.MethodDecl) decl);
+                    WhileFile.MethodDecl mDecl = (WhileFile.MethodDecl) decl;
+                    ClassFile.Method method = setupMethod(mDecl);
+
+                    env.addMethod(mDecl.getName(), method.type());
+                    methods.add(new Pair<>(method, mDecl));
+                    classFile.methods().add(method);
                 }
+            }
+
+            for (Pair<ClassFile.Method, WhileFile.MethodDecl> m : methods) {
+                compileMethod(classFile, m.first(), m.second(), env);
             }
 
             classWriter.write(classFile);
@@ -55,13 +68,7 @@ public class JvmCompiler {
         }
     }
 
-    /**
-     * Generate bytecode and method call for class
-     *
-     * @param classFile
-     * @param methodDecl
-     */
-    private void compileMethod(ClassFile classFile, WhileFile.MethodDecl methodDecl) {
+    private ClassFile.Method setupMethod(WhileFile.MethodDecl methodDecl) {
 
         /// ------ setup method ------
         List<Modifier> funcModifiers = new ArrayList<>();
@@ -77,22 +84,39 @@ public class JvmCompiler {
             parameterTypes.add(convertType(param.getType()));
         }
 
+        // special case to allow generated code runnable from command line
+//        if (methodDecl.getName().equals("main") && parameterTypes.size() == 0) {
+//            parameterTypes.add(new JvmType.Array(JvmTypes.JAVA_LANG_STRING));
+//        }
+
         JvmType returnType = convertType(methodDecl.getRet());
+        JvmType.Function function = new JvmType.Function(returnType, parameterTypes);
 
         ClassFile.Method method = new ClassFile.Method(
                 methodDecl.name(),
-                new JvmType.Function(returnType, parameterTypes),
+                function,
                 funcModifiers);
 
-        classFile.methods().add(method);
+        return method;
+    }
 
+    /**
+     * Generate bytecode and method call for class
+     *
+     * @param classFile
+     * @param methodDecl
+     */
+    private void compileMethod(ClassFile classFile, ClassFile.Method method, WhileFile.MethodDecl methodDecl, Environment env) {
         // --------- build bytecode of method ---------
         List<Bytecode> bytecode = new ArrayList<>();
 
-        Environment env = new Environment(returnType);
-
         // build
         compile(methodDecl.getBody(), bytecode, env);
+
+        // special case of void methods not required to have a return
+        if (method.type().returnType().equals(JvmTypes.VOID)) {
+            compile(new Stmt.Return(null), bytecode, env);
+        }
 
         method.attributes().add(new Code(bytecode, Collections.EMPTY_LIST, method));
     }
@@ -133,58 +157,86 @@ public class JvmCompiler {
         }
     }
 
-    // private void compile(Stmt.Impl stmt, List<Bytecode> bytecode)
-
     private void compile(Stmt.VariableDeclaration stmt, List<Bytecode> bytecode, Environment env) {
+        JvmType jvmtype = convertType(stmt.getExpr());
 
+        compile(stmt.getExpr(), bytecode, env);
+
+        Variable var = env.addVariable(stmt.getName(), jvmtype);
+        bytecode.add(new Bytecode.Store(var.slot, var.jvmtype));
     }
 
     private void compile(Stmt.Assert stmt, List<Bytecode> bytecode, Environment env) {
+        String assertLabel = String.valueOf(stmt.hashCode());
+        JvmType.Clazz assertError = new JvmType.Clazz("java.lang.AssertionError");
+
+        // assertion expression
         compile(stmt.getExpr(), bytecode, env);
+        // jump to success if true
+        bytecode.add(new Bytecode.If(Bytecode.IfMode.NE, assertLabel));
+        // create Assertion Error object
+        bytecode.add(new Bytecode.New(assertError));
+        bytecode.add(new Bytecode.Dup(assertError));
+        bytecode.add(new Bytecode.Invoke(assertError, "<init>", new JvmType.Function(JvmTypes.VOID, Collections.EMPTY_LIST), Bytecode.InvokeMode.SPECIAL));
+        // throw error
+        bytecode.add(new Bytecode.Throw());
+        // success label
+        bytecode.add(new Bytecode.Label(assertLabel));
     }
 
     private void compile(Stmt.Break stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Stmt.Assign stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Stmt.Continue stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Stmt.For stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Stmt.IfElse stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Stmt.Print stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Stmt.Return stmt, List<Bytecode> bytecode, Environment env) {
+        JvmType returnType = null;
         if (stmt.getExpr() != null) {
             compile(stmt.getExpr(), bytecode, env);
+            returnType = convertType(stmt.getExpr());
         }
 
-        bytecode.add(new Bytecode.Return(env.getReturnType()));
+        bytecode.add(new Bytecode.Return(returnType));
     }
 
     private void compile(Stmt.Switch stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Stmt.Case stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Stmt.While stmt, List<Bytecode> bytecode, Environment env) {
 
+        throw new UnsupportedOperationException();
     }
 
     private void compile(Expr expr, List<Bytecode> bytecode, Environment env) {
@@ -231,40 +283,53 @@ public class JvmCompiler {
         expr.attributes();
         compile(expr.getLhs(), bytecode, env);
         compile(expr.getRhs(), bytecode, env);
-        compile(expr.getOp(), bytecode, env);
+        compile(expr.getOp(), bytecode, env, convertType(expr.getLhs()));
     }
 
-    private void compile(Expr.BOp expr, List<Bytecode> bytecode, Environment env) {
+    private void compile(Expr.BOp expr, List<Bytecode> bytecode, Environment env, JvmType jvmtype) {
         switch (expr) {
             // TODO: special case for short circuiting
             case AND:
+                bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.AND, jvmtype));
                 break;
             // TODO: special case for short circuiting
             case OR:
+                bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.OR, jvmtype));
                 break;
 
             case ADD:
+                bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.ADD, jvmtype));
                 break;
             case SUB:
+                bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.SUB, jvmtype));
                 break;
             case MUL:
+                bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.MUL, jvmtype));
                 break;
             case DIV:
+                bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.DIV, jvmtype));
                 break;
             case REM:
+                bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.REM, jvmtype));
                 break;
             case EQ:
-                break;
+                throw new UnsupportedOperationException();
+                // break;
             case NEQ:
-                break;
+                throw new UnsupportedOperationException();
+                // break;
             case LT:
-                break;
+                throw new UnsupportedOperationException();
+                // break;
             case LTEQ:
-                break;
+                throw new UnsupportedOperationException();
+                // break;
             case GT:
-                break;
+                throw new UnsupportedOperationException();
+                // break;
             case GTEQ:
-                break;
+                throw new UnsupportedOperationException();
+                // break;
         }
     }
 
@@ -297,7 +362,8 @@ public class JvmCompiler {
 
             case NOT:
                 // TODO: XOR with 255 for a byte
-                break;
+                throw new UnsupportedOperationException();
+                // break;
             case NEG:
                 bytecode.add(new Bytecode.Neg(jvmtype));
                 break;
@@ -371,31 +437,21 @@ public class JvmCompiler {
 
         private int slotCount = 0;
         private final Map<String, Variable> variables = new HashMap<>();
+        private final Map<String, JvmType.Function> methods = new HashMap<>();
         private final Environment parent;
-        private final JvmType returnType;
 
-        public Environment(JvmType returnType) {
+        public Environment() {
             this.parent = null;
-            this.returnType = returnType;
         }
 
         public Environment(Environment parent) {
             this.parent = parent;
-            this.returnType = null;
         }
 
-        public JvmType getReturnType() {
-            if (returnType != null) {
-                return returnType;
-            } else if (this.parent  != null) {
-                return this.parent.getReturnType();
-            } else {
-                throw new IllegalStateException();
-            }
-        }
-
-        public void addVariable(String name, JvmType jvmtype) {
-            this.variables.put(name, new Variable(jvmtype, this.newSlot()));
+        public Variable addVariable(String name, JvmType jvmtype) {
+            Variable toAdd = new Variable(jvmtype, this.newSlot(jvmtype));
+            this.variables.put(name, toAdd);
+            return toAdd;
         }
 
         public Variable getVariable(String name) {
@@ -404,14 +460,29 @@ public class JvmCompiler {
             } else if (this.parent != null) {
                 return this.parent.getVariable(name);
             }
-            return null;
+            throw new UnsupportedOperationException("Unknown variable " + name);
         }
 
-        public int newSlot() {
-            if (this.parent != null) {
-                return this.parent.newSlot();
+        public JvmType.Function getMethod(String name) {
+            if (this.methods.containsKey(name)) {
+                return this.methods.get(name);
+            } else if (this.parent != null) {
+                return this.parent.getMethod(name);
             }
-            return this.slotCount++;
+            throw new UnsupportedOperationException("Unknown method " + name);
+        }
+
+        private int newSlot(JvmType jvmtype) {
+            if (this.parent != null) {
+                return this.parent.newSlot(jvmtype);
+            }
+            int allocated = this.slotCount;
+            this.slotCount += ClassFile.slotSize(jvmtype);
+            return allocated;
+        }
+
+        public void addMethod(String name, JvmType.Function function) {
+            this.methods.put(name, function);
         }
     }
 }
