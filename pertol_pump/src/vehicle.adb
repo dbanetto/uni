@@ -24,6 +24,7 @@ package body Vehicle is
      (this : in out Tank; amount : in out FuelUnit)
    is
    begin
+      -- only store the amount of the fuel that can fit
       if amount + this.current > this.capacity then
          -- store how much is actually put into the tank
          amount := this.capacity - this.current;

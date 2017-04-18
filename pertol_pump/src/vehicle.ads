@@ -8,12 +8,10 @@ package Vehicle with
    function Initialize (capacity : FuelUnit; current : FuelUnit) return Tank;
 
    function GetCurrent (this : in Tank) return FuelUnit with
-      Global     => null,
-      Convention => Ghost;
+      Global     => null;
 
    function GetCapacity (this : in Tank) return FuelUnit with
-      Global     => null,
-      Convention => Ghost;
+      Global     => null;
 
    function IsFull (this : Tank) return Boolean with
       Post => (IsFull'Result and GetCurrent (this) = GetCapacity (this)) or

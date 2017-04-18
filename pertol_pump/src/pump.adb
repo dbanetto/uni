@@ -1,21 +1,21 @@
 package body Pump with
      Spark_Mode,
      Refined_State =>
-     (Unit  => (moneyDue, fuelkind, totalPumped),
+     (Unit  => (moneyDue, fuelkind, total_pumped),
       State => nozzleState)
 is
 
    moneyDue    : MoneyUnit := MoneyUnit (0.0);
-   totalPumped : FuelUnit  := FuelUnit (0);
+   total_pumped : FuelUnit  := FuelUnit (0);
    nozzleState : PumpState := Base;
-   fuelkind    : FuelType  := None;
+   fuelkind    : FuelType  := Octane_91;
 
    procedure Initialize is
    begin
       moneyDue    := MoneyUnit (0.0);
-      totalPumped := FuelUnit (0);
+      total_pumped := FuelUnit (0);
       nozzleState := Base;
-      fuelkind    := None;
+      fuelkind    := Octane_91;
    end Initialize;
 
    ----------------
@@ -52,17 +52,29 @@ is
       PumpFuel(tank, amount);
    end PumpFuelFull;
 
-   procedure PumpFuel (tank : in out Vehicle.Tank ; amount : in out FuelUnit) is
+   procedure PumpFuel (tank : in out Vehicle.Tank ; amount : FuelUnit) is
+      -- shadow amount so we can edit it
+      actual_amount : FuelUnit := amount;
    begin
       -- enforce pre-conditions
-      if nozzleState /= Waiting or Vehicle.IsFull (tank) then
+      if nozzleState /= Waiting
+        or Vehicle.IsFull (tank)
+        or Reservoir.isEmpty(fuelkind) then
          return;
       end if;
 
-      Vehicle.Fill (tank, amount);
+      -- ensure that you do not over drain the reservoir
+      if Reservoir.GetVolume(fuelkind) < actual_amount then
+         actual_amount := Reservoir.GetVolume(fuelkind);
+      end if;
+
+      Vehicle.Fill (tank, actual_amount);
+      Reservoir.drain(fuelkind, actual_amount);
+
+      total_pumped := total_pumped + actual_amount;
 
       -- TODO: fuel price for each fuel type
-      moneyDue := moneyDue + MoneyUnit (Float (amount) * 2.0);
+      moneyDue := moneyDue + MoneyUnit (Float (actual_amount) * 2.0);
    end PumpFuel;
 
    ---------

@@ -24,27 +24,31 @@ package Pump with
       Post    => GetState = Base and GetDebt = MoneyUnit (0.00);
 
    procedure PumpFuelFull (tank : in out Vehicle.Tank) with
-      Global  => (In_Out => Unit, Input => State),
-      Depends => ((Unit) => (tank, Unit, State), tank => (tank, State)),
-     Pre     => GetState = Waiting,
-   -- GNAT cannot prove that GetDebt after is greater or equal to GetDebt before
-      Post    => GetDebt >= GetDebt'Old; -- get before & after snippets
+      Global  => (In_Out => (Unit, Reservoir.Res), Input => State),
+      Depends =>
+      ((Unit, tank, Reservoir.Res) => (tank, Unit, State, Reservoir.Res)),
+      Pre => GetState = Waiting,
+-- GNAT cannot prove that GetDebt after is greater or equal to GetDebt before
+      Post => GetDebt >= GetDebt'Old; -- get before & after snippets
 
-   procedure PumpFuel (tank : in out Vehicle.Tank ; amount : in out FuelUnit) with
-      Global  => (In_Out => Unit, Input => State),
-     Depends => ((Unit) => (tank, Unit, State),
-                 tank => (tank, amount, State),
-                 amount => (amount, tank)),
-      Pre     => GetState = Waiting and amount >= FuelUnit(0),
-   -- GNAT cannot prove that GetDebt after is greater or equal to GetDebt before
-      Post    => GetDebt >= GetDebt'Old; -- get before & after snippets
-
+   procedure PumpFuel
+     (tank   : in out Vehicle.Tank;
+      amount : FuelUnit) with
+      Global  => (In_Out => (Unit, Reservoir.Res), Input => State),
+      Depends =>
+      ((Unit, tank, Reservoir.Res) =>
+         (tank, Unit, State, amount, Reservoir.Res)),
+      Pre => GetState = Waiting and amount >= FuelUnit (0),
+-- GNAT cannot prove that GetDebt after is greater or equal to GetDebt before
+      Post => GetDebt >= GetDebt'Old; -- get before & after snippets
 
    procedure Pay (amount : MoneyUnit) with
       Global => (In_Out => Unit, Proof_In => State),
-      Pre    => GetState = Waiting and GetDebt >= amount and amount >= MoneyUnit (0.00),
-   -- GNAT GetDebt before is equal to the sum of amount paid & current debt
-     Post   => GetDebt'Old = amount + GetDebt;
+      Pre    => GetState = Waiting and
+      GetDebt >= amount and
+      amount >= MoneyUnit (0.00),
+      -- GNAT GetDebt before is equal to the sum of amount paid & current debt
+      Post => GetDebt'Old = amount + GetDebt;
 
    function GetState return PumpState with
       Global => (Input => State);
