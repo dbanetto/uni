@@ -1,4 +1,4 @@
-package body Vehicle is
+package body Vehicle with SPARK_Mode is
 
    function Initialize(capacity : FuelUnit; current  : FuelUnit)  return Tank is
       t : Tank := ( capacity => capacity,

@@ -37,8 +37,8 @@ package Pump with
       Post => GetCurrentFuelType = GetCurrentFuelType'Old and
       -- there are two cases with pumping, if the tank is not full & reservior not empty
       -- then there will be some pumping & an increase in debt
-      (((not Vehicle.IsFull (tank'Old)) and
-       (not Reservoir.isEmpty (GetCurrentFuelType)'Old) and
+      ((not Vehicle.IsFull (tank'Old) and
+       not Reservoir.isEmpty (GetCurrentFuelType)'Old and
        GetDebt > GetDebt'Old) or
       -- the second case is when either the tank is full or reservior is empty
       -- so no pumping will occur & thus no change in debt
@@ -56,8 +56,8 @@ package Pump with
      Post => GetCurrentFuelType = GetCurrentFuelType'Old and
       -- there are two cases with pumping, if the tank is not full & reservior not empty
       -- then there will be some pumping & an increase in debt
-      (((not Vehicle.IsFull (tank'Old)) and
-       (not Reservoir.isEmpty (GetCurrentFuelType)'Old) and
+      ((not Vehicle.IsFull (tank'Old) and
+       not Reservoir.isEmpty (GetCurrentFuelType)'Old and
            GetDebt > GetDebt'Old) or
       -- the second case is when either the tank is full or reservior is empty
       -- so no pumping will occur & thus no change in debt
