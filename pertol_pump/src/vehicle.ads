@@ -18,11 +18,12 @@ package Vehicle with
       (not IsFull'Result and GetCurrent (this) > GetCapacity (this));
 
    procedure Fill (this : in out Tank; amount : in out FuelUnit) with
-      Global => null,
+     Global => null,
+      Pre => not IsFull(this),
       Post   => GetCurrent (this) <= GetCapacity (this) and
-      GetCurrent (this) >= GetCurrent (this'Old) and
+      GetCurrent (this) > GetCurrent (this'Old) and
       amount <= amount'Old and
-      amount >= 0 and
+      amount > 0 and
       amount = GetCurrent (this) - GetCurrent (this'Old);
 
 private

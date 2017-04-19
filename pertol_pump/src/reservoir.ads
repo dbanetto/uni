@@ -4,21 +4,19 @@ package Reservoir with
      Spark_Mode,
      Abstract_State => (Res) is
 
-   function ValidFuelType(fuel : FuelType) return Boolean is
-     (fuel = Diesel or fuel = Octane_91 or fuel = Octane_95);
-
-   function isEmpty (fuel : FuelType) return Boolean with
-      Global => (Input => Res),
-      Pre    => (fuel = Diesel or fuel = Octane_91 or fuel = Octane_95);
 
    function GetVolume (fuel : FuelType) return FuelUnit with
-      Global => (Input => Res),
-      Pre    => (ValidFuelType(fuel));
+      Global => (Input => Res);
+
+   function isEmpty (fuel : FuelType) return Boolean with
+     Global => (Input => Res),
+     Post => isEmpty'Result = (GetVolume(fuel) = FuelUnit(0));
+
 
    procedure drain(fuel : FuelType ; amount : FuelUnit) with
      Global => (Output => Res),
      Depends => (Res => (fuel, amount)),
-     Pre => ValidFuelType(fuel) and then GetVolume(fuel) <= amount,
+     Pre =>  GetVolume(fuel) >= amount,
      Post => GetVolume(fuel)'Old = GetVolume(fuel) + amount;
 
    procedure Initialize

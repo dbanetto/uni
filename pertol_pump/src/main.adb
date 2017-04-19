@@ -17,18 +17,23 @@ begin
    -- Pump.PumpFuelFull(t);
    Pump.LiftNozzle (Octane_95);
 
-   -- Pump.PumpFuel (t, amount);
+   Pump.PumpFuel (t, amount);
+   -- Pump.PumpFuelFull (t);
 
-   Pump.PumpFuelFull (t);
    -- Assert (not Vehicle.IsFull(t)); -- due to Reservoir
 
-   Ada.Text_IO.Put (Float'Image (Pump.GetDebt));
-   Assert (Pump.GetState = Waiting);
+   Pump.ReturnNozzle;
+   Pump.LiftNozzle (Octane_95);
 
-   loop
-      exit when Pump.GetDebt = MoneyUnit (0.0);
+
+   Ada.Text_IO.Put (Float'Image (Pump.GetDebt));
+   Assert (Pump.isNozzleOut);
+
+   --loop
+   --   exit when Pump.GetDebt = MoneyUnit (0.0);
       Pump.Pay (Pump.GetDebt);
-   end loop;
-   Assert (Pump.GetState = Waiting);
+   --end loop;
+
+   -- Assert (Pump.isNozzleOut);
    Pump.ReturnNozzle;
 end main;

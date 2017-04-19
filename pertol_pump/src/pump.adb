@@ -1,20 +1,18 @@
 package body Pump with
      Spark_Mode,
      Refined_State =>
-     (Unit  => (moneyDue, fuelkind, total_pumped),
-      State => nozzleState)
+     (Unit  => (moneyDue, fuelkind),
+      State => (nozzleOut))
 is
 
-   moneyDue    : MoneyUnit := MoneyUnit (0.0);
-   total_pumped : FuelUnit  := FuelUnit (0);
-   nozzleState : PumpState := Base;
-   fuelkind    : FuelType  := Octane_91;
+   moneyDue : MoneyUnit := MoneyUnit (0.0);
+   nozzleOut : Boolean := False;
+   fuelkind : FuelType  := Octane_91;
 
    procedure Initialize is
    begin
       moneyDue    := MoneyUnit (0.0);
-      total_pumped := FuelUnit (0);
-      nozzleState := Base;
+      nozzleOut := False;
       fuelkind    := Octane_91;
    end Initialize;
 
@@ -24,8 +22,12 @@ is
 
    procedure LiftNozzle (fuel : FuelType) is
    begin
-      nozzleState := Waiting;
-      fuelkind    := fuel;
+      if nozzleOut or (GetDebt > MoneyUnit(0.0) and fuel /= fuelkind) then
+         return;
+      end if;
+
+      nozzleOut := True;
+      fuelkind := fuel;
    end LiftNozzle;
 
    ------------------
@@ -35,11 +37,11 @@ is
    procedure ReturnNozzle is
    begin
       -- enforce pre-conditions
-      if nozzleState /= Waiting and moneyDue /= MoneyUnit (0.0) then
+      if not isNozzleOut and moneyDue /= MoneyUnit (0.0) then
          return;
       end if;
 
-      nozzleState := Base;
+      nozzleOut := False;
    end ReturnNozzle;
 
    --------------
@@ -57,7 +59,7 @@ is
       actual_amount : FuelUnit := amount;
    begin
       -- enforce pre-conditions
-      if nozzleState /= Waiting
+      if not isNozzleOut
         or Vehicle.IsFull (tank)
         or Reservoir.isEmpty(fuelkind) then
          return;
@@ -70,8 +72,6 @@ is
 
       Vehicle.Fill (tank, actual_amount);
       Reservoir.drain(fuelkind, actual_amount);
-
-      total_pumped := total_pumped + actual_amount;
 
       -- TODO: fuel price for each fuel type
       moneyDue := moneyDue + MoneyUnit (Float (actual_amount) * 2.0);
@@ -94,8 +94,10 @@ is
    -- Getters  --
    --------------
 
-   function GetState return PumpState is (nozzleState);
+   function isNozzleOut return Boolean is (nozzleOut);
 
    function GetDebt return MoneyUnit is (moneyDue);
+
+   function GetCurrentFuelType return FuelType is (fuelkind);
 
 end Pump;
