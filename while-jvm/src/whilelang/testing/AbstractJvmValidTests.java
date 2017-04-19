@@ -1,5 +1,6 @@
 package whilelang.testing;
 
+import org.junit.Assume;
 import org.junit.Test;
 import whilelang.ast.WhileFile;
 import whilelang.compiler.JvmCompiler;
@@ -64,7 +65,11 @@ public abstract class AbstractJvmValidTests {
         String classFilename = WHILE_SRC_DIR + testname + ".class";
         WhileCompiler compiler = new WhileCompiler(sourceFilename);
         WhileFile ast = compiler.compile();
-        new JvmCompiler(classFilename, testname).write(ast);
+        try {
+            new JvmCompiler(classFilename, testname).write(ast);
+        } catch (UnsupportedOperationException e) {
+            Assume.assumeTrue(false);
+        }
     }
 
     /**

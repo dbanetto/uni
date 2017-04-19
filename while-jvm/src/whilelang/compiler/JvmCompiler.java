@@ -286,7 +286,7 @@ public class JvmCompiler {
            compile(e, bytecode, env);
         }
         // TODO: invoke static function call
-        bytecode.add(new Bytecode.Invoke(/* this */, String name, JvmType.Function type, Bytecode.InvokeMode.STATIC));
+        // bytecode.add(new Bytecode.Invoke(/* this */, String name, JvmType.Function type, Bytecode.InvokeMode.STATIC));
 
         throw new UnsupportedOperationException();
     }
