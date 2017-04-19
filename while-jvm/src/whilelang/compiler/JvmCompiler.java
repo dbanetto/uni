@@ -110,13 +110,19 @@ public class JvmCompiler {
         // --------- build bytecode of method ---------
         List<Bytecode> bytecode = new ArrayList<>();
 
-        // build
-        compile(methodDecl.getBody(), bytecode, env);
+        Environment methodEnv = new Environment(env);
 
         // special case of void methods not required to have a return
         if (method.type().returnType().equals(JvmTypes.VOID)) {
-            compile(new Stmt.Return(null), bytecode, env);
+            compile(new Stmt.Return(null), bytecode, methodEnv);
         }
+
+        for (WhileFile.Parameter p : methodDecl.getParameters()) {
+            methodEnv.addVariable(p.getName(), convertType(p.getType()));
+        }
+
+        // build
+        compile(methodDecl.getBody(), bytecode, methodEnv);
 
         method.attributes().add(new Code(bytecode, Collections.EMPTY_LIST, method));
     }
@@ -190,12 +196,19 @@ public class JvmCompiler {
     }
 
     private void compile(Stmt.Assign stmt, List<Bytecode> bytecode, Environment env) {
+        compile(stmt.getRhs(), bytecode, env);
 
-        throw new UnsupportedOperationException();
+        if (stmt.getLhs() instanceof Expr.Variable) {
+            Expr.Variable exprVar = (Expr.Variable) stmt.getLhs();
+            Variable var = env.getVariable(exprVar.getName());
+            bytecode.add(new Bytecode.Store(var.slot, var.jvmtype));
+        } else {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
     private void compile(Stmt.Continue stmt, List<Bytecode> bytecode, Environment env) {
-
         throw new UnsupportedOperationException();
     }
 
@@ -268,6 +281,13 @@ public class JvmCompiler {
 
 
     private void compile(Expr.Invoke expr, boolean inExpression, List<Bytecode> bytecode, Environment env) {
+
+        for (Expr e : expr.getArguments()) {
+           compile(e, bytecode, env);
+        }
+        // TODO: invoke static function call
+        bytecode.add(new Bytecode.Invoke(/* this */, String name, JvmType.Function type, Bytecode.InvokeMode.STATIC));
+
         throw new UnsupportedOperationException();
     }
 
@@ -313,11 +333,25 @@ public class JvmCompiler {
                 bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.REM, jvmtype));
                 break;
             case EQ:
-                throw new UnsupportedOperationException();
-                // break;
+                if (jvmtype instanceof JvmType.Double || jvmtype instanceof JvmType.Long || jvmtype instanceof JvmType.Float) {
+                    bytecode.add(new Bytecode.Cmp(jvmtype, Bytecode.Cmp.EQ));
+                } else if (jvmtype instanceof JvmType.Int) {
+                    throw new UnsupportedOperationException();
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+                break;
             case NEQ:
-                throw new UnsupportedOperationException();
-                // break;
+                if (jvmtype instanceof JvmType.Double || jvmtype instanceof JvmType.Long || jvmtype instanceof JvmType.Float) {
+                    bytecode.add(new Bytecode.Cmp(jvmtype, Bytecode.Cmp.EQ));
+                    bytecode.add(new Bytecode.LoadConst(255));
+                    bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.XOR, JvmTypes.BYTE));
+                } else if (jvmtype instanceof JvmType.Int) {
+                    throw new UnsupportedOperationException();
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+                break;
             case LT:
                 throw new UnsupportedOperationException();
                 // break;
@@ -479,6 +513,13 @@ public class JvmCompiler {
             int allocated = this.slotCount;
             this.slotCount += ClassFile.slotSize(jvmtype);
             return allocated;
+        }
+
+        public Environment getRoot() {
+            if (this.parent != null) {
+                return this.parent.getRoot();
+            }
+            return this;
         }
 
         public void addMethod(String name, JvmType.Function function) {
