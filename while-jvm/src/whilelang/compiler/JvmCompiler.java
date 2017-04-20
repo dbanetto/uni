@@ -78,6 +78,7 @@ public class JvmCompiler {
             }
 
             for (Pair<ClassFile.Method, WhileFile.MethodDecl> m : methods) {
+                env.slotCount = 0;
                 compileMethod(classFile, m.first(), m.second(), env);
             }
 
@@ -244,20 +245,24 @@ public class JvmCompiler {
 
     private void compile(Stmt.IfElse stmt, List<Bytecode> bytecode, Environment env) {
         String trueBranch = label("true_branch");
-        String falseBranch = label("false_branch");
         String endBranch = label("end_branch");
         Environment ifEnv = new Environment(env);
+        boolean falseTerminates = allBranchesTerminate(stmt.getFalseBranch());
 
         compile(stmt.getCondition(), bytecode, env);
-        bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, trueBranch));
+        bytecode.add(new Bytecode.If(Bytecode.IfMode.NE, trueBranch));
 
         compile(stmt.getFalseBranch(), bytecode, ifEnv);
-        bytecode.add(new Bytecode.Goto(endBranch));
+        if (!falseTerminates) {
+            bytecode.add(new Bytecode.Goto(endBranch));
+        }
 
         bytecode.add(new Bytecode.Label(trueBranch));
         compile(stmt.getTrueBranch(), bytecode, ifEnv);
 
-        bytecode.add(new Bytecode.Label(endBranch));
+        if (!falseTerminates) {
+            bytecode.add(new Bytecode.Label(endBranch));
+        }
     }
 
     private void compile(Stmt.Print stmt, List<Bytecode> bytecode, Environment env) {
@@ -390,11 +395,6 @@ public class JvmCompiler {
         }
     }
 
-    private int labelNouce = 0;
-    private String label(String title) {
-        return title + (labelNouce++);
-    }
-
     private void compare(int ifCmp, List<Bytecode> bytecode, JvmType jvmtype) {
         String alt = label("cmp_alt");
         String end = label("cmp_end");
@@ -438,11 +438,11 @@ public class JvmCompiler {
                 String alt = label("not_alt");
                 String end = label("not_end");
 
-                bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, alt, jvmtype instanceof JvmType.Long));
-                bytecode.add(new Bytecode.LoadConst(false));
+                bytecode.add(new Bytecode.If(Bytecode.IfMode.NE, alt, jvmtype instanceof JvmType.Long));
+                bytecode.add(new Bytecode.LoadConst(true));
                 bytecode.add(new Bytecode.Goto(end));
                 bytecode.add(new Bytecode.Label(alt));
-                bytecode.add(new Bytecode.LoadConst(true));
+                bytecode.add(new Bytecode.LoadConst(false));
                 bytecode.add(new Bytecode.Label(end));
                 break;
             case NEG:
@@ -503,6 +503,33 @@ public class JvmCompiler {
         }
     }
 
+    private boolean allBranchesTerminate(List<Stmt> stmts) {
+        boolean terminates = false;
+        for (Stmt stmt : stmts) {
+            if (stmt instanceof Stmt.IfElse) {
+                Stmt.IfElse ifElse = (Stmt.IfElse) stmt;
+                if (!allBranchesTerminate(ifElse.getTrueBranch())) {
+                    return false;
+                } else if (!allBranchesTerminate(ifElse.getFalseBranch())) {
+                    return false;
+                }
+            } else if (stmt instanceof Stmt.While) {
+                Stmt.While whiles = (Stmt.While) stmt;
+                if (!allBranchesTerminate(whiles.getBody())) {
+                    return false;
+                }
+            } else if (stmt instanceof Stmt.For) {
+                Stmt.For fors = (Stmt.For) stmt;
+                if (!allBranchesTerminate(fors.getBody())) {
+                    return false;
+                }
+            } else if (stmt instanceof Stmt.Return) {
+                terminates = true;
+            }
+        }
+        return terminates;
+    }
+
     public void internalFailure(String msg, SyntacticElement elem) {
         int start = -1;
         int end = -1;
@@ -514,6 +541,11 @@ public class JvmCompiler {
         }
 
         throw new SyntaxError.InternalFailure(msg, fileName, start, end);
+    }
+
+    private int labelNonce = 0;
+    private String label(String title) {
+        return title + (labelNonce++);
     }
 
     private static class Variable {
