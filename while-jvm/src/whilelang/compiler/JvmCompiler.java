@@ -243,8 +243,21 @@ public class JvmCompiler {
     }
 
     private void compile(Stmt.IfElse stmt, List<Bytecode> bytecode, Environment env) {
+        String trueBranch = label("true_branch");
+        String falseBranch = label("false_branch");
+        String endBranch = label("end_branch");
+        Environment ifEnv = new Environment(env);
 
-        throw new UnsupportedOperationException();
+        compile(stmt.getCondition(), bytecode, env);
+        bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, trueBranch));
+
+        compile(stmt.getFalseBranch(), bytecode, ifEnv);
+        bytecode.add(new Bytecode.Goto(endBranch));
+
+        bytecode.add(new Bytecode.Label(trueBranch));
+        compile(stmt.getTrueBranch(), bytecode, ifEnv);
+
+        bytecode.add(new Bytecode.Label(endBranch));
     }
 
     private void compile(Stmt.Print stmt, List<Bytecode> bytecode, Environment env) {
@@ -363,17 +376,17 @@ public class JvmCompiler {
                 compare(Bytecode.IfCmp.NE, bytecode, jvmtype);
                 break;
             case LT:
-                throw new UnsupportedOperationException();
-                // break;
+                compare(Bytecode.IfCmp.LT, bytecode, jvmtype);
+                break;
             case LTEQ:
-                throw new UnsupportedOperationException();
-                // break;
+                compare(Bytecode.IfCmp.LE, bytecode, jvmtype);
+                break;
             case GT:
-                throw new UnsupportedOperationException();
-                // break;
+                compare(Bytecode.IfCmp.GT, bytecode, jvmtype);
+                break;
             case GTEQ:
-                throw new UnsupportedOperationException();
-                // break;
+                compare(Bytecode.IfCmp.GE, bytecode, jvmtype);
+                break;
         }
     }
 
