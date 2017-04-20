@@ -508,23 +508,14 @@ public class JvmCompiler {
         for (Stmt stmt : stmts) {
             if (stmt instanceof Stmt.IfElse) {
                 Stmt.IfElse ifElse = (Stmt.IfElse) stmt;
-                if (!allBranchesTerminate(ifElse.getTrueBranch())) {
-                    return false;
-                } else if (!allBranchesTerminate(ifElse.getFalseBranch())) {
-                    return false;
-                }
-            } else if (stmt instanceof Stmt.While) {
-                Stmt.While whiles = (Stmt.While) stmt;
-                if (!allBranchesTerminate(whiles.getBody())) {
-                    return false;
-                }
-            } else if (stmt instanceof Stmt.For) {
-                Stmt.For fors = (Stmt.For) stmt;
-                if (!allBranchesTerminate(fors.getBody())) {
-                    return false;
+                boolean falseBranch = allBranchesTerminate(ifElse.getFalseBranch());
+                if (allBranchesTerminate(ifElse.getTrueBranch()) && falseBranch) {
+                    terminates = true;
                 }
             } else if (stmt instanceof Stmt.Return) {
                 terminates = true;
+            } else {
+                terminates = false;
             }
         }
         return terminates;
