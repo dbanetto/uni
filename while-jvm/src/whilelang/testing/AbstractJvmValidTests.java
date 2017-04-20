@@ -68,6 +68,8 @@ public abstract class AbstractJvmValidTests {
         try {
             new JvmCompiler(classFilename, testname).write(ast);
         } catch (UnsupportedOperationException e) {
+            System.out.print(e);
+            e.printStackTrace();
             Assume.assumeTrue(false);
         }
     }
