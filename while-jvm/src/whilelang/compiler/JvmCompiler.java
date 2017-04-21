@@ -215,8 +215,7 @@ public class JvmCompiler {
     }
 
     private void compile(Stmt.Break stmt, List<Bytecode> bytecode, Environment env) {
-
-        throw new UnsupportedOperationException();
+        bytecode.add(new Bytecode.Label(env.getBreakLabel()));
     }
 
     private void compile(Stmt.Assign stmt, List<Bytecode> bytecode, Environment env) {
@@ -233,12 +232,33 @@ public class JvmCompiler {
     }
 
     private void compile(Stmt.Continue stmt, List<Bytecode> bytecode, Environment env) {
-        throw new UnsupportedOperationException();
+        bytecode.add(new Bytecode.Label(env.getContinueLabel()));
     }
 
     private void compile(Stmt.For stmt, List<Bytecode> bytecode, Environment env) {
 
-        throw new UnsupportedOperationException();
+        String breakLabel = label("exit");
+        String continueLabel = label("loop_back");
+
+        Environment forEnv = new Environment(env, continueLabel, breakLabel);
+
+        // for's variable declaration
+        compile(stmt.getDeclaration(), bytecode, forEnv);
+        // target to jump back to for continues & starting the loop again
+        bytecode.add(new Bytecode.Label(continueLabel));
+        // build the condition
+        compile(stmt.getCondition(), bytecode, forEnv);
+        // check the condition or go to the end
+        bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, breakLabel));
+        // build the body of the for loop
+        compile(stmt.getBody(), bytecode, forEnv);
+        // apply the increment
+        compile(stmt.getIncrement(), bytecode, forEnv);
+        // go back to the start
+        bytecode.add(new Bytecode.Goto(continueLabel));
+        // target to exit the for loop
+        bytecode.add(new Bytecode.Label(breakLabel));
+
     }
 
     private void compile(Stmt.IfElse stmt, List<Bytecode> bytecode, Environment env) {
@@ -290,7 +310,17 @@ public class JvmCompiler {
 
     private void compile(Stmt.While stmt, List<Bytecode> bytecode, Environment env) {
 
-        throw new UnsupportedOperationException();
+        String breakLabel = label("break_while");
+        String continueLabel = label("continue_while");
+
+        Environment whileEnv = new Environment(env, continueLabel, breakLabel);
+
+        bytecode.add(new Bytecode.Label(continueLabel));
+        compile(stmt.getCondition(), bytecode, whileEnv);
+        bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, breakLabel));
+        compile(stmt.getBody(), bytecode, whileEnv);
+        bytecode.add(new Bytecode.Goto(continueLabel));
+        bytecode.add(new Bytecode.Label(breakLabel));
     }
 
     private void compile(Expr expr, List<Bytecode> bytecode, Environment env) {
@@ -547,7 +577,7 @@ public class JvmCompiler {
 
     private int labelNonce = 0;
     private String label(String title) {
-        return title + (labelNonce++);
+        return  title + (labelNonce++);
     }
 
     private static class Variable {
@@ -568,15 +598,28 @@ public class JvmCompiler {
         private final Map<String, Type> types = new HashMap<>();
         private final Map<String, List<ClassFile.Method>> methods = new HashMap<>();
         private final Environment parent;
+        private final String continueLabel;
+        private final String breakLabel;
 
         public Environment(JvmType.Clazz base) {
             this.parent = null;
             this.baseClazz = base;
+            this.continueLabel = null;
+            this.breakLabel = null;
         }
 
         public Environment(Environment parent) {
             this.baseClazz = null;
             this.parent = parent;
+            this.continueLabel = null;
+            this.breakLabel = null;
+        }
+
+        public Environment(Environment parent, String continueLabel, String breakLabel) {
+            this.baseClazz = null;
+            this.parent = parent;
+            this.continueLabel = continueLabel;
+            this.breakLabel = breakLabel;
         }
 
         public Variable addVariable(String name, JvmType jvmtype) {
@@ -630,12 +673,24 @@ public class JvmCompiler {
             return allocated;
         }
 
-        public Environment getRoot() {
-            if (this.parent != null) {
-                return this.parent.getRoot();
+        public String getBreakLabel() {
+            if (this.breakLabel != null) {
+                return this.breakLabel;
+            } else if (this.parent != null) {
+                return this.parent.getBreakLabel();
             }
-            return this;
+            throw new IllegalStateException("No break label in this scope");
         }
+
+        public String getContinueLabel() {
+            if (this.continueLabel != null) {
+                return this.continueLabel;
+            } else if (this.parent != null) {
+                return this.parent.getContinueLabel();
+            }
+            throw new IllegalStateException("No break label in this scope");
+        }
+
         public JvmType.Clazz getBaseClass() {
             if (this.parent != null) {
                 return this.parent.getBaseClass();
