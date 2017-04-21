@@ -49,7 +49,7 @@ public class JvmCompiler {
 
                 if (decl instanceof WhileFile.MethodDecl) {
                     WhileFile.MethodDecl mDecl = (WhileFile.MethodDecl) decl;
-                    ClassFile.Method method = setupMethod(mDecl);
+                    ClassFile.Method method = setupMethod(mDecl, env);
 
                     env.addMethod(mDecl.getName(), method);
                     methods.add(new Pair<>(method, mDecl));
@@ -58,6 +58,9 @@ public class JvmCompiler {
                     if (mDecl.getName().equals("main") && mDecl.getParameters().size() > 0) {
                         javaMain = true;
                     }
+                } else if (decl instanceof WhileFile.TypeDecl) {
+                    WhileFile.TypeDecl typeDecl = (WhileFile.TypeDecl) decl;
+                    env.addType(typeDecl.getName(), typeDecl.getType());
                 }
             }
 
@@ -70,7 +73,7 @@ public class JvmCompiler {
                         stmts
                 );
 
-                ClassFile.Method method = setupMethod(mDecl);
+                ClassFile.Method method = setupMethod(mDecl, env);
                 env.addMethod(mDecl.getName(), method);
 
                 methods.add(new Pair<>(method, mDecl));
@@ -91,7 +94,7 @@ public class JvmCompiler {
         }
     }
 
-    private ClassFile.Method setupMethod(WhileFile.MethodDecl methodDecl) {
+    private ClassFile.Method setupMethod(WhileFile.MethodDecl methodDecl, Environment env) {
 
         /// ------ setup method ------
         List<Modifier> funcModifiers = new ArrayList<>();
@@ -104,15 +107,10 @@ public class JvmCompiler {
 
         List<JvmType> parameterTypes = new ArrayList<>(methodDecl.getParameters().size());
         for (WhileFile.Parameter param : methodDecl.getParameters()) {
-            parameterTypes.add(convertType(param.getType()));
+            parameterTypes.add(convertType(param.getType(), env));
         }
 
-        // special case to allow generated code runnable from command line
-//        if (methodDecl.getName().equals("main") && parameterTypes.size() == 0) {
-//            parameterTypes.add(new JvmType.Array(JvmTypes.JAVA_LANG_STRING));
-//        }
-
-        JvmType returnType = convertType(methodDecl.getRet());
+        JvmType returnType = convertType(methodDecl.getRet(), env);
         JvmType.Function function = new JvmType.Function(returnType, parameterTypes);
 
         ClassFile.Method method = new ClassFile.Method(
@@ -136,7 +134,7 @@ public class JvmCompiler {
         Environment methodEnv = new Environment(env);
 
         for (WhileFile.Parameter p : methodDecl.getParameters()) {
-            methodEnv.addVariable(p.getName(), convertType(p.getType()));
+            methodEnv.addVariable(p.getName(), convertType(p.getType(), env));
         }
 
         // build
@@ -187,7 +185,7 @@ public class JvmCompiler {
     }
 
     private void compile(Stmt.VariableDeclaration stmt, List<Bytecode> bytecode, Environment env) {
-        JvmType jvmtype = convertType(stmt.getType());
+        JvmType jvmtype = convertType(stmt.getType(), env);
 
         Variable var = env.addVariable(stmt.getName(), jvmtype);
 
@@ -274,7 +272,7 @@ public class JvmCompiler {
         JvmType returnType = null;
         if (stmt.getExpr() != null) {
             compile(stmt.getExpr(), bytecode, env);
-            returnType = convertType(stmt.getExpr());
+            returnType = convertType(stmt.getExpr(), env);
         }
 
         bytecode.add(new Bytecode.Return(returnType));
@@ -329,7 +327,7 @@ public class JvmCompiler {
            compile(e, bytecode, env);
         }
         // TODO: invoke static function call
-        ClassFile.Method m = env.getMethod(expr.getName(), convertType(expr.getArguments()));
+        ClassFile.Method m = env.getMethod(expr.getName(), convertType(expr.getArguments(), env));
         bytecode.add(new Bytecode.Invoke(env.getBaseClass(), expr.getName(), m.type(), Bytecode.InvokeMode.STATIC));
     }
 
@@ -343,18 +341,28 @@ public class JvmCompiler {
 
     private void compile(Expr.Binary expr, List<Bytecode> bytecode, Environment env) {
         expr.attributes();
+        boolean shortCircuit = expr.getOp() == Expr.BOp.AND || expr.getOp() == Expr.BOp.OR;
+        String endLabel = label("short_circuit");
+
         compile(expr.getLhs(), bytecode, env);
+        if (shortCircuit) {
+            Bytecode.IfMode ifMode = expr.getOp() == Expr.BOp.AND ? Bytecode.IfMode.EQ : Bytecode.IfMode.NE;
+            bytecode.add(new Bytecode.Dup(JvmTypes.BOOL));
+            bytecode.add(new Bytecode.If(ifMode, endLabel));
+        }
         compile(expr.getRhs(), bytecode, env);
-        compile(expr.getOp(), bytecode, env, convertType(expr.getLhs()));
+
+        compile(expr.getOp(), bytecode, env, convertType(expr.getLhs(), env));
+        if (shortCircuit) {
+            bytecode.add(new Bytecode.Label(endLabel));
+        }
     }
 
     private void compile(Expr.BOp expr, List<Bytecode> bytecode, Environment env, JvmType jvmtype) {
         switch (expr) {
-            // TODO: special case for short circuiting
             case AND:
                 bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.AND, jvmtype));
                 break;
-            // TODO: special case for short circuiting
             case OR:
                 bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.OR, jvmtype));
                 break;
@@ -414,7 +422,7 @@ public class JvmCompiler {
     private void compile(Expr.IndexOf expr, List<Bytecode> bytecode, Environment env) {
         compile(expr.getSource(), bytecode, env);
         compile(expr.getIndex(), bytecode, env);
-        JvmType.Array exprType = (JvmType.Array) convertType(expr.getSource());
+        JvmType.Array exprType = (JvmType.Array) convertType(expr.getSource(), env);
         bytecode.add(new Bytecode.ArrayLoad(exprType));
     }
 
@@ -428,7 +436,7 @@ public class JvmCompiler {
 
     private void compile(Expr.Unary expr, List<Bytecode> bytecode, Environment env) {
         compile(expr.getExpr(), bytecode, env);
-        compile(expr.getOp(), bytecode, convertType(expr.getExpr()));
+        compile(expr.getOp(), bytecode, convertType(expr.getExpr(), env));
     }
 
     private void compile(Expr.UOp expr, List<Bytecode> bytecode, JvmType jvmtype) {
@@ -460,19 +468,19 @@ public class JvmCompiler {
     }
 
 
-    private JvmType convertType(Expr expr) {
+    private JvmType convertType(Expr expr, Environment env) {
         Attribute.Type type = expr.attribute(Attribute.Type.class);
         if (type != null) {
-            return convertType(type.type);
+            return convertType(type.type, env);
         } else {
             throw new IllegalStateException();
         }
     }
 
-    private List<JvmType> convertType(List<Expr> expr) {
+    private List<JvmType> convertType(List<Expr> expr, Environment env) {
         List<JvmType> types = new ArrayList<>(expr.size());
         for (Expr e : expr) {
-            types.add(convertType(e));
+            types.add(convertType(e, env));
         }
         return types;
     }
@@ -483,7 +491,7 @@ public class JvmCompiler {
      * @param input
      * @return
      */
-    private JvmType convertType(Type input) {
+    private JvmType convertType(Type input, Environment env) {
         if (input instanceof Type.Void) {
             return JvmTypes.VOID;
         } else if (input instanceof Type.Int) {
@@ -496,7 +504,10 @@ public class JvmCompiler {
             return JvmTypes.JAVA_LANG_STRING;
         } else if (input instanceof Type.Array) {
             Type.Array arrayType = (Type.Array) input;
-            return new JvmType.Array(convertType(arrayType.getElement()));
+            return new JvmType.Array(convertType(arrayType.getElement(), env));
+        } else if (input instanceof Type.Named) {
+            Type.Named named = (Type.Named) input;
+            return convertType(env.getType(named.getName()), env);
         } else {
             // not implmented
             throw new UnsupportedOperationException();
@@ -554,6 +565,7 @@ public class JvmCompiler {
         private final JvmType.Clazz baseClazz;
         private int slotCount = 0;
         private final Map<String, Variable> variables = new HashMap<>();
+        private final Map<String, Type> types = new HashMap<>();
         private final Map<String, List<ClassFile.Method>> methods = new HashMap<>();
         private final Environment parent;
 
@@ -594,6 +606,19 @@ public class JvmCompiler {
                 return this.parent.getMethod(name, parameters);
             }
             throw new IllegalStateException("Unknown method " + name);
+        }
+
+        public Type getType(String name) {
+            if (this.types.containsKey(name)) {
+                return this.types.get(name);
+            } else if (this.parent != null) {
+                return this.parent.getType(name);
+            }
+            throw new IllegalStateException("Unknown type " + name);
+        }
+
+        public void addType(String name, Type type) {
+            this.types.put(name, type);
         }
 
         private int newSlot(JvmType jvmtype) {
