@@ -215,7 +215,11 @@ public class JvmCompiler {
     }
 
     private void compile(Stmt.Break stmt, List<Bytecode> bytecode, Environment env) {
-        bytecode.add(new Bytecode.Label(env.getBreakLabel()));
+        bytecode.add(new Bytecode.Goto(env.getBreakLabel()));
+    }
+
+    private void compile(Stmt.Continue stmt, List<Bytecode> bytecode, Environment env) {
+        bytecode.add(new Bytecode.Goto(env.getContinueLabel()));
     }
 
     private void compile(Stmt.Assign stmt, List<Bytecode> bytecode, Environment env) {
@@ -231,33 +235,34 @@ public class JvmCompiler {
 
     }
 
-    private void compile(Stmt.Continue stmt, List<Bytecode> bytecode, Environment env) {
-        bytecode.add(new Bytecode.Label(env.getContinueLabel()));
-    }
-
     private void compile(Stmt.For stmt, List<Bytecode> bytecode, Environment env) {
 
         String breakLabel = label("exit");
         String continueLabel = label("loop_back");
+        String conditionLabel = label("condition");
 
         Environment forEnv = new Environment(env, continueLabel, breakLabel);
 
         // for's variable declaration
         compile(stmt.getDeclaration(), bytecode, forEnv);
+        // skip increment for 1st iteration
+        bytecode.add(new Bytecode.Goto(conditionLabel));
         // target to jump back to for continues & starting the loop again
-        bytecode.add(new Bytecode.Label(continueLabel));
+        bytecode.add(new Bytecode.Label(forEnv.getContinueLabel()));
+        // apply the increment
+        compile(stmt.getIncrement(), bytecode, forEnv);
+        // condition jump for 1st iteration
+        bytecode.add(new Bytecode.Label(conditionLabel));
         // build the condition
         compile(stmt.getCondition(), bytecode, forEnv);
         // check the condition or go to the end
-        bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, breakLabel));
+        bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, forEnv.getBreakLabel()));
         // build the body of the for loop
         compile(stmt.getBody(), bytecode, forEnv);
-        // apply the increment
-        compile(stmt.getIncrement(), bytecode, forEnv);
         // go back to the start
-        bytecode.add(new Bytecode.Goto(continueLabel));
+        bytecode.add(new Bytecode.Goto(forEnv.getContinueLabel()));
         // target to exit the for loop
-        bytecode.add(new Bytecode.Label(breakLabel));
+        bytecode.add(new Bytecode.Label(forEnv.getBreakLabel()));
 
     }
 
