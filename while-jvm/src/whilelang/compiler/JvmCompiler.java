@@ -305,12 +305,48 @@ public class JvmCompiler {
 
     private void compile(Stmt.Switch stmt, List<Bytecode> bytecode, Environment env) {
 
-        throw new UnsupportedOperationException();
+        compile(stmt.getExpr(), bytecode, env);
+        JvmType exprType = convertType(stmt.getExpr(), env);
+
+        String exitLabel = label("switch_exit");
+
+        List<Pair<String, Stmt.Case>> cases = new ArrayList<>();
+
+        boolean hasDefault = false;
+
+        for (Stmt.Case c : stmt.getCases()) {
+            String caseLabel = label("case_" + (c.isDefault() ? "default" : c.getValue()));
+            if (!c.isDefault()) {
+                bytecode.add(new Bytecode.Dup(exprType));
+                compile(c.getValue(), bytecode, env);
+                bytecode.add(new Bytecode.IfCmp(Bytecode.IfCmp.EQ, exprType, caseLabel));
+            } else {
+                bytecode.add(new Bytecode.Goto(caseLabel));
+
+                hasDefault = true;
+            }
+            cases.add(new Pair<>(caseLabel, c));
+        }
+
+        if (!hasDefault) {
+            bytecode.add(new Bytecode.Goto(exitLabel));
+        }
+
+        Environment caseEnv = new Environment(env, null, exitLabel);
+
+        for (Pair<String, Stmt.Case> casePair : cases) {
+            bytecode.add(new Bytecode.Label(casePair.first()));
+            // remove the duplicated result of the switch statement
+            bytecode.add(new Bytecode.Pop(exprType));
+            compile(casePair.second(), bytecode, caseEnv);
+        }
+
+        bytecode.add(new Bytecode.Label(exitLabel));
+        bytecode.add(new Bytecode.Nop());
     }
 
     private void compile(Stmt.Case stmt, List<Bytecode> bytecode, Environment env) {
-
-        throw new UnsupportedOperationException();
+        compile(stmt.getBody(), bytecode, env);
     }
 
     private void compile(Stmt.While stmt, List<Bytecode> bytecode, Environment env) {
