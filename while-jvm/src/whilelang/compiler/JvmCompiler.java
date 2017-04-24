@@ -67,6 +67,7 @@ public class JvmCompiler {
             if (!javaMain) {
 
                 List<Stmt> stmts = new ArrayList<>();
+
                 stmts.add(new Expr.Invoke("main", Collections.EMPTY_LIST));
                 WhileFile.MethodDecl mDecl = new WhileFile.MethodDecl("main", new Type.Void(),
                         Arrays.asList(new WhileFile.Parameter(new Type.Array(new Type.Strung()), "args")),
@@ -74,6 +75,9 @@ public class JvmCompiler {
                 );
 
                 ClassFile.Method method = setupMethod(mDecl, env);
+                // hack to ensure that parameter is String[] instead of ArrayList<String>
+                method.type().parameterTypes().remove(0);
+                method.type().parameterTypes().add(new JvmType.Array(JvmTypes.JAVA_LANG_STRING));
                 env.addMethod(mDecl.getName(), method);
 
                 methods.add(new Pair<>(method, mDecl));
@@ -319,7 +323,6 @@ public class JvmCompiler {
 
         for (Stmt.Case c : stmt.getCases()) {
             String caseLabel = label("case_" + (c.isDefault() ? "default" : c.getValue()));
-            String preCaseLabel;
             if (!c.isDefault()) {
                 bytecode.add(new Bytecode.Load(var.slot, var.jvmtype));
                 compile(c.getValue(), bytecode, env);
@@ -398,7 +401,7 @@ public class JvmCompiler {
         for (Expr e : expr.getArguments()) {
            compile(e, bytecode, env);
         }
-        // TODO: invoke static function call
+
         ClassFile.Method m = env.getMethod(expr.getName(), convertType(expr.getArguments(), env));
         bytecode.add(new Bytecode.Invoke(env.getBaseClass(), expr.getName(), m.type(), Bytecode.InvokeMode.STATIC));
     }
@@ -408,7 +411,29 @@ public class JvmCompiler {
     }
 
     private void compile(Expr.ArrayInitialiser expr, List<Bytecode> bytecode, Environment env) {
-        throw new UnsupportedOperationException();
+
+        // create an Array List
+        JvmType.Clazz arrayList = new JvmType.Clazz("java.util", "ArrayList");
+        JvmType.Function addMethod = new JvmType.Function(JvmTypes.BOOL, JvmTypes.JAVA_LANG_OBJECT);
+
+        // create new instance of array list
+        bytecode.add(new Bytecode.New(arrayList));
+        // dup so it can be init'd & used
+        bytecode.add(new Bytecode.Dup(arrayList));
+        // call the constructor
+        bytecode.add(new Bytecode.Invoke(arrayList, "<init>", new JvmType.Function(JvmTypes.VOID), Bytecode.InvokeMode.SPECIAL));
+
+        // put all the values into the array list
+        for (Expr e : expr.getArguments()) {
+            bytecode.add(new Bytecode.Dup(arrayList));
+
+            compile(e, bytecode, env);
+            // box if primitive
+            boxAsNecessary(convertType(e, env), bytecode);
+
+            bytecode.add(new Bytecode.Invoke(arrayList, "add", addMethod, Bytecode.InvokeMode.VIRTUAL));
+            bytecode.add(new Bytecode.Pop(JvmTypes.BOOL));
+        }
     }
 
     private void compile(Expr.Binary expr, List<Bytecode> bytecode, Environment env) {
@@ -455,9 +480,11 @@ public class JvmCompiler {
                 bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.REM, jvmtype));
                 break;
             case EQ:
+                // TODO: handle case of record / array
                 compare(Bytecode.IfCmp.EQ, bytecode, jvmtype);
                 break;
             case NEQ:
+                // TODO: handle case of record / array
                 compare(Bytecode.IfCmp.NE, bytecode, jvmtype);
                 break;
             case LT:
@@ -493,10 +520,14 @@ public class JvmCompiler {
     }
 
     private void compile(Expr.IndexOf expr, List<Bytecode> bytecode, Environment env) {
+        JvmType.Clazz arrayType = (JvmType.Clazz) convertType(expr.getSource(), env);
+        JvmType.Function getMethod = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT, JvmTypes.INT);
+        JvmType target = convertType(expr, env);
+
         compile(expr.getSource(), bytecode, env);
         compile(expr.getIndex(), bytecode, env);
-        JvmType.Array exprType = (JvmType.Array) convertType(expr.getSource(), env);
-        bytecode.add(new Bytecode.ArrayLoad(exprType));
+        bytecode.add(new Bytecode.Invoke(arrayType, "get", getMethod, Bytecode.InvokeMode.VIRTUAL));
+        unBoxAsNecessary(target, bytecode);
     }
 
     private void compile(Expr.RecordAccess expr, List<Bytecode> bytecode, Environment env) {
@@ -530,6 +561,7 @@ public class JvmCompiler {
                 bytecode.add(new Bytecode.Neg(jvmtype));
                 break;
             case LENGTHOF:
+                // TODO: call ArrayList.size()
                 bytecode.add(new Bytecode.ArrayLength());
                 break;
         }
@@ -576,8 +608,7 @@ public class JvmCompiler {
         } else if (input instanceof Type.Strung) {
             return JvmTypes.JAVA_LANG_STRING;
         } else if (input instanceof Type.Array) {
-            Type.Array arrayType = (Type.Array) input;
-            return new JvmType.Array(convertType(arrayType.getElement(), env));
+            return JAVA_UTIL_ARRAYLIST;
         } else if (input instanceof Type.Named) {
             Type.Named named = (Type.Named) input;
             return convertType(env.getType(named.getName()), env);
@@ -750,4 +781,94 @@ public class JvmCompiler {
             }
         }
     }
+
+
+   	/**
+	 * Box the element on top of the stack, if it is of an appropriate type
+	 * (i.e. is not a primitive).
+	 *
+	 * @param jvmType
+	 *            The type of the element we are converting from (i.e. on the
+	 *            top of the stack).
+	 * @param bytecodes
+	 *            The list of bytecodes being accumulated
+	 */
+	private void boxAsNecessary(JvmType jvmType, List<Bytecode> bytecodes) {
+		JvmType.Clazz owner;
+
+		if(jvmType instanceof JvmType.Reference) {
+			// Only need to box primitive types
+			return;
+		} else if(jvmType instanceof JvmType.Bool) {
+			owner = JvmTypes.JAVA_LANG_BOOLEAN;
+		} else if(jvmType instanceof JvmType.Char) {
+			owner = JvmTypes.JAVA_LANG_CHARACTER;
+		} else if(jvmType instanceof JvmType.Int) {
+			owner = JvmTypes.JAVA_LANG_INTEGER;
+		} else {
+			throw new IllegalArgumentException("unknown primitive type encountered: " + jvmType);
+		}
+
+		String boxMethodName = "valueOf";
+		JvmType.Function boxMethodType = new JvmType.Function(owner,jvmType);
+		bytecodes.add(new Bytecode.Invoke(owner, boxMethodName, boxMethodType,
+				Bytecode.InvokeMode.STATIC));
+	}
+
+	/**
+	 * Unbox a reference type when appropriate. That is, when it represented a
+	 * boxed primitive type.
+	 *
+	 * @param target
+	 * @param bytecodes
+	 */
+	private void unBoxAsNecessary(JvmType target, List<Bytecode> bytecodes) {
+		String unBoxMethodName;
+		JvmType.Reference boxedJvmType;
+
+		if (target instanceof JvmType.Bool) {
+			unBoxMethodName = "booleanValue";
+			boxedJvmType = JvmTypes.JAVA_LANG_BOOLEAN;
+		} else if (target instanceof JvmType.Char) {
+			unBoxMethodName = "charValue";
+			boxedJvmType = JvmTypes.JAVA_LANG_CHARACTER;
+		} else if (target instanceof JvmType.Int) {
+			unBoxMethodName = "intValue";
+			boxedJvmType = JvmTypes.JAVA_LANG_INTEGER;
+		} else {
+			return; // not necessary to unbox
+		}
+        JvmType.Function unBoxMethodType = new JvmType.Function(target);
+
+        bytecodes.add(new Bytecode.CheckCast(boxedJvmType));
+		bytecodes.add(new Bytecode.Invoke(boxedJvmType, unBoxMethodName, unBoxMethodType, Bytecode.InvokeMode.VIRTUAL));
+	}
+
+	// A few helpful constants not defined in JvmTypes
+	private static final JvmType.Clazz JAVA_UTIL_LIST = new JvmType.Clazz("java.util","List");
+	private static final JvmType.Clazz JAVA_UTIL_ARRAYLIST = new JvmType.Clazz("java.util","ArrayList");
+	private static final JvmType.Clazz JAVA_UTIL_HASHMAP = new JvmType.Clazz("java.util","HashMap");
+	private static final JvmType.Clazz JAVA_UTIL_COLLECTION = new JvmType.Clazz("java.util","Collection");
+	private static final JvmType.Clazz JAVA_UTIL_COLLECTIONS = new JvmType.Clazz("java.util","Collections");
+
+	private JvmType.Reference toBoxedJvmType(Type t, Environment env) {
+		if(t instanceof Type.Bool) {
+			return JvmTypes.JAVA_LANG_BOOLEAN;
+		} else if(t instanceof Type.Char) {
+			return JvmTypes.JAVA_LANG_CHARACTER;
+		} else if(t instanceof Type.Int) {
+			return JvmTypes.JAVA_LANG_INTEGER;
+		} else if(t instanceof Type.Strung) {
+			return JvmTypes.JAVA_LANG_STRING;
+		} else if(t instanceof Type.Named) {
+			Type.Named d = (Type.Named) t;
+			return toBoxedJvmType(env.getType(d.getName()), env);
+		} else if(t instanceof Type.Array) {
+			return JAVA_UTIL_ARRAYLIST;
+		} else if(t instanceof Type.Record) {
+			return JAVA_UTIL_HASHMAP;
+		} else {
+			throw new IllegalArgumentException("Unknown type encountered: " + t);
+		}
+	}
 }
