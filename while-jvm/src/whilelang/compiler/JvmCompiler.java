@@ -197,7 +197,7 @@ public class JvmCompiler {
 
     private void compile(Stmt.Assert stmt, List<Bytecode> bytecode, Environment env) {
         String assertLabel = label("assert");
-        JvmType.Clazz assertError = JvmTypes.JAVA_LANG_RUNTIMEEXCEPTION;
+        JvmType.Clazz assertError = new JvmType.Clazz("java.lang","AssertionError");
 
         // assertion expression
         compile(stmt.getExpr(), bytecode, env);
@@ -479,6 +479,7 @@ public class JvmCompiler {
         String alt = label("cmp_alt");
         String end = label("cmp_end");
 
+        // TODO: for references use Object.equals()
         bytecode.add(new Bytecode.IfCmp(ifCmp, jvmtype, alt));
         bytecode.add(new Bytecode.LoadConst(false));
         bytecode.add(new Bytecode.Goto(end));
