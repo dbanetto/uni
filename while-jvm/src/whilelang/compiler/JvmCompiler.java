@@ -195,6 +195,7 @@ public class JvmCompiler {
 
         if (stmt.getExpr() != null) {
             compile(stmt.getExpr(), bytecode, env);
+            cloneAsNecessary(var.jvmtype, bytecode);
             bytecode.add(new Bytecode.Store(var.slot, var.jvmtype));
         }
     }
@@ -228,11 +229,15 @@ public class JvmCompiler {
 
     private void compile(Stmt.Assign stmt, List<Bytecode> bytecode, Environment env) {
 
+        JvmType rhsType  = convertType(stmt.getRhs(), env);
+
         if (stmt.getLhs() instanceof Expr.Variable) {
             Expr.Variable exprVar = (Expr.Variable) stmt.getLhs();
             Variable var = env.getVariable(exprVar.getName());
 
             compile(stmt.getRhs(), bytecode, env);
+            cloneAsNecessary(rhsType, bytecode);
+
             bytecode.add(new Bytecode.Store(var.slot, var.jvmtype));
         } else if (stmt.getLhs() instanceof Expr.IndexOf) {
             Expr.IndexOf exprIndexOf = (Expr.IndexOf) stmt.getLhs();
@@ -241,7 +246,8 @@ public class JvmCompiler {
             compile(exprIndexOf.getSource(), bytecode, env);
             compile(exprIndexOf.getIndex(), bytecode, env);
             compile(stmt.getRhs(), bytecode, env);
-            boxAsNecessary(convertType(stmt.getRhs(), env), bytecode);
+            cloneAsNecessary(rhsType, bytecode);
+            boxAsNecessary(rhsType, bytecode);
             bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "set", setMethod, Bytecode.InvokeMode.VIRTUAL));
             bytecode.add(new Bytecode.Pop(JvmTypes.JAVA_LANG_OBJECT));
         } else {
@@ -305,7 +311,16 @@ public class JvmCompiler {
 
     private void compile(Stmt.Print stmt, List<Bytecode> bytecode, Environment env) {
 
-        throw new UnsupportedOperationException();
+        JvmType.Clazz printStream = new JvmType.Clazz("java.io", "PrintStream");
+        JvmType.Clazz system = new JvmType.Clazz("java.lang", "System");
+        JvmType exprType = convertType(stmt.getExpr(), env);
+        JvmType.Function printlnMethod = new JvmType.Function(JvmTypes.VOID, exprType);
+
+        bytecode.add(new Bytecode.GetField(system, "out", printStream, Bytecode.FieldMode.STATIC));
+
+        compile(stmt.getExpr(), bytecode, env);
+
+        bytecode.add(new Bytecode.Invoke(printStream, "println", printlnMethod, Bytecode.InvokeMode.VIRTUAL));
     }
 
     private void compile(Stmt.Return stmt, List<Bytecode> bytecode, Environment env) {
@@ -335,9 +350,17 @@ public class JvmCompiler {
         for (Stmt.Case c : stmt.getCases()) {
             String caseLabel = label("case_" + (c.isDefault() ? "default" : c.getValue()));
             if (!c.isDefault()) {
-                bytecode.add(new Bytecode.Load(var.slot, var.jvmtype));
                 compile(c.getValue(), bytecode, env);
-                bytecode.add(new Bytecode.IfCmp(Bytecode.IfCmp.EQ, exprType, caseLabel));
+                bytecode.add(new Bytecode.Load(var.slot, var.jvmtype));
+
+                if (exprType instanceof JvmType.Clazz) {
+                    JvmType.Function equalsMethod = new JvmType.Function(JvmTypes.BOOL, JvmTypes.JAVA_LANG_OBJECT);
+                    bytecode.add(new Bytecode.Invoke((JvmType.Reference)exprType, "equals", equalsMethod, Bytecode.InvokeMode.VIRTUAL));
+                    bytecode.add(new Bytecode.If(Bytecode.IfMode.NE, caseLabel));
+                } else {
+                    bytecode.add(new Bytecode.IfCmp(Bytecode.IfCmp.EQ, exprType, caseLabel));
+                }
+
             } else {
                 bytecode.add(new Bytecode.Goto(caseLabel));
 
@@ -411,6 +434,7 @@ public class JvmCompiler {
 
         for (Expr e : expr.getArguments()) {
            compile(e, bytecode, env);
+           cloneAsNecessary(convertType(e, env), bytecode);
         }
 
         ClassFile.Method m = env.getMethod(expr.getName(), convertType(expr.getArguments(), env));
@@ -441,7 +465,6 @@ public class JvmCompiler {
         bytecode.add(new Bytecode.Dup(JAVA_UTIL_ARRAYLIST));
         // call the constructor
         bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "<init>", new JvmType.Function(JvmTypes.VOID), Bytecode.InvokeMode.SPECIAL));
-
 
         bytecode.add(new Bytecode.Label(startLabel));
         bytecode.add(new Bytecode.Load(count.slot, count.jvmtype));
@@ -587,7 +610,19 @@ public class JvmCompiler {
     }
 
     private void compile(Expr.Constant expr, List<Bytecode> bytecode, Environment env) {
-        bytecode.add(new Bytecode.LoadConst(expr.getValue()));
+        if (expr.getValue() instanceof ArrayList) {
+            Attribute.Type exprType = expr.attribute(Attribute.Type.class);
+            Type.Array arrayType = (Type.Array) exprType.type;
+
+            List<Expr> values = new ArrayList<>();
+            ArrayList exprs = (ArrayList) expr.getValue();
+            for (Object obj : exprs) {
+                values.add(new Expr.Constant(obj, new Attribute.Type(arrayType.getElement())));
+            }
+            compile(new Expr.ArrayInitialiser(values), bytecode, env);
+        } else {
+            bytecode.add(new Bytecode.LoadConst(expr.getValue()));
+        }
     }
 
     private void compile(Expr.IndexOf expr, List<Bytecode> bytecode, Environment env) {
@@ -915,6 +950,26 @@ public class JvmCompiler {
         bytecodes.add(new Bytecode.CheckCast(boxedJvmType));
 		bytecodes.add(new Bytecode.Invoke(boxedJvmType, unBoxMethodName, unBoxMethodType, Bytecode.InvokeMode.VIRTUAL));
 		return true;
+	}
+
+	/**
+	 * Clone the element on top of the stack, if it is of an appropriate type
+	 * (i.e. is not a primitive).
+	 *
+	 * @param type
+	 *            The type of the element on the top of the stack.
+	 * @param bytecodes
+	 *            The list of bytecodes being accumulated
+	 */
+	private void cloneAsNecessary(JvmType type, List<Bytecode> bytecodes) {
+		if(type instanceof JvmType.Primitive || type == JvmTypes.JAVA_LANG_STRING) {
+			// no need to do anything in the case of a primitive type
+		} else {
+			// Invoke the clone function on the datatype in question
+			JvmType.Function ft = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT);
+			bytecodes.add(new Bytecode.Invoke((JvmType.Reference) type, "clone", ft, Bytecode.InvokeMode.VIRTUAL));
+			bytecodes.add(new Bytecode.CheckCast(type));
+		}
 	}
 
 	// A few helpful constants not defined in JvmTypes
