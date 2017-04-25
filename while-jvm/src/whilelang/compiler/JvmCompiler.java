@@ -227,12 +227,23 @@ public class JvmCompiler {
     }
 
     private void compile(Stmt.Assign stmt, List<Bytecode> bytecode, Environment env) {
-        compile(stmt.getRhs(), bytecode, env);
 
         if (stmt.getLhs() instanceof Expr.Variable) {
             Expr.Variable exprVar = (Expr.Variable) stmt.getLhs();
             Variable var = env.getVariable(exprVar.getName());
+
+            compile(stmt.getRhs(), bytecode, env);
             bytecode.add(new Bytecode.Store(var.slot, var.jvmtype));
+        } else if (stmt.getLhs() instanceof Expr.IndexOf) {
+            Expr.IndexOf exprIndexOf = (Expr.IndexOf) stmt.getLhs();
+            JvmType.Function setMethod = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT, JvmTypes.INT, JvmTypes.JAVA_LANG_OBJECT);
+
+            compile(exprIndexOf.getSource(), bytecode, env);
+            compile(exprIndexOf.getIndex(), bytecode, env);
+            compile(stmt.getRhs(), bytecode, env);
+            boxAsNecessary(convertType(stmt.getRhs(), env), bytecode);
+            bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "set", setMethod, Bytecode.InvokeMode.VIRTUAL));
+            bytecode.add(new Bytecode.Pop(JvmTypes.JAVA_LANG_OBJECT));
         } else {
             throw new UnsupportedOperationException();
         }
@@ -407,13 +418,53 @@ public class JvmCompiler {
     }
 
     private void compile(Expr.ArrayGenerator expr, List<Bytecode> bytecode, Environment env) {
-        throw new UnsupportedOperationException();
+
+        // create an Array List
+        JvmType.Function addMethod = new JvmType.Function(JvmTypes.BOOL, JvmTypes.JAVA_LANG_OBJECT);
+        Environment genEnv = new Environment(env);
+        String startLabel = label("generator_start");
+        String endLabel = label("generator_end");
+
+        JvmType valueType = convertType(expr.getValue(), env);
+        Variable count = genEnv.addVariable("__generator_count", JvmTypes.INT);
+        Variable value = genEnv.addVariable("__generator_value", valueType);
+
+        compile(expr.getSize(), bytecode, env);
+        bytecode.add(new Bytecode.Store(count.slot, count.jvmtype));
+
+        compile(expr.getValue(), bytecode, env);
+        bytecode.add(new Bytecode.Store(value.slot, value.jvmtype));
+
+        // create new instance of array list
+        bytecode.add(new Bytecode.New(JAVA_UTIL_ARRAYLIST));
+        // dup so it can be init'd & used
+        bytecode.add(new Bytecode.Dup(JAVA_UTIL_ARRAYLIST));
+        // call the constructor
+        bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "<init>", new JvmType.Function(JvmTypes.VOID), Bytecode.InvokeMode.SPECIAL));
+
+
+        bytecode.add(new Bytecode.Label(startLabel));
+        bytecode.add(new Bytecode.Load(count.slot, count.jvmtype));
+        bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, endLabel));
+
+        bytecode.add(new Bytecode.Dup(JAVA_UTIL_ARRAYLIST));
+        bytecode.add(new Bytecode.Load(value.slot, value.jvmtype));
+        boxAsNecessary(valueType, bytecode);
+
+        bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "add", addMethod, Bytecode.InvokeMode.VIRTUAL));
+
+        bytecode.add(new Bytecode.Pop(JvmTypes.BOOL));
+
+        bytecode.add(new Bytecode.Iinc(count.slot, -1));
+
+        bytecode.add(new Bytecode.Goto(startLabel));
+        bytecode.add(new Bytecode.Label(endLabel));
     }
 
     private void compile(Expr.ArrayInitialiser expr, List<Bytecode> bytecode, Environment env) {
 
         // create an Array List
-        JvmType.Clazz arrayList = new JvmType.Clazz("java.util", "ArrayList");
+        JvmType.Clazz arrayList = JAVA_UTIL_ARRAYLIST;
         JvmType.Function addMethod = new JvmType.Function(JvmTypes.BOOL, JvmTypes.JAVA_LANG_OBJECT);
 
         // create new instance of array list
@@ -506,8 +557,28 @@ public class JvmCompiler {
         String alt = label("cmp_alt");
         String end = label("cmp_end");
 
+        if (jvmtype instanceof JvmType.Clazz) {
+            JvmType.Function equalsMethod = new JvmType.Function(JvmTypes.BOOL, JvmTypes.JAVA_LANG_OBJECT);
+            Bytecode.IfMode ifMode;
+
+            switch (ifCmp) {
+                case (Bytecode.IfCmp.EQ):
+                    ifMode = Bytecode.IfMode.NE;
+                    break;
+                case (Bytecode.IfCmp.NE):
+                    ifMode = Bytecode.IfMode.EQ;
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+
+            bytecode.add(new Bytecode.Invoke((JvmType.Reference)jvmtype, "equals", equalsMethod, Bytecode.InvokeMode.VIRTUAL));
+            bytecode.add(new Bytecode.If(ifMode, alt));
+        } else {
+            bytecode.add(new Bytecode.IfCmp(ifCmp, jvmtype, alt));
+        }
+
         // TODO: for references use Object.equals()
-        bytecode.add(new Bytecode.IfCmp(ifCmp, jvmtype, alt));
         bytecode.add(new Bytecode.LoadConst(false));
         bytecode.add(new Bytecode.Goto(end));
         bytecode.add(new Bytecode.Label(alt));
@@ -527,7 +598,9 @@ public class JvmCompiler {
         compile(expr.getSource(), bytecode, env);
         compile(expr.getIndex(), bytecode, env);
         bytecode.add(new Bytecode.Invoke(arrayType, "get", getMethod, Bytecode.InvokeMode.VIRTUAL));
-        unBoxAsNecessary(target, bytecode);
+        if (!unBoxAsNecessary(target, bytecode)) {
+            bytecode.add(new Bytecode.CheckCast(target));
+        }
     }
 
     private void compile(Expr.RecordAccess expr, List<Bytecode> bytecode, Environment env) {
@@ -561,8 +634,8 @@ public class JvmCompiler {
                 bytecode.add(new Bytecode.Neg(jvmtype));
                 break;
             case LENGTHOF:
-                // TODO: call ArrayList.size()
-                bytecode.add(new Bytecode.ArrayLength());
+                JvmType.Function sizeMethod = new JvmType.Function(JvmTypes.INT);
+                bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "size", sizeMethod, Bytecode.InvokeMode.VIRTUAL));
                 break;
         }
     }
@@ -623,8 +696,7 @@ public class JvmCompiler {
         for (Stmt stmt : stmts) {
             if (stmt instanceof Stmt.IfElse) {
                 Stmt.IfElse ifElse = (Stmt.IfElse) stmt;
-                boolean falseBranch = allBranchesTerminate(ifElse.getFalseBranch());
-                if (allBranchesTerminate(ifElse.getTrueBranch()) && falseBranch) {
+                if (allBranchesTerminate(ifElse.getTrueBranch()) && allBranchesTerminate(ifElse.getFalseBranch())) {
                     terminates = true;
                 }
             } else if (stmt instanceof Stmt.Return) {
@@ -822,7 +894,7 @@ public class JvmCompiler {
 	 * @param target
 	 * @param bytecodes
 	 */
-	private void unBoxAsNecessary(JvmType target, List<Bytecode> bytecodes) {
+	private boolean unBoxAsNecessary(JvmType target, List<Bytecode> bytecodes) {
 		String unBoxMethodName;
 		JvmType.Reference boxedJvmType;
 
@@ -836,12 +908,13 @@ public class JvmCompiler {
 			unBoxMethodName = "intValue";
 			boxedJvmType = JvmTypes.JAVA_LANG_INTEGER;
 		} else {
-			return; // not necessary to unbox
+			return false; // not necessary to unbox
 		}
         JvmType.Function unBoxMethodType = new JvmType.Function(target);
 
         bytecodes.add(new Bytecode.CheckCast(boxedJvmType));
 		bytecodes.add(new Bytecode.Invoke(boxedJvmType, unBoxMethodName, unBoxMethodType, Bytecode.InvokeMode.VIRTUAL));
+		return true;
 	}
 
 	// A few helpful constants not defined in JvmTypes
