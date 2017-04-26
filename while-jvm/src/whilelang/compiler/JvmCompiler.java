@@ -250,6 +250,19 @@ public class JvmCompiler {
             boxAsNecessary(rhsType, bytecode);
             bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "set", setMethod, Bytecode.InvokeMode.VIRTUAL));
             bytecode.add(new Bytecode.Pop(JvmTypes.JAVA_LANG_OBJECT));
+        } else if (stmt.getLhs() instanceof Expr.RecordAccess) {
+            Expr.RecordAccess exprAccess = (Expr.RecordAccess) stmt.getLhs();
+            JvmType.Function putMethod = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT,JvmTypes.JAVA_LANG_OBJECT,JvmTypes.JAVA_LANG_OBJECT);
+
+            compile(exprAccess.getSource(), bytecode, env);
+            bytecode.add(new Bytecode.LoadConst(exprAccess.getName()));
+
+            compile(stmt.getRhs(), bytecode, env);
+            boxAsNecessary(rhsType, bytecode);
+            cloneAsNecessary(rhsType, bytecode);
+
+            bytecode.add(new Bytecode.Invoke(JAVA_UTIL_HASHMAP, "put", putMethod, Bytecode.InvokeMode.VIRTUAL));
+            bytecode.add(new Bytecode.Pop(JvmTypes.JAVA_LANG_OBJECT));
         } else {
             throw new UnsupportedOperationException();
         }
@@ -499,11 +512,13 @@ public class JvmCompiler {
 
         // put all the values into the array list
         for (Expr e : expr.getArguments()) {
+            JvmType eleType = convertType(e, env);
             bytecode.add(new Bytecode.Dup(arrayList));
 
             compile(e, bytecode, env);
             // box if primitive
-            boxAsNecessary(convertType(e, env), bytecode);
+            boxAsNecessary(eleType, bytecode);
+            cloneAsNecessary(eleType, bytecode);
 
             bytecode.add(new Bytecode.Invoke(arrayList, "add", addMethod, Bytecode.InvokeMode.VIRTUAL));
             bytecode.add(new Bytecode.Pop(JvmTypes.BOOL));
@@ -554,11 +569,9 @@ public class JvmCompiler {
                 bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.REM, jvmtype));
                 break;
             case EQ:
-                // TODO: handle case of record / array
                 compare(Bytecode.IfCmp.EQ, bytecode, jvmtype);
                 break;
             case NEQ:
-                // TODO: handle case of record / array
                 compare(Bytecode.IfCmp.NE, bytecode, jvmtype);
                 break;
             case LT:
@@ -601,7 +614,6 @@ public class JvmCompiler {
             bytecode.add(new Bytecode.IfCmp(ifCmp, jvmtype, alt));
         }
 
-        // TODO: for references use Object.equals()
         bytecode.add(new Bytecode.LoadConst(false));
         bytecode.add(new Bytecode.Goto(end));
         bytecode.add(new Bytecode.Label(alt));
@@ -620,6 +632,25 @@ public class JvmCompiler {
                 values.add(new Expr.Constant(obj, new Attribute.Type(arrayType.getElement())));
             }
             compile(new Expr.ArrayInitialiser(values), bytecode, env);
+        } else if (expr.getValue() instanceof HashMap) {
+            Attribute.Type exprType = expr.attribute(Attribute.Type.class);
+            Type.Record recordType = (Type.Record) exprType.type;
+
+            HashMap exprMap = (HashMap) expr.getValue();
+            List<Pair<String, Expr>> fields = new ArrayList<>();
+            for (Object key : exprMap.keySet()) {
+                Type fieldType = null;
+                for (Pair<Type, String> fieldPair : recordType.getFields()) {
+                    if (fieldPair.second().equals(key)) {
+                        fieldType = fieldPair.first();
+                    }
+                }
+
+                fields.add(new Pair<String, Expr>((String)key, new Expr.Constant(exprMap.get(key), new Attribute.Type(fieldType))));
+            }
+
+            compile(new Expr.RecordConstructor(fields), bytecode, env);
+
         } else {
             bytecode.add(new Bytecode.LoadConst(expr.getValue()));
         }
@@ -639,11 +670,48 @@ public class JvmCompiler {
     }
 
     private void compile(Expr.RecordAccess expr, List<Bytecode> bytecode, Environment env) {
-        throw new UnsupportedOperationException();
+
+        JvmType accessType = convertType(expr, env);
+        JvmType.Function getMethod = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT, JvmTypes.JAVA_LANG_OBJECT);
+
+        compile(expr.getSource(), bytecode, env);
+        bytecode.add(new Bytecode.LoadConst(expr.getName()));
+
+        bytecode.add(new Bytecode.Invoke(JAVA_UTIL_HASHMAP, "get", getMethod, Bytecode.InvokeMode.VIRTUAL));
+        unBoxAsNecessary(accessType, bytecode);
+
+        if (accessType instanceof JvmType.Clazz) {
+            bytecode.add(new Bytecode.CheckCast(accessType));
+        }
     }
 
     private void compile(Expr.RecordConstructor expr, List<Bytecode> bytecode, Environment env) {
-        throw new UnsupportedOperationException();
+
+        JvmType.Function putMethod = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT, JvmTypes.JAVA_LANG_OBJECT, JvmTypes.JAVA_LANG_OBJECT);
+
+
+        // create new instance of hashmap
+        bytecode.add(new Bytecode.New(JAVA_UTIL_HASHMAP));
+        // dup so it can be init'd & used
+        bytecode.add(new Bytecode.Dup(JAVA_UTIL_HASHMAP));
+        // call the constructor
+        bytecode.add(new Bytecode.Invoke(JAVA_UTIL_HASHMAP, "<init>", new JvmType.Function(JvmTypes.VOID), Bytecode.InvokeMode.SPECIAL));
+
+
+        for (Pair<String, Expr> field :  expr.getFields()) {
+            JvmType fieldType = convertType(field.second(), env);
+
+            bytecode.add(new Bytecode.Dup(JAVA_UTIL_HASHMAP));
+
+            bytecode.add(new Bytecode.LoadConst(field.first()));
+            compile(field.second(), bytecode, env);
+            boxAsNecessary(fieldType, bytecode);
+            cloneAsNecessary(fieldType, bytecode);
+
+            bytecode.add(new Bytecode.Invoke(JAVA_UTIL_HASHMAP, "put", putMethod, Bytecode.InvokeMode.VIRTUAL));
+            bytecode.add(new Bytecode.Pop(JvmTypes.JAVA_LANG_OBJECT));
+        }
+
     }
 
     private void compile(Expr.Unary expr, List<Bytecode> bytecode, Environment env) {
@@ -720,6 +788,8 @@ public class JvmCompiler {
         } else if (input instanceof Type.Named) {
             Type.Named named = (Type.Named) input;
             return convertType(env.getType(named.getName()), env);
+        } else if (input instanceof Type.Record) {
+            return JAVA_UTIL_HASHMAP;
         } else {
             // not implmented
             throw new UnsupportedOperationException();
