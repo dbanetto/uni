@@ -486,6 +486,7 @@ public class JvmCompiler {
         bytecode.add(new Bytecode.Dup(JAVA_UTIL_ARRAYLIST));
         bytecode.add(new Bytecode.Load(value.slot, value.jvmtype));
         boxAsNecessary(valueType, bytecode);
+        cloneAsNecessary(valueType, bytecode);
 
         bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "add", addMethod, Bytecode.InvokeMode.VIRTUAL));
 
