@@ -12,28 +12,34 @@ procedure main with
    amount : FuelUnit := FuelUnit (50);
 begin
    Pump.Initialize;
-   Reservoir.Initialize (FuelUnit (500), FuelUnit (10), FuelUnit (100));
+   Reservoir.Initialize (FuelUnit (5000), FuelUnit (10), FuelUnit (100));
 
-   -- Pump.PumpFuelFull(t);
    Pump.LiftNozzle (Octane_95);
 
    Pump.PumpFuel (t, amount);
-   -- Pump.PumpFuelFull (t);
+   Ada.Text_IO.Put_Line (Float'Image (Pump.GetDebt));
 
-   -- Assert (not Vehicle.IsFull(t)); -- due to Reservoir
+   Pump.Pay (Pump.GetDebt);
 
    Pump.ReturnNozzle;
-   Pump.LiftNozzle (Octane_95);
+
+   Pump.LiftNozzle (Octane_91);
+   t := Vehicle.Initialize (current => FuelUnit (0), capacity => FuelUnit (1000));
+
+   Pump.PumpFuel (t, amount);
+   Ada.Text_IO.Put_Line (Float'Image (Pump.GetDebt));
+
+   Pump.Pay (Pump.GetDebt);
+   Pump.ReturnNozzle;
 
 
-   Ada.Text_IO.Put (Float'Image (Pump.GetDebt));
-   Assert (Pump.isNozzleOut);
+   Pump.LiftNozzle (Diesel);
+   t := Vehicle.Initialize (current => FuelUnit (0), capacity => FuelUnit (1000));
 
-   --loop
-   --   exit when Pump.GetDebt = MoneyUnit (0.0);
-      Pump.Pay (Pump.GetDebt);
-   --end loop;
+   Pump.PumpFuel (t, amount);
+   Ada.Text_IO.Put_Line (Float'Image (Pump.GetDebt));
 
-   -- Assert (Pump.isNozzleOut);
+   Pump.Pay (Pump.GetDebt);
+
    Pump.ReturnNozzle;
 end main;

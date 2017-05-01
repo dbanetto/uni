@@ -9,5 +9,28 @@ project Petrol_Pump is
    for Object_Dir use "obj/";
    for Main use ("main.adb");
 
+   package Builder is
+     for Default_Switches ("ada") use ("-g");
+   end Builder;
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-fprofile-arcs", "-g" ,"-ftest-coverage");
+      for Switches ("common.ads") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("main.adb") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("pump.adb") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("pump.ads") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("register.adb") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("register.ads") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("reservoir.adb") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("reservoir.ads") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("vehicle.adb") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("vehicle.ads") use ("-g", "-ftest-coverage", "-fprofile-arcs");
+      for Switches ("ada") use ("-g", "-fprofile-arcs", "-ftest-coverage");
+   end Compiler;
+
+   package Linker is
+     for Default_Switches ("ada") use ("-fprofile-arcs", "-ftest-coverage" ,"-g");
+  end Linker;
+
 end Petrol_Pump;
 
