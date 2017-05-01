@@ -56,6 +56,11 @@ A design goal for the system was to not have any assertions that could fail on a
 To implement this if a precondition to a sub-program is not met the procedure will not run & fulfill the 
 post-condition as the pump has already entered an error state.
 
+Robustness of the system is ensured by checking the preconditions before
+changing the state of the unit, if they fail then the sub-program will do
+nothing. Given better experience with Ada I would log this as a warning to the
+user.
+
 # Justification of Correctness
 
 ## Functional & Flow Contracts

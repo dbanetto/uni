@@ -75,7 +75,6 @@ is
       Vehicle.Fill (tank, actual_amount);
       Reservoir.drain(fuelkind, actual_amount);
 
-      -- TODO: fuel price for each fuel type
       moneyDue := moneyDue + MoneyUnit (
                                         Float(actual_amount) * Float(Register.GetPriceOfFuel(fuelkind)));
    end PumpFuel;
