@@ -22,7 +22,8 @@ The general design of the project is using abstract globals to hide the state of
 There are 4 packages that make up the system as a whole. `pump`, `vehicle`, `reservoir` and `register`.
 
 The `pump` package gives a public interface of all the actions that the user could complete physically to
-the pump. The `pump` stores all of its state globally, so only one pump per-instance, behind `Abstract_State` attributes.
+the pump.
+All the `pump`'s state is stored globally behind a `Abstract_State` attribute.
 The abstract state of the package is split into two, the internal state of the pumping unit
 (such as amount owed or which fuel to pump) and the state of the physical object.
 This allows a distinction in the data flow between changing the physical state of the pump and the internal state of pump.
@@ -33,9 +34,10 @@ to outside of the system.
 The `reservoir` package represents the reservoir of fuel for each fuel type (Diesel, 91 Octane and 95 Octane).
 It accomplishes this by hiding all the global state via `Abstract_State` attributes.
 The goal of this package is to represent the state of the physical reservoirs that hold the fuel.
-The package should only be visible to maintenance users and the pumps however, my inexperience with Ada
+However, the package should only be visible to maintenance users and the pumps but, my inexperience with Ada
 has prevented to be able to make this partition and ended up allowing the user have access to sub-programs such
-as `drain` and `Initialize`. The reservoirs have an `Initialize` sub-program to allow for setting the initial
+as `drain` and `Initialize`.
+The reservoirs have an `Initialize` sub-program to allow for setting the initial
 state of the reservoirs from the physical state and to be a mechanism to allow for testing of the sub-system.
 
 The `vehicle` package represents a fuel tank from a vehicle.
@@ -47,7 +49,7 @@ This package exposes some sub-programs that should not be available to the user,
 The `register` package has the responsibility to ensure the prices for fuel is correct.
 The register does not manage the balance sheet of the pump as all transactions happen at the pump instead
 of at the register.
-All of the state of the register is constant in this implementation but it is assumed that this will be swapped
+All the state of the register is constant in this implementation but it is assumed that this will be swapped
 out for an implementation what will request the values from another system.
 
 A design goal for the system was to not have any assertions that could fail on a valid user action.
