@@ -43,8 +43,8 @@ the value for each slot in the array.
 
 # Extensions
 
-All of the extensions discussed, method invocation & implementing records,
-were actually apart of the assignment it self but obscured.
+All the extensions discussed, method invocation & implementing records,
+were actually a part of the assignment itself but obscured.
 
 ## print statement implemented
 
