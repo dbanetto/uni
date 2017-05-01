@@ -1,3 +1,5 @@
+with Register;
+
 package body Pump with
      Spark_Mode,
      Refined_State =>
@@ -74,7 +76,8 @@ is
       Reservoir.drain(fuelkind, actual_amount);
 
       -- TODO: fuel price for each fuel type
-      moneyDue := moneyDue + MoneyUnit (Float (actual_amount) * 2.0);
+      moneyDue := moneyDue + MoneyUnit (
+                                        Float(actual_amount) * Float(Register.GetPriceOfFuel(fuelkind)));
    end PumpFuel;
 
    ---------
