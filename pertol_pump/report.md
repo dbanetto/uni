@@ -13,6 +13,7 @@
  * It assumes it is not OK to pump another fuel types while a debt for another fuel type is outstanding
  * It assumes that a fuel tank can only be fueled by the pump
  * It is assumed that the user always pumps the right fuel type into the tank & the pump has no liability if this is incorrect
+ * It is assumed that fuel is only dispensed in discreet units.
 
 # Structure
 
@@ -49,6 +50,10 @@ of at the register.
 All of the state of the register is constant in this implementation but it is assumed that this will be swapped
 out for an implementation what will request the values from another system.
 
+A design goal for the system was to not have any assertions that could fail on a valid user action.
+To implement this if a precondition to a sub-program is not met the procedure will not run & fulfill the 
+post-condition as the pump has already entered an error state.
+
 # Justification of Correctness
 
 ## Functional & Flow Contracts
@@ -58,6 +63,9 @@ All public sub-programs have a pre- and post-condition either explicitly or impl
 There are two instances where `GNATProve` could not provide the postconditions of a sub-program.
 These are the two pumping procedures. They both cannot be proved in a similar section of the post condition
 that ensures that if fuel has been pumped then the debt owed will increase by a reasonable amount.
+
+To ensure the correct usage of values there are two distinct types to represent an amount of fuel and an amount
+of money, `FuelUnit` and `MoneyUnit` are these types.
 
 ## Data Contracts
 
@@ -79,3 +87,25 @@ vehicle.ads   |   0.00% of 2
 reservoir.adb |  88.00% of 25
 register.adb  | 100.00% of 5
 Total         |  82.41% of 108
+
+## SPARK Report
+
+Output of SPARK Prove all with all provers turned on.
+
+```
+----------------------------------------------------------------------------------
+SPARK Analysis results  Total      Flow   Interval                Provers Unproved
+----------------------------------------------------------------------------------
+Data Dependencies           .         .          .                      .        .
+Flow Dependencies           .         .          .                      .        .
+Initialization             21        21          .                      .        .
+Non-Aliasing                .         .          .                      .        .
+Run-time Checks            26         .          1 16 (CVC4  94%, Z3  6%)        9
+Assertions                  .         .          .                      .        .
+Functional Contracts       28         .          .              22 (CVC4)        6
+LSP Verification            .         .          .                      .        .
+----------------------------------------------------------------------------------
+Total                      75  21 (28%)     1 (1%)               38 (51%) 15 (20%)
+```
+
+> Note: empty columns have been redacted for space
