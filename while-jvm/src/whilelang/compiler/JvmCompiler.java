@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.*;
 
 /**
+ * Translate the While AST to Java Bytecode using the JASM library
+ *
  * @author David Barnett
  */
 public class JvmCompiler {
@@ -45,6 +47,8 @@ public class JvmCompiler {
             Environment env = new Environment(base);
             boolean javaMain = false;
 
+            // pre-fetching of all declarations so all methods can call
+            // other methods
             for (WhileFile.Decl decl : ast.declarations) {
 
                 if (decl instanceof WhileFile.MethodDecl) {
@@ -55,6 +59,7 @@ public class JvmCompiler {
                     methods.add(new Pair<>(method, mDecl));
                     classFile.methods().add(method);
 
+                    // checking for a java main method like: main(String[])
                     if (mDecl.getName().equals("main") && mDecl.getParameters().size() > 0) {
                         javaMain = true;
                     }
@@ -64,6 +69,7 @@ public class JvmCompiler {
                 }
             }
 
+            // create a main method for java compatibility
             if (!javaMain) {
 
                 List<Stmt> stmts = new ArrayList<>();
@@ -84,7 +90,10 @@ public class JvmCompiler {
                 classFile.methods().add(method);
             }
 
+
             for (Pair<ClassFile.Method, WhileFile.MethodDecl> m : methods) {
+                // reset the slot counter for each method
+                // since each method have their own set of slots
                 env.slotCount = 0;
                 compileMethod(classFile, m.first(), m.second(), env);
             }
@@ -193,6 +202,9 @@ public class JvmCompiler {
 
         Variable var = env.addVariable(stmt.getName(), jvmtype);
 
+        // doesn't matter that the slot is not used right away
+        // since the DefiniteAssignment analysis has passed thus it will
+        // be set before reading from the slot
         if (stmt.getExpr() != null) {
             compile(stmt.getExpr(), bytecode, env);
             cloneAsNecessary(var.jvmtype, bytecode);
@@ -231,7 +243,9 @@ public class JvmCompiler {
 
         JvmType rhsType  = convertType(stmt.getRhs(), env);
 
+        // handle different cases of what is being assigned
         if (stmt.getLhs() instanceof Expr.Variable) {
+            // straight into a normal variable, just updating a slot
             Expr.Variable exprVar = (Expr.Variable) stmt.getLhs();
             Variable var = env.getVariable(exprVar.getName());
 
@@ -240,6 +254,8 @@ public class JvmCompiler {
 
             bytecode.add(new Bytecode.Store(var.slot, var.jvmtype));
         } else if (stmt.getLhs() instanceof Expr.IndexOf) {
+            // updating an index in an array
+            // have to set the value in the array list
             Expr.IndexOf exprIndexOf = (Expr.IndexOf) stmt.getLhs();
             JvmType.Function setMethod = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT, JvmTypes.INT, JvmTypes.JAVA_LANG_OBJECT);
 
@@ -248,9 +264,13 @@ public class JvmCompiler {
             compile(stmt.getRhs(), bytecode, env);
             cloneAsNecessary(rhsType, bytecode);
             boxAsNecessary(rhsType, bytecode);
+
             bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "set", setMethod, Bytecode.InvokeMode.VIRTUAL));
+            // pop the removed element from the stack
             bytecode.add(new Bytecode.Pop(JvmTypes.JAVA_LANG_OBJECT));
         } else if (stmt.getLhs() instanceof Expr.RecordAccess) {
+            // update a value in a record
+            // have to set the value in the hash map
             Expr.RecordAccess exprAccess = (Expr.RecordAccess) stmt.getLhs();
             JvmType.Function putMethod = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT,JvmTypes.JAVA_LANG_OBJECT,JvmTypes.JAVA_LANG_OBJECT);
 
@@ -262,6 +282,7 @@ public class JvmCompiler {
             cloneAsNecessary(rhsType, bytecode);
 
             bytecode.add(new Bytecode.Invoke(JAVA_UTIL_HASHMAP, "put", putMethod, Bytecode.InvokeMode.VIRTUAL));
+            // pop the old value from the stack
             bytecode.add(new Bytecode.Pop(JvmTypes.JAVA_LANG_OBJECT));
         } else {
             throw new UnsupportedOperationException();
@@ -359,13 +380,15 @@ public class JvmCompiler {
         compile(stmt.getExpr(), bytecode, env);
         bytecode.add(new Bytecode.Store(var.slot, var.jvmtype));
 
-
+        // translate the jump table for the switch cases
         for (Stmt.Case c : stmt.getCases()) {
             String caseLabel = label("case_" + (c.isDefault() ? "default" : c.getValue()));
+
             if (!c.isDefault()) {
                 compile(c.getValue(), bytecode, env);
                 bytecode.add(new Bytecode.Load(var.slot, var.jvmtype));
 
+                // handle the equals of classes & primitives
                 if (exprType instanceof JvmType.Clazz) {
                     JvmType.Function equalsMethod = new JvmType.Function(JvmTypes.BOOL, JvmTypes.JAVA_LANG_OBJECT);
                     bytecode.add(new Bytecode.Invoke((JvmType.Reference)exprType, "equals", equalsMethod, Bytecode.InvokeMode.VIRTUAL));
@@ -387,12 +410,16 @@ public class JvmCompiler {
         }
 
 
+        // translate the cases
         for (Pair<String, Stmt.Case> casePair : cases) {
             bytecode.add(new Bytecode.Label(casePair.first()));
             compile(casePair.second(), bytecode, caseEnv);
         }
 
         bytecode.add(new Bytecode.Label(exitLabel));
+        // noop to ensure  that the exit label always has a target
+        // since it is pretty hard to check if all cases return or terminate
+        // since they can drop to the next case.
         bytecode.add(new Bytecode.Nop());
     }
 
@@ -407,12 +434,16 @@ public class JvmCompiler {
 
         Environment whileEnv = new Environment(env, continueLabel, breakLabel);
 
+        // start point of while loop
         bytecode.add(new Bytecode.Label(continueLabel));
         compile(stmt.getCondition(), bytecode, whileEnv);
         bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, breakLabel));
         compile(stmt.getBody(), bytecode, whileEnv);
         bytecode.add(new Bytecode.Goto(continueLabel));
+        // exit label of loop
         bytecode.add(new Bytecode.Label(breakLabel));
+        // noop to ensure that the break label always has a target
+        bytecode.add(new Bytecode.Nop());
     }
 
     private void compile(Expr expr, List<Bytecode> bytecode, Environment env) {
@@ -479,17 +510,19 @@ public class JvmCompiler {
         // call the constructor
         bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "<init>", new JvmType.Function(JvmTypes.VOID), Bytecode.InvokeMode.SPECIAL));
 
+        // loop until all values are generated
         bytecode.add(new Bytecode.Label(startLabel));
         bytecode.add(new Bytecode.Load(count.slot, count.jvmtype));
         bytecode.add(new Bytecode.If(Bytecode.IfMode.EQ, endLabel));
 
+        // duplicate the generated value
         bytecode.add(new Bytecode.Dup(JAVA_UTIL_ARRAYLIST));
         bytecode.add(new Bytecode.Load(value.slot, value.jvmtype));
         boxAsNecessary(valueType, bytecode);
         cloneAsNecessary(valueType, bytecode);
 
         bytecode.add(new Bytecode.Invoke(JAVA_UTIL_ARRAYLIST, "add", addMethod, Bytecode.InvokeMode.VIRTUAL));
-
+        // discard add's result
         bytecode.add(new Bytecode.Pop(JvmTypes.BOOL));
 
         bytecode.add(new Bytecode.Iinc(count.slot, -1));
@@ -553,7 +586,6 @@ public class JvmCompiler {
             case OR:
                 bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.OR, jvmtype));
                 break;
-
             case ADD:
                 bytecode.add(new Bytecode.BinOp(Bytecode.BinOp.ADD, jvmtype));
                 break;
@@ -594,6 +626,7 @@ public class JvmCompiler {
         String alt = label("cmp_alt");
         String end = label("cmp_end");
 
+        // handle the case of comparing objects
         if (jvmtype instanceof JvmType.Clazz) {
             JvmType.Function equalsMethod = new JvmType.Function(JvmTypes.BOOL, JvmTypes.JAVA_LANG_OBJECT);
             Bytecode.IfMode ifMode;
@@ -623,7 +656,10 @@ public class JvmCompiler {
     }
 
     private void compile(Expr.Constant expr, List<Bytecode> bytecode, Environment env) {
+        // handle the cases of constant arrays or records by initializing them
+        // this is offloaded to their compile(ArrayInit | RecordConstruct) experssions
         if (expr.getValue() instanceof ArrayList) {
+            // Offload to Array Initialiser
             Attribute.Type exprType = expr.attribute(Attribute.Type.class);
             Type.Array arrayType = (Type.Array) exprType.type;
 
@@ -634,6 +670,7 @@ public class JvmCompiler {
             }
             compile(new Expr.ArrayInitialiser(values), bytecode, env);
         } else if (expr.getValue() instanceof HashMap) {
+            // offload to Record Constructor
             Attribute.Type exprType = expr.attribute(Attribute.Type.class);
             Type.Record recordType = (Type.Record) exprType.type;
 
@@ -647,7 +684,7 @@ public class JvmCompiler {
                     }
                 }
 
-                fields.add(new Pair<String, Expr>((String)key, new Expr.Constant(exprMap.get(key), new Attribute.Type(fieldType))));
+                fields.add(new Pair<>((String)key, new Expr.Constant(exprMap.get(key), new Attribute.Type(fieldType))));
             }
 
             compile(new Expr.RecordConstructor(fields), bytecode, env);
@@ -690,15 +727,15 @@ public class JvmCompiler {
 
         JvmType.Function putMethod = new JvmType.Function(JvmTypes.JAVA_LANG_OBJECT, JvmTypes.JAVA_LANG_OBJECT, JvmTypes.JAVA_LANG_OBJECT);
 
-
         // create new instance of hashmap
+        // using a hash map as it reflects the width sub-typing of records
         bytecode.add(new Bytecode.New(JAVA_UTIL_HASHMAP));
         // dup so it can be init'd & used
         bytecode.add(new Bytecode.Dup(JAVA_UTIL_HASHMAP));
         // call the constructor
         bytecode.add(new Bytecode.Invoke(JAVA_UTIL_HASHMAP, "<init>", new JvmType.Function(JvmTypes.VOID), Bytecode.InvokeMode.SPECIAL));
 
-
+        // put each field into the hash map
         for (Pair<String, Expr> field :  expr.getFields()) {
             JvmType fieldType = convertType(field.second(), env);
 
@@ -842,6 +879,17 @@ public class JvmCompiler {
         }
     }
 
+    /**
+     * Holds the current environment which is being translated
+     *
+     * Handles all of the methods, types and variables in scope.
+     *
+     * Break & continue labels are handled by environments to allow for
+     * correct nesting of these interrupts.
+     *
+     * Scope is handled by making Environments a tree structure with
+     * only a relation from child to parent.
+     */
     private static class Environment {
 
         private final JvmType.Clazz baseClazz;

@@ -27,9 +27,9 @@ myself and decided to use `AssertionError` over `RuntimeError` for Java-like aut
 
 Followed the assignment outline.
 
-For implementing `break` & `continue` with my `Environment` it used the tree structure
-to hold the valid labels for the current scope. Sometimes both were not used such as in
-`switch` statements.
+For implementing `break` & `continue` with the `Environment` class, it used its tree structure
+to hold the correct labels for the current scope, handled inner loops and misused statements.
+Sometimes both were not used such as in `switch` statements.
 
 # Part 3
 
