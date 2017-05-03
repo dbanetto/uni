@@ -32,9 +32,8 @@ package Pump with
       Global  => (In_Out => (Unit, Reservoir.Res), Input => State),
       Depends =>
       ((Unit, tank, Reservoir.Res) => (tank, Unit, State, Reservoir.Res)),
-      Pre => isNozzleOut,
-   -- GNAT cannot prove that GetDebt after is greater or equal to GetDebt before
-      Post => GetCurrentFuelType = GetCurrentFuelType'Old and
+       Pre => isNozzleOut,
+       Post => GetCurrentFuelType = GetCurrentFuelType'Old and
       -- there are two cases with pumping, if the tank is not full & reservior not empty
       -- then there will be some pumping & an increase in debt
       ((not Vehicle.IsFull (tank'Old) and
@@ -51,7 +50,7 @@ package Pump with
       Depends =>
       ((Unit, tank, Reservoir.Res) =>
          (tank, Unit, State, amount, Reservoir.Res)),
-      Pre => isNozzleOut and amount >= FuelUnit (0),
+      Pre => isNozzleOut and amount > FuelUnit (0),
    -- GNAT cannot prove that GetDebt after is greater or equal to GetDebt before
      Post => GetCurrentFuelType = GetCurrentFuelType'Old and
       -- there are two cases with pumping, if the tank is not full & reservior not empty
@@ -68,8 +67,7 @@ package Pump with
    procedure Pay (amount : MoneyUnit) with
       Global => (In_Out => Unit),
       Pre    => GetDebt >= amount and amount >= MoneyUnit (0.00),
-      -- GNAT cannot prove that GetDebt before is equal to the sum of amount paid & current debt
-      Post => GetDebt'Old = GetDebt + amount;
+      Post => GetDebt'Old - amount = GetDebt;
 
    function isNozzleOut return Boolean with
       Global => (Input => State);

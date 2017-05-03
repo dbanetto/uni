@@ -53,15 +53,20 @@ is
    procedure PumpFuelFull (tank : in out Vehicle.Tank) is
       amount : FuelUnit := FuelUnit'Last;
    begin
+      if not isNozzleOut then
+         return;
+      end if;
       PumpFuel(tank, amount);
    end PumpFuelFull;
 
    procedure PumpFuel (tank : in out Vehicle.Tank ; amount : FuelUnit) is
       -- shadow amount so we can edit it
       actual_amount : FuelUnit := amount;
+      added_debt : MoneyUnit;
    begin
       -- enforce pre-conditions
       if not isNozzleOut
+        or amount <= FuelUnit (0)
         or Vehicle.IsFull (tank)
         or Reservoir.isEmpty(fuelkind) then
          return;
@@ -72,11 +77,16 @@ is
          actual_amount := Reservoir.GetVolume(fuelkind);
       end if;
 
+      if actual_amount <= FuelUnit(0) then
+         return;
+      end if;
+
       Vehicle.Fill (tank, actual_amount);
       Reservoir.drain(fuelkind, actual_amount);
+      added_debt := MoneyUnit (Float(actual_amount) * Float(Register.GetPriceOfFuel(fuelkind)));
+      moneyDue := moneyDue + added_debt;
 
-      moneyDue := moneyDue + MoneyUnit (
-                                        Float(actual_amount) * Float(Register.GetPriceOfFuel(fuelkind)));
+      pragma Assert (added_debt >= MoneyUnit(0.0));
    end PumpFuel;
 
    ---------
@@ -84,12 +94,17 @@ is
    ---------
 
    procedure Pay (amount : MoneyUnit) is
+      old_due : MoneyUnit;
    begin
       -- enforcing pre-conditions
-      if moneyDue < amount then
+      if moneyDue < amount and Float(amount) < 0.0  then
          return;
       end if;
+
+      old_due := moneyDue;
       moneyDue := moneyDue - amount;
+
+      pragma Assert ( old_due = moneyDue + amount);
    end Pay;
 
    --------------

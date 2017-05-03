@@ -18,7 +18,7 @@ begin
    -- use #1
    Pump.LiftNozzle (Octane_95);
 
-   Pump.PumpFuel (t, amount);
+   Pump.PumpFuelFull (t);
    Ada.Text_IO.Put_Line (Float'Image (Pump.GetDebt));
 
    Pump.Pay (Pump.GetDebt);
@@ -29,7 +29,7 @@ begin
    Pump.LiftNozzle (Octane_91);
    t := Vehicle.Initialize (current => FuelUnit (0), capacity => FuelUnit (1000));
 
-   Pump.PumpFuel (t, amount);
+   Pump.PumpFuelFull (t);
    Ada.Text_IO.Put_Line (Float'Image (Pump.GetDebt));
 
    Pump.Pay (Pump.GetDebt);

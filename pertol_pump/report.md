@@ -14,6 +14,8 @@
  * It assumes that a fuel tank can only be fueled by the pump
  * It is assumed that the user always pumps the right fuel type into the tank & the pump has no liability if this is incorrect
  * It is assumed that fuel is only dispensed in discreet units.
+ * It assumes if a pre-condition fails then the user cannot complete their next
+ * action that relies on that post-condition
 
 # Structure
 
@@ -67,12 +69,45 @@ user.
 
 All public sub-programs have a pre- and post-condition either explicitly or implicitly (due to being expression functions).
 
-There are two instances where `GNATProve` could not provide the postconditions of a sub-program.
-These are the two pumping procedures. They both cannot be proved in a similar section of the post condition
-that ensures that if fuel has been pumped then the debt owed will increase by a reasonable amount.
+There are one instance where `GNATProve` could not provide the postconditions of a sub-program.
+These are the pumping procedures a user defined amount. I am not sure what
+aspect is not allowing it to prove the post-condition, it looks to be usage of
+`'Old` attributes on functions and the tank.
+
+Asserts are sometimes used to hint at the provers that a property hold.
+This is used in the `Pump.Pay` procedure to assert that a previous arthritic 
+is correct with some simple re-arrangement. Without the assert the post
+condition is not proven.
 
 To ensure the correct usage of values there are two distinct types to represent an amount of fuel and an amount
 of money, `FuelUnit` and `MoneyUnit` are these types.
+
+A flaw in making sub-programs become no-ops when the pre-condition is not meet
+is that the post-conditions are seen to always be meet by the prover even
+though in practise they are not. To overcome this issue a success boolean could 
+be introduced that encapsulates if the pre-condition holds at run time and have 
+the post condition rely on if this is true. For example see below.
+However, this pattern repeats a lot, since the pre-condition is repeated in the
+post-condition. This does change the pre- and post-condition relationship from
+`P -> Q` to `P & Q`.
+
+```ada
+procedure Pay(amount : Integer, success : in out Bool)
+    with Pre => amount >= 0,
+    Post => (success = amount >= 0) and then
+            (amount_due + amount = amount_due'Old)
+
+procedure Pay(amount : Integer, success : in out Bool) is
+then 
+    if amount < 0 then
+        success := false;
+        return;
+    end if;
+
+    amount_due := amount_due - amount;
+    success := true;
+end Pay;
+```
 
 ## Data Contracts
 
@@ -82,37 +117,38 @@ with contracts that reflect their usage of the global state.
 
 ## Coverage report
 
-The total code coverage with no unit tests are: 82.41%
+The total code coverage with no unit tests are: 85.09%.
+The main procedure runs through all three fuels with different
+scenarios of enough fuel to fill up tank, not enough fuel to fill to tank and
+filling a tank with a specific amount.
+
 
 File          | Coverage (lines)
 --------------|--------------:
 common.ads    |   0.00% of 1
 main.adb      | 100.00% of 23
-pump.adb      |  76.32% of 38
+pump.adb      |  84.09% of 44
 vehicle.adb   |  71.43% of 14
 vehicle.ads   |   0.00% of 2
 reservoir.adb |  88.00% of 25
 register.adb  | 100.00% of 5
-Total         |  82.41% of 108
+Total         |  85.09% of 114
 
 ## SPARK Report
 
-Output of SPARK Prove all with all provers turned on.
+Output of SPARK Prove all sources with the proof level at 4, report checked
+proved on and using multiprocessing.
 
-```
-----------------------------------------------------------------------------------
-SPARK Analysis results  Total      Flow   Interval                Provers Unproved
-----------------------------------------------------------------------------------
-Data Dependencies           .         .          .                      .        .
-Flow Dependencies           .         .          .                      .        .
-Initialization             21        21          .                      .        .
-Non-Aliasing                .         .          .                      .        .
-Run-time Checks            26         .          1 16 (CVC4  94%, Z3  6%)        9
-Assertions                  .         .          .                      .        .
-Functional Contracts       28         .          .              22 (CVC4)        6
-LSP Verification            .         .          .                      .        .
-----------------------------------------------------------------------------------
-Total                      75  21 (28%)     1 (1%)               38 (51%) 15 (20%)
-```
+SPARK Analysis results        Total       Flow  Interval   CodePeer      Provers   Justified   Unproved
+------------------------ ---------- ---------- --------- ---------- ------------ ----------- ----------
+Data Dependencies                                                                                      
+Flow Dependencies                                                                                      
+Initialization                   23         23                                                         
+Non-Aliasing                                                                                           
+Run-time Checks                  27                    1               14 (CVC4)                     12
+Assertions                        2                                     1 (CVC4)                      1
+Functional Contracts             28                                    26 (CVC4)                      2
+LSP Verification                                                                                       
+Total                            80   23 (29%)    1 (1%)                41 (51%)               15 (19%)
 
 > Note: empty columns have been redacted for space
