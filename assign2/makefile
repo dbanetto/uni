@@ -1,3 +1,5 @@
+CITE := $(shell command -v pandoc-citeproc 2> /dev/null)
+PDFTOTEXT := $(shell command -v pdftotext 2> /dev/null)
 PDF:=Assignment\ 2\ David\ Barnett.pdf
 
 $(PDF): report.md report.bib
@@ -8,7 +10,7 @@ else
 	pandoc -s -S $< -o "$@"
 endif
 
-count: $(OUT)
+count: $(PDF)
 ifdef PDFTOTEXT
 	pdftotext "$<" - | wc -w
 else
@@ -16,4 +18,4 @@ else
 endif
 
 clean:
-	rm -f report.pdf
+	rm -f $(PDF)
