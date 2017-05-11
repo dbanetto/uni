@@ -1,6 +1,6 @@
 PDF:=Assignment\ 2\ David\ Barnett.pdf
 
-$(OUT): report.md report.bib
+$(PDF): report.md report.bib
 ifdef CITE
 	pandoc -s -S --bibliography report.bib --filter pandoc-citeproc --csl ieee.csl $< -o "$@"
 else
