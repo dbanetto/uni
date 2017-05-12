@@ -1,4 +1,4 @@
-% ENGR401 - Assignment 2
+% Basin Reserve Flyover - ENGR401 - Assignment 2
 % David Barnett - 300313764
 
 <!--
@@ -23,6 +23,19 @@ Topic: the failure of the Basin Flyover
 
 # Abstract
 
+This is a proposal for a case study into the failure of the Basin Flyover
+project in 2014.
+
+The Basin Flyover project is a sub-project to improve the major roads
+in Wellington and is related to the improvements the Mt. Victoria Tunnel.
+It was canceled due to failing to get the go ahead from the Environmental 
+Protection Agency on ground that the total costs of the project did not 
+outweigh the benefits of the project. 
+
+This case study will focus on how the communication,
+heritage and amenity impacts of the project where handled.
+It will draw recommendations to help improve
+the success of similar projects and better understanding its failings.
 
 # Background
 <!-- listing of resources & descriptions of refs -->
@@ -40,7 +53,7 @@ the roads leadings to and from the tunnel(s) via Kilbirnie and the Basin
 Reserve [@mt_vic_tunnel_2017].
 
 The NZTA initially put forward 6 options to improve the Basin Reserve's
-access to Mt. Victoria Tunnel [@basin_options_report]. From these options
+access to Mt. Victoria Tunnel [@basin_options_report] in 2011. From these options
 that included flyover, tunnels and changing the road layout around the Basin
 Reserve [@basin_options_report].
 Each option was compared on how well they met the four objectives of the
@@ -52,15 +65,26 @@ project:
  * To improve the efficiency of the road transport network by separating SH1
    from inner-city travel
 
-There is also the hidden objective of the total benefits of the project to outweigh the
+There is also the implicit objective of the total benefits of the project to outweigh the
 costs.
 With these objectives in mind the option for a flyover won since it best met
-the objectives of NZTA and stakeholders [@basin_options_summary].
+the objectives of NZTA and stakeholders [@basin_options_summary] in 2012.
 
 The Basin flyover plan was developed and put to the Environment Protection Agency
 (EPA) for resource consent.
-Their verdict was that the plan did not meet the
-requirements to allow the project to be implemented [@epa_report].
+Their verdict was that the plan was not satisfactory
+ to allow the project to go forward [@epa_report] in 2014.
+The EPA say that the plan for the Flyover did not handle the impacts of the 
+project on heritage and the amenity of the Basin Reserve area.
+
+The EPA report provided a balanced view by included an alternate view in 
+the final report [@epa_report].
+The alternate view by David McMahon who has the role of challenging the EPA findings.
+David reported that the EPA overstated the importance of the heritage
+and amenity impacts. He argued that this over importance tipped the scales
+so that the project failed.
+He concluded that the Basin Flyover project should be given the green
+light because the benefits out weighed the costs.
 
 After the EPA declined the Basin Flyover plan the decision was taken to the
 High court. The appeal was unsuccessful and thus the Basin Flyover project
@@ -72,17 +96,22 @@ When engineering projects have catastrophic failures a case study into
 the failure are common [@presidential1986report]. The Basin Flyover project failed during the
 planning phase without harming anyone but the tax payer's pockets [@rnz_flyover_cost].
 However, a investigation into this failure is still warranted to learn
-from the process.
+from the process. 
 
-The preliminary research into the Basin Flyover shows that the main stumbling
-block was legal compliance.
-It was found that the plan for the Basin Flyover did not meet the requirements
-of environmental concerns, the projected transport benefit, handling of
+The final EPA report identified a range of issues with the project.
+It was found that the plan for the Basin Flyover plan did not achieve a
+net benefit in terms of visual landscape, the projected transport benefit, handling of
 heritage sites and more.
+
+Local residents had submitted their concerns about the impacts of the
+project. The environmental, mainly increased air pollution, and noise complaints
+were shown to be be mitigated by experts [@epa_report].
+However, they did agree on the concern of the noise but only during construction.
+
 The EPA also question the method of how the final options for the project
-was chosen, commenting on the how flyover-based options were given some
-preferential treatment in how they compared the cost to tunnel-based options
-but did not give the same weighting when compared against changing the road
+was chosen. They commented on the how flyover-based options were given some
+easier requirements to meet when comparing the cost to tunnel-based options
+but they did not give the same comparison against changing the road
 layout [@epa_report].
 
 A failed project of this scale always has consequences.
@@ -100,15 +129,26 @@ The focus of the case study will be focusing on the failure of the
 Basin Flyover plan and if the engineering responsibility to ensure
 legal compliance was managed properly.
 
-Information used in this investigation
-
 The primary sources of information is the final report that details the
 decision made by the EPA [@epa_report], official releases
 from NZTA about the Basin Flyover [@basin_options_summary] [@basin_options_report].
+Other sources will be used to corroborate the findings from EPA.
 
-The goal of the case study is to provide a recommendation of how to avoid the
-issues that arose during the planning of the Basin Flyover.
+The case study will focus on where NZTA excelled, and not.
+These aspects will be viewed primarily from the perspective of
+the legal responsibilities of NZTA and their impacts.
+A key area where NZTA excelled is the community engagement of the
+project and clear communications to the public and stakeholders.
+This is made very clear with the amount of information they 
+release with the options outlines, option selection and videos
+of simulations of the final product.
+EPA comments on the irreproducible decision for the 
+From the EPA report it shows how NZTA attempted to manage the impacts 
+A key failing for the Flyover project is the impact on the heritage of
+the area, with the Basin Reserve.
 
-# Conclusion
+With the findings from the above aspects a recommendation will be formed.
+This recommendation has the goal of improving the likelihood for similar
+projects to succeed.
 
 \pagebreak
