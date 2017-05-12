@@ -24,18 +24,17 @@ Topic: the failure of the Basin Flyover
 # Abstract
 
 This is a proposal for a case study into the failure of the Basin Flyover
-project in 2014.
+project.
 
-The Basin Flyover project is a sub-project to improve the major roads
-in Wellington and is related to the improvements the Mt. Victoria Tunnel.
-It was canceled due to failing to get the go ahead from the Environmental
-Protection Agency on ground that the total costs of the project did not
-outweigh the benefits of the project.
+The Basin Flyover project was a sub-project that intended to improve
+the major roads in Wellington.
+It was canceled as it failed to get the go ahead from the Environmental
+Protection Agency on grounds that the total costs of the project did not
+outweigh the benefits.
 
-This case study will focus on how the communication,
-heritage and amenity impacts of the project where handled.
-It will draw recommendations to help improve
-the success of similar projects and better understanding its failings.
+This case study will focus on how communication, heritage and amenity impacts of the project were handled.
+It will draw recommendations on how to improve of future 
+projects of a similar nature as well as provide understanding as why such projects fail.
 
 # Background
 <!-- listing of resources & descriptions of refs -->
@@ -43,19 +42,23 @@ the success of similar projects and better understanding its failings.
 The New Zealand Transport Agency (NZTA) has a long term project to improve the
 state highway 1 (SH1) from Wellington Airport to Levin called the
 Wellington Northern Corridor (WNC) [@northern_corridor].
-As a part of this project there are multiple sub-projects to improve sections of
-the Wellington region's SH1 roads and in total is budgeted for \$2.5 billion [@treasury_exp_2016].
-One of these projects is to improve Airport to Mt. Victoria project which included
-expanding or constructing a second tunnel through Mt. Victoria to increases the
-lanes from two to four[@northern_corridor].
-A consequence of this is that they will need to also upgrade
+There are multiple sub-projects within this projectg which intend to improve sections of
+Wellington region's SH1 roads, the total budget for the entire project is \$2.5 billion [@treasury_exp_2016].
+
+One of these projects was to improve Airport to Mt. Victoria which included
+expanding or constructing a second tunnel through Mt. Victoria to improve
+the traffic flow [@northern_corridor].
+In addition to this is that they will need to also upgrade
 the roads leadings to and from the tunnel(s) via Kilbirnie and the Basin
 Reserve [@mt_vic_tunnel_2017].
 
-The NZTA initially put forward 6 options to improve the Basin Reserve's
-access to Mt. Victoria Tunnel [@basin_options_report] in 2011. From these options
-that included flyover, tunnels and changing the road layout around the Basin
-Reserve [@basin_options_report].
+In 2011 NZTA initially put forward six options to improve the Basin Reserve's
+access to Mt. Victoria Tunnel [@basin_options_report].
+From these options there were three distinct methods to solve the engineering problem.
+These were to constructing  a flyover, tunnel or changing the road layout [@basin_options_report] 
+so that the traffic coming out of Mt. Victoria Tunnel leads straight to tunnel under the War Memorial Park.
+Each of these themes had two variations, keeping the new construction close to the Basin Reserve or positioning
+further away.
 Each option was compared on how well they met the four objectives of the
 project:
 
@@ -67,19 +70,18 @@ project:
 
 There is also the implicit objective of the total benefits of the project to outweigh the
 costs.
-With these objectives in mind the option for a flyover won since it best met
-the objectives of NZTA and stakeholders [@basin_options_summary] in 2012.
+In 2012 NZTA and stakeholders selected the flyover was the best fit to their objectives
+and chose it as the design to move forward with [@basin_options_summary].
 
 The Basin flyover plan was developed and put to the Environment Protection Agency
 (EPA) for resource consent.
-Their verdict was that the plan was not satisfactory
- to allow the project to go forward [@epa_report] in 2014.
-The EPA say that the plan for the Flyover did not handle the impacts of the
-project on heritage and the amenity of the Basin Reserve area.
+The EPA did not allow the project to go forward. As they believed NZTA had not
+handled the impact the project would have on the heritage and amenity of the
+Basin Reserve area to a satisfactory level.
 
-In EPA's report they provided a balanced view by included an alternate view to 
-their own into the final report [@epa_report].
-The alternate view by David McMahon who has the role of challenging the EPA findings.
+In EPA's report they provide a balanced view by including an alternate view to 
+their own [@epa_report].
+The alternate view was by provided David McMahon who had the role of challenging the EPA findings.
 David reported that the EPA overstated the importance of the heritage
 and amenity impacts. He argued that this over importance tipped the scales
 so that the project failed.
@@ -87,9 +89,9 @@ He concluded that the Basin Flyover project should be given the green
 light because the benefits out weighed the costs.
 
 The EPA's final decision was to deny the Basin Flyover.
-This ruling was testing in the High Court and was upheld.
-Thus the Basin Flyover project concluded as a failure since
-it achieve none of its objectives.
+This ruling was tested in the High Court and was upheld.
+With this ruling none of the objectives of the Basin Flyover 
+were achieved so the project concluded as a failure.
 
 # Problem
 
@@ -105,9 +107,16 @@ net benefit in terms of visual landscape, the projected transport benefit, handl
 heritage sites and more.
 
 Local residents had submitted their concerns about the impacts of the
-project. The environmental, mainly increased air pollution, and noise complaints
-were shown to be be mitigated by experts [@epa_report].
-However, they did agree on the concern of the noise but only during construction.
+project [@public_enagement].
+Their concerns were in two main aspects, environmental impact and amenity.
+First was the environmental and impacts, primarily increased air pollution.
+The expert opinion on the matter was that there would be likely no increased
+degradation of air quality in the long term compared to not having the Flyover [@epa_report].
+However, they did agree that the concern of the noise during construction was
+justified.
+The second concern of the amenity of the Basin Reserve would severely be
+impacted by building a fly over.
+The EPA agreed with this sentiment but David McMahon did not.
 
 The EPA also question the method of how the final options for the project
 was chosen. They commented on the how flyover-based options were given some
@@ -117,8 +126,8 @@ layout [@epa_report].
 
 A failed project of this scale always has consequences.
 The result of the Basin Flyover failing is that
-the parent project, Wellington Northern Corridor, is delayed.
-These delays are compounded by NZTA moving staff from these projects
+the parent project, Wellington Northern Corridor, was delayed.
+These delays were compounded by NZTA moving staff from these projects
 in Wellington to other regions [@treasury_exp_2016].
 
 # Proposed Investigation
