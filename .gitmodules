@@ -1,0 +1,3 @@
+[submodule "wyc"]
+	path = wyc
+	url = git@github.com:zyphrus/WhileyCompiler.git
