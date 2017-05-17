@@ -9,7 +9,7 @@ $(PDF): $(TEX) $(BIB)
 	pdflatex $(OUT)
 	bibtex $(OUT)
 	pdflatex $(OUT)
-	echo "complete!"
+	@echo "complete!"
 
 clean:
 	rm -f *.aux *.log *.bbl *.blg *.dvi *.toc *.lof
