@@ -1,6 +1,24 @@
 % Basin Flyover Case Study
 % ENGR401 - David Barnett (300313764)
 
+<!-- 
+Aim for the case study:
+    * recommend ways to improve egineering projects success
+
+Using the view point of legal compliance
+
+Areas to look at:
+    * community engagement, communications
+        * videos releases
+        * large documents
+        * how is this protected by law [find law, probably resouce management act & report section]
+    * irreproducible selection process
+        * How is this protected by law [find law, probably resouce management act & report section]
+    * did not explore the impacts of their project
+        * How is this protected by law [find law, probably resouce management act & report section]
+
+-->
+
 # Executive Summary 
 <!--
  Breifly cover:
@@ -21,7 +39,10 @@ state the report's aim(s) and describe how the report is organised.
 -->
  
 # Context
-<!-- Describe the case or situation being investigated. Focus on the facts of the situation. -->
+<!--
+Describe the case or situation being investigated.
+Focus on the facts of the situation.
+-->
 
 # Conclusion
 <!--
