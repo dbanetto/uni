@@ -1,3 +1,0 @@
-[submodule "findbugs/code"]
-	path = findbugs/code
-	url = git@github.com:zyphrus/findbugs.git
