@@ -1,4 +1,4 @@
-% Assignment 3 - FindBugs - ENGR441
+% Assignment 3 - Static Analysis Tools - ENGR441
 % David Barnett (300313764)
 
 This report will review multiple static analysis tools and some example usage of them.
