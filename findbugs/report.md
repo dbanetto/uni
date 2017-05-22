@@ -89,12 +89,69 @@ the code 'JPF aware' as it requires a dependency on JPF's API.
 
 # Soot
 
-[Soot](https://sable.github.io/soot/) is a static analyser for Java that was built originally
-to optimise byte code but now is used to analyse and instrument Java applications.
+[Soot](https://sable.github.io/soot/) is a static analyser for JVM bytecode that
+was built originally to optimise byte code of Java programs but now is used to
+analyse and instrument JVM based applications.
+To achieve this Soot uses four intermediate representations (IR) to be able to
+preform transformations easily. Each IR is a different abstraction over the
+byte code and each one is tailored to suit a different kind of analysis.
 
 ## Capabilities of Soot
 
-## Examples
+The four intermediate languages are:
 
+ * Baf
+ * Jimple
+ * Shimple
+ * Grimp
+
+Each IR can be transformed between each other and back to JVM byte code.
+
+Baf is focused on being a stack-based representation and abstracts the 
+constant pool and reduces the type dependent instructions, such as `iadd`, `dadd` and etc., into
+a single instruction.
+This lends it to be useful for byte-code level analysis and optimisations.
+
+Jimple is the main IR in Soot.
+The key features for Jimple are that it is untyped,
+each statement is limited to addressing 3 variables
+and expression are broken down to linear statements.
+This means that an expressions such as `a = x + y + z` is broken
+down to:
+
+```java
+    $t1 = x + y
+    a = $t1 + z
+```
+
+This shows how Jimple breaks down larger expressions and how
+the limit of 3 variables are used, one for assigning then the rest
+for a binary operator or uni operator.
+
+
+Shimple is Jimple with a twist, it uses static single assignment (SSA) and phi-nodes.
+This guarantees that each local variable will has a single assignment which
+simples a variety of analysis.
+There is an issue with SSA, after a branch that assigns to the same variable in the source
+it needs to represent the merge in SSA form.
+Phi-nodes are the answer to this problem as they can determine which branch
+was taken and thus can determine which value from the branch to use.
+The strength of Shimple is in its ability to clearly show the control flow 
+of the program and also to analysis how variables change through it.
+
+Grimp is similar to Jimple again but allows expressions to be trees instead of
+linear.
+It is regarded as the most human readable of the four IR's since it does not 
+need to create temporary variables such as `$t1` from the Jimple example.
+To further increase readability Grimp merges the java object initialisation 
+instructions into one `new` statement.
+
+Soot comes with some off-the-shell analyses.
+These include null pointer, array bounds, and liveness analysis.
+
+To accompany these four IR's Soot provides a framework to work with them,
+such as customisable control flow graphs and flow sets.
+
+## Examples
 
 # Comparison
