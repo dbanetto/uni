@@ -76,8 +76,6 @@ Using JPF on `*.class` files allows you to model check for issues such as deadlo
 The main benefit is the free usage of JPF without having to provide additional annotations
 but this is at the cost of the efficiency that JPF will analyse the program.
 
-
-
 The JPF virtual machine proves properties or finds defects defined from a
 configuration file. 
 The configuration determines which plugins are used for JPF for the project.
@@ -86,6 +84,119 @@ the code 'JPF aware' as it requires a dependency on JPF's API.
 
 
 ## Examples
+
+Using JPF is a battle to understand how all the levels of configuration work.
+In general they are a cascading with directory level configuration
+overrides global configuration.
+The JPF JVM does not look to support all of Java 8 features which prevented
+me from analysing my own concurrent code from NWEN303 Concurrency.
+JPF also requires that the code to be analysed has a `main` method so 
+I could not run JPF over the Whiley Compiler by itself.
+
+However, the binary snapshots of JPF is shipped with a range of working examples.
+Below is an example that calculates $c = a / (b + a - 2)$ with each variable 
+being assigned a random number between 0 to 3 (inclusive).
+This example demonstrates JPF's ability to rewind back to previous states and
+testing a range of values by enumerating the random numbers.
+
+```log
+$ jpf +cg.enumerate_random=true Rand
+
+====================================================== system under test
+Rand.main()
+
+====================================================== search started
+computing c = a/(b+a - 2)..
+a=0
+  b=0       ,a=0
+=>  c=0     , b=0, a=0
+  b=1       ,a=0
+=>  c=0     , b=1, a=0
+  b=2       ,a=0
+
+====================================================== error 1
+gov.nasa.jpf.vm.NoUncaughtExceptionsProperty
+java.lang.ArithmeticException: division by zero
+	at Rand.main(Rand.java:34)
+
+
+====================================================== snapshot #1
+thread java.lang.Thread:{id:0,name:main,status:RUNNING,priority:5,
+                         isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+	at Rand.main(Rand.java:34)
+
+
+====================================================== results
+error #1: gov.nasa.jpf.vm.NoUncaughtExceptionsProperty
+            "java.lang.ArithmeticException: division by zero  a..."
+
+====================================================== statistics
+elapsed time:       00:00:00
+states:             new=4,visited=1,backtracked=2,end=2
+search:             maxDepth=3,constraints=0
+choice generators:  thread=1 (signal=0,lock=1,sharedRef=0,threadApi=0,reschedule=0), data=2
+heap:               new=649,released=27,maxLive=615,gcCycles=4
+instructions:       3354
+max memory:         121MB
+loaded code:        classes=65,methods=1366
+
+====================================================== search finished
+```
+
+> Note: An additional flag needs to be passed to JPF so it knows it can expand the state space
+by enumerating random numbers.
+
+JPF also includes concurrent examples, 
+below is the output of checking their example Dining Philosopher which contains a deadlock.
+
+
+```log
+$ jpf DiningPhil
+
+====================================================== system under test
+DiningPhil.main()
+
+====================================================== search started
+
+====================================================== error 1
+gov.nasa.jpf.vm.NotDeadlockedProperty
+deadlock encountered:
+  thread DiningPhil$Philosopher:{id:1,name:Thread-1,status:BLOCKED,priority:5,
+                                 isDaemon:false,lockCount:0,suspendCount:0}
+
+...
+
+====================================================== snapshot #1
+thread DiningPhil$Philosopher:{id:1,name:Thread-1,status:BLOCKED,priority:5,
+                                 isDaemon:false,lockCount:0,suspendCount:0}
+  owned locks:DiningPhil$Fork@162
+  blocked on: DiningPhil$Fork@163
+  call stack:
+	at DiningPhil$Philosopher.run(DiningPhil.java:39)
+
+...
+
+====================================================== results
+error #1: gov.nasa.jpf.vm.NotDeadlockedProperty
+                                 "deadlock encountered:   thread DiningPhil$Philosop..."
+
+====================================================== statistics
+elapsed time:       00:00:03
+states:             new=14470,visited=42568,backtracked=57010,end=36
+search:             maxDepth=35,constraints=0
+choice generators:  thread=14469 (signal=0,lock=9231,sharedRef=4,threadApi=6,
+                                 reschedule=5228), data=0
+heap:               new=412,released=132661,maxLive=392,gcCycles=57038
+instructions:       362078
+max memory:         416MB
+loaded code:        classes=64,methods=1479
+
+====================================================== search finished
+```
+
+> Note: Some of the output of the log as the removed as it repeats each error for
+each thread in the example.
 
 # Soot
 
