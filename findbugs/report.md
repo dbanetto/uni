@@ -77,11 +77,15 @@ The main benefit is the free usage of JPF without having to provide additional a
 but this is at the cost of the efficiency that JPF will analyse the program.
 
 The JPF virtual machine proves properties or finds defects defined from a
-configuration file. 
+configuration file.
 The configuration determines which plugins are used for JPF for the project.
 The java source code can also contain `@JPFConfig` annotations, but this will make
 the code 'JPF aware' as it requires a dependency on JPF's API.
 
+JPF allows for a large range of plugins to be enabled via the configuration.
+This allows JPF is be modular with what properties to verify and other additional
+features such as a GUI. The most common plugin used is `jpf-symbc` which provides
+more symbolic execution features to JPF and is used for test generation and more.
 
 ## Examples
 
@@ -90,11 +94,11 @@ In general they are a cascading with directory level configuration
 overrides global configuration.
 The JPF JVM does not look to support all of Java 8 features which prevented
 me from analysing my own concurrent code from NWEN303 Concurrency.
-JPF also requires that the code to be analysed has a `main` method so 
+JPF also requires that the code to be analysed has a `main` method so
 I could not run JPF over the Whiley Compiler by itself.
 
 However, the binary snapshots of JPF is shipped with a range of working examples.
-Below is an example that calculates $c = a / (b + a - 2)$ with each variable 
+Below is an example that calculates $c = a / (b + a - 2)$ with each variable
 being assigned a random number between 0 to 3 (inclusive).
 This example demonstrates JPF's ability to rewind back to previous states and
 testing a range of values by enumerating the random numbers.
@@ -147,7 +151,7 @@ loaded code:        classes=65,methods=1366
 > Note: An additional flag needs to be passed to JPF so it knows it can expand the state space
 by enumerating random numbers.
 
-JPF also includes concurrent examples, 
+JPF also includes concurrent examples,
 below is the output of checking their example Dining Philosopher which contains a deadlock.
 
 
@@ -218,7 +222,7 @@ The four intermediate languages are:
 
 Each IR can be transformed between each other and back to JVM byte code.
 
-Baf is focused on being a stack-based representation and abstracts the 
+Baf is focused on being a stack-based representation and abstracts the
 constant pool and reduces the type dependent instructions, such as `iadd`, `dadd` and etc., into
 a single instruction.
 This lends it to be useful for byte-code level analysis and optimisations.
@@ -247,14 +251,14 @@ There is an issue with SSA, after a branch that assigns to the same variable in 
 it needs to represent the merge in SSA form.
 Phi-nodes are the answer to this problem as they can determine which branch
 was taken and thus can determine which value from the branch to use.
-The strength of Shimple is in its ability to clearly show the control flow 
+The strength of Shimple is in its ability to clearly show the control flow
 of the program and also to analysis how variables change through it.
 
 Grimp is similar to Jimple again but allows expressions to be trees instead of
 linear.
-It is regarded as the most human readable of the four IR's since it does not 
+It is regarded as the most human readable of the four IR's since it does not
 need to create temporary variables such as `$t1` from the Jimple example.
-To further increase readability Grimp merges the java object initialisation 
+To further increase readability Grimp merges the java object initialisation
 instructions into one `new` statement.
 
 Soot comes with some off-the-shell analyses.
@@ -265,4 +269,38 @@ such as customisable control flow graphs and flow sets.
 
 ## Examples
 
+These tests were preformed with the most update to date stable release of Soot, 2.5.0
+released in 2012.
+
+There was some difficulties with running Soot.
+There is a [bug in JDK 8](https://stackoverflow.com/questions/36963248) which makes
+soot crash on startup, these examples were run with JDK 7.
+Even with this fix, Soot never ran since Java could not find its `main` method.
+
 # Comparison
+
+FindBugs is by far the easiest to use out of the three tools.
+From using the three tools it has displayed the most reliability
+of using the tool but fails miserably when trying to compile it from
+source code.
+This is due to all documentation on the process is out-of-date and
+inspecting the code itself reveals that the current setup is tailored to
+the maintainers machines, not the general public.
+The information gathered from FindBugs is quite useful to help improve the
+quality of the code but it does not prove anything but the absence of its
+bug patterns.
+
+Java Path Finder (JPF) is the most powerful tool in terms of ability to prove
+properties. The configuration that JPF allows can be used to enable a large range
+of plugins that will check properties, this and JPF's ability to traverse every
+execution path allows it to be an excellent tool for static and dynamic proving
+of JVM programs.
+What the configuration allows for is the strong point of JPF but actually
+configuring it is a struggle and is one of its weak points for the end user.
+The lack of support for newer Java features is a real blow to how usage JPF
+is
+
+Soot offers a framework to optimise your JVM programs and to preform some analysis.
+Since it is designed as a framework Soot has more features geared towards a developer
+extending Soot.
+I could never get Soot to analyse or optimise any code.
