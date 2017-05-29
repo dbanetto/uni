@@ -213,7 +213,7 @@ byte code and each one is tailored to suit a different kind of analysis.
 
 ## Capabilities of Soot
 
-The four intermediate languages are:
+The capabilities are tied to its four intermediate languages, there are:
 
  * Baf
  * Jimple
@@ -222,12 +222,12 @@ The four intermediate languages are:
 
 Each IR can be transformed between each other and back to JVM byte code.
 
-Baf is focused on being a stack-based representation and abstracts the
+**Baf** is focused on being a stack-based representation and abstracts the
 constant pool and reduces the type dependent instructions, such as `iadd`, `dadd` and etc., into
 a single instruction.
 This lends it to be useful for byte-code level analysis and optimisations.
 
-Jimple is the main IR in Soot.
+**Jimple** is the main IR in Soot.
 The key features for Jimple are that it is untyped,
 each statement is limited to addressing 3 variables
 and expression are broken down to linear statements.
@@ -243,8 +243,7 @@ This shows how Jimple breaks down larger expressions and how
 the limit of 3 variables are used, one for assigning then the rest
 for a binary operator or uni operator.
 
-
-Shimple is Jimple with a twist, it uses static single assignment (SSA) and phi-nodes.
+**Shimple** is Jimple with a twist, it uses static single assignment (SSA) and phi-nodes.
 This guarantees that each local variable will has a single assignment which
 simples a variety of analysis.
 There is an issue with SSA, after a branch that assigns to the same variable in the source
@@ -254,7 +253,7 @@ was taken and thus can determine which value from the branch to use.
 The strength of Shimple is in its ability to clearly show the control flow
 of the program and also to analysis how variables change through it.
 
-Grimp is similar to Jimple again but allows expressions to be trees instead of
+**Grimp** is similar to Jimple again but allows expressions to be trees instead of
 linear.
 It is regarded as the most human readable of the four IR's since it does not
 need to create temporary variables such as `$t1` from the Jimple example.
@@ -266,6 +265,8 @@ These include null pointer, array bounds, and liveness analysis.
 
 To accompany these four IR's Soot provides a framework to work with them,
 such as customisable control flow graphs and flow sets.
+
+[Soot's survivor Guide](http://www.brics.dk/SootGuide/sootsurvivorsguide.pdf)
 
 ## Examples
 
