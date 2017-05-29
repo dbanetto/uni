@@ -55,7 +55,7 @@ these cases it is unsure if these are programmer error or not.
 # Java Path Finder
 
 [Java Path Finder](http://babelfish.arc.nasa.gov/trac/jpf/) (JPF) is a static analysis
-tool for java that combines model checking and various other types of checks.
+tool for java that combines model checking and various other types of checks built by NASA.
 At its core JPF is a java virtual machine that takes every execution path.
 Each run of JPF has a configuration that encodes what properties to check in the
 execution, this can range from correct usage of concurrent methods or unhandled exceptions.
@@ -278,6 +278,11 @@ There is a [bug in JDK 8](https://stackoverflow.com/questions/36963248) which ma
 soot crash on startup, these examples were run with JDK 7.
 Even with this fix, Soot never ran since Java could not find its `main` method.
 
+I have attempted to build Soot from source which lead to another peculiar bug
+for MacOS systems which can be resolved by a small [patch](https://github.com/Sable/soot/issues/686).
+It does fix the immediate crash but since you have to build it, you cannot
+recreate the same JAR configuration to get it to run again so you are stuck in an IDE.
+
 # Comparison
 
 FindBugs is by far the easiest to use out of the three tools.
@@ -298,10 +303,13 @@ execution path allows it to be an excellent tool for static and dynamic proving
 of JVM programs.
 What the configuration allows for is the strong point of JPF but actually
 configuring it is a struggle and is one of its weak points for the end user.
-The lack of support for newer Java features is a real blow to how usage JPF
-is
+The lack of support for Java 8 features is a real blow to what JPF can be
+applied to but still has a good use case for proven java code.
 
 Soot offers a framework to optimise your JVM programs and to preform some analysis.
 Since it is designed as a framework Soot has more features geared towards a developer
-extending Soot.
-I could never get Soot to analyse or optimise any code.
+extending Soot as a drop-in library.
+However, the latest stable release does not work on an
+update-to-date system and requires the user to downgrade their Java version to
+(attempt to) use. Even with attempting to use the most latest version had no
+result on trying to use it.
