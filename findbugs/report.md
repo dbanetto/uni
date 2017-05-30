@@ -283,6 +283,11 @@ for MacOS systems which can be resolved by a small [patch](https://github.com/Sa
 It does fix the immediate crash but since you have to build it, you cannot
 recreate the same JAR configuration to get it to run again so you are stuck in an IDE.
 
+After some help from Michael Person I did, what I assume to be, get the optimiser to run.
+
+The command used is:
+`java -jar soot-trunk.jar -v --app -cp .:$JAVA_HOME/jre/lib/rt.jar -process-dir $PWD -annot-nullpointer -annot-arraybounds`
+
 # Comparison
 
 FindBugs is by far the easiest to use out of the three tools.
