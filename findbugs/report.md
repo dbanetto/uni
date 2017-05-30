@@ -78,19 +78,19 @@ but this is at the cost of the efficiency that JPF will analyse the program.
 
 The JPF virtual machine proves properties or finds defects defined from a
 configuration file.
-The configuration determines which plugins are used for JPF for the project.
+From the configuration it determines which plugins are used for JPF for the project.
 The java source code can also contain `@JPFConfig` annotations, but this will make
 the code 'JPF aware' as it requires a dependency on JPF's API.
 
 JPF allows for a large range of plugins to be enabled via the configuration.
-This allows JPF is be modular with what properties to verify and other additional
+This allows JPF to be modular with what properties to verify and other additional
 features such as a GUI. The most common plugin used is `jpf-symbc` which provides
 more symbolic execution features to JPF and is used for test generation and more.
 
 ## Examples
 
 Using JPF is a battle to understand how all the levels of configuration work.
-In general they are a cascading with directory level configuration
+In general, they are a cascading with directory level configuration
 overrides global configuration.
 The JPF JVM does not look to support all of Java 8 features which prevented
 me from analysing my own concurrent code from NWEN303 Concurrency.
@@ -231,7 +231,7 @@ This lends it to be useful for byte-code level analysis and optimisations.
 The key features for Jimple are that it is untyped,
 each statement is limited to addressing 3 variables
 and expression are broken down to linear statements.
-This means that an expressions such as `a = x + y + z` is broken
+This means that an expression such as `a = x + y + z` is broken
 down to:
 
 ```java
@@ -244,10 +244,11 @@ the limit of 3 variables are used, one for assigning then the rest
 for a binary operator or uni operator.
 
 **Shimple** is Jimple with a twist, it uses static single assignment (SSA) and phi-nodes.
-This guarantees that each local variable will has a single assignment which
+This guarantees that each local variable will have a single assignment which
 simples a variety of analysis.
-There is an issue with SSA, after a branch that assigns to the same variable in the source
-it needs to represent the merge in SSA form.
+There is an issue with SSA, when the code branches and assigns different values
+to the same variable when these branches merge SSA by itself have no means to
+handle this.
 Phi-nodes are the answer to this problem as they can determine which branch
 was taken and thus can determine which value from the branch to use.
 The strength of Shimple is in its ability to clearly show the control flow
@@ -285,7 +286,10 @@ recreate the same JAR configuration to get it to run again so you are stuck in a
 
 After some help from Michael Person I did, what I assume to be, get the optimiser to run.
 
-The command used is:
+The command used is below and was run on the class files of While compiler.
+From this command it created a clone of the class files with some differences
+in the byte code.
+
 `java -jar soot-trunk.jar -v --app -cp .:$JAVA_HOME/jre/lib/rt.jar -process-dir $PWD -annot-nullpointer -annot-arraybounds`
 
 # Comparison
@@ -316,5 +320,10 @@ Since it is designed as a framework Soot has more features geared towards a deve
 extending Soot as a drop-in library.
 However, the latest stable release does not work on an
 update-to-date system and requires the user to downgrade their Java version to
-(attempt to) use. Even with attempting to use the most latest version had no
+(attempt to) use. Even with attempting to use the latest version gave no
 result on trying to use it.
+Soot does achieve it's original goal of optimising code but it does not offer
+much for trying to learn more about a given code base like FindBugs or checking
+properties like JPF.
+
+# Liveness Analysis
