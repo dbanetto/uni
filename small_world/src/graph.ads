@@ -6,7 +6,7 @@ generic
    type Node is private;
    MaxNodes : Ada.Containers.Count_Type;
 
-   with function Hash (Key : Node) return Ada.Containers.Hash_Type is <>;
+   with function Hash (Key : Node) return Ada.Containers.Hash_Type;
    with function "=" (Left, Right : Node) return Boolean is <>;
 
 package Graph with SPARK_Mode is
