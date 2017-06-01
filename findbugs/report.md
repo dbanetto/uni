@@ -1,7 +1,8 @@
 % Assignment 3 - Static Analysis Tools - ENGR441
 % David Barnett (300313764)
 
-This report will review multiple static analysis tools and some example usage of them.
+This report will review multiple static analysis tools, some example usage of them and 
+an overview of the implementation of Liveness analysis for the While language.
 
 # FindBugs
 
@@ -326,10 +327,21 @@ Soot does achieve its original goal of optimising code but it does not offer
 much for trying to learn more about a given code base like FindBugs or checking
 properties like JPF.
 
+From these tools the most effective tool to is FindBugs.
+This is due to its ease of use and the amount of impact that
+it can on overall quality of a code base.
+Unlike JPF, FindBugs does not need any configuration to get
+working which is a great benefit if you want to retrofit these
+tools onto a larger code base. It also has the ability to
+report the results of the analysis which remains to be unseen
+from Soot.
+Overall FindBugs is the most effective static analysis tool out of 
+the three for a general Java project.
+
 # Liveness Analysis
 
 The Liveness analysis was implemented for the While compiler.
-This analysis detects if a variable that is written to is read afterwards.
+This analysis detects if a variable that is assigned and then is read from afterwards.
 In the context of While this is best used to give the programmer a warning
 that a variable is unused.
 
@@ -337,17 +349,13 @@ The implementation of the liveness analysis collects a set of variables that
 are declared and also collects a set of variables that are accessed.
 After all variables are collected the difference between the defined and
 accessed set is found and used to inform the user.
-Warnings are printed in the same manner as throwing syntax errors in While,
-but warnings are only printed (examples of output below).
+The user is informed via warning message, such as below.
 
 
 ```log
 tests/valid/For_Valid_4.while:2: WARNING Unused local variable `y`
     int y = 0;    
     ^^^^^^^^^
-
-
-
 
 tests/valid/Method_Valid_1.while:1: WARNING Unused parameter `x`
 string f1(bool x) {
