@@ -40,19 +40,26 @@ public class LivenessAnalysis {
 
         environment.defined.entrySet().stream()
                 .filter(s -> !environment.used.contains(s.getKey()))
-                .forEach(s -> {
-                    int start = -1;
-                    int end = -1;
+                .forEach(s -> printUnusedWarning(s.getKey(), s.getValue()));
+    }
 
-                    Attribute.Source attr = s.getValue().attribute(Attribute.Source.class);
-                    if(attr != null) {
-                        start=attr.start;
-                        end=attr.end;
-                    }
+    private void printUnusedWarning(String variable, SyntacticElement element) {
+        int start = -1;
+        int end = -1;
 
-                    SyntaxError warning = new SyntaxError("WARNING Unused local variable " + s.getKey(), fileName, start, end);
-                    warning.outputSourceError(System.err);
-                });
+        Attribute.Source attr = element.attribute(Attribute.Source.class);
+        if(attr != null) {
+            start=attr.start;
+            end=attr.end;
+        }
+
+        String typeOfVariable = "local variable";
+        if  (element instanceof WhileFile.Parameter) {
+            typeOfVariable = "parameter";
+        }
+
+        SyntaxError warning = new SyntaxError(String.format("WARNING Unused %s `%s`", typeOfVariable, variable), fileName, start, end);
+        warning.outputSourceError(System.err);
     }
 
     /**
@@ -156,7 +163,7 @@ public class LivenessAnalysis {
             syntaxError("variable already declared: " + stmt.getName(), fileName, stmt);
         } else if (stmt.getExpr() != null) {
             check(stmt.getExpr(), environment);
-            environment.defined(stmt.getName(), stmt );
+            environment.defined(stmt.getName(), stmt);
         }
     }
 

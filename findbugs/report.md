@@ -199,7 +199,7 @@ loaded code:        classes=64,methods=1479
 ====================================================== search finished
 ```
 
-> Note: Some of the output of the log as the removed as it repeats each error for
+> Note: Some output of the log as the removed as it repeats each error for
 each thread in the example.
 
 # Soot
@@ -300,7 +300,7 @@ of using the tool but fails miserably when trying to compile it from
 source code.
 This is due to all documentation on the process is out-of-date and
 inspecting the code itself reveals that the current setup is tailored to
-the maintainers machines, not the general public.
+the maintainers machines, not the public.
 The information gathered from FindBugs is quite useful to help improve the
 quality of the code but it does not prove anything but the absence of its
 bug patterns.
@@ -322,8 +322,34 @@ However, the latest stable release does not work on an
 update-to-date system and requires the user to downgrade their Java version to
 (attempt to) use. Even with attempting to use the latest version gave no
 result on trying to use it.
-Soot does achieve it's original goal of optimising code but it does not offer
+Soot does achieve its original goal of optimising code but it does not offer
 much for trying to learn more about a given code base like FindBugs or checking
 properties like JPF.
 
 # Liveness Analysis
+
+The Liveness analysis was implemented for the While compiler.
+This analysis detects if a variable that is written to is read afterwards.
+In the context of While this is best used to give the programmer a warning
+that a variable is unused.
+
+The implementation of the liveness analysis collects a set of variables that
+are declared and also collects a set of variables that are accessed.
+After all variables are collected the difference between the defined and
+accessed set is found and used to inform the user.
+Warnings are printed in the same manner as throwing syntax errors in While,
+but warnings are only printed (examples of output below).
+
+
+```log
+tests/valid/For_Valid_4.while:2: WARNING Unused local variable `y`
+    int y = 0;    
+    ^^^^^^^^^
+
+
+
+
+tests/valid/Method_Valid_1.while:1: WARNING Unused parameter `x`
+string f1(bool x) {
+          ^^^^^^
+```
