@@ -9,7 +9,7 @@ project Small_World is
    end Prove;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-fprofile-arcs", "-g", "-ftest-coverage");
+      for Default_Switches ("ada") use ("-fprofile-arcs", "-g", "-ftest-coverage", "-fstack-check");
    end Compiler;
 
    package Linker is
