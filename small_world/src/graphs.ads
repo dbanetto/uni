@@ -3,7 +3,7 @@ with Ada.Containers.Formal_Ordered_Sets;
 
 generic
    Capacity : Ada.Containers.Count_Type;
-package Graphs with SPARK_Mode is
+package Graphs with Pure, SPARK_Mode is
 
    type Graph is tagged private;
    type Node is private;
@@ -14,7 +14,11 @@ package Graphs with SPARK_Mode is
 
    function New_Node(self : out Graph) return Node;
 
-   procedure Add_Edge(self : out Graph ; to, from : Node ; success : out Boolean);
+   function Has_Edge(self : Graph ; from, to : Node) return Boolean;
+
+   procedure Add_Edge(self : out Graph ; from, to : Node ; success : out Boolean)
+     with Pre => not self.Is_Full,
+     Post => success and then self.Has_Edge(from, to);
 
 private
    type Node is new Integer;

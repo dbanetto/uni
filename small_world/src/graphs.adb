@@ -1,4 +1,7 @@
+
+
 package body Graphs with SPARK_Mode is
+   use EdgeSet;
 
    function "<" (Left, Right : Edge) return Boolean is
      (Left.from < Right.from);
@@ -22,8 +25,18 @@ package body Graphs with SPARK_Mode is
    function Is_Full(self : Graph) return Boolean is
      (EdgeSet.Length(self.Edges) = Graphs.Capacity);
 
-   procedure Add_Edge(self : out Graph ; to, from : Node ; success : out Boolean) is
-      new_edge : Edge := Edge'(to, from);
+   function Has_Edge(self : Graph ; from, to : Node) return Boolean is
+      find_edge : Edge := Edge'(from, to);
+      found_cusor : EdgeSet.Cursor;
+   begin
+      found_cusor := EdgeSet.Find(self.Edges, find_edge);
+
+      return found_cusor = EdgeSet.No_Element;
+   end Has_Edge;
+
+
+   procedure Add_Edge(self : out Graph ; from, to : Node ; success : out Boolean) is
+      new_edge : Edge := Edge'(from, to);
       cursor : EdgeSet.Cursor;
    begin
 
