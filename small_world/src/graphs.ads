@@ -77,7 +77,7 @@ private
 
    type Node_Label is new Count_Type;
 
-   type Edge is tagged record
+   type Edge is record
       from : Node_Label;
       to   : Node_Label;
    end record;
@@ -85,14 +85,13 @@ private
    function "<" (Left, Right : Edge) return Boolean;
    function "=" (Left, Right : Edge) return Boolean;
 
-   package EdgeSet is new Ada.Containers.Formal_Ordered_Sets(Element_Type => Edge);
-
+   package EdgeSet is new Formal_Ordered_Sets(Element_Type => Edge);
    subtype Edge_Set is EdgeSet.Set(Capacity => Edge_Capacity);
 
-   package NodeDistance is new Ada.Containers.Formal_Ordered_Maps(Key_Type => Node_Label,
-                                                                  Element_Type => Distance);
+   package NodeDistance is new Formal_Ordered_Maps(Key_Type => Node_Label,
+                                                   Element_Type => Distance);
 
-   package NodeSet is new Ada.Containers.Formal_Ordered_Sets(Element_Type => Node_Label);
+   package NodeSet is new Formal_Ordered_Sets(Element_Type => Node_Label);
    subtype Node_Set is NodeSet.Set(Capacity => Capacity);
 
    subtype Node_Distance is NodeDistance.Map(Capacity => Capacity);
