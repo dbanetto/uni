@@ -19,20 +19,35 @@ package body Graphs with SPARK_Mode is
       return empty_graph;
    end;
 
-   function Size (self : Graph) return Count_Type is
-      (EdgeSet.Length(self.Edges));
+   function Edge_Count (self : Graph) return Count_Type is
+     (EdgeSet.Length(self.Edges));
+   function Node_Count (self : Graph) return Count_Type is
+     (Count_Type(self.Factory));
 
+   function Has_Node (self : Graph ; node: Node_Label) return Boolean is
+     (node < self.Factory);
+
+   function Get_Nodes(self : Graph ) return Node_Labels is
+      labels : Node_Labels := (others => 0);
+   begin
+      for i in 1..self.Node_Count loop
+         labels(i) := Node_Label(i);
+      end loop;
+      return labels;
+   end Get_Nodes;
 
    procedure New_Node(self : in out Graph ; new_node : out Node_Label) is
    begin
-      new_node := self.factory;
       self.factory := self.factory + 1;
+      new_node := self.factory;
    end New_Node;
 
    function Has_Edge(self : Graph ; from, to : Node_Label) return Boolean is
       find_edge : Edge := Edge'(from, to);
+      neighbours : Node_Set;
    begin
-       return EdgeSet.Contains(self.Edges, find_edge);
+      neighbours := self.Adjacent_Nodes(from);
+      return NodeSet.Contains(neighbours, to);
    end Has_Edge;
 
 
@@ -45,13 +60,14 @@ package body Graphs with SPARK_Mode is
          success := false;
          return;
       end if;
-
+      -- debug
       Logger.Log("Before");
       self.Print_Graph;
       Logger.Log("");
 
       EdgeSet.Insert(self.Edges, new_edge, cursor, success);
 
+      -- debug
       Logger.Log("After");
       self.Print_Graph;
       Logger.Log("");
@@ -68,13 +84,10 @@ package body Graphs with SPARK_Mode is
 
    function Adjacent_Nodes(self : Graph ; from : Node_Label) return Node_Set is
       adjacent : Node_Set;
-      element : Edge;
    begin
-      for index in self.Edges loop
-         element := EdgeSet.Element(self.Edges, index);
-
+      for element of self.Edges loop
          if element.from = from then
-            NodeSet.Insert(adjacent, Node_T(element.to));
+            NodeSet.Insert(adjacent, element.to);
          end if;
 
          pragma Loop_Invariant (NodeSet.Length(adjacent) <= EdgeSet.Length(self.Edges));
@@ -88,11 +101,11 @@ package body Graphs with SPARK_Mode is
    begin
       distances := self.Distance_Between_All(from);
 
-      if not NodeDistance.Contains(distances, Node_T(to)) then
+      if not NodeDistance.Contains(distances, to) then
          return 0;
       end if;
 
-      return NodeDistance.Element(distances, Node_T(to));
+      return NodeDistance.Element(distances, to);
    end Distance_Between;
 
    function Distance_Between_All(self : Graph ; from : Node_Label) return Node_Distance is
@@ -107,27 +120,30 @@ package body Graphs with SPARK_Mode is
       NodeSet.Insert(worklist, from);
       NodeDistance.Insert(distances, from, 0);
 
+      -- use Dijkstra's algorithm to find the shortest path to all nodes
+      -- from a single source node
       loop
          current := NodeSet.First_Element(worklist);
-         NodeSet.Delete(worklist, current);
-         NodeSet.Insert(visited, current);
+         NodeSet.Delete(worklist, current); -- pop from work queue
+         NodeSet.Insert(visited, current); -- mark node as visited
 
          adjacent := self.Adjacent_Nodes(current);
 
          current_distance := NodeDistance.Element(distances, current);
 
-         for index in adjacent loop
+         for neighbour of adjacent loop
             declare
-               neighbour : Node_Label;
                distance_from : Distance;
             begin
-               neighbour := NodeSet.Element(adjacent, index);
+
+               -- either get an old value or initalise it as "infinity"
                if NodeDistance.Contains(distances, neighbour) then
                   distance_from := NodeDistance.Element(distances, neighbour);
                else
                   distance_from := Distance'Last;
                end if;
 
+               -- update if a shorter path is found
                if current_distance + 1 < distance_from then
                   if NodeDistance.Contains(distances, neighbour) then
                      NodeDistance.Replace(distances, neighbour, current_distance + 1);
@@ -153,7 +169,12 @@ package body Graphs with SPARK_Mode is
       max : Distance := Distance'First;
       distances : Node_Distance;
    begin
-      for node in 0..self.Factory loop
+      if self.Edge_Count = 0 then
+         return 0;
+      end if;
+
+      -- find the maximum distance between two nodes
+      for node in 1..self.Factory loop
 
          distances := self.Distance_Between_All(node);
 
@@ -167,32 +188,7 @@ package body Graphs with SPARK_Mode is
       end Loop;
 
       return max;
-
    end Diameter;
-
-   function Small(self : Graph ; coefficent : Positive) return Boolean is
-      total : Distance := 0;
-      distances : Node_Distance;
-
-      -- a node is only counted if it has an edge
-      node_count : Integer := 0;
-      node_counted : Boolean;
-   begin
-      for node in 0..self.Factory loop
-         node_counted := false;
-         distances := self.Distance_Between_All(node);
-
-         for index in distances loop
-            total := total + NodeDistance.Element(distances, index);
-            if not node_counted then
-               node_count := node_count + 1;
-               node_counted := true;
-            end if;
-         end loop;
-      end Loop;
-
-      return (Integer(total) / node_count) < coefficent * node_count;
-   end Small;
 
    procedure Print_Graph(self : Graph) is
       element : Edge;
