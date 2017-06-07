@@ -28,7 +28,7 @@ package body Graphs with SPARK_Mode is
      (node < self.Factory);
 
    function Get_Nodes(self : Graph ) return Node_Labels is
-      labels : Node_Labels := (others => 0);
+      labels : Node_Labels := (others => Empty_Node);
    begin
       for i in 1..self.Node_Count loop
          labels(i) := Node_Label(i);
@@ -51,13 +51,11 @@ package body Graphs with SPARK_Mode is
    end Has_Edge;
 
 
-   procedure Add_Edge(self : in out Graph ; from, to : Node_Label ; success : out Boolean) is
+   procedure Add_Edge(self : in out Graph ; from, to : Node_Label) is
       new_edge : Edge := Edge'(from , to);
-      cursor : EdgeSet.Cursor;
    begin
 
-      if self.Is_Full then
-         success := false;
+      if self.Has_Edge(from, to) or self.Is_Edges_Full then
          return;
       end if;
       -- debug
@@ -65,7 +63,7 @@ package body Graphs with SPARK_Mode is
       self.Print_Graph;
       Logger.Log("");
 
-      EdgeSet.Insert(self.Edges, new_edge, cursor, success);
+      EdgeSet.Insert(self.Edges, new_edge);
 
       -- debug
       Logger.Log("After");

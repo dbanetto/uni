@@ -6,31 +6,31 @@ with Logger;         use Logger;
 
 package body Test is
 
-   type Vecs is array (1..4) of Node_Label;
 
    procedure Main with
       Spark_Mode is
       me_graph : Graph;
+      type Vecs is array (1..4) of Node_Label;
 
-      v :  Vecs;
-      success : Boolean;
+      v : Vecs;
    begin
 
       for i in Vecs'Range loop
+         exit when me_graph.Is_Nodes_Full;
          me_graph.New_Node (v(i));
+         pragma Loop_Invariant (for all x in 1..i => (for some n of me_graph.Get_Nodes => v(x) = n));
+         pragma Assert (for all x in 1..i => (for some n of me_graph.Get_Nodes => v(x) = n));
       end loop;
 
-      me_graph.Add_Edge (v(1), v(2), success);
-      Assert (success);
+      me_graph.Add_Edge (v(1), v(2));
 
-      me_graph.Add_Edge (v(1), v(4), success);
-      Assert (success);
+      me_graph.Add_Edge (v(1), v(4));
 
-      me_graph.Add_Edge (v(2), v(3), success);
-      Assert (success);
+      me_graph.Add_Edge (v(2), v(3));
 
-      me_graph.Add_Edge (v(3), v(4), success);
-      Assert (success);
+      me_graph.Add_Edge (v(3), v(4));
+
+      pragma Assert (me_graph.Edge_Count > 0);
 
       Logger.Log("Final Graph");
       me_graph.Print_Graph;
@@ -54,7 +54,7 @@ package body Test is
 
       Logger.Log_Int (Integer (me_graph.Diameter));
 
-      Logger.Log_Boolean (me_graph.Small(1));
+      Logger.Log_Boolean (me_graph.Small(1.0));
 
    end Main;
 end Test;
