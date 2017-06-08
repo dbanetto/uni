@@ -76,6 +76,7 @@ package Graphs with SPARK_Mode is
      self'Old.Edge_Count + 1 = self.Edge_Count;
 
 
+   -- finds the shortest path between two nodes (directed `from` to `to)
    function Distance_Between(self : Graph ; from, to : Node_Label) return Distance
    with
    -- Must have a path between the two nodes to get a valid distance
@@ -97,6 +98,7 @@ package Graphs with SPARK_Mode is
               and then Distance_Between'Result = self.Distance_Between(next, to) + 1));
 
 
+   -- checks if there is a path between two nodes (directed `from` to `to)
    function Has_Path(self : Graph ; from, to : Node_Label) return Boolean
    with Post =>
    Has_Path'Result and then
@@ -109,7 +111,7 @@ package Graphs with SPARK_Mode is
               -- inductive step
           and then self.Has_Path(next, to)));
 
-   --
+   -- finds the maximum distance between two nodes
    function Diameter(self : Graph) return Distance
    with Post =>
      (for all from of self.Get_Nodes =>

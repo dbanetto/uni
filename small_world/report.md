@@ -249,8 +249,9 @@ The destination is just plucked out of the distance map
 It has not been fully proven by GNATProve for the bugs or error encountered above.
 All contracts have been made to the best guess I can make without being able to run them.
 
-The proofs given are probably not complete and not run, I have done some whiteboard 
-walk through of the key proofs, such as `Has_Path` and `Distance_Between`
+The proofs given are probably not complete and have not been checked,
+I have done some whiteboard walk through of the key proofs,
+such as `Has_Path` and `Distance_Between`
 
 For the sub-programs that do require pre-conditions they are also programmed to
 be robust when they are not met.
