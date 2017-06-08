@@ -116,7 +116,7 @@ processing this package.
 The only proof that it is correct is running the test code that builds a graph and 
 checks all the properties (edge relations, paths, distances, diameter, and small(x) ).
 
-## GNATProve Bugs
+## Bugs Reports
 
 These are bugs that have stopped me from being able to run GNATProve on the
 whole project, in each instance they can build and run correctly but just not prove
@@ -205,6 +205,39 @@ gnatprove: error during flow analysis and proof
 [2017-06-07 11:14:32] process exited with status 1, 25% (1/4), elapsed time: 05.54s
 ```
 
+## Code coverage
+
+Below is a coverage report of the `play` binary.
+
+Some of the lines not used are type definitions which has been confusing.
+
+File       | Coverage
+-----------|----------:
+logger.adb | 100.00% of 18
+play.adb   | 100.00% of 3
+test.ads   | 100.00% of 2
+graphs.ads | 75.00% of 12
+test.adb   | 97.50% of 40
+graphs.adb | 84.68% of 111
+**Total**  | **89% of 185**
+
+Coverage report of the usage of library code used:
+
+Library      | Coverage
+-------------|--------------
+a-cforse.adb | 30.23% of 344
+a-rbtgbk.adb | 44.05% of 168
+a-rbtgbo.adb | 32.44% of 373
+a-btgbso.adb | 12.41% of 266
+a-cforma.adb | 24.65% of 288
+a-conhel.adb | 36.96% of 46
+s-atocou.adb | 100.00% of 3
+a-conhel.ads | 66.67% of 6
+a-crbltr.ads | 60.00% of 5
+a-cforse.ads | 66.67% of 12
+a-cforma.ads | 85.71% of 7
+s-stoele.adb | 0.00% of 3
+**Total**    | **35.68% of 1707**
 
 # Known Weakness of the Code
 
@@ -218,3 +251,6 @@ All contracts have been made to the best guess I can make without being able to 
 
 The proofs given are probably not complete and not run, I have done some whiteboard 
 walk through of the key proofs, such as `Has_Path` and `Distance_Between`
+
+For the sub-programs that do require pre-conditions they are also programmed to
+be robust when they are not met.

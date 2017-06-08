@@ -29,12 +29,13 @@ package Graphs with SPARK_Mode is
    -- returns every node in the graph, but since it is an
    -- array there are some "tombstone" elements, every one that equals
    -- Graphs.Empty_Node is considered invalid
-   function Get_Nodes(self : Graph) return Node_Labels;
+   function Get_Nodes(self : Graph) return Node_Labels
+   with Post => (for all nodes of Get_Nodes'Result => self.Has_Node(nodes));
 
    -- creates an empty graph to worth with
-   function Empty_Graph return Graph;
- --    with Post => Empty_Graph'Result.Edge_Count = 0
- --    and Empty_Graph'Result.Node_count = 0;
+   function Empty_Graph return Graph
+     with Post => Empty_Graph'Result.Edge_Count = 0
+     and Empty_Graph'Result.Node_count = 0;
 
    -- checks if capacity is reached
    function Is_Nodes_Full(self : Graph) return Boolean is
@@ -135,6 +136,10 @@ private
    end record;
 
    type Node_Label is new Count_Type;
+
+   -- these types are here to avoid an error when proving
+   -- it reports that it is confused node_label with an int
+   -- and sub typing it removes this error with no change needed to other code
    subtype Node_T is Node_Label;
    subtype Edge_T is Edge;
 
@@ -146,10 +151,10 @@ private
    package EdgeSet is new Formal_Ordered_Sets(Element_Type => Edge);
    subtype Edge_Set is EdgeSet.Set(Capacity => Edge_Capacity);
 
-   package NodeDistance is new Formal_Ordered_Maps(Key_Type => Node_Label,
+   package NodeDistance is new Formal_Ordered_Maps(Key_Type => Node_T,
                                                    Element_Type => Distance);
 
-   package NodeSet is new Formal_Ordered_Sets(Element_Type => Node_Label);
+   package NodeSet is new Formal_Ordered_Sets(Element_Type => Node_T);
    subtype Node_Set is NodeSet.Set(Capacity => Node_Capacity);
 
    subtype Node_Distance is NodeDistance.Map(Capacity => Node_Capacity);
