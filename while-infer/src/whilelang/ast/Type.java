@@ -18,10 +18,11 @@
 
 package whilelang.ast;
 
-import java.util.*;
-
 import whilelang.util.Pair;
 import whilelang.util.SyntacticElement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -31,213 +32,222 @@ import whilelang.util.SyntacticElement;
  * be written by a programmer, but is invalid type and should (eventually)
  * result in a syntax error.
  * </p>
- * 
+ *
  * @author David J. Pearce
- * 
  */
 public interface Type extends SyntacticElement {
 
-	/**
-	 * Represents the special <code>void</code> type which can only be used in
-	 * special circumstance (e.g. for a function return).
-	 * 
-	 * @author David J. Pearce
-	 * 
-	 */
-	public static final class Void extends SyntacticElement.Impl implements
-			Type {
+    /**
+     * Represents the special <code>void</code> type which can only be used in
+     * special circumstance (e.g. for a function return).
+     *
+     * @author David J. Pearce
+     */
+    public static final class Void extends SyntacticElement.Impl implements
+            Type {
 
-		public Void(Attribute... attributes) {
-			super(attributes);
-		}
-		
-		public String toString() {
-			return "void";
-		}
-	}
+        public Void(Attribute... attributes) {
+            super(attributes);
+        }
 
-	/**
-	 * Represents the <code>bool</code> type which contains the values
-	 * <code>true</code> and <code>false</code>.
-	 * 
-	 * @author David J. Pearce
-	 * 
-	 */
-	public static final class Bool extends SyntacticElement.Impl implements
-			Type {
+        public String toString() {
+            return "void";
+        }
+    }
 
-		public Bool(Attribute... attributes) {
-			super(attributes);
-		}
-		
-		public String toString() {
-			return "bool";
-		}
-	}
+    /**
+     * Represents the special <code>inferred</code> type which can only be used in
+     * special circumstance (e.g. internally representing a type that has not be inferred yet).
+     *
+     * @author David Barnett
+     */
+    public static final class Inferred extends SyntacticElement.Impl implements
+            Type {
 
-	/**
-	 * Represents the <code>int</code> type which describes the set of all
-	 * integers described in 32bit twos compliment form. For example, this is
-	 * identical to a Java <code>int</code>.
-	 * 
-	 * @author David J. Pearce
-	 * 
-	 */
-	public static final class Int extends SyntacticElement.Impl implements Type {
+        public Inferred(Attribute... attributes) {
+            super(attributes);
+        }
 
-		public Int(Attribute... attributes) {
-			super(attributes);
-		}
-		
-		public String toString() {
-			return "int";
-		}
-	}
+        public String toString() {
+            return "?";
+        }
+    }
 
-	/**
-	 * Represents the <code>char</code> type which describes the set of all 7bit
-	 * ASCII characters. Observe that this is stricly less than that described
-	 * by Java's <code>char</code> type, which represents the set of UTF16
-	 * values.
-	 * 
-	 * @author David J. Pearce
-	 * 
-	 */
-	public static final class Char extends SyntacticElement.Impl implements
-			Type {
+    /**
+     * Represents the <code>bool</code> type which contains the values
+     * <code>true</code> and <code>false</code>.
+     *
+     * @author David J. Pearce
+     */
+    public static final class Bool extends SyntacticElement.Impl implements
+            Type {
 
-		public Char(Attribute... attributes) {
-			super(attributes);
-		}
-		
-		public String toString() {
-			return "char";
-		}
-	}
+        public Bool(Attribute... attributes) {
+            super(attributes);
+        }
 
-	/**
-	 * Represents the <code>string</code> type which describes any sequence of
-	 * <code>char</code> values.
-	 * 
-	 * @author David J. Pearce
-	 * 
-	 */
-	public static final class Strung extends SyntacticElement.Impl implements
-			Type {
-		public Strung(Attribute... attributes) {
-			super(attributes);
-		}
-		
-		public String toString() {
-			return "string";
-		}
-	}
+        public String toString() {
+            return "bool";
+        }
+    }
 
-	/**
-	 * Represents a named type which has yet to be expanded in the given
-	 * context.
-	 * 
-	 * @author David J. Pearce
-	 * 
-	 */
-	public static final class Named extends SyntacticElement.Impl implements
-			Type {
+    /**
+     * Represents the <code>int</code> type which describes the set of all
+     * integers described in 32bit twos compliment form. For example, this is
+     * identical to a Java <code>int</code>.
+     *
+     * @author David J. Pearce
+     */
+    public static final class Int extends SyntacticElement.Impl implements Type {
 
-		private final String name;
+        public Int(Attribute... attributes) {
+            super(attributes);
+        }
 
-		public Named(String name, Attribute... attributes) {
-			super(attributes);
-			this.name = name;
-		}
+        public String toString() {
+            return "int";
+        }
+    }
 
-		public String toString() {
-			return getName();
-		}
+    /**
+     * Represents the <code>char</code> type which describes the set of all 7bit
+     * ASCII characters. Observe that this is stricly less than that described
+     * by Java's <code>char</code> type, which represents the set of UTF16
+     * values.
+     *
+     * @author David J. Pearce
+     */
+    public static final class Char extends SyntacticElement.Impl implements
+            Type {
 
-		/**
-		 * Get the name used by this type.
-		 * 
-		 * @return
-		 */
-		public String getName() {
-			return name;
-		}		
-	}
+        public Char(Attribute... attributes) {
+            super(attributes);
+        }
 
-	/**
-	 * Represents the array type <code>T[]</code> which describes any sequence
-	 * of zero or more values of type <code>T</code>.
-	 * 
-	 * @author David J. Pearce
-	 * 
-	 */
-	public static final class Array extends SyntacticElement.Impl implements
-			Type {
+        public String toString() {
+            return "char";
+        }
+    }
 
-		private final Type element;
+    /**
+     * Represents the <code>string</code> type which describes any sequence of
+     * <code>char</code> values.
+     *
+     * @author David J. Pearce
+     */
+    public static final class Strung extends SyntacticElement.Impl implements
+            Type {
+        public Strung(Attribute... attributes) {
+            super(attributes);
+        }
 
-		public Array(Type element, Attribute... attributes) {
-			super(attributes);
-			this.element = element;
-		}
+        public String toString() {
+            return "string";
+        }
+    }
 
-		/**
-		 * Get the element type of this list.
-		 * 
-		 * @return
-		 */
-		public Type getElement() {
-			return element;
-		}
-		
-		public String toString() {
-			return "[" + element + "]";
-		}
-	}
+    /**
+     * Represents a named type which has yet to be expanded in the given
+     * context.
+     *
+     * @author David J. Pearce
+     */
+    public static final class Named extends SyntacticElement.Impl implements
+            Type {
 
-	/**
-	 * Represents a record type, such as <code>{int x, int y}</code>, which
-	 * consists of one or more (named) field types. Observe that records exhibit
-	 * <i>depth</i> subtyping, but not <i>width</i> subtyping.
-	 * 
-	 * @author David J. Pearce
-	 * 
-	 */
-	public static final class Record extends SyntacticElement.Impl implements Type {
+        private final String name;
 
-		private final ArrayList<Pair<Type,String>> fields;
+        public Named(String name, Attribute... attributes) {
+            super(attributes);
+            this.name = name;
+        }
 
-		public Record(List<Pair<Type,String>> fields, Attribute... attributes) {
-			super(attributes);
-			if (fields.size() == 0) {
-				throw new IllegalArgumentException(
-						"Cannot create type tuple with no fields");
-			}
-			this.fields = new ArrayList<Pair<Type,String>>(fields);
-		}
+        public String toString() {
+            return getName();
+        }
 
-		/**
-		 * Get the fields which make up this record type. This are stored in the
-		 * order they are declared in the source file.
-		 * 
-		 * @return
-		 */
-		public List<Pair<Type,String>> getFields() {
-			return fields;
-		}
-		
-		public String toString() {
-			String r = "";
+        /**
+         * Get the name used by this type.
+         *
+         * @return
+         */
+        public String getName() {
+            return name;
+        }
+    }
 
-			for (int i = 0; i != fields.size(); ++i) {
-				if (i != 0) {
-					r = r + ",";
-				}
-				Pair<Type, String> field = fields.get(i);
-				r = r + field.first() + " " + field.second();
-			}
+    /**
+     * Represents the array type <code>T[]</code> which describes any sequence
+     * of zero or more values of type <code>T</code>.
+     *
+     * @author David J. Pearce
+     */
+    public static final class Array extends SyntacticElement.Impl implements
+            Type {
 
-			return "{" + r + "}";
-		}
-	}	
+        private final Type element;
+
+        public Array(Type element, Attribute... attributes) {
+            super(attributes);
+            this.element = element;
+        }
+
+        /**
+         * Get the element type of this list.
+         *
+         * @return
+         */
+        public Type getElement() {
+            return element;
+        }
+
+        public String toString() {
+            return "[" + element + "]";
+        }
+    }
+
+    /**
+     * Represents a record type, such as <code>{int x, int y}</code>, which
+     * consists of one or more (named) field types. Observe that records exhibit
+     * <i>depth</i> subtyping, but not <i>width</i> subtyping.
+     *
+     * @author David J. Pearce
+     */
+    public static final class Record extends SyntacticElement.Impl implements Type {
+
+        private final ArrayList<Pair<Type, String>> fields;
+
+        public Record(List<Pair<Type, String>> fields, Attribute... attributes) {
+            super(attributes);
+            if (fields.size() == 0) {
+                throw new IllegalArgumentException(
+                        "Cannot create type tuple with no fields");
+            }
+            this.fields = new ArrayList<Pair<Type, String>>(fields);
+        }
+
+        /**
+         * Get the fields which make up this record type. This are stored in the
+         * order they are declared in the source file.
+         *
+         * @return
+         */
+        public List<Pair<Type, String>> getFields() {
+            return fields;
+        }
+
+        public String toString() {
+            String r = "";
+
+            for (int i = 0; i != fields.size(); ++i) {
+                if (i != 0) {
+                    r = r + ",";
+                }
+                Pair<Type, String> field = fields.get(i);
+                r = r + field.first() + " " + field.second();
+            }
+
+            return "{" + r + "}";
+        }
+    }
 }
