@@ -108,6 +108,8 @@ public class TypeChecker {
             // nothing to do
         } else if (stmt instanceof Stmt.VariableDeclaration) {
             check((Stmt.VariableDeclaration) stmt, environment);
+        } else if (stmt instanceof Stmt.VariableInferredDeclaration) {
+            check((Stmt.VariableInferredDeclaration) stmt, environment);
         } else if (stmt instanceof Expr.Invoke) {
             check((Expr.Invoke) stmt, false, environment);
         } else if (stmt instanceof Stmt.IfElse) {
@@ -135,6 +137,23 @@ public class TypeChecker {
         environment.put(stmt.getName(), stmt.getType());
     }
 
+
+    public void check(Stmt.VariableInferredDeclaration stmt, Map<String, Type> environment) {
+        if (environment.containsKey(stmt.getName())) {
+            syntaxError("variable already declared: " + stmt.getName(),
+                    file.filename, stmt);
+        } else if (stmt.getExpr() != null) {
+            Type type = check(stmt.getExpr(), environment);
+            if (stmt.getType() instanceof Type.Inferred) {
+                stmt.setType(type);
+            } else {
+                syntaxError(String.format("inferred variable  %s has a type before being declared", stmt.getName()),
+                        file.filename, stmt);
+            }
+        }
+        environment.put(stmt.getName(), stmt.getType());
+    }
+
     public void check(Stmt.Assert stmt, Map<String, Type> environment) {
         Type t = check(stmt.getExpr(), environment);
         checkInstanceOf(t, stmt.getExpr(), Type.Bool.class);
@@ -145,6 +164,14 @@ public class TypeChecker {
         Type lhs = check(stmt.getLhs(), environment);
         Type rhs = check(stmt.getRhs(), environment);
         // Make sure the type being assigned is a subtype of the destination
+        if (lhs instanceof Type.Inferred) {
+            if (stmt.getLhs() instanceof Expr.Variable) {
+                Expr.Variable var = (Expr.Variable) stmt.getLhs();
+                environment.put(var.getName(), rhs);
+
+                lhs = rhs;
+            }
+        }
         checkSubtype(lhs, rhs, stmt.getRhs());
     }
 

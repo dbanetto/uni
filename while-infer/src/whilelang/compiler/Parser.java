@@ -211,6 +211,11 @@ public class Parser {
             if (withSemiColon) {
                 match(";");
             }
+        } else if (token.text.equals("var")) {
+            stmt = parseVariableInferredDeclaration(context);
+            if (withSemiColon) {
+                match(";");
+            }
         } else if ((index + 1) < tokens.size() && tokens.get(index + 1) instanceof LeftBrace) {
             // must be a method invocation
             stmt = parseInvokeExprOrStmt(context);
@@ -358,6 +363,36 @@ public class Parser {
         }
         // Done.
         return new Stmt.VariableDeclaration(type, id.text, initialiser, sourceAttr(start, index - 1));
+    }
+
+    /**
+     * Parse a variable declaration, of the form:
+     * <p>
+     * <pre>
+     * VarDecl ::= 'var' Ident [ '=' Expr ] ';'
+     * </pre>
+     *
+     * @return
+     */
+    private Stmt.VariableInferredDeclaration parseVariableInferredDeclaration(Context context) {
+        int start = index;
+        // Every variable declaration consists of a 'var' and variable name.
+        match("var");
+        Identifier id = matchIdentifier();
+        if (context.isDeclared(id.text)) {
+            syntaxError("variable " + id.text + " alread declared", id);
+        } else {
+            context.declare(id.text);
+        }
+        // A variable declaration may optionally be assigned an initialiser
+        // expression.
+        Expr initialiser = null;
+        if (index < tokens.size() && tokens.get(index) instanceof Equals) {
+            match("=");
+            initialiser = parseExpr(context);
+        }
+        // Done.
+        return new Stmt.VariableInferredDeclaration(id.text, initialiser, sourceAttr(start, index - 1));
     }
 
     /**

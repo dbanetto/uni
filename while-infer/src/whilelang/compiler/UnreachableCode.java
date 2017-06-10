@@ -87,6 +87,7 @@ public class UnreachableCode {
                 stmt instanceof Stmt.Assign ||
                 stmt instanceof Stmt.Print ||
                 stmt instanceof Stmt.VariableDeclaration ||
+                stmt instanceof Stmt.VariableInferredDeclaration ||
                 stmt instanceof Expr.Invoke) {
             // These are all the easy cases!
             return ControlFlow.NEXT;
