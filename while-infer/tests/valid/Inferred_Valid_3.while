@@ -1,0 +1,14 @@
+type f is { int a, bool b }
+type b is { int a }
+
+
+void main() {
+    var x;
+    if (true) {
+        x = { a: 1, b : false };
+    } else {
+        x = { a : 1 };
+    }
+
+    assert ( x.a == 1 );
+}

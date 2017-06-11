@@ -42,13 +42,13 @@ import static whilelang.util.SyntaxError.syntaxError;
 public class TypeChecker {
     private WhileFile file;
     private WhileFile.MethodDecl method;
-    private HashMap<String, WhileFile.MethodDecl> methods;
-    private HashMap<String, WhileFile.TypeDecl> types;
+    private Map<String, WhileFile.MethodDecl> methods;
+    private Map<String, WhileFile.TypeDecl> types;
 
     public void check(WhileFile wf) {
         this.file = wf;
-        this.methods = new HashMap<String, WhileFile.MethodDecl>();
-        this.types = new HashMap<String, WhileFile.TypeDecl>();
+        this.methods = new HashMap<>();
+        this.types = new HashMap<>();
 
         for (WhileFile.Decl declaration : wf.declarations) {
             if (declaration instanceof WhileFile.MethodDecl) {
@@ -77,7 +77,7 @@ public class TypeChecker {
         this.method = fd;
 
         // First, initialise the typing environment
-        HashMap<String, Type> environment = new HashMap<String, Type>();
+        Environment environment = new Environment();
         for (WhileFile.Parameter p : fd.getParameters()) {
             checkNotVoid(p.getType(), p);
             environment.put(p.name(), p.getType());
@@ -87,13 +87,13 @@ public class TypeChecker {
         check(fd.getBody(), environment);
     }
 
-    public void check(List<Stmt> statements, Map<String, Type> environment) {
+    public void check(List<Stmt> statements, Environment environment) {
         for (Stmt s : statements) {
             check(s, environment);
         }
     }
 
-    public void check(Stmt stmt, Map<String, Type> environment) {
+    public void check(Stmt stmt, Environment environment) {
         if (stmt instanceof Stmt.Assert) {
             check((Stmt.Assert) stmt, environment);
         } else if (stmt instanceof Stmt.Assign) {
@@ -126,8 +126,8 @@ public class TypeChecker {
     }
 
 
-    public void check(Stmt.VariableDeclaration stmt, Map<String, Type> environment) {
-        if (environment.containsKey(stmt.getName())) {
+    public void check(Stmt.VariableDeclaration stmt, Environment environment) {
+        if (environment.contains(stmt.getName())) {
             syntaxError("variable already declared: " + stmt.getName(),
                     file.filename, stmt);
         } else if (stmt.getExpr() != null) {
@@ -138,8 +138,8 @@ public class TypeChecker {
     }
 
 
-    public void check(Stmt.VariableInferredDeclaration stmt, Map<String, Type> environment) {
-        if (environment.containsKey(stmt.getName())) {
+    public void check(Stmt.VariableInferredDeclaration stmt, Environment environment) {
+        if (environment.contains(stmt.getName())) {
             syntaxError("variable already declared: " + stmt.getName(),
                     file.filename, stmt);
         } else if (stmt.getExpr() != null) {
@@ -154,16 +154,17 @@ public class TypeChecker {
         environment.put(stmt.getName(), stmt.getType());
     }
 
-    public void check(Stmt.Assert stmt, Map<String, Type> environment) {
+    public void check(Stmt.Assert stmt, Environment environment) {
         Type t = check(stmt.getExpr(), environment);
         checkInstanceOf(t, stmt.getExpr(), Type.Bool.class);
     }
 
 
-    public void check(Stmt.Assign stmt, Map<String, Type> environment) {
+    public void check(Stmt.Assign stmt, Environment environment) {
         Type lhs = check(stmt.getLhs(), environment);
         Type rhs = check(stmt.getRhs(), environment);
-        // Make sure the type being assigned is a subtype of the destination
+
+        // assigning inferred type to right hand side's type
         if (lhs instanceof Type.Inferred) {
             if (stmt.getLhs() instanceof Expr.Variable) {
                 Expr.Variable var = (Expr.Variable) stmt.getLhs();
@@ -172,15 +173,17 @@ public class TypeChecker {
                 lhs = rhs;
             }
         }
+
+        // Make sure the type being assigned is a subtype of the destination
         checkSubtype(lhs, rhs, stmt.getRhs());
     }
 
-    public void check(Stmt.Print stmt, Map<String, Type> environment) {
+    public void check(Stmt.Print stmt, Environment environment) {
         check(stmt.getExpr(), environment);
         // For print statements, the right hand side can have any type.
     }
 
-    public void check(Stmt.Return stmt, Map<String, Type> environment) {
+    public void check(Stmt.Return stmt, Environment environment) {
         if (stmt.getExpr() != null) {
             Type ret = check(stmt.getExpr(), environment);
             // Make sure returned value is subtype of enclosing method's return
@@ -192,22 +195,28 @@ public class TypeChecker {
         }
     }
 
-    public void check(Stmt.IfElse stmt, Map<String, Type> environment) {
+    public void check(Stmt.IfElse stmt, Environment environment) {
         Type ct = check(stmt.getCondition(), environment);
         // Make sure condition has bool type
         checkInstanceOf(ct, stmt.getCondition(), Type.Bool.class);
-        check(stmt.getTrueBranch(), environment);
-        check(stmt.getFalseBranch(), environment);
+
+        Environment trueEnv = new Environment(environment);
+        Environment falseEnv = new Environment(environment);
+
+        check(stmt.getTrueBranch(), trueEnv);
+        check(stmt.getFalseBranch(), falseEnv);
+
+        environment.merge(trueEnv, falseEnv, stmt);
     }
 
-    public void check(Stmt.For stmt, Map<String, Type> environment) {
+    public void check(Stmt.For stmt, Environment environment) {
 
         Stmt.VariableDeclaration vd = stmt.getDeclaration();
         check(vd, environment);
 
         // Clone the environment in order that the loop variable is only scoped
         // for the life of the loop itself.
-        environment = new HashMap<String, Type>(environment);
+        environment = new Environment(environment);
         environment.put(vd.getName(), vd.getType());
 
         Type ct = check(stmt.getCondition(), environment);
@@ -217,14 +226,14 @@ public class TypeChecker {
         check(stmt.getBody(), environment);
     }
 
-    public void check(Stmt.While stmt, Map<String, Type> environment) {
+    public void check(Stmt.While stmt, Environment environment) {
         Type ct = check(stmt.getCondition(), environment);
         // Make sure condition has bool type
         checkInstanceOf(ct, stmt.getCondition(), Type.Bool.class);
         check(stmt.getBody(), environment);
     }
 
-    public void check(Stmt.Switch stmt, Map<String, Type> environment) {
+    public void check(Stmt.Switch stmt, Environment environment) {
         Type ct = check(stmt.getExpr(), environment);
         // Now, check each case individually
         for (Stmt.Case c : stmt.getCases()) {
@@ -236,7 +245,7 @@ public class TypeChecker {
         }
     }
 
-    public Type check(Expr expr, Map<String, Type> environment) {
+    public Type check(Expr expr, Environment environment) {
         Type type;
 
         if (expr instanceof Expr.Binary) {
@@ -271,7 +280,7 @@ public class TypeChecker {
         return type;
     }
 
-    public Type check(Expr.Binary expr, Map<String, Type> environment) {
+    public Type check(Expr.Binary expr, Environment environment) {
         Type leftType = check(expr.getLhs(), environment);
         Type rightType = check(expr.getRhs(), environment);
 
@@ -310,11 +319,11 @@ public class TypeChecker {
         }
     }
 
-    public Type check(Expr.Constant expr, Map<String, Type> environment) {
+    public Type check(Expr.Constant expr, Environment environment) {
         return typeOf(expr.getValue(), expr);
     }
 
-    public Type check(Expr.IndexOf expr, Map<String, Type> environment) {
+    public Type check(Expr.IndexOf expr, Environment environment) {
         Type srcType = check(expr.getSource(), environment);
         Type indexType = check(expr.getIndex(), environment);
         // Make sure index has integer type
@@ -325,7 +334,7 @@ public class TypeChecker {
         return ((Type.Array) srcType).getElement();
     }
 
-    public Type check(Expr.Invoke expr, boolean returnRequired, Map<String, Type> environment) {
+    public Type check(Expr.Invoke expr, boolean returnRequired, Environment environment) {
         WhileFile.MethodDecl fn = methods.get(expr.getName());
         List<Expr> arguments = expr.getArguments();
         List<WhileFile.Parameter> parameters = fn.getParameters();
@@ -346,7 +355,7 @@ public class TypeChecker {
         return returnType;
     }
 
-    public Type check(Expr.ArrayGenerator expr, Map<String, Type> environment) {
+    public Type check(Expr.ArrayGenerator expr, Environment environment) {
         Type element = check(expr.getValue(), environment);
         Type size = check(expr.getSize(), environment);
         // Check size expression has int type
@@ -354,7 +363,7 @@ public class TypeChecker {
         return new Type.Array(element);
     }
 
-    public Type check(Expr.ArrayInitialiser expr, Map<String, Type> environment) {
+    public Type check(Expr.ArrayInitialiser expr, Environment environment) {
         ArrayList<Type> types = new ArrayList<Type>();
         List<Expr> arguments = expr.getArguments();
         for (Expr argument : arguments) {
@@ -365,7 +374,7 @@ public class TypeChecker {
         return new Type.Array(lub);
     }
 
-    public Type check(Expr.RecordAccess expr, Map<String, Type> environment) {
+    public Type check(Expr.RecordAccess expr, Environment environment) {
         Type srcType = check(expr.getSource(), environment);
         // Check src has record type
         Type.Record recordType = (Type.Record) checkInstanceOf(srcType, expr.getSource(), Type.Record.class);
@@ -379,7 +388,7 @@ public class TypeChecker {
         return null; // deadcode
     }
 
-    public Type check(Expr.RecordConstructor expr, Map<String, Type> environment) {
+    public Type check(Expr.RecordConstructor expr, Environment environment) {
         List<Pair<String, Expr>> arguments = expr.getFields();
         List<Pair<Type, String>> types = new ArrayList<Pair<Type, String>>();
 
@@ -391,7 +400,7 @@ public class TypeChecker {
         return new Type.Record(types);
     }
 
-    public Type check(Expr.Unary expr, Map<String, Type> environment) {
+    public Type check(Expr.Unary expr, Environment environment) {
         Type type = check(expr.getExpr(), environment);
         switch (expr.getOp()) {
             case NEG:
@@ -409,7 +418,7 @@ public class TypeChecker {
         }
     }
 
-    public Type check(Expr.Variable expr, Map<String, Type> environment) {
+    public Type check(Expr.Variable expr, Environment environment) {
         Type type = environment.get(expr.getName());
         if (type == null) {
             syntaxError("unknown variable encountered: " + expr.getName(),
@@ -642,7 +651,7 @@ public class TypeChecker {
      * cannot be used in certain situations.
      *
      * @param t
-     * @param elemt
+     * @param elem
      */
     public void checkNotVoid(Type t, SyntacticElement elem) {
         if (t instanceof Type.Void) {
@@ -655,6 +664,56 @@ public class TypeChecker {
         } else if (t instanceof Type.Array) {
             Type.Array at = (Type.Array) t;
             checkNotVoid(at.getElement(), at.getElement());
+        }
+    }
+
+    private class Environment {
+        private final Map<String, Type> types;
+
+        public Environment() {
+            this.types = new HashMap<>();
+        }
+
+        public Environment(Environment copy) {
+            this.types = new HashMap<>(copy.types);
+        }
+
+        public void put(String name, Type type) {
+            this.types.put(name, type);
+        }
+
+        public Type get(String name) {
+            return this.types.get(name);
+        }
+
+        public boolean contains(String name) {
+            return this.types.containsKey(name);
+        }
+
+        public void merge(Environment left, Environment right, SyntacticElement element) {
+
+            for (Map.Entry<String, Type> lval : left.types.entrySet()) {
+                String name = lval.getKey();
+
+                if (this.contains(name) && right.contains(name)) {
+                    Type leftType = lval.getValue();
+                    Type rightType = right.get(name);
+
+                    if (equivalent(leftType, rightType, element)) {
+                        // they are equivalent types, does not matter which one to use
+                        this.put(name, leftType);
+                    } else if (isSubtype(leftType, rightType, element)) {
+                        // use the most general type between the two
+                        this.put(name, leftType);
+                    } else if (isSubtype(rightType, leftType, element)) {
+                        // use the most general type between the two
+                        this.put(name, rightType);
+                    } else {
+                        // TODO: make a union type of the two candidates
+                        syntaxError("Oh no, could not merge environments", file.filename, element);
+                    }
+                }
+            }
         }
     }
 }
