@@ -667,6 +667,28 @@ public class TypeChecker {
         }
     }
 
+    private Type.Record recordIntersection(Type.Record left, Type.Record right, SyntacticElement element) {
+        List<Pair<Type, String>> leftFields = left.getFields();
+        List<Pair<Type, String>> rightFields = right.getFields();
+
+        List<Pair<Type, String>> interFields = new ArrayList<>();
+
+        // intersection with width subtyping
+        for (int i = 0; i != leftFields.size(); ++i) {
+            Pair<Type, String> p1Field = leftFields.get(i);
+            Pair<Type, String> p2Field = rightFields.get(i);
+            if (equivalent(p1Field.first(), p2Field.first(), element) && p1Field.second().equals(p2Field.second())) {
+                interFields.add(new Pair<>(p1Field.first(), p1Field.second()));
+            }
+        }
+
+        if (interFields.isEmpty()) {
+            return null;
+        }
+
+        return new Type.Record(interFields);
+    }
+
     private class Environment {
         private final Map<String, Type> types;
 
@@ -695,7 +717,7 @@ public class TypeChecker {
             for (Map.Entry<String, Type> lval : left.types.entrySet()) {
                 String name = lval.getKey();
 
-                if (this.contains(name) && right.contains(name)) {
+                if (this.contains(name) && this.get(name) instanceof Type.Inferred && right.contains(name)) {
                     Type leftType = lval.getValue();
                     Type rightType = right.get(name);
 
@@ -709,8 +731,18 @@ public class TypeChecker {
                         // use the most general type between the two
                         this.put(name, rightType);
                     } else {
-                        // TODO: make a union type of the two candidates
-                        syntaxError("Oh no, could not merge environments", file.filename, element);
+
+                        if (leftType instanceof Type.Record && rightType instanceof Type.Record) {
+                            Type t = recordIntersection((Type.Record) leftType,(Type.Record) rightType, element);
+
+                            if (t != null) {
+                                this.put(name, t);
+                            }
+                        } else {
+
+                            // TODO: make a union type of the two candidates
+                            syntaxError("Oh no, could not merge environments", file.filename, element);
+                        }
                     }
                 }
             }
