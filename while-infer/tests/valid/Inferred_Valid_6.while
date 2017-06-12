@@ -1,8 +1,16 @@
-void main() {
-    var x;
-    if (false) {
-        x = 1;
-    }
+bool f(int i) {
+   var x;
+   if (i > 0) {
+    x = { a : true, c : 10 , b: 'a' };
+   } else {
+    x = { a : false, b : "string" , c: {a: 1} };
+   }
 
-    assert (x);
+   return x.a;
+}
+
+
+void main() {
+    assert(f(10));
+    assert(!f(-10));
 }

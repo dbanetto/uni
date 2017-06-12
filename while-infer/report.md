@@ -69,3 +69,55 @@ Another solution would be to create a union type of the two branches.
     assert (x.f);
 ```
 > complex deferred example, record intersection
+
+# Union Types with inference
+
+Porting the union types from the first assignment has made for some interesting interactions with 
+the type inference.
+In particular it removes an error with an inferred variable being defined with different types down
+two branches.
+The response is to make the type a union of the two types.
+
+```javascript
+    var x;
+    if (cond) {
+        x = true;
+    } else {
+        x = "hello";
+    }
+    // x is type bool|string
+```
+> inferred types with unions
+
+I added an extension when a union is of records, such as below, you can use common
+fields from the records without the need to test which type of the union it is.
+
+```javascript
+    var x;
+    if (cond) {
+        x = { f: true, a: 10 };
+        // x is type { f: bool, a: int }
+    } else {
+        x = { f: true, c: "string" };
+        // x is type { f: bool, c : String }
+    }
+    // x is type { f: bool, a: int }|{ f: bool, c: String }
+    // x's type is functionally equalivant to { f: bool }
+    assert (x.f);
+```
+> inferred types with records
+
+```javascript
+    var x;
+    if (cond) {
+        x = { f: true };
+        // x is type { f: bool }
+    } else {
+        x = { f: "string" };
+        // x is type { f: String}
+    }
+    // x is type { f: bool }|{ f: String }
+    // x's type is functionally equalivant to { f: bool|String }
+    assert (x.f);
+```
+> inferred types with records

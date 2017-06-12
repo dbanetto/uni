@@ -250,4 +250,35 @@ public interface Type extends SyntacticElement {
             return "{" + r + "}";
         }
     }
+
+    /**
+     * Represents a record type, such as <code>{int x, int y}</code>, which
+     * consists of one or more (named) field types. Observe that records exhibit
+     * <i>depth</i> subtyping, but not <i>width</i> subtyping.
+     *
+     * @author David J. Pearce
+     */
+    public static final class Union extends SyntacticElement.Impl implements Type {
+
+        private final Type left;
+        private final Type right;
+
+        public Union(Type left, Type right, Attribute... attributes) {
+            super(attributes);
+            this.left = left;
+            this.right = right;
+        }
+
+        public Type getLeft() {
+            return left;
+        }
+
+        public Type getRight() {
+            return right;
+        }
+
+        public String toString() {
+            return left + "|" + right;
+        }
+    }
 }
