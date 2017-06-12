@@ -5,7 +5,7 @@
 Aim for the case study:
     * recommend ways to improve egineering projects success
 
-Using the view point of legal compliance
+Using the view point of _legal compliance_
 
 Areas to look at:
     * community engagement, communications
@@ -38,10 +38,35 @@ Summarise the brief (your task), briefly outline the case and focus on its signi
 state the report's aim(s) and describe how the report is organised.
 -->
  
-# Context
+# Background
 <!--
 Describe the case or situation being investigated.
 Focus on the facts of the situation.
+
+ - it is a sub-project of the Wellington Corridor Project
+ - The project was terminated in the proposal phase
+ - notice of requirement, what is it? 
+
+ - goal of the RMA is to `promote the sustainable management of natural & physical resources`.
+ - this was due to multiple failures to meet the requirements of the RMA
+    - alternatives 
+        - "methodology,  particularly  the  need  for transparency and replicability, is important" [1273]
+        - "it was not clear how criteria were weighted and the reason for any weighting.
+           This made the process somewhat confusing and difficult to follow.  
+           It also meant that the process could not be replicated" [1274]
+        - section: 171(1) Whether adequate consideration has been given to alternative sites, routes & methods
+
+    - hertiage sites
+        - section 6(f) recongise & provide for protection of historic heritage from inappropriate development
+        - public outcry tipped the balance & defended the Basin
+        - King Salmon, case applied to '*inappropriate* development' 
+        - test-cricket status of the Basin Reserve venue [1259]
+    
+-->
+
+# Discussion
+<!--
+
 -->
 
 # Conclusion
