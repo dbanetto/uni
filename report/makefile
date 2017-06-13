@@ -4,7 +4,7 @@ PDF:=Report\ David\ Barnett.pdf
 
 $(PDF): report.md report.bib
 ifdef CITE
-	pandoc -s -S --bibliography report.bib -V geometry:margin=1in -V linestretch=2 --filter pandoc-citeproc --csl ieee.csl $< -o "$@"
+	pandoc -s -S --bibliography report.bib -V geometry:margin=1in --filter pandoc-citeproc --csl ieee.csl $< -o "$@"
 else
 	@echo "WARNING NO CITATION"
 	pandoc -s -S $< -o "$@"

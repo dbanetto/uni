@@ -46,20 +46,34 @@ Focus on the facts of the situation.
  - it is a sub-project of the Wellington Corridor Project
  - improving the basin reserve area
  - The project was terminated in the proposal phase
+
  - notice of requirement, what is it?
  - proposal sent to EPA
  - goal of the RMA is to `promote the sustainable management of natural & physical resources`.
+
  - this was due to multiple failures to meet the requirements of the RMA
  - the area is a hertiage site, including the circket grounds, etc.
 -->
 
 The Basin Reserve flyover was a proposed solution to alleviate the congestion between Wellington City, New Zealand,
 and the eastern suburbs of Wellington.
-It was one component to a greater project of improve the transport of Wellington region [@northern_corridor].
+Its proposed changes were primarily to add a flyover bridge from the Mt. Victoria tunnel to the
+National War Memorial Park underpass [@basin_options_summary], see figure 1 for more detail.
+These changes are to improve westward traffic heading to the motorway.
+This project was one component of a greater project to improve the transport of Wellington region [@northern_corridor],
+the Wellington Northern Corridor project.
+These projects were managed by the New Zealand Transport Agency (NZTA) [@treasury_exp_2016], the transport arm of the New Zealand Government.
 
-![](./proposed_changes.png)\ 
+![Map of the Basin Reserve area with proposed changes [@epa_report]](./proposed_changes.png)
 
-> Map of the changes to the Basin Reserve
+The Basin Reserve flyover failed during the proposal phase of the project.
+It failed to meet the standards of a Notice of Requirement (NOR) of the resources it needs to complete the project.
+A Notice of Requirement is a process set out in the Resource Management Act that air marks the resources 
+for the project, such as land, while a decision about the proposal is being made by authorities [@rma_nor].
+In this case it was handled by the Environment Protection Agency since the Basin Flyover is of national significance [@rma_nor][@basin_options_report].
+The project failed the NOR due to a range of failings from not adequately mitigating impact on the amenity and heritage
+of the Basin Reserve area to having an unclear rational in choosing a flyover over the other options [@basin_options_report][@epa_report_judgement].
+
 
 # Discussion
 <!--
