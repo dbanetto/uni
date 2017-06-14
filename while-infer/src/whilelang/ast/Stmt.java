@@ -595,6 +595,38 @@ public interface Stmt extends SyntacticElement {
         }
     }
 
+    public static final class MatchCase extends SyntacticElement.Impl {
+        private final Type typeMatch;
+        private final String name;
+        private final ArrayList<Stmt> body;
+
+        public MatchCase(Type typeMatch, String name, List<Stmt> body, Attribute... attributes) {
+            super(attributes);
+            this.typeMatch = typeMatch;
+            this.name = name;
+            this.body = new ArrayList<>(body);
+        }
+
+        public MatchCase(Type typeMatch, String name, List<Stmt> body, Collection<Attribute> attributes) {
+            super(attributes);
+            this.typeMatch = typeMatch;
+            this.name = name;
+            this.body = new ArrayList<>(body);
+        }
+
+        public Type getTypeMatch() {
+            return typeMatch;
+        }
+
+        public String getMatchName() {
+            return name;
+        }
+
+        public List<Stmt> getBody() {
+            return body;
+        }
+    }
+
     /**
      * Represents a single case in a switch statement which matches against a
      * given value. In the case of a null value, then this is a "default" case.
@@ -701,6 +733,68 @@ public interface Stmt extends SyntacticElement {
          * @return
          */
         public List<Case> getCases() {
+            return cases;
+        }
+    }
+
+    /**
+     * Represents a switch statement which selects between a number of different
+     * cases, based on a given value. The following illustrates:
+     * <p>
+     * <pre>
+     * int f(int|bool x) {
+     *  match(x) {
+     *   case int {
+     *     return 1;
+     *   }
+     *   case bool {
+     *     return 0;
+     *   }
+     * }
+     * </pre>
+     *
+     * @author David J. Pearce
+     */
+    public static final class Match extends SyntacticElement.Impl implements Stmt {
+        private final Expr expr;
+        private final List<MatchCase> cases;
+
+        /**
+         * Construct a switch statement from a given expression and a list of
+         * cases, of which one may be a "default".
+         *
+         * @param expr       The expression that generates a type value is used to match
+         *                   cases against
+         * @param cases      A list of zero or more cases, of which one may be a
+         *                   "default" case.
+         * @param attributes
+         */
+        public Match(Expr expr, List<MatchCase> cases, Attribute... attributes) {
+            super(attributes);
+            this.expr = expr;
+            this.cases = new ArrayList<MatchCase>(cases);
+        }
+
+        /**
+         * Construct a switch statement from a given expression and a list of
+         * cases, of which one may be a "default".
+         *
+         * @param expr       The type whose value is used to match cases against
+         * @param cases      A list of zero or more cases, of which one may be a
+         *                   "default" case.
+         * @param attributes
+         */
+        public Match(Expr  expr, List<MatchCase> cases, Collection<Attribute> attributes) {
+            super(attributes);
+            this.expr = expr;
+            this.cases = new ArrayList<MatchCase>(cases);
+        }
+
+        public Expr getExpr() {
+            return expr;
+        }
+
+        public List<MatchCase> getCases() {
             return cases;
         }
     }

@@ -18,9 +18,10 @@
 
 package whilelang.util;
 
-import whilelang.ast.Expr;
-import whilelang.ast.Stmt;
-import whilelang.ast.WhileFile;
+import org.w3c.dom.Attr;
+import whilelang.ast.*;
+import whilelang.compiler.Lexer;
+import whilelang.compiler.TypeChecker;
 
 import java.util.*;
 
@@ -132,6 +133,8 @@ public class Interpreter {
             return execute((Stmt.Print) stmt, frame);
         } else if (stmt instanceof Expr.Invoke) {
             return execute((Expr.Invoke) stmt, frame);
+        } else if (stmt instanceof Stmt.Match) {
+            return execute((Stmt.Match) stmt, frame);
         } else {
             internalFailure("unknown statement encountered (" + stmt + ")", file.filename, stmt);
             return null;
@@ -286,6 +289,47 @@ public class Interpreter {
         String str = toString(execute(stmt.getExpr(), frame));
         System.out.println(str);
         return null;
+    }
+
+    private Object execute(Stmt.Match stmt, HashMap<String, Object> frame) {
+        Object value = execute(stmt.getExpr(), frame);
+
+        Attribute.Type exprType = stmt.getExpr().attribute(Attribute.Type.class);
+        if (exprType == null) {
+            internalFailure("Could not find type of expression: " + stmt.getExpr(),
+                    file.filename, stmt);
+        }
+
+        // determine type of Value
+        Type valueType = typeOfValue(value, stmt);
+        TypeChecker checker = new TypeChecker();
+
+        for (Stmt.MatchCase c : stmt.getCases()) {
+            if (checker.isSubtype(c.getTypeMatch(), valueType, stmt)) {
+                frame.put(c.getMatchName(), value);
+                Object result = execute(c.getBody(), frame);
+                frame.remove(c.getMatchName());
+
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    private Type typeOfValue(Object value, SyntacticElement element) {
+        if (value instanceof Integer) {
+            return new Type.Int();
+        } else if (value instanceof Boolean) {
+            return new Type.Bool();
+        } else if (value instanceof String) {
+            return new Type.Strung();
+        } else if (value instanceof Character) {
+            return new Type.Char();
+        }
+
+        internalFailure("Cannot determine type of object", file.filename,  element);
+        return null; // deadcode
     }
 
     /**

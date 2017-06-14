@@ -117,6 +117,8 @@ public class TypeChecker {
             check((Stmt.While) stmt, environment);
         } else if (stmt instanceof Stmt.Switch) {
             check((Stmt.Switch) stmt, environment);
+        } else if (stmt instanceof Stmt.Match) {
+            check((Stmt.Match) stmt, environment);
         } else {
             internalFailure("unknown statement encountered (" + stmt + ")", file.filename, stmt);
         }
@@ -239,6 +241,21 @@ public class TypeChecker {
                 checkSubtype(ct, et, c.getValue());
             }
             check(c.getBody(), environment);
+        }
+    }
+
+    public void check(Stmt.Match stmt, Environment environment) {
+        Type ct = check(stmt.getExpr(), environment);
+        // Now, check each case individually
+        for (Stmt.MatchCase c : stmt.getCases()) {
+            Type et = c.getTypeMatch();
+            checkSubtype(ct, et, c);
+
+            Environment matchEnv = new Environment(environment);
+
+            matchEnv.put(c.getMatchName(), ct);
+
+            check(c.getBody(), matchEnv);
         }
     }
 

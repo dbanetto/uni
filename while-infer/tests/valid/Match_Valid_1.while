@@ -1,0 +1,15 @@
+void main() {
+    int|bool x = 1;
+
+    match (x) {
+        case (int a) {
+            assert (a == 1);
+            return;
+        }
+        case (bool a) {
+            assert (false);
+        }
+    }
+
+    assert (false);
+}

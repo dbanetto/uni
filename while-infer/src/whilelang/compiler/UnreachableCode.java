@@ -106,6 +106,8 @@ public class UnreachableCode {
             return check((Stmt.While) stmt);
         } else if (stmt instanceof Stmt.Switch) {
             return check((Stmt.Switch) stmt);
+        } else if (stmt instanceof Stmt.Match) {
+            return check((Stmt.Match) stmt);
         } else {
             internalFailure("unknown statement encountered (" + stmt + ")", file.filename, stmt);
             return null; // deadcode (ah, the irony)
@@ -139,6 +141,15 @@ public class UnreachableCode {
         } else {
             return ControlFlow.RETURN;
         }
+    }
+
+    public ControlFlow check(Stmt.Match stmt) {
+
+        for (Stmt.MatchCase c : stmt.getCases()) {
+            ControlFlow r = check(c.getBody());
+        }
+
+        return ControlFlow.NEXT;
     }
 
     public ControlFlow check(Stmt.For stmt) {

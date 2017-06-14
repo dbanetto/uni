@@ -201,6 +201,8 @@ public class Parser {
             stmt = parseForStmt(context);
         } else if (token.text.equals("switch")) {
             stmt = parseSwitchStmt(context);
+        } else if (token.text.equals("match")) {
+            stmt = parseMatchStmt(context);
         } else if (token.text.equals("break")) {
             stmt = parseBreakStmt(context);
             if (withSemiColon) {
@@ -525,6 +527,49 @@ public class Parser {
         match("}");
 
         return new Stmt.Switch(expr, cases, sourceAttr(start, end - 1));
+    }
+
+    private Stmt parseMatchStmt(Context context) {
+        int start = index;
+        matchKeyword("match");
+        match("(");
+        Expr expr = parseExpr(context);
+        match(")");
+        int end = index;
+        match("{");
+        List<Stmt.MatchCase> cases = parseMatchCases(context);
+        match("}");
+
+        return new Stmt.Match(expr, cases, sourceAttr(start, end - 1));
+    }
+
+    private List<Stmt.MatchCase> parseMatchCases(Context context) {
+        List<Stmt.MatchCase> cases = new ArrayList<>();
+
+        while (index < tokens.size() && !(tokens.get(index) instanceof RightCurly)) {
+            int start = index;
+
+            // This is a case block
+            matchKeyword("case");
+
+            match("(");
+
+            Type parameterType = parseType();
+            Identifier parameterName = matchIdentifier();
+
+            match(")");
+
+            int end = index;
+
+            Context matchContext = context.clone();
+            matchContext.declare(parameterName.text);
+
+            // Parse the case body
+            List<Stmt> body = parseStatementBlock(matchContext);
+
+            cases.add(new Stmt.MatchCase(parameterType, parameterName.text, body, sourceAttr(start, end - 1)));
+        }
+        return cases;
     }
 
     private Stmt parseBreakStmt(Context context) {

@@ -132,6 +132,8 @@ public class DefiniteAssignment {
             return check((Stmt.While) stmt, environment);
         } else if (stmt instanceof Stmt.Switch) {
             return check((Stmt.Switch) stmt, environment);
+        } else if (stmt instanceof Stmt.Match) {
+            return check((Stmt.Match) stmt, environment);
         } else {
             internalFailure("unknown statement encountered (" + stmt + ")", file.filename, stmt);
             return null;
@@ -238,6 +240,26 @@ public class DefiniteAssignment {
                 // We have a default case which will catch everything else
                 nextEnvironment = cf.nextEnvironment;
             }
+        }
+        breakEnvironment = join(nextEnvironment, breakEnvironment);
+        return new ControlFlow(breakEnvironment, null);
+    }
+
+    public ControlFlow check(Stmt.Match stmt, Defs environment) {
+        Defs nextEnvironment = environment;
+        Defs breakEnvironment = null;
+
+        check(stmt.getExpr(), environment);
+        for (Stmt.MatchCase c : stmt.getCases()) {
+            Defs matchEnv = environment.add(c.getMatchName());
+            ControlFlow cf = check(c.getBody(), matchEnv);
+
+            matchEnv = null;
+            if (cf.nextEnvironment != null) {
+                matchEnv = cf.nextEnvironment.remove(c.getMatchName());
+            }
+
+            breakEnvironment = join(breakEnvironment, matchEnv);
         }
         breakEnvironment = join(nextEnvironment, breakEnvironment);
         return new ControlFlow(breakEnvironment, null);
