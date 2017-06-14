@@ -7,6 +7,6 @@ rec f(int a) {
 
 void main() {
     assert {b1:1,b2:2} == f(1);
-    assert {b1:2,b2:3} == f(2);
+    assert {b2:3,b1:2} == f(2);
     assert {b1:9,b2:10} == f(9);
 }

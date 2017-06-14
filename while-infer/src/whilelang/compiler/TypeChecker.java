@@ -18,15 +18,11 @@
 
 package whilelang.compiler;
 
-import com.sun.org.apache.regexp.internal.RE;
 import whilelang.ast.*;
 import whilelang.util.Pair;
 import whilelang.util.SyntacticElement;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static whilelang.util.SyntaxError.internalFailure;
 import static whilelang.util.SyntaxError.syntaxError;
@@ -381,11 +377,12 @@ public class TypeChecker {
         if (srcType instanceof Type.Union) {
             Type.Union union = (Type.Union) srcType;
 
-            if (union.getLeft() instanceof Type.Record && union.getRight() instanceof Type.Record) {
-               srcType = recordIntersection((Type.Record) union.getLeft(),(Type.Record) union.getRight(), expr);
+            // check if all types unioned are records
+            if (union.getTypes().stream().allMatch(t -> t instanceof Type.Record)) {
+                srcType = recordIntersection(union, expr);
 
                 if (srcType == null) {
-                    syntaxError("No intersection between records: " + union.getLeft() + " & " + union.getRight(),
+                    syntaxError(String.format("No intersection between records that allows for access of%s : %s", expr, union),
                             file.filename, expr);
                 }
             }
@@ -651,22 +648,20 @@ public class TypeChecker {
             Type.Union superUnion = (Type.Union) t1;
             Type.Union subUnion = (Type.Union) t2;
 
-            // a union should not care what order the types are listed
-            // int|string is same as string|int
-            return (isSubtype(superUnion.getLeft(), subUnion.getLeft(), element) &&
-                    isSubtype(superUnion.getRight(), subUnion.getRight(), element))
-                    ||
-                    (isSubtype(superUnion.getLeft(), subUnion.getRight(), element) &&
-                            isSubtype(superUnion.getRight(), subUnion.getLeft(), element));
+            return subUnion.getTypes().stream()
+                    .allMatch(t -> superUnion.getTypes().stream().anyMatch(T -> isSubtype(T, t, element)))
+                    &&
+                    superUnion.getTypes().stream()
+                            .allMatch(T -> subUnion.getTypes().stream().anyMatch(t -> isSubtype(T, t, element)));
 
         } else if (t1 instanceof Type.Union) {
             Type.Union union = (Type.Union) t1;
 
-            return isSubtype(union.getLeft(), t2, element) || isSubtype(union.getRight(), t2, element);
+            return union.getTypes().stream().anyMatch(t -> isSubtype(t, t2, element));
         } else if (t2 instanceof Type.Union) {
             Type.Union union = (Type.Union) t2;
 
-            return isSubtype(t1, union.getLeft(), element) && isSubtype(t1, union.getRight(), element);
+            return union.getTypes().stream().allMatch(t -> isSubtype(t1, t, element));
         }
 
         return false;
@@ -704,27 +699,56 @@ public class TypeChecker {
         }
     }
 
-    private Type.Record recordIntersection(Type.Record left, Type.Record right, SyntacticElement element) {
-        List<Pair<Type, String>> leftFields = left.getFields();
-        List<Pair<Type, String>> rightFields = right.getFields();
+    /**
+     * Gets the intersection of a union of record types
+     *
+     * @param union,   union type of all records
+     * @param element, syntactic element that is using this expression
+     * @return a record type with all common field between all records, otherwise null
+     */
+    private Type.Record recordIntersection(Type.Union union, SyntacticElement element) {
+        List<Type> unionTypes = union.getTypes();
 
-        List<Pair<Type, String>> interFields = new ArrayList<>();
+        List<Pair<Type, String>> interFields = null;
+
+        for (Type type : unionTypes) {
+            if (!(type instanceof Type.Record)) {
+                internalFailure("intersection of record should only be called when all union types are records: " + union,
+                        file.filename, element);
+            }
+
+            Type.Record record = (Type.Record) type;
+
+            if (interFields == null) {
+                interFields = record.getFields();
+            }
+
+            List<Pair<Type, String>> toRemove = new ArrayList<>();
+            List<Pair<Type, String>> toReplace = new ArrayList<>();
+
+            for (Pair<Type, String> field : interFields) {
+                Optional<Pair<Type, String>> first = record.getFields().stream()
+                        .filter(p -> p.second().equals(field.second()))
+                        .findFirst();
+
+
+                if (first.isPresent()) {
+                    Pair<Type, String> otherField = first.get();
+                    if (!equivalent(field.first(), otherField.first(), element)) {
+                        toRemove.add(field);
+                        toReplace.add(new Pair<>(Type.Union.between(field.first(), otherField.first()), field.second()));
+                    }
+                } else {
+                    // defer deletion till after loop
+                    toRemove.add(field);
+                }
+            }
+
+            interFields.removeAll(toRemove);
+            interFields.addAll(toReplace);
+        }
 
         // intersection with width subtyping
-        for (int i = 0; i != leftFields.size(); ++i) {
-            Pair<Type, String> p1Field = leftFields.get(i);
-            Pair<Type, String> p2Field = rightFields.get(i);
-            if ( p1Field.second().equals(p2Field.second())) {
-
-                if (equivalent(p1Field.first(), p2Field.first(), element)) {
-                    interFields.add(new Pair<>(p1Field.first(), p1Field.second()));
-                } else {
-                    // take union between two fields
-                    interFields.add(new Pair<>(new Type.Union(p1Field.first(), p2Field.first()), p1Field.second()));
-                }
-
-            }
-        }
 
         if (interFields.isEmpty()) {
             return null;
@@ -775,7 +799,20 @@ public class TypeChecker {
                         // use the most general type between the two
                         this.put(name, rightType);
                     } else {
-                        Type union = new Type.Union(leftType, rightType);
+                        List<Type> types = new ArrayList<>();
+
+                        if (leftType instanceof Type.Union) {
+                            types.addAll(((Type.Union) leftType).getTypes());
+                        } else {
+                            types.add(leftType);
+                        }
+                        if (rightType instanceof Type.Union) {
+                            types.addAll(((Type.Union) rightType).getTypes());
+                        } else {
+                            types.add(rightType);
+                        }
+
+                        Type union = new Type.Union(types);
                         this.put(name, union);
                         // TODO: make a union type of the two candidates
                         // syntaxError("Oh no could not merge environments", file.filename, element);

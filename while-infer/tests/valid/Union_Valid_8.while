@@ -1,0 +1,20 @@
+int|bool|char a1() {
+    return 'a';
+}
+
+void a2(int|bool|char x) {
+
+}
+
+bool|bool b1() {
+    return true;
+}
+
+void b2(bool x) {
+
+}
+
+void main() {
+    a2(a1());
+    b2(b1());
+}

@@ -934,15 +934,24 @@ public class Parser {
             type = new Type.Array(type, sourceAttr(start, index - 1));
         }
 
+        List<Type> types = new ArrayList<>();
+        types.add(type);
+
         // match for union types
-        if (index < tokens.size() && tokens.get(index) instanceof Bar) {
+        while (index < tokens.size() && tokens.get(index) instanceof Bar) {
             match("|");
             // union type
-            Type right = parseType();
-
-            type = new Type.Union(type, right);
+            Type unioned = parseType();
+            if (unioned instanceof Type.Union) {
+                types.addAll(((Type.Union) unioned).getTypes());
+            } else {
+                types.add(unioned);
+            }
         }
 
+        if (types.size() > 1) {
+            type = new Type.Union(types);
+        }
         // Done
         return type;
     }

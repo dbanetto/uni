@@ -1,18 +1,18 @@
 int|char|bool f(int a) {
     var x;
     if (a == 1) {
-        x = 1;
+        x = true;
     } else if (a == 2) {
         x = 'a';
     } else {
-        x = true;
+        x = 1;
     }
 
     return x;
 }
 
 void main() {
-    assert(f(1) == 1);
+    assert(f(1) == true);
     assert(f(2) == 'a');
-    assert(f(3) == true);
+    assert(f(3) == 1);
 }

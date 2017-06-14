@@ -167,7 +167,7 @@ public class Lexer {
 
     protected String parseString(String v) {
         /*
-		 * Parsing a string requires several steps to be taken. First, we need to
+         * Parsing a string requires several steps to be taken. First, we need to
 		 * strip quotes from the ends of the string.
 		 */
         v = v.substring(1, v.length() - 1);

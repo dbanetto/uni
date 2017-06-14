@@ -255,30 +255,57 @@ public interface Type extends SyntacticElement {
      * Represents a record type, such as <code>{int x, int y}</code>, which
      * consists of one or more (named) field types. Observe that records exhibit
      * <i>depth</i> subtyping, but not <i>width</i> subtyping.
+     * <p>
+     * Has invariant that the types in the union are not another union
      *
-     * @author David J. Pearce
+     * @author David Barnett
      */
     public static final class Union extends SyntacticElement.Impl implements Type {
 
-        private final Type left;
-        private final Type right;
+        private final List<Type> types;
 
-        public Union(Type left, Type right, Attribute... attributes) {
+        public Union(List<Type> types, Attribute... attributes) {
             super(attributes);
-            this.left = left;
-            this.right = right;
+            this.types = types;
+
+            if (types.stream().anyMatch(t -> t instanceof Type.Union)) {
+                throw new IllegalArgumentException(
+                        "Cannot have nested union types");
+            }
         }
 
-        public Type getLeft() {
-            return left;
+        public List<Type> getTypes() {
+            return types;
         }
 
-        public Type getRight() {
-            return right;
+        public static Type.Union between(Type left, Type right) {
+            List<Type> types = new ArrayList<>();
+            if (left instanceof Type.Union) {
+                types.addAll(((Type.Union) left).getTypes());
+            } else {
+                types.add(left);
+            }
+
+            if (right instanceof Type.Union) {
+                types.addAll(((Type.Union) right).getTypes());
+            } else {
+                types.add(right);
+            }
+
+            return new Type.Union(types);
         }
 
+        @Override
         public String toString() {
-            return left + "|" + right;
+            StringBuilder builder = new StringBuilder();
+            for (Type t : types) {
+                if (builder.length() != 0) {
+                    builder.append('|');
+                }
+                builder.append(t);
+            }
+
+            return builder.toString();
         }
     }
 }
