@@ -302,6 +302,8 @@ public class Interpreter {
 
         // determine type of Value
         Type valueType = typeOfValue(value, stmt);
+
+        // need to check Type Name
         TypeChecker checker = new TypeChecker();
 
         for (Stmt.MatchCase c : stmt.getCases()) {
@@ -327,6 +329,7 @@ public class Interpreter {
         } else if (value instanceof Character) {
             return new Type.Char();
         }
+        // TODO: support Union, Record
 
         internalFailure("Cannot determine type of object", file.filename,  element);
         return null; // deadcode
