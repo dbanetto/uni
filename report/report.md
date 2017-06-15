@@ -60,14 +60,16 @@ National War Memorial Park underpass [@basin_options_summary], see figure 1 for 
 These changes are to improve westward traffic heading to the motorway.
 This project was one component of a greater project to improve the transport of Wellington region [@northern_corridor],
 the Wellington Northern Corridor project.
+During the planning of this project the National War Memorial area was being renovated for the 100th Gallopoli Remembrance.
 These projects were managed by the New Zealand Transport Agency (NZTA) [@treasury_exp_2016],
 the transport arm of the New Zealand Government.
 
 ![Map of the Basin Reserve area with proposed changes [@epa_report]](./proposed_changes.png)
 
 A flyover at the Basin Reserve was not the only option open to the NZTA to choose [@basin_options_report].
-They had a range of options with three main themes: a flyover based approach ; a reconfiguration of the
-street layout at the Basin Reserve ; and, a tunnel off to the side of the Basin [@basin_options_report].
+They had a range of options with three main themes: a flyover stretching the length of the Basin Reserve ; 
+a tunnel the length of the Basin Reserve ; and, a reconfiguration of the street layout
+with additional intersections [@basin_options_report].
 Each option was tested against how well they alleviate the vehicle traffic of all use cases through
 the Basin Reserve as well as promoting pedestrians and cyclists to easily move through the area.
 A key metric used was to check the improvements of East-West and North-South traffic flow without
@@ -84,11 +86,13 @@ with the 'Save the Basin' group [@basin_heritage][@save_basin].
 
 The Basin Reserve flyover failed during the proposal phase of the project.
 It failed to meet the standards of a Notice of Requirement (NOR) of the resources it needs to complete the project.
-A Notice of Requirement is a process set out in the Resource Management Act that air marks the resources 
+A Notice of Requirement is a process set out in the Resource Management Act that air marks the resources
 for the project, such as land, while a decision about the proposal is being made by authorities,
 such as the local council or the Environment Protection Agency (EPA) [@rma_nor].
+The Resource Management Act is set out to formalise the process of allocating natural and physical resources
+to promote the sustainable management these resources [@rma_act].
 In this case it was handled by the EPA since the Basin Flyover is classified to be of national significance since
-it is apart of the Wellington Northern Corridor project [@rma_nor][@basin_options_report].
+it is a part of the Wellington Northern Corridor project [@rma_nor][@basin_options_report].
 The project failed the NOR due to a range of failings from not adequately mitigating impact on the amenity and heritage
 of the Basin Reserve area and having an unclear rational in choosing a flyover over the
 other options [@basin_options_report][@epa_report_judgement].
@@ -116,9 +120,48 @@ other options [@basin_options_report][@epa_report_judgement].
          - highlights the importance of history and the community support for the site
 -->
 
-<!-- Where a tunnel would cost between \$160m to \$220m with a cost-to-benefit ratio between 0.8 to 0.9, -->
-<!-- a change in the roads would cost between \$40m to \$50m with a cost-to-benefit ratio between 1.4 to 1.6,and a -->
-<!-- flyover had a projected cost between \$75m and \$100m with a cost-to-benefit ratio between 1.1 to 1.2 [@basin_options_report]. -->
+An aspect that lead to the failure of the proposal for the Basin Reserve Flyover was that the process to decide
+the approach was unreproducible and not transparent [@epa_report_alt].
+Since the flyover will have an adverse effect on its environment NZTA is required to make considerations of alternatives 
+under the Resource Management Act[@rma_act].
+The Basin Reserve project had a total of six success criteria for the design of the solution.
+They covered: local environment, land use, cost and time, local movement, passenger transport and traffic strategy.
+From 2001 to 2011 NZTA had gone through 73 alternatives and narrowed it down to a shortlist of seven options to be considered with
+the three themes [@basin_options_report].
+Though the RMA does not test for quantity of alternatives considered but the quality of the analysis used to determine which
+option will best suit the objectives of the project and the goals of the RMA.
+The options were further reduced to two options for public consultation.
+Both of these options are alternatives of the same theme of a flyover stretching the length of the Basin Reserve.
+
+A common metric to decide on an option is looking at the cost and the ratio to its benefit.
+With NZTA's report on the finial seven options included the cost and benefit ratios.
+Where a tunnel would cost between \$160m to \$220m with a cost-to-benefit ratio between 0.8 to 0.9,
+a change in the roads would cost between \$40m to \$50m with a cost-to-benefit ratio between 1.4 to 1.6,and a
+flyover had a projected cost between \$75m and \$100m with a cost-to-benefit ratio between 1.1 to 1.2 [@basin_options_report].
+From these ratios alone they show that the change in roads have the most benefit and the lowest total cost.
+This is in contrast to what NZTA choose with the Flyover options chosen for public consultation [@basin_option_summary].
+NZTA applied a matrix of criteria that is aligned with the design criteria, it also explicitly included the impact on
+the built heritage of the surrounding area.
+
+With these metrics the final options were cut down to flyover based alternatives.
+Reconfiguration of the roads had the highest cost-to-benefit ratio due to their
+lower cost comparatively but failed to meet most of the traffic goals of the project [@basin_options_report][@epa_report_alt].
+The use of tunnels were not used as they give practically the same benefits of a flyover
+at double the cost expect in terms of impact on the heritage and amenity of the area.
+NZTA notes that if more weighting is given to the impact on the heritage of area the
+reconfiguration of the roads would likely be the theme of the chosen option [@basin_options_report][@epa_report_alt].
+
+The EPA found that there were inconsistencies when evaluating the range options.
+A key observation was that NZTA gave more weighting to the impacts of social and urban design
+over the built heritage of the area for no known reason [@epa_report_alt]. 
+This is a symptom of a lack of transparency in the evaluation methodology and was a key factor
+to the community push back on the final option.
+The push back to changes in the Basin Reserve area is not a new occurrence with a similar
+situation occurring when making the Basin Reserve a part of State Highway One in the 1960's [@basin_heritage].
+For future projects the weighting of community centric metrics should be influenced by the 
+community of the area or that all weightings are given well reasoned rational for their importance or lack there of.
+With this recommendation should lead to more transparent evaluation.
+
 
 # Conclusion
 <!--
