@@ -120,6 +120,51 @@ other options [@basin_options_report][@epa_report_judgement].
          - highlights the importance of history and the community support for the site
 -->
 
+<!-- TODO: a outline of the discussion section -->
+
+## Heritage and Cultural Significance
+<!-- heritage -->
+
+The Basin Reserve flyover does not directly impact any heritage site in the
+area but effects how they are viewed.
+However, the flyover would dominate the skyline of the historic area with its size and obstruct
+amenity [@epa_report_heritage].
+It is this disruption to the local landscape which lead to the formation of
+'Save the Basin' a group that strongly opposes the flyover.
+The EPA also agreed that the flyover would cause a considerable impact on
+the historic area of the Basin Reserve by obstructing the open spaces
+and breaking visual links between historic sites in the area [@epa_report_heritage].
+
+It is a principle of the Resource Management Act to protect historic locations
+of national importance from inappropriate development [@rma_act].
+The Basin Reserve area has been a registered heritage site since 1998
+[@basin_heritage] and the surrounding area has a high density of heritage
+buildings.
+It is also a site of national importance due to its history as a proposed
+inner-city dock in 1840 and a cricket ground since 1876 [@basin_heritage].
+However, with the flyover presents a risk to using the Basin Reserve as 
+test cricket ground as the raised vehicles' noise and movement would
+be a distraction to players and the spectators alike [@epa_report_heritage].
+This would also be extend to be a potential risk to other events open air
+events such as Robbie William's 2015 concert.
+
+Making changes to a heritage site is always going to difficult with community
+push-back.
+For the Basin Reserve flyover the community consolation resulted in such an
+overwhelming negative response that the EPA was clear that there was a major 
+issue with the protection of the heritage of the area [@epa_report_heritage].
+In the same area there was the development of the National War Memorial park 
+that has greater national importance but still managed to balance the heritage
+and cultural significance, even enhancing it.
+For future project the lessons taken from how cultural and heritage value was 
+handled and valued needs to be improved. 
+The most direct way to achieve this would be to get community consultation and 
+evaluate the risk of a community backlash on the grounds of heritage could derail
+an entire project given its significance.
+
+## Transparency in selection
+<!-- selection transpranecy -->
+
 An aspect that lead to the failure of the proposal for the Basin Reserve Flyover was that the process to decide
 the approach was unreproducible and not transparent [@epa_report_alt].
 Since the flyover will have an adverse effect on its environment NZTA is required to make considerations of alternatives 
@@ -143,13 +188,14 @@ This is in contrast to what NZTA choose with the Flyover options chosen for publ
 NZTA applied a matrix of criteria that is aligned with the design criteria, it also explicitly included the impact on
 the built heritage of the surrounding area.
 
-With these metrics the final options were cut down to flyover based alternatives.
+With the given metrics the final options were cut down to flyover based alternatives.
 Reconfiguration of the roads had the highest cost-to-benefit ratio due to their
 lower cost comparatively but failed to meet most of the traffic goals of the project [@basin_options_report][@epa_report_alt].
 The use of tunnels were not used as they give practically the same benefits of a flyover
 at double the cost expect in terms of impact on the heritage and amenity of the area.
 NZTA notes that if more weighting is given to the impact on the heritage of area the
-reconfiguration of the roads would likely be the theme of the chosen option [@basin_options_report][@epa_report_alt].
+reconfiguration of the roads would likely be the theme of the chosen option at
+the cost of completing all of its traffic improvement objectives [@basin_options_report][@epa_report_alt].
 
 The EPA found that there were inconsistencies when evaluating the range options.
 A key observation was that NZTA gave more weighting to the impacts of social and urban design
@@ -161,10 +207,9 @@ situation occurring when making the Basin Reserve a part of State Highway One in
 Another aspect of the opaque evaluation was the inconsistent use of affordability to dismiss the tunnel options but not others.
 In particular this occurred when a tunnel based option was reevaluated against the final option and found the
 tunnel was a better option on all fronts except in cost [@epa_report_alt].
-For future projects the weighting of community centric metrics should be influenced by the 
+For future projects the weighting of community centric metrics should be influenced by the
 community of the area or that all weightings are given well reasoned rational for their importance or lack there of.
 With this recommendation should lead to more transparent evaluation.
-
 
 
 # Conclusion
