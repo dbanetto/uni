@@ -1,7 +1,11 @@
 % Assignment 4 - Inference & Generics - ENGR441
 % David Barnett (300313764)
 
-# What I have done
+# What is added to While
+
+This section contains explanations and examples of the changes I have
+made to the While compiler and language to add features like type inference and
+others.
 
 ## Type inference
 
@@ -70,12 +74,12 @@ Another solution would be to create a union type of the two branches.
 ```
 > complex deferred example, record intersection
 
-# Union Types with inference
+## Union Types with inference
 
 Porting the union types from the first assignment has made for some interesting interactions with 
 the type inference.
 In particular it removes an error with an inferred variable being defined with different types down
-two branches.
+two branches or more branches.
 The response is to make the type a union of the two types.
 
 ```javascript
@@ -91,6 +95,7 @@ The response is to make the type a union of the two types.
 
 I added an extension when a union is of records, such as below, you can use common
 fields from the records without the need to test which type of the union it is.
+This allows some syntactic sugar to for easier use of union'd records.
 
 ```javascript
     var x;
@@ -121,3 +126,69 @@ fields from the records without the need to test which type of the union it is.
     assert (x.f);
 ```
 > inferred types with records
+
+The intersection with unions only include the field when all records in the union contain it otherwise
+values will be create union since it would then include a `void` type to signify that a value does not exist.
+This was not done to avoid revealing `void` in other contexts then the no-return of methods.
+
+## Determining type at Runtime
+
+As result of using union types a programmer will need to be able to distinguish what type is 
+in the variable.
+For example a test to see if a `int|bool` is an integer or a boolean.
+
+
+To achieve this I have added a `match` statement which is similar to a `switch` statement expect
+it has cases based on types instead of the value and each case is exclusive with no fall-through.
+
+```
+match ( expr ) {
+    // where T is a sub-type of expr
+    case ( T name ) {
+        // statements
+    }
+    ...
+}
+```
+
+```javascript
+bool isTrue(int|bool input) {
+    match(input) {
+        case (int x) {
+            return x != 0;
+        }
+        case (bool x) {
+            return x;
+        }
+    }
+}
+```
+
+Above is an example of the `match` syntax in action.
+The semantics of the `match` statement is to branch into a `case` where the given type matches
+or is a sub-type of the runtime value of the variable.
+Each `case` has a parameter to be defined inside the `case` block.
+The type of the parameter must be a subtype of the expression used to match on.
+The parameter defined for the `case` is an instantiated variable of a cloned value of the given expression.
+This allows for capturing the value of a method for error handing, for example a simple echo program below.
+
+```javascript
+
+// given a method: String|Err readLine()
+
+String input;
+match (readLine()) {
+    case (Err e) {
+        print("Error! " + e);
+        return;
+    }
+    case (String val) {
+        input = val;
+    }
+}
+print(val);
+```
+
+With this style of error handling there is no need to throw exceptions and the programmer will know
+and have to handle error cases. This is akin to the error handling in `rust` and other functional programming
+languages.
