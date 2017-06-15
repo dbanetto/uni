@@ -158,9 +158,13 @@ This is a symptom of a lack of transparency in the evaluation methodology and wa
 to the community push back on the final option.
 The push back to changes in the Basin Reserve area is not a new occurrence with a similar
 situation occurring when making the Basin Reserve a part of State Highway One in the 1960's [@basin_heritage].
+Another aspect of the opaque evaluation was the inconsistent use of affordability to dismiss the tunnel options but not others.
+In particular this occurred when a tunnel based option was reevaluated against the final option and found the
+tunnel was a better option on all fronts except in cost [@epa_report_alt].
 For future projects the weighting of community centric metrics should be influenced by the 
 community of the area or that all weightings are given well reasoned rational for their importance or lack there of.
 With this recommendation should lead to more transparent evaluation.
+
 
 
 # Conclusion
