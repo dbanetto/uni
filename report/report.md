@@ -139,7 +139,7 @@ Where a tunnel would cost between \$160m to \$220m with a cost-to-benefit ratio 
 a change in the roads would cost between \$40m to \$50m with a cost-to-benefit ratio between 1.4 to 1.6,and a
 flyover had a projected cost between \$75m and \$100m with a cost-to-benefit ratio between 1.1 to 1.2 [@basin_options_report].
 From these ratios alone they show that the change in roads have the most benefit and the lowest total cost.
-This is in contrast to what NZTA choose with the Flyover options chosen for public consultation [@basin_option_summary].
+This is in contrast to what NZTA choose with the Flyover options chosen for public consultation [@basin_options_summary].
 NZTA applied a matrix of criteria that is aligned with the design criteria, it also explicitly included the impact on
 the built heritage of the surrounding area.
 
