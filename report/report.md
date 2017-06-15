@@ -35,6 +35,17 @@ Areas to look at:
 Summarise the brief (your task), briefly outline the case and focus on its significance for the reader,
 state the report's aim(s) and describe how the report is organised.
 -->
+
+This case study will look into the failure of the Basin Reserve Flyover
+proposal. Since every failure is an opportunity to learn and improve this
+case study aims to look into two key points of failure of the proposal.
+These are the cultural and heritage considerations and the lack of transparency
+of the selection process of alternative solutions.
+
+This case study is laid out to give appropriate background to understand the
+Basin Reserve project and background. The discussion of the case study will 
+look into two identified faults in the proposal and make a recommendation
+to avoid the same pitfalls in another project.
  
 # Background
 <!--
@@ -96,6 +107,9 @@ it is a part of the Wellington Northern Corridor project [@rma_nor][@basin_optio
 The project failed the NOR due to a range of failings from not adequately mitigating impact on the amenity and heritage
 of the Basin Reserve area and having an unclear rational in choosing a flyover over the
 other options [@basin_options_report][@epa_report_judgement].
+A consequence of the this failure that other major transport projects in
+Wellington that relied on improvements to the Basin Reserve are set back years
+or even decades.
 
 # Discussion
 <!--
@@ -219,5 +233,7 @@ Try to answer the following questions.
 * Have all recommendations been implemented?
 * What may happen in the future?
 -->
+
+
 
 \pagebreak
