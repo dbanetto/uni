@@ -107,7 +107,7 @@ it is a part of the Wellington Northern Corridor project [@rma_nor][@basin_optio
 The project failed the NOR due to a range of failings from not adequately mitigating impact on the amenity and heritage
 of the Basin Reserve area and having an unclear rational in choosing a flyover over the
 other options [@basin_options_report][@epa_report_judgement].
-A consequence of the this failure that other major transport projects in
+A consequence of the failure that other major transport projects in
 Wellington that relied on improvements to the Basin Reserve are set back years
 or even decades.
 
@@ -165,14 +165,14 @@ events such as Robbie William's 2015 concert.
 Making changes to a heritage site is always going to difficult with community
 push-back.
 For the Basin Reserve flyover the community consolation resulted in such an
-overwhelming negative response that the EPA was clear that there was a major 
+overwhelming negative response that the EPA was clear that there was a major
 issue with the protection of the heritage of the area [@epa_report_heritage].
-In the same area there was the development of the National War Memorial park 
+In the same area there was the development of the National War Memorial park
 that has greater national importance but still managed to balance the heritage
 and cultural significance, even enhancing it.
-For future project the lessons taken from how cultural and heritage value was 
+For future project the lessons taken from how cultural and heritage value was
 handled and valued needs to be improved. 
-The most direct way to achieve this would be to get community consultation and 
+The most direct way to achieve this would be to get community consultation and
 evaluate the risk of a community backlash on the grounds of heritage could derail
 an entire project given its significance.
 
@@ -185,7 +185,7 @@ Since the flyover will have an adverse effect on its environment NZTA is require
 under the Resource Management Act[@rma_act].
 The Basin Reserve project had a total of six success criteria for the design of the solution.
 They covered: local environment, land use, cost and time, local movement, passenger transport and traffic strategy.
-From 2001 to 2011 NZTA had gone through 73 alternatives and narrowed it down to a shortlist of seven options to be considered with
+From 2001 to 2011 NZTA had gone through 73 alternatives and narrowed it down to the shortlist of seven options to be considered with
 the three themes [@basin_options_report].
 Though the RMA does not test for quantity of alternatives considered but the quality of the analysis used to determine which
 option will best suit the objectives of the project and the goals of the RMA.
