@@ -19,8 +19,8 @@ Areas to look at:
 
 -->
 
-# Executive Summary 
 <!--
+# Executive Summary 
  Breifly cover:
  * the topic area of the report
  * the report's primary aim/s
@@ -234,6 +234,21 @@ Try to answer the following questions.
 * What may happen in the future?
 -->
 
+From looking through the reports and publications from NZTA and EPA about the
+Basin Reserve project there are failures deep in the process. Both of the
+key failures identified in this case study had a root cause of communicating
+with the community well enough to meet the legal tests of the RMA.
+Where the heritage was not seen to be appropriately developed by the community
+and they had their say with public submission. This also occurred with the
+not so transparent and consistent methods used to evaluate the solutions.
 
+Over the years since the failure of the Basin Reserve flyover proposal the
+direction of the Wellington Corridor Project changed. NZTA partnered more
+closely with the local government bodies of wellington, Wellington City Council
+and the Greater Wellington Regional Council, to form an shared initiative.
+This is 'Let's get Wellington Moving' (LGWM) [@get_moving] that has the key principles
+to work with the community on every step to improve the transport of Wellington.
+LGWM is a direct response from the organisations involved to address the issues
+that lead to the failure of the Basin Reserve flyover.
 
 \pagebreak
