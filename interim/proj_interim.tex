@@ -1,0 +1,111 @@
+\documentclass[11pt, a4paper, twoside, openright]{report}
+
+\usepackage{float} % lets you have non-floating floats
+
+\usepackage{listings}
+\usepackage{color}
+\usepackage{url} % for typesetting urls
+\usepackage[parfill]{parskip}
+
+%  We don't want figures to float so we define
+%
+\newfloat{fig}{thp}{lof}[chapter]
+\floatname{fig}{Figure}
+
+\definecolor{grey}{rgb}{0.95,0.95,0.95}
+
+\lstset{ %
+    backgroundcolor=\color{grey},
+    frame=single,
+    numbers=left
+}
+
+%% These are standard LaTeX definitions for the document
+%%
+\title{Generating simple loop invariants for Whiley}
+\author{David Barnett}
+
+%% This file can be used for creating a wide range of reports
+%%  across various Schools
+%%
+%% Set up some things, mostly for the front page, for your specific document
+%
+% Current options are:
+% [ecs|msor|sms]          Which school you are in.
+%                         (msor option retained for reproducing old data)
+% [bschonscomp|mcompsci]  Which degree you are doing
+%                          You can also specify any other degree by name
+%                          (see below)
+% [font|image]            Use a font or an image for the VUW logo
+%                          The font option will only work on ECS systems
+%
+\usepackage[font,ecs]{vuwproject} 
+
+\supervisors{Lindsay Groves}
+\otherdegree{Bachelor of Engineering with Honours in Software Engineering}
+
+% Comment this out if you want the date printed.
+\date{}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+% Make the page numbering roman, until after the contents, etc.
+\frontmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+    % TODO: abstract
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\mainmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{1 Introduction}
+% This should briefly outline the project and if necessary 
+% reevaluate the original plan in light of what has been learned in the interim.  In
+% particular, any significant deviations in the problem being addressed, or the solution
+% being developed should be clearly highlighted and justified.
+
+\section*{2. Background}
+% This should discuss any existing solutions to the given problem,
+% and may reference academic papers,  books and other sources as appropriate.   Care
+% should be taken to identify key differences between these solutions,  and that being
+% developed in the project.
+
+\section*{3. Work Done}
+% This should discuss what progress has been made on designing, implementing
+%  and evaluating the artifact. Care must be taken to ensure that any discussion
+% of technical points are clearly explained, with diagrams being used where appropriate.
+% In many cases, the evaluation proper will not yet have begun. However, it is important
+% to demonstrate that sufficient thought has been given to the evaluation.
+
+\section*{4. Future Plan}
+% This should highlight the main components which remain to be done,
+% and provide a proposed time-line in which this will happen. In putting together a time
+% line, students must take into account upcoming examinations, coursework deadlines
+% and other disruptions.
+
+\section*{5. Request for Feedback}
+% This  should  highlight  any  difficulties  currently  faced,  and
+% make specific requests for guidance from the examination committee.  For example,
+% a  student  may  be  unsure  how  best  to  evaluate  their  artifact,  and  would  appreciate
+% suggestions for alternative methods.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\backmatter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\bibliographystyle{ieeetr}
+\bibliographystyle{acm}
+\bibliography{report}
+\end{document}
+
