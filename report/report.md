@@ -92,7 +92,7 @@ itself is a registered heritage area since 1998 [@basin_heritage].
 Other heritage sites around the Basin Reserve that would be impacted include
 Government House, official residence of the Governor General of New Zealand,
 and the Home of Compassion Crèche, New Zealand's first dedicated child day-care centre [@creche].
-These heritage sites have continually been vocally protected by community since the 1960's and today
+These heritage sites have continually been vocally protected by community since the 1960s and today
 with the 'Save the Basin' group [@basin_heritage][@save_basin].
 
 The Basin Reserve flyover failed during the proposal phase of the project.
@@ -185,7 +185,7 @@ Since the flyover will have an adverse effect on its environment NZTA is require
 under the Resource Management Act[@rma_act].
 The Basin Reserve project had a total of six success criteria for the design of the solution.
 They covered: local environment, land use, cost and time, local movement, passenger transport and traffic strategy.
-From 2001 to 2011 NZTA had gone through 73 alternatives and narrowed it down to the shortlist of seven options to be considered with
+From 2001 to 2011 NZTA had gone through 73 alternatives and narrowed it down to a shortlist of seven options to be considered with
 the three themes [@basin_options_report].
 Though the RMA does not test for quantity of alternatives considered but the quality of the analysis used to determine which
 option will best suit the objectives of the project and the goals of the RMA.
@@ -214,10 +214,10 @@ the cost of completing all of its traffic improvement objectives [@basin_options
 The EPA found that there were inconsistencies when evaluating the range options.
 A key observation was that NZTA gave more weighting to the impacts of social and urban design
 over the built heritage of the area for no known reason [@epa_report_alt]. 
-This is a symptom of a lack of transparency in the evaluation methodology and was a key factor
+This is a symptom of the lack of transparency in the evaluation methodology use by the NZTA and was a key factor
 to the community push back on the final option.
 The push back to changes in the Basin Reserve area is not a new occurrence with a similar
-situation occurring when making the Basin Reserve a part of State Highway One in the 1960's [@basin_heritage].
+situation occurring when making the Basin Reserve a part of State Highway One in the 1960s [@basin_heritage].
 Another aspect of the opaque evaluation was the inconsistent use of affordability to dismiss the tunnel options but not others.
 In particular this occurred when a tunnel based option was reevaluated against the final option and found the
 tunnel was a better option on all fronts except in cost [@epa_report_alt].
