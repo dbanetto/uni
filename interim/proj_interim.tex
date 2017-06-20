@@ -73,13 +73,28 @@
 % This should briefly outline the project and if necessary 
 % reevaluate the original plan in light of what has been learned in the interim.  In
 % particular, any significant deviations in the problem being addressed, or the solution
-% being developed should be clearly highlighted and justified.
+% being developed should be clearly highlighted and justified. (1 pages)
+%% TODO: Also have the proposal as an appendix
 
 \section*{2. Background}
 % This should discuss any existing solutions to the given problem,
 % and may reference academic papers,  books and other sources as appropriate.   Care
 % should be taken to identify key differences between these solutions,  and that being
-% developed in the project.
+% developed in the project. (3-4 pages)
+
+%% Whiley
+% whiley disign paper
+% dafny - other formal languages
+
+%% Loop invariants
+% overview of loop invariants
+% classification of loop invariants
+%
+
+%% Methods to generate loop invariants
+% generally generating loop invariants are impossible!
+% infer dynamic
+% finding invariants via static analysis
 
 \section*{3. Work Done}
 % This should discuss what progress has been made on designing, implementing
@@ -87,18 +102,39 @@
 % of technical points are clearly explained, with diagrams being used where appropriate.
 % In many cases, the evaluation proper will not yet have begun. However, it is important
 % to demonstrate that sufficient thought has been given to the evaluation.
+% (2 pages)
+
+%% Implemented so far
+% implemented algorithms for generating invariants
+%  * entry value of a simple mutation and its sequence
+%  * array length of a generated / copied array
+
+% Found that this method is requires a code pattern to exploit
+% a characteristic of it so it can then be able to generate it
 
 \section*{4. Future Plan}
 % This should highlight the main components which remain to be done,
 % and provide a proposed time-line in which this will happen. In putting together a time
 % line, students must take into account upcoming examinations, coursework deadlines
 % and other disruptions.
+% (1 pages)
+
+% identify common invariant patterns to codify
+% found a few 
+%   * map pattern - loops through array applying function to each element
+%   * for all - simple loop to see if all elements satisfies a condition
+%   * for some - simple loop until an element satisfies a condition
 
 \section*{5. Request for Feedback}
-% This  should  highlight  any  difficulties  currently  faced,  and
+% This should  highlight  any  difficulties  currently  faced,  and
 % make specific requests for guidance from the examination committee.  For example,
-% a  student  may  be  unsure  how  best  to  evaluate  their  artifact,  and  would  appreciate
+% a student  may  be  unsure  how  best  to  evaluate  their  artifact,  and  would  appreciate
 % suggestions for alternative methods.
+% (1 pages)
+
+%% Help
+% Suggested invariant patterns
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \backmatter
