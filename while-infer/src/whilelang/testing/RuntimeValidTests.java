@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import whilelang.ast.WhileFile;
+import whilelang.compiler.TypeChecker;
 import whilelang.compiler.WhileCompiler;
 import whilelang.util.Interpreter;
 

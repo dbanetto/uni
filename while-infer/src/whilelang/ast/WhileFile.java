@@ -21,12 +21,13 @@ package whilelang.ast;
 import whilelang.util.SyntacticElement;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WhileFile {
 
     public final String filename;
-
     public final ArrayList<Decl> declarations;
 
     public WhileFile(String filename, List<Decl> decls) {
@@ -61,6 +62,18 @@ public class WhileFile {
             }
         }
         return null;
+    }
+
+    public Map<String, TypeDecl> types() {
+        Map<String, TypeDecl> types = new HashMap<>();
+        for (Decl d : declarations) {
+            if (d instanceof TypeDecl) {
+                TypeDecl cd = (TypeDecl) d;
+                types.put(cd.getName(), cd);
+            }
+        }
+
+        return types;
     }
 
     public List<MethodDecl> functions(String name) {

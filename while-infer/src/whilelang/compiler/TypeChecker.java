@@ -42,7 +42,7 @@ public class TypeChecker {
     private Map<String, WhileFile.MethodDecl> methods;
     private Map<String, WhileFile.TypeDecl> types;
 
-    public void check(WhileFile wf) {
+    public void addDeclarations(WhileFile wf) {
         this.file = wf;
         this.methods = new HashMap<>();
         this.types = new HashMap<>();
@@ -56,6 +56,10 @@ public class TypeChecker {
                 this.types.put(fd.name(), fd);
             }
         }
+    }
+
+    public void check(WhileFile wf) {
+        this.addDeclarations(wf);
 
         for (WhileFile.Decl declaration : wf.declarations) {
             if (declaration instanceof WhileFile.TypeDecl) {
@@ -253,7 +257,7 @@ public class TypeChecker {
 
             Environment matchEnv = new Environment(environment);
 
-            matchEnv.put(c.getMatchName(), ct);
+            matchEnv.put(c.getMatchName(), et);
 
             check(c.getBody(), matchEnv);
         }
@@ -390,6 +394,10 @@ public class TypeChecker {
 
     public Type check(Expr.RecordAccess expr, Environment environment) {
         Type srcType = check(expr.getSource(), environment);
+
+        if (srcType instanceof Type.Named) {
+            srcType = types.get(((Type.Named) srcType).getName()).getType();
+        }
 
         if (srcType instanceof Type.Union) {
             Type.Union union = (Type.Union) srcType;
@@ -643,6 +651,9 @@ public class TypeChecker {
                 // r1 is a subset of r2
                 return true;
             }
+        } else if (t1 instanceof Type.Named && t2 instanceof Type.Named &&
+                ((Type.Named) t1).getName().equals(((Type.Named) t2).getName())) {
+            return true;
         } else if (t1 instanceof Type.Named) {
             Type.Named tn = (Type.Named) t1;
             if (types.containsKey(tn.getName())) {

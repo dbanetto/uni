@@ -19,6 +19,7 @@
 package whilelang;
 
 import whilelang.ast.WhileFile;
+import whilelang.compiler.TypeChecker;
 import whilelang.compiler.WhileCompiler;
 import whilelang.util.Interpreter;
 import whilelang.util.SyntaxError;

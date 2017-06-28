@@ -1,2 +1,0 @@
-// Valid in Whiley, not in While
-type LinkedList is { int data, LinkedList next}

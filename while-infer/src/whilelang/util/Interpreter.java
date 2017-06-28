@@ -18,9 +18,7 @@
 
 package whilelang.util;
 
-import org.w3c.dom.Attr;
 import whilelang.ast.*;
-import whilelang.compiler.Lexer;
 import whilelang.compiler.TypeChecker;
 
 import java.util.*;
@@ -38,6 +36,7 @@ import static whilelang.util.SyntaxError.internalFailure;
 public class Interpreter {
     private HashMap<String, WhileFile.Decl> declarations;
     private WhileFile file;
+    private TypeChecker typeChecker;
     private Object BREAK_CONSTANT = new Object() {
     };
     private Object CONTINUE_CONSTANT = new Object() {
@@ -50,6 +49,9 @@ public class Interpreter {
             declarations.put(decl.name(), decl);
         }
         this.file = wf;
+
+        typeChecker = new TypeChecker();
+        typeChecker.addDeclarations(wf);
 
         // Second, pick the main method (if one exits) and execute it
         WhileFile.Decl main = declarations.get("main");
@@ -304,10 +306,10 @@ public class Interpreter {
         Type valueType = typeOfValue(value, stmt);
 
         // need to check Type Name
-        TypeChecker checker = new TypeChecker();
+
 
         for (Stmt.MatchCase c : stmt.getCases()) {
-            if (checker.isSubtype(c.getTypeMatch(), valueType, stmt)) {
+            if (typeChecker.isSubtype(c.getTypeMatch(), valueType, stmt)) {
                 frame.put(c.getMatchName(), value);
                 Object result = execute(c.getBody(), frame);
                 frame.remove(c.getMatchName());
@@ -328,6 +330,14 @@ public class Interpreter {
             return new Type.Strung();
         } else if (value instanceof Character) {
             return new Type.Char();
+        } else if (value instanceof HashMap) {
+            HashMap<String, Object> record = (HashMap<String, Object>) value;
+            List<Pair<Type, String>> fields = new ArrayList<>(record.size());
+            for (Map.Entry<String, Object> entry: record.entrySet()) {
+                fields.add(new Pair<>(this.typeOfValue(entry.getValue(), element), entry.getKey()));
+            }
+
+            return new Type.Record(fields);
         }
         // TODO: support Union, Record
 

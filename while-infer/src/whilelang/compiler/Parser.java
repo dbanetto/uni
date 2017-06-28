@@ -86,11 +86,12 @@ public class Parser {
         if (userDefinedTypes.contains(name.text)) {
             syntaxError("type already declared", name);
         }
+        userDefinedTypes.add(name.text);
+
         matchKeyword("is");
 
         Type t = parseType();
         int end = index;
-        userDefinedTypes.add(name.text);
         return new TypeDecl(t, name.text, sourceAttr(start, end - 1));
     }
 

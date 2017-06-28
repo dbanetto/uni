@@ -137,18 +137,18 @@ A result of using union types a programmer will need to be able to
 distinguish what type is in the variable.
 For example a test to see if a `int|bool` is an integer or boolean.
 
-
 To achieve this I have added a `match` statement which is
 similar to a `switch` statement expect it has cases based on types instead
 of the value and each case is exclusive with no fall-through.
 
-```
+```javascript
 match ( expr ) {
     // where T is a sub-type of expr
     case ( T name ) {
         // statements
     }
     ...
+    // more cases, not exhaustive 
 }
 ```
 
@@ -196,6 +196,49 @@ print(val);
 With this style of error handling there is no need to throw exceptions and the programmer will know
 and have to handle error cases. This is akin to the error handling in `rust` and other functional programming
 languages.
+
+## Forward Referencing of Types
+
+I have added the ability for a type to reference itself in its own type
+declaration. An example below defined a recursive list that must have at least
+one element. The use of union types gives a similar syntax to Haskell's recursive types.
+
+```java
+type List is {int elem, List next}|{int elem};
+```
+
+```haskell
+data List = Elem int (List) | None
+```
+
+The usage of this feature in practise is cumbersome and more streamlining could
+be implemented. The example below prints all of the values in the list.
+
+```java
+type List is { int elem, List next }|{ int elem }
+type Element is { int elem, List next }
+type End is { int elem } 
+
+void main() {
+
+    List list = { elem: 1, next: { elem: 2 } };
+    var end = false;
+    var cursor = list;
+
+    while (!end) {
+        print(cursor.elem);
+
+        match (cursor) {
+            case (Element node) {
+                cursor = node.next;
+            }
+            case (End node) {
+                end = true;
+            }
+        }
+    }
+}
+```
 
 \pagebreak
 
