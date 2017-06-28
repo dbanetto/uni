@@ -1,3 +1,3 @@
 
-reprot.pdf: report.md
+report.pdf: report.md
 	pandoc $< -o $@
