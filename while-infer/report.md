@@ -197,6 +197,22 @@ With this style of error handling there is no need to throw exceptions and the p
 and have to handle error cases. This is akin to the error handling in `rust` and other functional programming
 languages.
 
+The `match` statement is not exhaustive as there is potentially an infinite number of  types that could
+match for records due to the width sub-typing in while. An example of this below. A side effect of this is that
+a `match` cannot be known that all paths return.
+
+```javascript
+var x = { x : 1 };
+match (x) {
+    case ({int x, bool a} a) { ... }
+    case ({int x, bool b} a) { ... }
+    case ({int x, bool c} a) { ... }
+    .
+    .
+    .
+}
+```
+
 ## Forward Referencing of Types
 
 I have added the ability for a type to reference itself in its own type
@@ -212,7 +228,7 @@ data List = Elem int (List) | None
 ```
 
 The usage of this feature in practise is cumbersome and more streamlining could
-be implemented. The example below prints all of the values in the list.
+be implemented. The example below prints all the values in the list.
 
 ```java
 type List is { int elem, List next }|{ int elem }
