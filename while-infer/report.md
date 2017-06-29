@@ -256,6 +256,14 @@ void main() {
 }
 ```
 
+## Generics System
+
+A generics system was not implemented for While.
+A style of generics to follow is to follow Ada's 
+generics system to allow for arbitrary functions to be
+passed to a function. However, 1st order functions would be
+able to cover the same uses cases as a Ada-like generic.
+
 \pagebreak
 
 # Generics
