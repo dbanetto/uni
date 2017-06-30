@@ -131,7 +131,7 @@ The intersection with unions only include the field when all records in the unio
 values will be create union since it would then include a `void` type to signify that a value does not exist.
 This was not done to avoid revealing `void` in other contexts then the no-return of methods.
 
-## Determining type at Runtime
+## Type test at Runtime
 
 A result of using union types a programmer will need to be able to
 distinguish what type is in the variable.
@@ -212,6 +212,12 @@ match (x) {
     .
 }
 ```
+
+## Determining the Type of an Object
+
+To determine the type of an object during runtime I implemented a form 
+of reflection for While. This inspects the object value at runtime by 
+using Java's `instanceof` to known types that map to for Java.
 
 ## Forward Referencing of Types
 
