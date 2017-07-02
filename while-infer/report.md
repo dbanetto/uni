@@ -26,9 +26,9 @@ complex. In this implementation each unknown type is given the `inferred` type t
 denote that it has not been figured out yet.
 To make a variable go from `inferred` to a concrete type it must be assigned a
 value. The first assignment to the variable will give the variable its type.
-It becomes complex when that first assignment is on two different branches of a 
+It becomes complex when that first assignment is on two different branches of a
 conditional.
-It is possible to solve this for some types, such as records from both paths that intersect. 
+It is possible to solve this for some types, such as records from both paths that intersect.
 Another solution would be to create a union type of the two branches.
 
 ```javascript
@@ -76,7 +76,7 @@ Another solution would be to create a union type of the two branches.
 
 ## Union Types with inference
 
-Porting the union types from the first assignment has made for some interesting interactions with 
+Porting the union types from the first assignment has made for some interesting interactions with
 the type inference.
 In particular, it removes an error with an inferred variable being defined with different types down
 two branches or more branches.
@@ -148,7 +148,7 @@ match ( expr ) {
         // statements
     }
     ...
-    // more cases, not exhaustive 
+    // more cases, not exhaustive
 }
 ```
 
@@ -213,17 +213,13 @@ match (x) {
 }
 ```
 
-## Determining the Type of an Object
-
-To determine the type of an object during runtime I implemented a form 
-of reflection for While. This inspects the object value at runtime by 
-using Java's `instanceof` to known types that map to for Java.
-
 ## Forward Referencing of Types
 
 I have added the ability for a type to reference itself in its own type
 declaration. An example below defined a recursive list that must have at least
 one element. The use of union types gives a similar syntax to Haskell's recursive types.
+To make this work the assumption that a named type, such as `List`, is
+equivalent to another type with the same name.
 
 ```java
 type List is {int elem, List next}|{int elem};
@@ -239,7 +235,7 @@ be implemented. The example below prints all the values in the list.
 ```java
 type List is { int elem, List next }|{ int elem }
 type Element is { int elem, List next }
-type End is { int elem } 
+type End is { int elem }
 
 void main() {
 
@@ -265,7 +261,7 @@ void main() {
 ## Generics System
 
 A generics system was not implemented for While.
-A style of generics to follow is to follow Ada's 
+A style of generics to follow is to follow Ada's
 generics system to allow for arbitrary functions to be
 passed to a function. However, 1st order functions would be
 able to cover the same uses cases as a Ada-like generic.
@@ -274,7 +270,7 @@ able to cover the same uses cases as a Ada-like generic.
 
 # Generics
 
-I have looked into the implementations and lack thereof of generics in a 
+I have looked into the implementations and lack thereof of generics in a
 selection of programming languages. These include: Java, Rust, Ada and Go.
 Each of these languages have a different take on generics but follow the idea
 of reusing code a type that can be inserted later. The black sheep in the selected
@@ -294,7 +290,7 @@ to be sorted will be used to compare each language.
 
 ## Java
 
-Generics in Java was added in Java 5 (2004) to allow a type or method to 
+Generics in Java was added in Java 5 (2004) to allow a type or method to
 operate over a range of types with compile-time safety.
 These come in two main forms, a generic class or a generic method (example below).
 The main constraint on the Java generic system is that it only allows object types
@@ -309,7 +305,7 @@ class <T> Generic {
 }
 ```
 
-The example above allows any types to replace `T` or `F` and the only 
+The example above allows any types to replace `T` or `F` and the only
 known methods these types are the methods of `Object` (due to it being the root
 type for any non-primitive). However, Java does allow for a restriction on the
 type used by requiring the type to implement or extend a certain type or types.
@@ -332,10 +328,10 @@ casting at the method boundaries to the concrete type.
 
 ## Ada
 
-Ada is a language used commonly used for safety critical software and 
+Ada is a language used commonly used for safety critical software and
 has had a concept of generics since Ada 1983, before any object orientated
 features. Ada differs from Java and other modern language's generics
-as it can have a range of generic parameters instead of only generics 
+as it can have a range of generic parameters instead of only generics
 over types.
 The generic parameters of Ada allow a user to provide a type or
 a sub-program and even a value.
@@ -359,7 +355,7 @@ replaces the generic parameters with the concrete values.
 To provide syntax for this the user must initialise the generic,
 example below.
 In practice this method is unfriendly to the developer since
-errors will only show at the initialisation site instead 
+errors will only show at the initialisation site instead
 of the generic code.
 
 ```ada
@@ -418,9 +414,9 @@ of types or a singular one (as shown above).
 With Rust's generics a user can instruct that any type that
 meets the restriction can use the defined implementation.
 An example of this is below with the definition of a `Sortable`
-trait, akin to a Java interface, and an `impl` for any type 
-that implements the trait `PartialOrd`, a standard library 
-trait for `<` and `>` operators. With the given `impl` 
+trait, akin to a Java interface, and an `impl` for any type
+that implements the trait `PartialOrd`, a standard library
+trait for `<` and `>` operators. With the given `impl`
 any vector that contains a type that implements `PartialOrd`
 can be sorted.
 
@@ -474,7 +470,7 @@ defined in Go. It uses an array of elements that implement the
 interface `Comparable` and return a new array.
 
 Though Go does not have generics like Ada, Java or Rust it could be
-emulated for functions with the use of interfaces. 
+emulated for functions with the use of interfaces.
 The lack of generics shows where the guarantees of generics are helpful.
 For example in the Go sort the user has to assume that the types returned
 is of the same type that they put in, where with generics this not the case
