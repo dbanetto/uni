@@ -8,6 +8,10 @@ proj_interim.pdf: proj_interim.tex report.bib
 
 .PHONY: clean
 
+
+count: proj_interim.pdf
+	pdftotext $< - | wc -w
+
 clean:
 	rm -f proj_interim.aux
 	rm -f proj_interim.log
