@@ -2,9 +2,11 @@ all: proj_interim.pdf
 
 proj_interim.pdf: proj_interim.tex report.bib
 	pdflatex proj_interim
-	bibtex report
+	bibtex proj_interim
 	pdflatex proj_interim
 	pdflatex proj_interim
+
+.PHONY: clean
 
 clean:
 	rm -f proj_interim.aux
