@@ -243,12 +243,13 @@ An example of the invariant generated is on line 5 of
 figure~\ref{lst:whiley-start}.
 
 
-A simple mutation is restricted to only include addition and subtraction of
-constant values and the variable in question.
+The definition of a simple mutation is restricted to an expression that only
+includes addition and subtraction of constant values and the variable in question.
 This restricts the mutation to be a linear monotonic function that is either strictly
 increasing or decreasing the variable with each iteration.
 This is to keep the loop pattern simple and deterministic of knowing if the
 mutation is increases or decreases the variable with each iteration.
+An expression is checked if it is a simple mutation through static analysis.
 
 \begin{figure}
 
@@ -268,10 +269,12 @@ diff \begin{cases}
 \end{figure}
 
 The increase or decreasing nature of the simple mutation it is determined by
-executing the function. An outline of the mathematical process is outlined 
-in figure~\ref{math:simple-mutation}. The equations show how the difference 
-between applying the function twice and once on a base value is used to
+executing the expression. An outline of the mathematical process is outlined 
+in figure~\ref{math:simple-mutation}, the expression is denoted with $f(x)$. 
+The equations show how the difference between applying the function twice and once on a base value is used to
 determine if the function increases or decreases.
+In the case that the expression is stationary the variable will not variate
+between iterations and left alone.
 
 
 \begin{figure}[h]
