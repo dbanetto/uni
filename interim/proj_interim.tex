@@ -95,10 +95,12 @@ Loop invariants are a common pain point for users of formally verified
 languages. Simple loop invariants are repetitive and become a chore to
 always provide them. With this project some of this pain is alleviated.
 
+%% TODO: THIS
 % Changes since proposal
 
 \subsection*{1.2 Solution}
 
+%% TODO: THIS
 % brief overview of solution
 
 % 'simple'
@@ -149,30 +151,48 @@ the Whiley Compiler of these properties.
 % should be taken to identify key differences between these solutions,  and that being
 % developed in the project. (3-4 pages)
 
+%% TODO: ALL OF BACKGROUND
 % intro
 
+\subsection*{2.1 Formal Software Verification Languages}
 %% Formal Software Verification
 % goals of class of languages (could be covered in Whiley)
 
+\subsubsection*{2.1.1 Whiley}
 %% Whiley
 % whiley design paper
 \cite{whiley-origin} \cite{whiley-design}
 
+\subsubsection*{2.1.1 Dafny}
 % dafny - other formal languages
 \cite{dafny-started}
 
 
-%% Invariants
-% always holds
-
+\subsection*{2.3 Loop Invariants}
 %% Loop invariants
 % overview of loop invariants
+% Theorem prover knows nothing about loop invariants - must give all
+% * must hold at entry
+% * must hold each iteration
+% * must hold on exit
+%
+% * implies post-condition
+% * implied by pre-condition
+
+\subsubsection*{2.3.1 Classification of loop invariants}
 % classification of loop invariants
+%  * proves property
+%  * hints to theorem prover
 % example
 
+\subsection*{2.4 Methods to generate loop invariants}
 %% Methods to generate loop invariants
 % generally generating loop invariants are impossible!
+
+\subsubsection*{2.4.1 Static methods}
 % infer dynamic
+
+\subsubsection*{2.4.2 Dynamic methods}
 % finding invariants via static analysis
 
 \section*{3. Work Done}
@@ -200,7 +220,7 @@ This is akin to a modern macro system operating directly onto the AST.
 
 The overall design of the Loop Invariant Generator is to collect the required
 information before a loop to be used to infer loop invariants.
-This is using forward propagation and static analysis to determine if the
+This is using forward propagation to determine if the
 information collected is safe to use. Once the LIG reaches a loop
 it tests the loop to see if it fits a loop pattern. This has been
 designed using the strategy pattern, where each loop pattern is encoded
@@ -209,26 +229,23 @@ The invariant is known to be valid since they are built up via language
 semantics.
 
 \subsection*{3.2 Implementation}
-
-From the work completed thus far there two loop patterns and their invariants
-have been implemented. The first loop pattern is incrementing a variable
-each iteration of the loop, most commonly used for indexes into an array to
-iterate through it. See figure~\ref{lst:whiely-start} for a simple example.
-The second loop pattern is making a copy of an array or creating an array with
-the same length as another. 
-This is used generally when transforming every element in array into a separate
-variable. See figure~\ref{lst:whiley-length} for a simple example.
-
 %% Implemented so far
 % implemented algorithms for generating invariants
 %  * entry value of a simple mutation and its sequence
 %  * array length of a generated / copied array
 
-% Found that this method is requires a code pattern to exploit
-% a characteristic of it so it can then be able to generate it
 
-\subsubsection*{3.2.1 Starting value Invariant}
+From the work completed thus far there two loop patterns and their invariants
+have been implemented. The first loop pattern is incrementing a variable
+each iteration of the loop, most commonly used for indexes into an array to
+iterate through it. See figure~\ref{lst:whiley-start} for a simple example.
+The second loop pattern is making a copy of an array or creating an array with
+the same length as another. 
+This is used generally when transforming every element in array into a separate
+variable. See figure~\ref{lst:whiley-length} for a simple example.
 
+
+\subsubsection*{3.2.1 Starting value invariant}
 % entry value
 
 From loop pattern of incrementing a variable each iteration of the loop
@@ -242,14 +259,16 @@ variable will be increasing or decreasing from the initial value.
 An example of the invariant generated is on line 5 of
 figure~\ref{lst:whiley-start}.
 
-
 The definition of a simple mutation is restricted to an expression that only
 includes addition and subtraction of constant values and the variable in question.
-This restricts the mutation to be a linear monotonic function that is either strictly
-increasing or decreasing the variable with each iteration.
+The mutation must be certain with each iteration so the variable must not be
+modified inside branching statements such as \code{if} blocks or nested loops.
+Since the mutation has to be simple it restricts them to linear monotonic
+functions that is either strictly increasing or decreasing the variable with each iteration.
 This is to keep the loop pattern simple and deterministic of knowing if the
 mutation is increases or decreases the variable with each iteration.
-An expression is checked if it is a simple mutation through static analysis.
+An expression is checked if it is a simple mutation through static analysis of 
+the AST.
 
 \begin{figure}
 
@@ -276,7 +295,6 @@ determine if the function increases or decreases.
 In the case that the expression is stationary the variable will not variate
 between iterations and left alone.
 
-
 \begin{figure}[h]
 \begin{lstlisting}
     ...
@@ -292,25 +310,70 @@ between iterations and left alone.
 \label{lst:whiley-start}
 \end{figure}
 
+With the identification of the variable with a simple mutation and knowing
+if it decreases or increases each iteration an invariant can be made.
+This is in the form of the variable on the left with either a less than or
+equal to ($\leq$) or greater than or equal to ($\geq$) to the initial value on the
+right.
+In figure~\ref{lst:whiley-start} the variable \code{i} is clearly increasing
+with each iteration due to line 7 and the inferred invariant, on line 5, is
+obvious from the context.
+
 % array length
+
+\subsubsection*{3.2.2 Equal length arrays invariant}
+
+From a common pattern of making a copy of arrays or generating another array
+with an equal length an invariant can be inferred.
+This loop pattern is found when applying a function that changes the type of
+the element or the user does not wish to update the original array.
+Figure~\ref{lst:whiley-length} shows a simple example of applying a function
+\code{apply ()} to each element of an array.
+Generally the user would also need to provide an invariant that both arrays
+have the same length to prevent possible out-of-range errors or prove a
+post-condition.
+
+With this invariant it is detected that an array is declared with the same
+length as another array.
+This is achieved by inspecting the AST of the program
+using forward propagation to find assignments to arrays.
+Due to Whiley's copy semantics it is known that the assignment will result
+in a clone of array and are distinct.
+This can also be achieved by finding a use of the array
+generator syntax, see line 4 of figure~\ref{lst:whiley-length}.
+
+The arrays that are shown to be equal in length to another array are
+check to ensure the array size does not change.
+This is achieved by checking that there is no assignments to either
+of the two arrays involved either before entering the loop or
+anyway inside the loop.
+If there was an assignment it is no longer a simple to infer if
+the arrays are equal size and an invariant is not generated.
+However, an assignment to an element of the array is passable since it
+is known that it won't change the array size just the contents.
 
 \begin{figure}[h]
 \begin{lstlisting}
     ...
     int[] copy = items
     // or
-    int[] copy = [0;|items|]
+    float[] copy = [0;|items|]
     while i < |items|:
         // 'where |copy| == |items|' is inferred
-        items[i] = apply(copy[i])
+        copy[i] = apply(items[i])
     ...
 \end{lstlisting}
 \caption{Simple example of inferring array lengths are equal}
 \label{lst:whiley-length}
 \end{figure}
 
-\subsection*{3.3 Evaluation}
+From this information an invariant is known and can be generated.
+Given the source array and the array of known equal length the
+invariant of the lengths are equal.
+See figure~\ref{lst:whiley-length} line 5 for the invariant generated
+from the example code.
 
+\subsection*{3.3 Evaluation}
 %% Evaluation
 % measurable deduction of proof obligations
 % # of total loops effected
@@ -331,14 +394,32 @@ So far this has been a success with a majority of loops have been simplified.
 % and other disruptions.
 % (1 pages)
 
-% identify common invariant/loop patterns to codify
+\subsection*{4.1 To be done}
+
+% identify common loop patterns to  study & codify
 % found a few 
 %   * map pattern - loops through array applying function to each element
 %   * for all - simple loop to see if all elements satisfies a condition
 %   * for some - simple loop until an element satisfies a condition
 
+
+% TODO: Timeline?
+\begin{figure}
+    \begin{itemize}
+        \item Draft Report (TODO: date)
+        \item Final Report (TODO: date)
+        \item Presentation (TODO: date)
+    \end{itemize}
+    \caption{Revised project timeline}\label{list:timeline}
+\end{figure}
+
+\subsection*{4.2 Stretch goals or future work}
+
 % stretch: User controls
+
 % stretch: Proof duplication detection
+
+% stretch: sum notation for Whiley
 
 \section*{5. Request for Feedback}
 % This should  highlight  any  difficulties  currently  faced,  and

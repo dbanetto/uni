@@ -12,6 +12,9 @@ proj_interim.pdf: proj_interim.tex report.bib
 count: proj_interim.pdf
 	pdftotext $< - | wc -w
 
+texcount:
+	texcount proj_interim.tex
+
 clean:
 	rm -f proj_interim.aux
 	rm -f proj_interim.log
