@@ -3,7 +3,7 @@
 \usepackage{float} % lets you have non-floating floats
 
 \usepackage{listings}
-\usepackage{color}
+\usepackage[usenames, dvipsnames]{color}
 \usepackage{url} % for typesetting urls
 \usepackage{mathtools}
 % \usepackage{pdfpages} % for including PDF's into the document
@@ -49,6 +49,7 @@
 % Comment this out if you want the date printed.
 \date{}
 \newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\todo}[1]{\huge{\underline{\textbf{\textcolor{RubineRed}{TODO}}: \textcolor{ForestGreen}{#1}}}\normalsize }
 
 \begin{document}
 
@@ -58,7 +59,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{abstract}
-    % TODO: abstract
+    \todo{abstract}
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,12 +96,12 @@ Loop invariants are a common pain point for users of formally verified
 languages. Simple loop invariants are repetitive and become a chore to
 always provide them. With this project some of this pain is alleviated.
 
-%% TODO: THIS
+\todo{changes since proposal}
 % Changes since proposal
 
 \subsection*{1.2 Solution}
 
-%% TODO: THIS
+\todo{overview of solution}
 % brief overview of solution
 
 % 'simple'
@@ -152,6 +153,7 @@ the Whiley Compiler of these properties.
 % developed in the project. (3-4 pages)
 
 %% TODO: ALL OF BACKGROUND
+\todo{THE BACKGROUND!!!}
 % intro
 
 \subsection*{2.1 Formal Software Verification Languages}
@@ -404,6 +406,7 @@ So far this has been a success with a majority of loops have been simplified.
 
 
 % TODO: Timeline?
+\todo{Fill out timeline}
 \begin{figure}
     \begin{itemize}
         \item Draft Report (TODO: date)
