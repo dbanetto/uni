@@ -101,8 +101,13 @@ always provide them. With this project some of this pain is alleviated.
 
 \subsection*{1.2 Solution}
 
-\todo{overview of solution}
 % brief overview of solution
+The solution this project provides to this problem is an extension to
+the Whiley Compiler to generate simple loop invariants.
+This includes the identification of simple loop invariants and being able
+to generate a loop invariant from the source code of a Whiley program.
+Since the Whiley Compiler is an open source project this project will be
+hosted in a fork of compiler.
 
 % 'simple'
 The definition of a simple loop invariants for this project is an invariant that is
@@ -396,18 +401,46 @@ So far this has been a success with a majority of loops have been simplified.
 % and other disruptions.
 % (1 pages)
 
-\subsection*{4.1 To be done}
+There are a range of improvements and additions that could be completed in
+the time remaining of this project.
+There could be improvements to the quality of the implementation with
+the addition of more tests and documentation.
+There could be additions of support for more loop patterns or tooling 
+to let the user control which loop patterns are used.
+Some of these are more stretch goals if there is time and 
+others are more immediate concerns.
 
+\subsection*{4.1 To be done}
 % identify common loop patterns to  study & codify
 % found a few 
 %   * map pattern - loops through array applying function to each element
 %   * for all - simple loop to see if all elements satisfies a condition
 %   * for some - simple loop until an element satisfies a condition
 
+The immediate goals for the project is to implement some additional loop
+patterns. Some loop patterns have been identified but not yet
+fully specified to a point that a loop pattern can be implemented.
+These are:
+\begin{itemize}
+    \item Ending value of a loop, in the same vain of thought as the Starting
+        Value invariant but attempting to detect the maximum value of the loop.
+        This would be common when iterating arrays and the loop condition does
+        not imply the maximum.
+    \item Applying a function to every element in an array, such as a
+        functional `map' and provide an invariant for the values.
+        This would likely require the use of universal quantifiers
+        and a copy of the original array in the invariant.
+    \item Checking if all elements in an array meet a condition, such as 
+        a `for all' universal quantifier, as well as a `for some' universal
+        quantifier.
+        This would require universal quantifiers in the invariant.
+\end{itemize}
+
 
 % TODO: Timeline?
 \todo{Fill out timeline}
-\begin{figure}
+
+\begin{figure}[h]
     \begin{itemize}
         \item Draft Report (TODO: date)
         \item Final Report (TODO: date)
