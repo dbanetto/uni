@@ -278,19 +278,17 @@ An expression is checked if it is a simple mutation through static analysis of
 the AST.
 
 \begin{figure}
+    $$f(x) \text{is a linear function}$$
 
-$$f(x) \text{is a linear function}$$
+    $$diff = f(f(0)) - f(0)$$
 
-$$diff = f(f(0)) - f(0)$$
-
-\[
-diff \begin{cases}
-= 0 \quad f(x) \text{ is stationary}\\
-> 0 \quad f(x) \text{ is increasing}\\
-< 0 \quad f(x) \text{ is decreasing}\\
-\end{cases}
-\]
-
+    \[
+        diff \begin{cases}
+            = 0 \quad f(x) \text{ is stationary}\\
+            > 0 \quad f(x) \text{ is increasing}\\
+            < 0 \quad f(x) \text{ is decreasing}\\
+        \end{cases}
+    \]
 \label{math:simple-mutation}
 \end{figure}
 
@@ -326,9 +324,8 @@ In figure~\ref{lst:whiley-start} the variable \code{i} is clearly increasing
 with each iteration due to line 7 and the inferred invariant, on line 5, is
 obvious from the context.
 
-% array length
-
 \subsubsection*{3.2.2 Equal length arrays invariant}
+% array length
 
 From a common pattern of making a copy of arrays or generating another array
 with an equal length an invariant can be inferred.
@@ -436,26 +433,60 @@ These are:
         This would require universal quantifiers in the invariant.
 \end{itemize}
 
-
-% TODO: Timeline?
-\todo{Fill out timeline}
+The project has a set of key dates over the next few months.
+These have been outlined in figure~\ref{list:timeline}.
 
 \begin{figure}[h]
     \begin{itemize}
-        \item Draft Report (TODO: date)
-        \item Final Report (TODO: date)
-        \item Presentation (TODO: date)
+        \item Draft Report (15th of September)
+        \item Project Snapshot (29th of September) 
+        \item Final Report (22nd of October)
+        \item Presentation (17th of November)
     \end{itemize}
     \caption{Revised project timeline}\label{list:timeline}
 \end{figure}
 
 \subsection*{4.2 Stretch goals or future work}
 
+Some stretch goals have been identified for this project that could
+be completed if enough time or be ideas for future projects.
+These include adding user controls over this extension in the
+form of compiler flags, or detecting the duplication of an invariant,
+or a functional fold notation for proofs.
+
 % stretch: User controls
+\subsubsection*{4.2.1 User Controls}
+From a usability standpoint it would be a great addition to expose
+some configuration of the loop invariant generators to the user.
+This would most likely come in the form of compiler flags or even
+a configuration file. The GNU compilers and their handling of
+extension flags would be a good model to follow.
 
 % stretch: Proof duplication detection
+\subsubsection*{4.2.2 Invariant duplication detection}
+With the addition of generated invariants there now may be 
+duplicates of invariants. A possible solution to resolve this would 
+be to warn the user if there is a detected duplication and
+inform them how it was duplicated.
+The duplication could be detected by syntactic or logical equivalence.
+With this information the user can be informed with a warning message.
+This feature would help the user to understand when the loop invariant
+generators can be used.
 
 % stretch: sum notation for Whiley
+\subsubsection*{4.2.3 Fold notation for Whiley}
+From my research into trying to prove the fundamental functional functions of
+map, fold and for-all and for-some Whiley is missing the notation to prove
+these ergonomically. The main pain point comes from trying to code a fold-like
+function that require a changing state between each iteration. Currently this
+can be achieved by using recursive function calls in proofs but this seems to
+be a stop-gap solution. A possible solution to this problem is the 
+introduction of a fold syntax such as `for some' or `for all' syntax that
+already exists in Whiley. The requirements for the fold syntax would require
+an initial state, a combination expression that evaluates to the next state
+and a variable for the current state.
+The largest issue with this suggestion is in how to encode this new structure
+so the Whiley theorem prove can understand and prove it.
 
 \section*{5. Request for Feedback}
 % This should  highlight  any  difficulties  currently  faced,  and
@@ -464,8 +495,18 @@ These are:
 % suggestions for alternative methods.
 % (1 pages)
 
+%% Difficulties
+% Additional ways to evaluate success
+
+A current difficulty with the project is that I am unsure that the current
+evaluation criteria is sufficient.
+This is due to the only evidence the current criteria provides is a change set
+of removed lines and passing cases. I would appreciate some guidance on
+improving this or possible alternatives.
+
 %% Help
 % Suggested invariant patterns
+% Additional ways to evaluate success
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
