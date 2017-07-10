@@ -237,6 +237,13 @@ A loop invariant must hold in all three stages of a loop:
     invariant must hold
 \end{itemize}
 
+
+$$\text{Entry} \quad P \implies I$$
+$$\text{Iteration} \quad I \wedge C $$
+$$\text{Exit} \quad I \wedge \neg{C} \implies Q$$
+
+\todo{Add some mathematical notation \& explanations}
+
 These stages are akin to an inductive proof \cite{invarints-classifiction}.
 The entry of the loop is similar to proving the base case of the proof.
 Each iteration of the loop is the inductive step of the proof. 
