@@ -8,6 +8,7 @@
 \usepackage{mathtools}
 % \usepackage{pdfpages} % for including PDF's into the document
 \usepackage[parfill]{parskip}
+\usepackage{hyperref}
 
 %  We don't want figures to float so we define
 %
@@ -41,7 +42,7 @@
 % [font|image]            Use a font or an image for the VUW logo
 %                          The font option will only work on ECS systems
 %
-\usepackage[image,ecs]{vuwproject} 
+\usepackage[image,ecs]{vuwproject}
 
 \supervisors{Lindsay Groves}
 \otherdegree{Bachelor of Engineering with Honours in Software Engineering}
@@ -72,13 +73,13 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{1. Introduction}
-% This should briefly outline the project and if necessary 
+% This should briefly outline the project and if necessary
 % reevaluate the original plan in light of what has been learned in the interim.  In
 % particular, any significant deviations in the problem being addressed, or the solution
 % being developed should be clearly highlighted and justified. (1 pages)
 %% TODO: Also have the proposal as an appendix
 
-% outline 
+% outline
 Whiley is a programming language that can be used for formal software
 verification. One aspect of formal software verification is providing loop
 invariants.
@@ -120,10 +121,10 @@ the scope of the project away from being too general, such as supporting
 a rare scenarios such as indexing an array with a polynomial equation.
 This leaves the more interesting invariants for the user to define.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \begin{lstlisting}
-    function indexOf (int[] items, int item) -> (int r)
-    ensures r == |items| || items[r] == item:
+function indexOf (int[] items, int item) -> (int r)
+ensures r == |items| || items[r] == item:
 
     int i = 0
 
@@ -162,26 +163,52 @@ The project is based off the Whiley language which supports formal software
 verification. Dafny is an alternative choice for formal software verification.
 The concept of loop invariants are a necessity is a key to this project.
 
-%% TODO: ALL OF BACKGROUND
-\todo{THE BACKGROUND!!!}
+Formal methods is an application of mathematics to prove software and hardware
+systems against a given specification. % TODO: cite this
+Formal software verification is the specific application to software with
+the intention to prove its correctness.
+
+\todo{fix this stuff}
+
 % intro
 
 \subsection*{2.1 Formal Software Verification Languages}
 %% Formal Software Verification
 % goals of class of languages (could be covered in Whiley)
 
+There are many languages that are centered around being verifiable
+with formal methods.
+This is due to the grand challenge of computer science
+to create a \textit{verifying compiler} set out by Prof. Sir Tony Hoare \cite{Hoare-grand}.
+The Whiley compiler is designed to bea verifying compiler \cite{whiley-origin}.
+An alternative to Whiley is the Dafny compiler.
+
 \subsubsection*{2.1.1 Whiley}
 %% Whiley
 % whiley design paper
-\cite{whiley-origin}
+
+The Whiley language was built from the ground up with the idea to be used with
+a verifying compiler \cite{whiley-origin}.
+The tool set of Whiley includes a compiler that targets an intermediate
+language. From the intermediate language the Whiley theorem prover can reason
+about the given program \cite{whiley-design} \cite{whiley-origin}.
+Since Whiley is an open source project and the primary contributor, Dr. David
+J.Pearce, is on staff at Victoria University of Wellington this make Whiley a
+prime candidate language to extend.
+
+\todo{could probably add more here}
+
 \cite{whiley-design}
+\cite{whiley-arrays}
 
-\subsubsection*{2.1.1 Dafny}
+\subsubsection*{2.1.2 Dafny}
 % dafny - other formal languages
+\todo{dafny alternative}
 \cite{dafny-started}
+\cite{dafny-lang}
 
 
-\subsection*{2.3 Loop Invariants}
+\subsection*{2.2 Loop Invariants}
 %% Loop invariants
 % overview of loop invariants
 % Theorem prover knows nothing about loop invariants - must give all
@@ -192,21 +219,119 @@ The concept of loop invariants are a necessity is a key to this project.
 % * implies post-condition
 % * implied by pre-condition
 
-\subsubsection*{2.3.1 Classification of loop invariants}
+Loop invariants are a means to provide a specification for a loop.
+This is required since a loop in an imperative language, such as Java or
+Whiley, it is not known how many iterations through the loop there will be.
+This is an issue when a variable is mutated during the loop as it becomes
+undecidable how the mutations have effected the variable.
+With the addition of a loop invariant the mutation can be specified and
+checked.
+A loop invariant must hold in all three stages of a loop:
+
+\begin{itemize}
+\item Entry - The loop invariant must hold on entry of the loop,
+    this implies that the pre-condition of the loop must imply the invariant.
+\item Iteration - With each iteration that the loop condition is true the
+    loop invariant must hold as well.
+\item Exit - When the loop condition no longer holds the loop
+    invariant must hold
+\end{itemize}
+
+These stages are akin to an inductive proof \cite{invarints-classifiction}.
+The entry of the loop is similar to proving the base case of the proof.
+Each iteration of the loop is the inductive step of the proof. 
+
+\subsubsection*{2.2.1 Loop Invariants in Whiley}
+
+In the Whiley language the concept of loop invariants are a 1\textsuperscript{st} class
+construct.
+Whiley gives syntax for providing \code{where} clauses to a \code{while}
+statement.
+Each of the \code{where} has a boolean expression which is the loop
+invariant predicate.
+Having multiple \code{where} clauses are equivalent to all the clauses are
+conjunctively joined.
+Figure~\ref{lst:whiley-inv} gives a full example of using a loop invariant
+in Whiley. The \code{where} clauses on lines 6 and 7 are Whiley's syntax for
+providing the loop invariant in the form of a predicate. 
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function count(int[] items) -> (int r)
+ensures r == |items|:
+    int i = 0
+    //
+    while i < |items|
+        where i >= 0
+        where i <= |items|:
+        i = i + 1
+    //
+    return i
+\end{lstlisting}
+    \caption{Example of loop invariant in Whiley (
+    \href{http://whiley.org/play/?id=DzLm1T}{Try snippet} ) }
+    \label{lst:whiley-inv}
+\end{figure}
+
+\subsubsection*{2.2.2 Classification of loop invariants}
 % classification of loop invariants
 %  * proves property
 %  * hints to theorem prover
 % example
 
-\subsection*{2.4 Methods to generate loop invariants}
+There are two classifications of loop invariants.
+These are bounding loop invariants and essential invariant
+\cite{invarints-classifiction}.
+With the classification of a loop invariant it helps to make
+it clearer what the purpose of the invariant is trying to achieve.
+
+A \textit{bounding loop invariant} is an invariant that is designed
+to limit the values of a variable.
+Figure~\ref{lst:whiley-inv} has an example of this at line 6, as the invariant
+ensures that the variable \code{i} is bounded to be greater than zero
+in every iteration of the loop.
+Generally these types of invariants are used to ensure the body of the loop
+is correct. In the case of figure~\ref{lst:whiley-ex-1} the loop invariant on line
+7 do no effect the post-condition but ensures that the array indexing within
+the loop is correct.
+
+An \textit{essential invariant} is an invariant that is a step towards the
+post-condition.
+Figure~\ref{lst:whiley-inv} has an example of this at line 7, 
+as the invariant shows \code{i} must be less than or
+equal to the length of the \code{items} array.
+Generally an essential invariant is a weaker version of a post-condition
+\cite{invarints-classifiction}.
+In this case the invariant is equivalent to the conjunctive 
+of the loop condition and the post-condition.
+This class of invariant are more tailored to achieve 
+the goal of the loop than bounding invariants.
+
+
+\subsection*{2.3 Methods to generate loop invariants}
 %% Methods to generate loop invariants
 % generally generating loop invariants are impossible!
 
-\subsubsection*{2.4.1 Static methods}
+\subsubsection*{2.3.1 Static methods}
 % infer dynamic
 
-\subsubsection*{2.4.2 Dynamic methods}
+\cite{benderfinding} 
+\cite{Leino2005LoopIO}
+
+\subsubsection*{2.3.2 Dynamic methods}
 % finding invariants via static analysis
+
+\cite{infer-dynamic}
+\cite{infer-postconditions}
+
+\subsubsection*{2.3.3 Inference Paradox}
+% issue with inference creates correct code
+% by making specification from code
+% OK since it is at such a small scale with limited scope
+
+\todo{invariant inference paradox}
+\cite{infer-postconditions}
+
 
 \section*{3. Work Done}
 % This should discuss what progress has been made on designing, implementing
@@ -241,6 +366,20 @@ into a single strategy and produces a single invariant.
 The invariant is known to be valid since they are built up via language
 semantics.
 
+This is in contrast with other state of the art loop invariant generators.
+The general design of other loop invariant generators are to infer a set 
+of possible invariants and iterate through them trying to prove which
+invariants are valid \cite{infer-dynamic} \cite{infer-postconditions}.
+However, these loop invariant generators have the design to be used as a tool
+to use with the source code where this project aims to integrate with the
+compiler itself. Being apart of the compiler imposes multiple constraints.
+This includes a constraint on keeping the impact on compile time to a
+reasonable level.
+Another constraint to consider is to not fail compilation for otherwise valid
+code to ensure backwards compatibility and reduce surprise to the user.
+Conversely should an error occur the resulting error message should not be
+confusing, such as referring to generated code.
+
 \subsection*{3.2 Implementation}
 %% Implemented so far
 % implemented algorithms for generating invariants
@@ -253,17 +392,16 @@ have been implemented. The first loop pattern is incrementing a variable
 each iteration of the loop, most commonly used for indexes into an array to
 iterate through it. See figure~\ref{lst:whiley-start} for a simple example.
 The second loop pattern is making a copy of an array or creating an array with
-the same length as another. 
+the same length as another.
 This is used generally when transforming every element in array into a separate
 variable. See figure~\ref{lst:whiley-length} for a simple example.
-
 
 \subsubsection*{3.2.1 Starting value invariant}
 % entry value
 
 From loop pattern of incrementing a variable each iteration of the loop
 a invariant of the starting value can be inferred.
-This invariant requires to know which variable is being 
+This invariant requires to know which variable is being
 mutated in a simple manner each iteration,
 the value of the variable at entry of the loop and if the mutation is an
 increasing or decreasing sequence.
@@ -271,6 +409,7 @@ From this information an invariant be generated that encapsulates that the
 variable will be increasing or decreasing from the initial value.
 An example of the invariant generated is on line 5 of
 figure~\ref{lst:whiley-start}.
+The loop invariant inferred is a bounding invariant.
 
 The definition of a simple mutation is restricted to an expression that only
 includes addition and subtraction of constant values and the variable in question.
@@ -280,7 +419,7 @@ Since the mutation has to be simple it restricts them to linear monotonic
 functions that is either strictly increasing or decreasing the variable with each iteration.
 This is to keep the loop pattern simple and deterministic of knowing if the
 mutation is increases or decreases the variable with each iteration.
-An expression is checked if it is a simple mutation through static analysis of 
+An expression is checked if it is a simple mutation through static analysis of
 the AST.
 
 \begin{figure}
@@ -299,14 +438,14 @@ the AST.
 \end{figure}
 
 The increase or decreasing nature of the simple mutation it is determined by
-executing the expression. An outline of the mathematical process is outlined 
-in figure~\ref{math:simple-mutation}, the expression is denoted with $f(x)$. 
+executing the expression. An outline of the mathematical process is outlined
+in figure~\ref{math:simple-mutation}, the expression is denoted with $f(x)$.
 The equations show how the difference between applying the function twice and once on a base value is used to
 determine if the function increases or decreases.
 In the case that the expression is stationary the variable will not variate
 between iterations and left alone.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \begin{lstlisting}
     ...
     int i = 0
@@ -342,13 +481,14 @@ Figure~\ref{lst:whiley-length} shows a simple example of applying a function
 Generally the user would also need to provide an invariant that both arrays
 have the same length to prevent possible out-of-range errors or prove a
 post-condition.
+The loop invariant inferred is a bounding invariant.
 
 With this invariant it is detected that an array is declared with the same
 length as another array.
 This is achieved by inspecting the AST of the program
 using forward propagation to find assignments to arrays.
 Due to Whiley's copy semantics it is known that the assignment will result
-in a clone of array and are distinct.
+in a clone of array and are distinct \cite{whiley-origin} \cite{whiley-arrays}.
 This can also be achieved by finding a use of the array
 generator syntax, see line 4 of figure~\ref{lst:whiley-length}.
 
@@ -362,7 +502,7 @@ the arrays are equal size and an invariant is not generated.
 However, an assignment to an element of the array is passable since it
 is known that it won't change the array size just the contents.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \begin{lstlisting}
     ...
     int[] copy = items
@@ -389,7 +529,7 @@ from the example code.
 % # of total loops effected
 
 The evaluation of this project is to measure reduction of required loop
-invariants. 
+invariants.
 To measure the reduction a sizable code base that is also formally verifiable
 is required to test against.
 Currently the largest known code is the Whiley Compiler test suite.
@@ -408,14 +548,14 @@ There are a range of improvements and additions that could be completed in
 the time remaining of this project.
 There could be improvements to the quality of the implementation with
 the addition of more tests and documentation.
-There could be additions of support for more loop patterns or tooling 
+There could be additions of support for more loop patterns or tooling
 to let the user control which loop patterns are used.
-Some of these are more stretch goals if there is time and 
+Some of these are more stretch goals if there is time and
 others are more immediate concerns.
 
 \subsection*{4.1 To be done}
 % identify common loop patterns to  study & codify
-% found a few 
+% found a few
 %   * map pattern - loops through array applying function to each element
 %   * for all - simple loop to see if all elements satisfies a condition
 %   * for some - simple loop until an element satisfies a condition
@@ -433,7 +573,7 @@ These are:
         functional `map' and provide an invariant for the values.
         This would likely require the use of universal quantifiers
         and a copy of the original array in the invariant.
-    \item Checking if all elements in an array meet a condition, such as 
+    \item Checking if all elements in an array meet a condition, such as
         a `for all' universal quantifier, as well as a `for some' universal
         quantifier.
         This would require universal quantifiers in the invariant.
@@ -442,10 +582,10 @@ These are:
 The project has a set of key dates over the next few months.
 These have been outlined in figure~\ref{list:timeline}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{itemize}
         \item Draft Report (15th of September)
-        \item Project Snapshot (29th of September) 
+        \item Project Snapshot (29th of September)
         \item Final Report (22nd of October)
         \item Presentation (17th of November)
     \end{itemize}
@@ -470,8 +610,8 @@ extension flags would be a good model to follow.
 
 % stretch: Proof duplication detection
 \subsubsection*{4.2.2 Invariant duplication detection}
-With the addition of generated invariants there now may be 
-duplicates of invariants. A possible solution to resolve this would 
+With the addition of generated invariants there now may be
+duplicates of invariants. A possible solution to resolve this would
 be to warn the user if there is a detected duplication and
 inform them how it was duplicated.
 The duplication could be detected by syntactic or logical equivalence.
@@ -486,7 +626,7 @@ map, fold and for-all and for-some Whiley is missing the notation to prove
 these ergonomically. The main pain point comes from trying to code a fold-like
 function that require a changing state between each iteration. Currently this
 can be achieved by using recursive function calls in proofs but this seems to
-be a stop-gap solution. A possible solution to this problem is the 
+be a stop-gap solution. A possible solution to this problem is the
 introduction of a fold syntax such as `for some' or `for all' syntax that
 already exists in Whiley. The requirements for the fold syntax would require
 an initial state, a combination expression that evaluates to the next state
