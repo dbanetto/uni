@@ -51,6 +51,9 @@
 \date{}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\todo}[1]{\huge{\underline{\textbf{\textcolor{RubineRed}{TODO}}: \textcolor{ForestGreen}{#1}}}\normalsize }
+\newcommand{\sst}{\textsuperscript{st}}
+\newcommand{\snd}{\textsuperscript{nd}}
+\newcommand{\sth}{\textsuperscript{th}}
 
 \begin{document}
 
@@ -220,33 +223,52 @@ prime candidate language to extend.
 % * implied by pre-condition
 
 Loop invariants are a means to provide a specification for a loop.
-This is required since a loop in an imperative language, such as Java or
-Whiley, it is not known how many iterations through the loop there will be.
-This is an issue when a variable is mutated during the loop as it becomes
-undecidable how the mutations have effected the variable.
-With the addition of a loop invariant the mutation can be specified and
-checked.
-A loop invariant must hold in all three stages of a loop:
+A loop invariant is required to prove the properties of a variable
+that is altered during the loop.
+Since it is generally undecidable how many times a loop
+will iterate or even if it will stop % TODO: cite this
+the loop invariant must hold at three keys points in the loop.
+The entry of the loop, each iteration of the loop and the exit of the
+loop.
 
-\begin{itemize}
-\item Entry - The loop invariant must hold on entry of the loop,
-    this implies that the pre-condition of the loop must imply the invariant.
-\item Iteration - With each iteration that the loop condition is true the
-    loop invariant must hold as well.
-\item Exit - When the loop condition no longer holds the loop
-    invariant must hold
-\end{itemize}
-
+At the entry of the loop the loop invariant must hold.
+This results in that the pre-condition of the loop must imply
+the loop invariant.
+This is illustrated in figure~\ref{lst:whiley-inv} where pre-condition
+before entering the loop is clearly that \code{i} equals 0 and that holds
+true for the invariants, in particular that \code{i >= 0}.
 
 $$\text{Entry} \quad P \implies I$$
+
+With each iteration of the loop the invariant must still hold.
+Since the loop continue to iterate the condition of the loop
+also holds. Thus each iteration can be described as a conjunction
+between the invariant and the condition.
+
 $$\text{Iteration} \quad I \wedge C $$
+
+On exit of the loop the loop invariant must still hold.
+Since the loop has ceased the loop condition no longer
+holds. Thus an exit of the loop can be described
+as the conjunction of loop invariant and the logical
+not of the loop condition.
+This results in an implication of the post-condition of the
+loop.
+
 $$\text{Exit} \quad I \wedge \neg{C} \implies Q$$
 
-\todo{Add some mathematical notation \& explanations}
+Figure~\ref{lst:whiley-inv} illustrates this as the
+post condition of the loop can be reasoned to be the following
+from the loop condition and the invariant:
+$$\neg{ ( i < |items| ) } \wedge i \leq |items| \wedge i \geq 0$$
 
-These stages are akin to an inductive proof \cite{invarints-classifiction}.
-The entry of the loop is similar to proving the base case of the proof.
-Each iteration of the loop is the inductive step of the proof. 
+This can be simplified to down:
+
+$$ i = |items| \wedge i \geq 0$$
+
+This implies the post-condition of the function that $r = |items|$ with
+the variable \code{i} renamed to \code{r}.
+Each of the stages of a loop are similar to building an inductive proof \cite{invarints-classifiction}.
 
 \subsubsection*{2.2.1 Loop Invariants in Whiley}
 
@@ -260,7 +282,7 @@ Having multiple \code{where} clauses are equivalent to all the clauses are
 conjunctively joined.
 Figure~\ref{lst:whiley-inv} gives a full example of using a loop invariant
 in Whiley. The \code{where} clauses on lines 6 and 7 are Whiley's syntax for
-providing the loop invariant in the form of a predicate. 
+providing the loop invariant in the form of a predicate.
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -304,14 +326,14 @@ the loop is correct.
 
 An \textit{essential invariant} is an invariant that is a step towards the
 post-condition.
-Figure~\ref{lst:whiley-inv} has an example of this at line 7, 
+Figure~\ref{lst:whiley-inv} has an example of this at line 7,
 as the invariant shows \code{i} must be less than or
 equal to the length of the \code{items} array.
 Generally an essential invariant is a weaker version of a post-condition
 \cite{invarints-classifiction}.
-In this case the invariant is equivalent to the conjunctive 
+In this case the invariant is equivalent to the conjunctive
 of the loop condition and the post-condition.
-This class of invariant are more tailored to achieve 
+This class of invariant are more tailored to achieve
 the goal of the loop than bounding invariants.
 
 
@@ -319,14 +341,34 @@ the goal of the loop than bounding invariants.
 %% Methods to generate loop invariants
 % generally generating loop invariants are impossible!
 
-\subsubsection*{2.3.1 Static methods}
-% infer dynamic
+The current state of the art can already generate loop invariants
+from source code.
+It has been proven that it is not possible to generate loop invariants
+generally % TODO: cite this
+so techniques have been developed to generate some invariants.
+These techniques can be classified into two categories,
+static inference and dynamic checking.
+The key difference between the two methods
+is that static methods are invariants informed by
+language semantics and other static analysis, while
+dynamic create invariants informed by heuristics.
 
-\cite{benderfinding} 
+\subsubsection*{2.3.1 Static methods}
+% finding invariants via static analysis
+
+The static methods used to generate loop invariants are based upon static
+analysis of the program.
+From the analysis a set of properties can be tested and transformed
+into loop invariants.
+A static method generate correct invariants as they are directly
+derived from the loop. This lends them to be useful for generating
+bounding invariants as they are found within the loop itself.
+% this could be expanded to include the methods of static mutations
+\cite{benderfinding}
 \cite{Leino2005LoopIO}
 
 \subsubsection*{2.3.2 Dynamic methods}
-% finding invariants via static analysis
+% infer dynamic
 
 \cite{infer-dynamic}
 \cite{infer-postconditions}
@@ -374,7 +416,7 @@ The invariant is known to be valid since they are built up via language
 semantics.
 
 This is in contrast with other state of the art loop invariant generators.
-The general design of other loop invariant generators are to infer a set 
+The general design of other loop invariant generators are to infer a set
 of possible invariants and iterate through them trying to prove which
 invariants are valid \cite{infer-dynamic} \cite{infer-postconditions}.
 However, these loop invariant generators have the design to be used as a tool
@@ -568,10 +610,13 @@ others are more immediate concerns.
 %   * for some - simple loop until an element satisfies a condition
 
 The immediate goals for the project is to implement some additional loop
-patterns. Some loop patterns have been identified but not yet
+patterns or to expand on more cases for existing loop patterns.
+Some loop patterns have been identified but not yet
 fully specified to a point that a loop pattern can be implemented.
 These are:
 \begin{itemize}
+    \item Expanding the starting value invariant to handle branches
+        and inner loops by using formal static analysis techniques.
     \item Ending value of a loop, in the same vain of thought as the Starting
         Value invariant but attempting to detect the maximum value of the loop.
         This would be common when iterating arrays and the loop condition does
@@ -591,10 +636,11 @@ These have been outlined in figure~\ref{list:timeline}.
 
 \begin{figure}[ht]
     \begin{itemize}
-        \item Draft Report (15th of September)
-        \item Project Snapshot (29th of September)
-        \item Final Report (22nd of October)
-        \item Presentation (17th of November)
+        \item Practise Presentations (24\sth to 28\sth of July)
+        \item Draft Report (15\sth of September)
+        \item Project Snapshot (29\sth of September)
+        \item Final Report (22\snd of October)
+        \item Presentation (17\sth of November)
     \end{itemize}
     \caption{Revised project timeline}\label{list:timeline}
 \end{figure}
