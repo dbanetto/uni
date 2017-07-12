@@ -22,3 +22,4 @@ clean:
 	rm -f proj_interim.bbl
 	rm -f proj_interim.blg
 	rm -f proj_interim.dvi
+	rm -f proj_interim.out
