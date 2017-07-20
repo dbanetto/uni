@@ -1,0 +1,220 @@
+\chapter{Background}\label{C:background}
+% The background should cover any important terminology and/or
+% concepts used in the remainder of the report, and should demonstrate an
+% understanding of previous works which are relevant.
+%
+% Remember: A good related work section does not just provide a list of previous works, 
+% accompanied with short summaries.
+% Wherever possible it must extract real insight from these works, painting a
+% picture of how they relate to each other and the project.
+
+
+This project draws from the research in the field of formal software verification.
+The project is based off the Whiley language which supports formal software
+verification. % Dafny is an alternative choice for formal software verification.
+The concept of loop invariants are a necessity is a key to this project.
+
+Formal methods is an application of mathematics to prove software and hardware
+systems against a given specification. % TODO: cite this
+Formal software verification is the specific application to software with
+the intention to prove its correctness.
+
+% TODO: fix this stuff
+
+% intro
+
+\subsection*{2.1 Formal Software Verification Languages}
+%% Formal Software Verification
+% goals of class of languages (could be covered in Whiley)
+
+There are many languages that are centered around being verifiable
+with formal methods.
+This is due to the grand challenge of computer science
+to create a \textit{verifying compiler} set out by Prof. Sir Tony Hoare \cite{Hoare-grand}.
+The Whiley compiler is designed to be verifying compiler \cite{whiley-origin}.
+% An alternative to Whiley is the Dafny compiler.
+
+\subsubsection*{2.1.1 Whiley}
+%% Whiley
+% whiley design paper
+
+The Whiley language was built from the ground up with the idea to be used with
+a verifying compiler \cite{whiley-origin}.
+The tool set of Whiley includes a compiler that targets an intermediate
+language. From the intermediate language the Whiley theorem prover can reason
+about the given program \cite{whiley-design} \cite{whiley-origin}.
+Since Whiley is an open source project and the primary contributor, David
+J.Pearce, is on staff at Victoria University of Wellington this made Whiley a
+prime candidate language to extend.
+
+% \todo{could probably add more here}
+
+% \cite{whiley-design}
+% \cite{whiley-arrays}
+
+% \subsubsection*{2.1.2 Dafny}
+% % dafny - other formal languages
+
+% An alternative to the Whiley language is the Dafny.
+% Dafny is a research language for a verifying compiler by Microsoft
+% \cite{dafny-lang}.
+% The language shares a majority of the same features as 
+
+
+% \todo{dafny alternative}
+% \cite{dafny-started}
+% \cite{dafny-lang}
+
+
+\subsection*{2.2 Loop Invariants}
+%% Loop invariants
+% overview of loop invariants
+% Theorem prover knows nothing about loop invariants - must give all
+% * must hold at entry
+% * must hold each iteration
+% * must hold on exit
+%
+% * implies post-condition
+% * implied by pre-condition
+
+Loop invariants are a means to provide a specification for a loop.
+A loop invariant is required to prove the properties of a variable
+that is altered during the loop.
+It is used to as the basis for an inductive proof of a
+property that is to be maintained.
+The entry of the loop, each iteration of the loop and the exit of the
+loop.
+
+At the entry of the loop the loop invariant must hold.
+This results in that the pre-condition of the loop must imply
+the loop invariant.
+This is illustrated in figure~\ref{lst:whiley-inv} where pre-condition
+before entering the loop is clearly that \code{i} equals 0 and that holds
+true for the invariants, in particular that \code{i >= 0}.
+
+$$\text{Entry} \quad P \implies I$$
+
+With each iteration of the loop the invariant must still hold.
+Since the loop continue to iterate the condition of the loop
+also holds. Thus each iteration can be described as a conjunction
+between the invariant and the condition.
+
+$$\text{Iteration} \quad I \wedge C $$
+
+On exit of the loop the loop invariant must still hold.
+Since the loop has ceased the loop condition no longer
+holds. Thus an exit of the loop can be described
+as the conjunction of loop invariant and the logical
+not of the loop condition.
+This results in an implication of the post-condition of the
+loop.
+
+$$\text{Exit} \quad I \wedge \neg{C} \implies Q$$
+
+Figure~\ref{lst:whiley-inv} illustrates this as the
+post condition of the loop can be reasoned to be the following
+from the loop condition and the invariant:
+$$\neg{ ( i < |items| ) } \wedge i \leq |items| \wedge i \geq 0$$
+
+This can be simplified to down:
+
+$$ i = |items| \wedge i \geq 0$$
+
+This implies the post-condition of the function that $r = |items|$ with
+the variable \code{i} renamed to \code{r}.
+Each of the stages of a loop are similar to building an inductive proof \cite{invarints-classifiction}.
+
+\subsubsection*{2.2.1 Loop Invariants in Whiley}
+
+In the Whiley language the concept of loop invariants are a 1\textsuperscript{st} class
+construct.
+Whiley gives syntax for providing \code{where} clauses to a \code{while}
+statement.
+Each of the \code{where} has a boolean expression which is the loop
+invariant predicate.
+Having multiple \code{where} clauses are equivalent to all the clauses are
+conjunctively joined.
+Figure~\ref{lst:whiley-inv} gives a full example of using a loop invariant
+in Whiley. The \code{where} clauses on lines 6 and 7 are Whiley's syntax for
+providing the loop invariant in the form of a predicate.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function count(int[] items) -> (int r)
+ensures r == |items|:
+    int i = 0
+    //
+    while i < |items|
+        where i >= 0
+        where i <= |items|:
+        i = i + 1
+    //
+    return i
+\end{lstlisting}
+    \caption{Example of loop invariant in Whiley (
+    \href{http://whiley.org/play/?id=DzLm1T}{Try snippet} ) }
+    \label{lst:whiley-inv}
+\end{figure}
+
+\subsubsection*{2.2.2 Classification of loop invariants}
+% classification of loop invariants
+%  * proves property
+%  * hints to theorem prover
+% example
+
+There are two classifications of loop invariants.
+These are bounding loop invariants and essential invariant
+\cite{invarints-classifiction}.
+With the classification of a loop invariant it helps to make
+it clearer what the purpose of the invariant is trying to achieve.
+
+A \textit{bounding loop invariant} is an invariant that is designed
+to limit the values of a variable.
+Figure~\ref{lst:whiley-inv} has an example of this at line 6, as the invariant
+ensures that the variable \code{i} is bounded to be greater than zero
+in every iteration of the loop.
+Generally these types of invariants are used to ensure the body of the loop
+is correct. In the case of figure~\ref{lst:whiley-ex-1} the loop invariant on line
+7 do no effect the post-condition but ensures that the array indexing within
+the loop is correct.
+
+An \textit{essential invariant} is an invariant that is a step towards the
+post-condition.
+Figure~\ref{lst:whiley-inv} has an example of this at line 7,
+as the invariant shows \code{i} must be less than or
+equal to the length of the \code{items} array.
+The loop invariant is a weaker form of the postcondition,
+since the conjunction of the loop invariant and the negation
+of the loop condition imply the postcondition \cite{invarints-classifiction}.
+This class of invariant are more tailored to achieve
+the goal of the loop than bounding invariants.
+
+
+\subsection*{2.3 Methods to generate loop invariants}
+%% Methods to generate loop invariants
+% generally generating loop invariants are impossible!
+
+The current state of the art can already generate some loop invariants
+from source code.
+It has been proven that it is not possible to generate loop invariants
+generally % TODO: cite this
+so various techniques have been developed to generate some invariants.
+These techniques can be classified into two categories,
+static inference and dynamic checking.
+The key difference between the categories is
+that invariants found statical hold true
+but is restricted to what can be generated.
+\cite{benderfinding}\cite{Leino2005LoopIO}.
+However, dynamic
+checking are techniques that may produce a valid invariant
+but multiple rounds of testing is required
+\cite{infer-dynamic}
+\cite{infer-postconditions}.
+
+% \subsubsection*{2.3.3 Inference Paradox}
+% issue with inference creates correct code
+% by making specification from code
+% OK since it is at such a small scale with limited scope
+
+% \todo{invariant inference paradox}
+% \cite{infer-postconditions}
