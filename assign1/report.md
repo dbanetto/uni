@@ -12,30 +12,46 @@ A relation is a finite set of tuples (or records) over a relation schema.
 
 ## B)
 
-A candidate key is < >.
+A candidate key is a minimal super key for a given relation.
 The properties of a candidate key are:
 
- * 
+ * The relation does not have two distinct tuples with the same values for the candidate key attributes. 
+ * There is no proper subset of candidate key such that it is minimal.  
 
-A foreign key is a <>.
+A foreign key is a means to relate two relations together via a shared attribute.
+The relation is one way from the 'relator' to the 'related'.
 The properties of a foreign key are:
 
- * 
+ * The attribute of the 'related' is a sub-set of the primary of that relation.
+ * The shared attribute must be consistent of the domain and range of the attribute,
+    such that the 'relator' can represent any valid value of the 'related'.
 
 ## C)
 
-A database is <>.
-The main features of a database are
+A database is a collection of related data.
+The main features of a database are:
 
- * creating an abstraction of storing data and querying data for other applications
- * 
+ * Creating an abstraction of storing data and querying data for other applications.
+ * Represents an aspect of the world.
+ * Well structured.
+ * Reflects the current state of the world.
+ * Has users.
+ * Stores the data in a persistent manner.
+ * Is managed by a database management system.
 
 ## D)
 
-A database management system (DBMS) is <>.
+A database management system (DBMS) is general purpose software that
+allows operations of the managed database.
 The main tasks for a DBMS are:
 
- * 
+ * defining structure
+ * constructing data
+ * querying, updating and removing data
+ * preserve consistency by ensuring constraints on data are met
+ * protect from misuse, e.g. Unauthenticated user, malformed queries, etc.
+ * recovering from failure, such as backups
+ * allow for concurrent use from many users.
 
 # Question 2
 
@@ -55,25 +71,30 @@ The main tasks for a DBMS are:
  * `{ DoB, JobTitle }` There are duplicates of two staff members having the
  same `dob` and `JobTitle` (`22/01/1985` and `Waiter`) and other valid duplicates
  are likely to occur.
-* `{ Employee, DoB, StaffNo, JobTitle }` 
+ * `{ DoB, StaffNo }` has a proper subset of `{ StaffNo }` 
+ * `{ Employee, StaffNo }` has a proper subset of `{ StaffNo }` 
+ * `{ StaffNo, JobTitle }` has a proper subset of `{ StaffNo }`
+ * `{ Employee, DoB, StaffNo }` has a proper subset of `{ StaffNo }`
+ * `{ Employee, StaffNo, JobTitle }` has a proper subset of `{ StaffNo }`
+ * `{ DoB, StaffNo, JobTitle }` has a proper subset of `{ StaffNo }`
+ * `{ Employee, DoB, StaffNo, JobTitle }` has a proper subset of `{ StaffNo }` 
 
 ## B)
 
- * `{ StaffNo }` Yes,
- * `{ Employee, DoB }` No,
- * `{ Employee, StaffNo }` Yes,
- * `{ Employee, JobTitle }` No,
- * `{ DoB, StaffNo }` Yes,
- * `{ StaffNo, JobTitle }` Yes,
- * `{ Employee, DoB, StaffNo }` Yes,
- * `{ Employee, DoB, JobTitle }` No,
- * `{ Employee, StaffNo, JobTitle }` Yes,
- * `{ DoB, StaffNo, JobTitle }` Yes,
+ * `{ StaffNo }` Yes, it does not seem to be likely that there will ever be a
+ duplicate value of `StaffNo` in the relation.
+ * `{ Employee, DoB }` No, it is feasible that a duplicates of these attributes
+ could exist in the relation given that subsets of the attributes already have duplicates.
+ * `{ Employee, JobTitle }` No, it is feasible that a duplicates of these attributes
+ could exist in the relation given additional data given that subsets of the attributes already have duplicates.
+ * `{ Employee, DoB, JobTitle }` No, it is feasible that a duplicates of these attributes
+ could exist in the relation given additional data given that subsets of the attributes already have duplicates.
 
 ## C)
 
 `{ StaffNo }` is a suitable candidate key to use as a primary key since it is the most minimal
-candidate out of the possible options.
+candidate out of the possible options and all attributes in the key set have shown
+that they are unique unlike any other attribute of the relation.
 
 # Question 3
 
@@ -112,33 +133,56 @@ valid entry in the `SUPPLIER` relation.
 
 ## A)
 
-`tourId` is a suitable candidate key, <>
+There are no suitable candidate key for the `TOUR` relation.
+This is due to both `tourId` and `destination` attributes would 
+not meet the unique property required since multiple tours could
+go to a single destination and equally a single tour could go to
+multiple destinations.
+
+A candidate key of `{tourId, destination}` is also not suitable as
+the specification does not limit the tour to revisit a destination again,
+for example returning back to the start of a circuit tour.
 
 ## B)
 
 ### Customer
 
-Has no suitable foreign key.
+Has no suitable foreign key as the relation is standalone information about
+the customer.
 
 ### Agent
 
-Has no suitable foreign key.
+Has no suitable foreign key as the relation is standalone about the travel agent.
+It may look like `name` could be a foreign key to `CUSTOMER` since an agent
+could also be a customer but this is not always the case and making it a foreign
+key would force agents to also be customers, however this is redundant information
+in the case of a person is both a customer and an agent.
 
 ### Booking
 
 Has three suitable foreign keys,
 
- * `staffId`
- * `tourId`
- * `emailaddress`
+ * `staffId` to the `AGENT` relation
+ * `tourId` to the `TOUR` relation
+ * `emailaddress` to the `CUSTOMER` relation
+
+These are because a booking requires these fields to be valid to be a valid
+booking.
 
 ### Tour
 
-Has no suitable foreign key.
+Has no suitable foreign key as the relation is standalone information about
+the destinations of a tour.
 
 ## C)
 
 Depending if the `emailaddress` attribute is a foreign key to the `CUSTOMER` relation.
+If the `emailaddress` in the `BOOKING` relation is a foreign key, then the booking
+with an email address that is not associated with any client would be rejected since
+the foreign key must refer to a valid tuple in the `CUSTOMER` relation with the same
+value.
+If the `emailaddress` in the `BOOKING` relation is not a foreign key, then the
+booking of an unknown email address is a valid insertion.
 
 ## D)
 
@@ -149,8 +193,20 @@ one in the morning and another in the afternoon.
 
 ## E)
 
-Cascading delete
+To ensure that all bookings made by the customer is deleted with the deletion of
+the customer from the `CUSTOMER` relation would be most effectively handled by
+making the `emailaddress` attribute in `BOOKING` a foreign to `CUSTOMER` and
+configure the constraint to handle deletes as cascading deletes.
+This makes all tuples in `BOOKING` that has a foreign key pointing to the tuple in
+`CUSTOMER` being removed to also be removed as well.
 
 ## F)
 
-Set foreign references to null.
+To ensure that all bookings made by an agent are not deleted when the agent
+is deleted would be most effectively handled by making a foreign key relation
+between `staffId` in the `BOOKING` relation a foreign key to `staffId` in the
+`AGENT` relation.
+This foreign key can be configured to be set to null when the tuple that the
+booking tuple refers to is deleted. This ensures that all bookings are kept
+upon deletion of the agent and also *null* values would represent the agent 
+has left.
