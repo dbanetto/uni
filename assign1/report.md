@@ -39,6 +39,11 @@ The main tasks for a DBMS are:
 
 # Question 2
 
+<!--
+    https://en.wikipedia.org/wiki/Superkey
+    https://en.wikipedia.org/wiki/Candidate\_key
+-->
+
 ## A)
 
  * `{ Employee }` in the relation there are two duplicates of `Tom` and `Minnie` with
@@ -50,6 +55,7 @@ The main tasks for a DBMS are:
  * `{ DoB, JobTitle }` There are duplicates of two staff members having the
  same `dob` and `JobTitle` (`22/01/1985` and `Waiter`) and other valid duplicates
  are likely to occur.
+* `{ Employee, DoB, StaffNo, JobTitle }` 
 
 ## B)
 
@@ -63,7 +69,6 @@ The main tasks for a DBMS are:
  * `{ Employee, DoB, JobTitle }` No,
  * `{ Employee, StaffNo, JobTitle }` Yes,
  * `{ DoB, StaffNo, JobTitle }` Yes,
- * `{ Employee, DoB, StaffNo, JobTitle }` Yes,
 
 ## C)
 
