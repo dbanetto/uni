@@ -78,17 +78,16 @@ The main tasks for a DBMS are:
  * `{ Employee, StaffNo, JobTitle }` has a proper subset of `{ StaffNo }`
  * `{ DoB, StaffNo, JobTitle }` has a proper subset of `{ StaffNo }`
  * `{ Employee, DoB, StaffNo, JobTitle }` has a proper subset of `{ StaffNo }` 
-
+ * `{ Employee, DoB, JobTitle }` has a proper subset of `{ Employee, DoB }` and `{ Employee, JobTitle }`
+ 
 ## B)
 
  * `{ StaffNo }` Yes, it does not seem to be likely that there will ever be a
  duplicate value of `StaffNo` in the relation.
  * `{ Employee, DoB }` No, it is feasible that a duplicates of these attributes
  could exist in the relation given that subsets of the attributes already have duplicates.
- * `{ Employee, JobTitle }` No, it is feasible that a duplicates of these attributes
- could exist in the relation given additional data given that subsets of the attributes already have duplicates.
- * `{ Employee, DoB, JobTitle }` No, it is feasible that a duplicates of these attributes
- could exist in the relation given additional data given that subsets of the attributes already have duplicates.
+ * `{ Employee, JobTitle }` No, it is feasible that a duplicates of these attributes could exist in the relation given additional data given that subsets of the attributes already have duplicates.
+
 
 ## C)
 
@@ -107,6 +106,9 @@ that they are unique unlike any other attribute of the relation.
 3. No, since the primary key cannot be *null* this tuple is not a valid insert.
 
 4. ?Yes, since the primary key matches a valid tuple in the relation.
+
+4. ?No, even though the primary key matches on a tuple in the relation, but the rest
+of values do not match to the tuple.
 
 5. No, since the tuple is referenced by a `Pear` tuple in `PRODUCTS` relation, however
 this is dependent on how this situation is set to be resolved: either rejecting the
@@ -139,9 +141,9 @@ not meet the unique property required since multiple tours could
 go to a single destination and equally a single tour could go to
 multiple destinations.
 
-A candidate key of `{tourId, destination}` is also not suitable as
-the specification does not limit the tour to revisit a destination again,
-for example returning back to the start of a circuit tour.
+A candidate key of `{tourId, destination}` is suitable as together they
+would be unique assuming that a tour would not revisit the same destination
+twice.
 
 ## B)
 
@@ -163,7 +165,8 @@ in the case of a person is both a customer and an agent.
 Has three suitable foreign keys,
 
  * `staffId` to the `AGENT` relation
- * `tourId` to the `TOUR` relation
+ * `tourId` to the `TOUR` relation given that `tourId` is apart of primary key
+ of `TOUR`.
  * `emailaddress` to the `CUSTOMER` relation
 
 These are because a booking requires these fields to be valid to be a valid
