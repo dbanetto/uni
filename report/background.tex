@@ -23,7 +23,9 @@ the intention to prove its correctness.
 
 % intro
 
-\subsection*{2.1 Formal Software Verification Languages}
+\section{Core Concepts}
+
+\subsection{Formal Software Verification Languages}
 %% Formal Software Verification
 % goals of class of languages (could be covered in Whiley)
 
@@ -34,7 +36,9 @@ to create a \textit{verifying compiler} set out by Prof. Sir Tony Hoare \cite{Ho
 The Whiley compiler is designed to be verifying compiler \cite{whiley-origin}.
 % An alternative to Whiley is the Dafny compiler.
 
-\subsubsection*{2.1.1 Whiley}
+\subsection{Language Semantics}
+
+\subsection{Whiley}
 %% Whiley
 % whiley design paper
 
@@ -46,6 +50,11 @@ about the given program \cite{whiley-design} \cite{whiley-origin}.
 Since Whiley is an open source project and the primary contributor, David
 J.Pearce, is on staff at Victoria University of Wellington this made Whiley a
 prime candidate language to extend.
+
+\subsubsection{Overview of Whiley}
+
+
+\subsubsection{Whiley Semantics}
 
 % \todo{could probably add more here}
 
@@ -66,7 +75,7 @@ prime candidate language to extend.
 % \cite{dafny-lang}
 
 
-\subsection*{2.2 Loop Invariants}
+\subsection{Loop Invariants}
 %% Loop invariants
 % overview of loop invariants
 % Theorem prover knows nothing about loop invariants - must give all
@@ -124,7 +133,7 @@ This implies the post-condition of the function that $r = |items|$ with
 the variable \code{i} renamed to \code{r}.
 Each of the stages of a loop are similar to building an inductive proof \cite{invarints-classifiction}.
 
-\subsubsection*{2.2.1 Loop Invariants in Whiley}
+\subsubsection{Loop Invariants in Whiley}
 
 In the Whiley language the concept of loop invariants are a 1\textsuperscript{st} class
 construct.
@@ -156,7 +165,7 @@ ensures r == |items|:
     \label{lst:whiley-inv}
 \end{figure}
 
-\subsubsection*{2.2.2 Classification of loop invariants}
+\subsection{Classification of loop invariants}
 % classification of loop invariants
 %  * proves property
 %  * hints to theorem prover
@@ -189,8 +198,7 @@ of the loop condition imply the postcondition \cite{invarints-classifiction}.
 This class of invariant are more tailored to achieve
 the goal of the loop than bounding invariants.
 
-
-\subsection*{2.3 Methods to generate loop invariants}
+\subsection{Methods to generate loop invariants}
 %% Methods to generate loop invariants
 % generally generating loop invariants are impossible!
 
@@ -211,10 +219,22 @@ but multiple rounds of testing is required
 \cite{infer-dynamic}
 \cite{infer-postconditions}.
 
-% \subsubsection*{2.3.3 Inference Paradox}
+\subsubsection{Variable Aging}
+
+\subsubsection{Coupling}
+
+\subsubsection{The 3rd one from the paper}
+
+\subsection{Static Analysis}
+
+\subsection{Ontology Analysis}
+
+\subsection{Inference Paradox}
 % issue with inference creates correct code
 % by making specification from code
 % OK since it is at such a small scale with limited scope
 
 % \todo{invariant inference paradox}
 % \cite{infer-postconditions}
+
+\section{Literature Review}
