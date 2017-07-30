@@ -70,7 +70,7 @@ The main tasks for a DBMS are:
  duplicates likely to occur.
  * `{ DoB, JobTitle }` There are duplicates of two staff members having the
  same `dob` and `JobTitle` (`22/01/1985` and `Waiter`) and other valid duplicates
- are likely to occur.
+q are likely to occur.
  * `{ DoB, StaffNo }` has a proper subset of `{ StaffNo }` 
  * `{ Employee, StaffNo }` has a proper subset of `{ StaffNo }` 
  * `{ StaffNo, JobTitle }` has a proper subset of `{ StaffNo }`
@@ -105,10 +105,7 @@ that they are unique unlike any other attribute of the relation.
 
 3. No, since the primary key cannot be *null* this tuple is not a valid insert.
 
-4. ?Yes, since the primary key matches a valid tuple in the relation.
-
-4. ?No, even though the primary key matches on a tuple in the relation, but the rest
-of values do not match to the tuple.
+4. Yes, nothing will be removed even though it does have a partial match to a tuple in the relation.
 
 5. No, since the tuple is referenced by a `Pear` tuple in `PRODUCTS` relation, however
 this is dependent on how this situation is set to be resolved: either rejecting the
@@ -122,7 +119,7 @@ foreign key is also a primary key for `PRODUCTS` setting the value to null is no
 refers to a valid entry in the `SUPPLIER` relation to satisfy the foreign key constraint.
 There is no constraint given that `Name` cannot be *null*.
 
-2. Yes, the primary key matches on a single tuple.
+2. Yes, there is a partial match to a tuple in the relation but no tuple will be removed.
 
 3. No, the foreign key is invalid and does not refer to a valid entry in the `SUPPLIER` relation.
 
