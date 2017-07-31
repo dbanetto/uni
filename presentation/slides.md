@@ -13,11 +13,10 @@
 # Background
 
  * Static methods
-    + Relies on language semantics
-    + reliable but limited
+    + Uses techniques such as abstract interpretation
+    + reliable but limited range of invariants
 
  * Dynamic methods
-    + Uses heretics, 
     + multiple attempts, larger range of invariants
 
  * Loop Invariant classification
@@ -30,13 +29,17 @@
 
  * Extend the Whiley Compiler
     + Adds another pass over the AST
-
+ 
  * Aim for loop invariants that are obvious from inspection
+     + Should not introduce errors to previously compiling code
+     + If an error occurs, generated code should not make for confusing error messages
 
- * Looks for Loop Patterns
-    + Common loop structures
+ * Loop invariants are generated from the loop body and preceding code
+    + Current state-of-the-art focus on weakening postconditions
 
- * Employs strategy pattern of invariant generators
+ * Invariants based on Loop Patterns
+    + Common loops have common invariants
+    + indexing arrays, updating a counter
 
 # Work so Far
 
