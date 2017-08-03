@@ -21,9 +21,12 @@
 
  * Loop Invariant classification
      + Bounding Invariant - limits range of a variant
-       e.g. `i >= 0` when iterating an array
-     + Classification
-       e.g. `i <= |xs|` when counting an array
+
+       > e.g. `i >= 0` when iterating an array
+
+      + Essential Invariant - implies the post-condition
+
+       > e.g. `i <= |xs|` when counting an array
 
 # Design
 
@@ -32,7 +35,7 @@
  
  * Aim for loop invariants that are obvious from inspection
      + Should not introduce errors to previously compiling code
-     + If an error occurs, generated code should not make for confusing error messages
+     + If an error occurs, generated invariants should not make for confusing error messages
 
  * Loop invariants are generated from the loop body and preceding code
     + Current state-of-the-art focus on weakening postconditions
@@ -43,19 +46,17 @@
 
 # Work so Far
 
-A common search for all loops, collecting information
- about variable declarations and assignments.
+ * A common search for all loops, collecting information
+   about variable declarations and assignments.
+     + Is given to all strategies as a starting point
 
- + Is given to all strategies as a starting point
+ * Testing against 100+ tests from the Whiley Compiler's test suite with reduced
+  loop invariants.
 
-Testing against 100+ tests from the Whiley Compiler's test suite with reduced
-loop invariants.
-
-Implemented three invariant strategies
-
- * Starting Bound Invariant
- * Equal Array Length Invariant
- * Loop Condition Ageing Invariant
+ * Implemented three invariant strategies
+    + Starting Bound Invariant
+    + Equal Array Length Invariant
+    + Loop Condition Ageing Invariant
 
 
 ---
@@ -85,11 +86,11 @@ function double(int[] items) -> (int[] r)
 
 # Evaluation
 
-Metrics that have been identified to tests against:
+Metrics that have been identified to test against:
 
  * How many loop invariants would be removed over the test suite?
  * What invariant generators get the highest yield of reduced loop invariants?
- * How close to a programmer's code is the generated code?
+ * How close to a programmer's invariants is the generated invariants?
  * Are all of the generated invariants useful?
 
 # Future Work
