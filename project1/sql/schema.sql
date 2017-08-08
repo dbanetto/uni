@@ -7,7 +7,7 @@ CREATE TABLE Banks (
     Security SecurityLevel NOT NULL DEFAULT 'weak',
 
     PRIMARY KEY (BankName, City),
-    CONSTRAINT no_neg_accounts CHECK (NoAccounts >= 0) 
+    CONSTRAINT no_neg_accounts CHECK (NoAccounts >= 0)
 );
 
 CREATE TABLE Robberies (
@@ -16,8 +16,8 @@ CREATE TABLE Robberies (
     "Date" date NOT NULL,
     Amount money NOT NULL CHECK (Amount >= '0.0'::money),
 
-    CONSTRAINT fk_robberies_bank FOREIGN KEY (BankName, City) 
-    REFERENCES Banks(BankName, City) -- ON DELETE 
+    CONSTRAINT fk_robberies_bank FOREIGN KEY (BankName, City)
+    REFERENCES Banks(BankName, City) -- ON DELETE
 );
 
 CREATE TABLE Plans (
@@ -26,7 +26,7 @@ CREATE TABLE Plans (
     PlannedDate date NOT NULL,
     NoRobbers integer NOT NULL CHECK (NoRobbers >= 0),
 
-    CONSTRAINT fk_plan_bank FOREIGN KEY (BankName, City) 
+    CONSTRAINT fk_plan_bank FOREIGN KEY (BankName, City)
     REFERENCES Banks(BankName, City) -- ON DELETE
 );
 
@@ -42,7 +42,7 @@ CREATE TABLE Robbers (
 
 
 CREATE TABLE Skills (
-    SkillId integer PRIMARY KEY,
+    SkillId serial PRIMARY KEY,
     Description text NOT NULL UNIQUE
 );
 

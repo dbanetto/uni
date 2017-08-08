@@ -15,10 +15,7 @@ reset:
 	psql -c "CREATE DATABASE $(DB)"
 
 schema:
-	psql "$(DB)" -f sql/up.sql
+	psql "$(DB)" -f sql/schema.sql
 
 loaddata:
-	psql "$(DB)" -c '\copy Banks from data/banks_17.data'
-	psql "$(DB)" -c '\copy Robberies from data/robberies_17.data'
-	psql "$(DB)" -c '\copy Plans from data/plans_17.data'
-	psql "$(DB)" -c '\copy Robbers(Nickname, Age, NoYears) from data/robbers_17.data'
+	psql "$(DB)" -f sql/load.sql
