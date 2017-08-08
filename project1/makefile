@@ -11,7 +11,7 @@ conn:
 # SQL commands
 
 reset:
-	psql -c "DROP DATABASE $(DB)"
+	psql -c "DROP DATABASE IF EXISTS $(DB)"
 	psql -c "CREATE DATABASE $(DB)"
 
 schema:

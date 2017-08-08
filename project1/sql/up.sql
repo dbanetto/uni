@@ -1,16 +1,19 @@
+CREATE TYPE SecurityLevel AS ENUM ('weak', 'good', 'very good', 'excellent');
+
 CREATE TABLE Banks (
     BankName text NOT NULL,
     City text NOT NULL,
-    NoAccounts integer CHECK (NoAccounts >= 0) DEFAULT 0,
-    Security text DEFAULT 'weak',
+    NoAccounts integer DEFAULT 0,
+    Security SecurityLevel NOT NULL DEFAULT 'weak',
 
-    PRIMARY KEY (BankName, City)
+    PRIMARY KEY (BankName, City),
+    CONSTRAINT no_neg_accounts CHECK (NoAccounts >= 0) 
 );
 
 CREATE TABLE Robberies (
     BankName text NOT NULL,
     City text NOT NULL,
-    "Date" date DEFAULT TODAY(),
+    "Date" date,
     Amount money NOT NULL,
 
     CONSTRAINT fk_robberies_bank FOREIGN KEY (BankName, City) 
