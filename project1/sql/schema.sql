@@ -17,7 +17,7 @@ CREATE TABLE Robberies (
     Amount money NOT NULL CHECK (Amount >= '0.0'::money),
 
     CONSTRAINT fk_robberies_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) -- ON DELETE
+    REFERENCES Banks(BankName, City) ON UPDATE CASCADE
 );
 
 CREATE TABLE Plans (
@@ -27,14 +27,14 @@ CREATE TABLE Plans (
     NoRobbers integer NOT NULL CHECK (NoRobbers >= 0),
 
     CONSTRAINT fk_plan_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) -- ON DELETE
+    REFERENCES Banks(BankName, City) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Robbers (
     RobberId SERIAL PRIMARY KEY,
     Nickname text NOT NULL,
-    Age integer NOT NULL,
-    NoYears integer NOT NULL,
+    Age integer,
+    NoYears integer,
 
     CONSTRAINT non_neg_age CHECK (Age >= 0 AND NoYears >= 0),
     CONSTRAINT age_gt_noyears CHECK (Age >= NoYears)
@@ -49,22 +49,23 @@ CREATE TABLE Skills (
 CREATE TYPE Grades AS ENUM ('C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+');
 
 CREATE TABLE HasSkills (
-    RobberId integer NOT NULL REFERENCES Robbers(RobberId),
-    SkillId integer NOT NULL REFERENCES Skills(SkillId),
+    RobberId integer NOT NULL REFERENCES Robbers(RobberId) ON DELETE CASCADE,
+    SkillId integer NOT NULL REFERENCES Skills(SkillId), -- ON DELETE
     Preference integer NOT NULL,
     Grade Grades NOT NULL,
 
     CONSTRAINT pref_positive CHECK (Preference > 0),
+    CONSTRAINT unique_robber_skill UNIQUE (RobberId, SkillId),
     CONSTRAINT unique_robber_pref UNIQUE (RobberId, Preference)
 );
 
 CREATE TABLE HasAccounts (
-    RobberId integer NOT NULL REFERENCES Robbers(RobberId), -- ON DELETE
+    RobberId integer NOT NULL REFERENCES Robbers(RobberId) ON DELETE CASCADE,
     BankName text NOT NULL,
     City text NOT NULL,
 
     CONSTRAINT fk_account_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) -- ON DELETE
+    REFERENCES Banks(BankName, City) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
@@ -76,5 +77,5 @@ CREATE TABLE Accomplices (
     "Share" money NOT NULL,
 
     CONSTRAINT fk_accomplice_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) -- ON DELETE
+    REFERENCES Banks(BankName, City) ON UPDATE CASCADE -- ON DELETE
 );
