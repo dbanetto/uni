@@ -56,9 +56,24 @@ CREATE TABLE Robbers (
 
 ### Attributes
 
+ * `BankName`
+ * `City`
+ * `Date`
+ * `Amount` is a `money` type, this is because this column is for the amount of money stolen. It also ha
+
 ### Keys
 
+There is no primary keys in this table.
+As no attribute or combination of attributes are 
+suitable as a key. This is due to all attributes can
+have duplicates as there could be multiple robberies for
+the same amount at the same bank on the same day.
+
 ### Foreign Keys
+
+The table has a foreign key relation to `Banks` with the
+attributes `BankName` & `City` to the same attributes of `Banks`.
+On the deletion of the referenced Bank the robberies <>.
 
 ## `Skills`
 
