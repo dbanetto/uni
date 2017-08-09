@@ -1,12 +1,12 @@
 HADOOP_VERSION:=2.8.0
 HADOOP_PREFIX:=/local/Hadoop/hadoop-${HADOOP_VERSION}
-JAR:=target/wordcount-1.0.jar
+JAR:=target/loganalysis-1.0.jar
 SRC:=$(wildcard src/*.java)
-DATA_FILES:=$(wildcard data/*)
-LOCAL_INPUT:=data
-HADOOP_INPUT:=part2-input
-HADOOP_OUTPUT:=part2-output
+HADOOP_INPUT:=/tmp/aol
+HADOOP_OUTPUT:=aol-output
 LOCAL_OUTPUT:=output
+MAIN_CLASS:=nz.ac.vuw.ecs.barnetdavi.LogAnalysis
+SRC:=$(shell find src/ -type f -name '*.java')
 
 all: $(JAR)
 
@@ -21,10 +21,8 @@ reset:
 	hadoop dfs -rm -r -f $(HADOOP_OUTPUT)
 
 run: $(JAR) reset
-	hadoop jar $(JAR) nz.ac.vuw.ecs.barnetdavi.WordCount $(HADOOP_INPUT) $(HADOOP_OUTPUT)
-
-upload: $(DATA)
-	hadoop dfs -copyFromLocal -f -p $(LOCAL_INPUT)/ $(HADOOP_INPUT)
+	hadoop jar $(JAR) $(MAIN_CLASS)  $(HADOOP_INPUT) $(HADOOP_OUTPUT)
 
 download:
-	hadoop dfs -copyToLocal $(HADOOP_OUTPUT) $(LOCAL_OUTPUT)
+	rm -rf $(LOCAL_OUTPUT)
+	hadoop dfs -copyToLocal -f $(HADOOP_OUTPUT) $(LOCAL_OUTPUT)
