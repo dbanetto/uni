@@ -16,8 +16,12 @@ CREATE TABLE Robberies (
     "Date" date NOT NULL,
     Amount money NOT NULL CHECK (Amount >= '0.0'::money),
 
-    CONSTRAINT fk_robberies_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) ON UPDATE CASCADE
+    CONSTRAINT uniq_robberies UNIQUE (BankName, City, "Date"),
+
+    CONSTRAINT fk_robberies_bank
+    FOREIGN KEY (BankName, City)
+    REFERENCES Banks(BankName, City)
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Plans (
@@ -27,7 +31,8 @@ CREATE TABLE Plans (
     NoRobbers integer NOT NULL CHECK (NoRobbers >= 0),
 
     CONSTRAINT fk_plan_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) ON UPDATE CASCADE ON DELETE CASCADE
+    REFERENCES Banks(BankName, City)
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Robbers (
@@ -49,8 +54,10 @@ CREATE TABLE Skills (
 CREATE TYPE Grades AS ENUM ('C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+');
 
 CREATE TABLE HasSkills (
-    RobberId integer NOT NULL REFERENCES Robbers(RobberId) ON DELETE CASCADE,
-    SkillId integer NOT NULL REFERENCES Skills(SkillId), -- ON DELETE
+    RobberId integer NOT NULL REFERENCES Robbers(RobberId)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    SkillId integer NOT NULL REFERENCES Skills(SkillId)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     Preference integer NOT NULL,
     Grade Grades NOT NULL,
 
@@ -60,22 +67,33 @@ CREATE TABLE HasSkills (
 );
 
 CREATE TABLE HasAccounts (
-    RobberId integer NOT NULL REFERENCES Robbers(RobberId) ON DELETE CASCADE,
+    RobberId integer NOT NULL REFERENCES Robbers(RobberId)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     BankName text NOT NULL,
     City text NOT NULL,
 
+    CONSTRAINT one_robber_acc UNIQUE (RobberId, BankName, City),
     CONSTRAINT fk_account_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) ON UPDATE CASCADE ON DELETE CASCADE
+    REFERENCES Banks(BankName, City)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
 CREATE TABLE Accomplices (
-    RobberId integer REFERENCES Robbers(RobberId),
+    RobberId integer REFERENCES Robbers(RobberId)
+        ON UPDATE CASCADE ON DELETE CASCADE,
     BankName text NOT NULL,
     City text NOT NULL,
     RobberyDate date NOT NULL,
     "Share" money NOT NULL,
 
+    CONSTRAINT non_neg_share CHECK ("Share" >= '0'::money),
+    CONSTRAINT uniq_accomplices UNIQUE
+        (RobberId, BankName, City, RobberyDate),
     CONSTRAINT fk_accomplice_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) ON UPDATE CASCADE -- ON DELETE
+    REFERENCES Banks(BankName, City)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_accomplice_robbery FOREIGN KEY (BankName, City, RobberyDate)
+    REFERENCES Robberies(BankName, City, "Date")
+        ON UPDATE CASCADE ON DELETE CASCADE
 );

@@ -13,7 +13,7 @@ CREATE TABLE SkillsRaw (
 \COPY SkillsRaw FROM data/hasskills_17.data
 
 INSERT INTO Skills (Description)
-    (SELECT DISTINCT (Description) FROM SkillsRaw);
+    (SELECT DISTINCT Description FROM SkillsRaw);
 
 INSERT INTO HasSkills (RobberId, SkillId, Preference, Grade)
     (SELECT RobberId, SkillId, Preference, TRIM(Grade)::Grades

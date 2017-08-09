@@ -15,15 +15,15 @@ CREATE TABLE Banks (
     Security SecurityLevel NOT NULL DEFAULT 'weak',
 
     PRIMARY KEY (BankName, City),
-    CONSTRAINT no_neg_accounts CHECK (NoAccounts >= 0) 
+    CONSTRAINT no_neg_accounts CHECK (NoAccounts >= 0)
 );
 ```
 
 ### Attributes
 
- * `BankName` is a `text` type since the field is free-form text, the constraint of `NOT NULL` 
+ * `BankName` is a `text` type since the field is free-form text, the constraint of `NOT NULL`
     was added since it is a part of the primary key.
- * `City` is a `text` type since the field is free-form text, the constraint of `NOT NULL` 
+ * `City` is a `text` type since the field is free-form text, the constraint of `NOT NULL`
     was added since it is a part of the primary key.
  * `NoAccounts` is an `integer` as it models a count, a constraint of `NoAccounts` must be equal to
     or greater than 0 as it is assumed that a bank cannot have less than 0 accounts. This attribute has
@@ -51,8 +51,12 @@ CREATE TABLE Robberies (
     "Date" date NOT NULL,
     Amount money NOT NULL CHECK (Amount >= '0.0'::money),
 
-    CONSTRAINT fk_robberies_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) ON UPDATE CASCADE
+    CONSTRAINT uniq_robberies UNIQUE (BankName, City, "Date"),
+
+    CONSTRAINT fk_robberies_bank
+    FOREIGN KEY (BankName, City)
+    REFERENCES Banks(BankName, City)
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 ```
 
@@ -66,17 +70,17 @@ CREATE TABLE Robberies (
 
 ### Keys
 
-There is no primary keys in this table.
-As no attribute or combination of attributes are 
-suitable as a key. This is due to all attributes can
-have duplicates as there could be multiple robberies for
-the same amount at the same bank on the same day.
+The key for the table is `{BankName, City, Date}` because it
+is the minimum candidate key for the table. In the case
+of a duplicate the `Amount` stolen record should just be a sum
+of all the robberies that day but it is assumed the bank will
+close for the rest of the day after a robbery.
 
 ### Foreign Keys
 
 The table has a foreign key relation to `Banks` with the
 attributes `BankName` & `City` to the same attributes of `Banks`.
-On the deletion of the referenced Bank the robberies <>.
+On the deletion of the referenced Bank the robberies will also be deleted via cascade.
 On update of the referenced Bank the robberies would updated to changes
 in the bank's name or city to keep.
 
@@ -86,11 +90,12 @@ in the bank's name or city to keep.
 CREATE TABLE Plans (
     BankName text NOT NULL,
     City text NOT NULL,
-    PlannedDate date,
+    PlannedDate date NOT NULL,
     NoRobbers integer NOT NULL CHECK (NoRobbers >= 0),
 
     CONSTRAINT fk_plan_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) ON UPDATE CASCADE ON DELETE CASCADE
+    REFERENCES Banks(BankName, City)
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 ```
 
@@ -182,8 +187,10 @@ referenced by other tables.
 CREATE TYPE Grades AS ENUM ('C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+');
 
 CREATE TABLE HasSkills (
-    RobberId integer NOT NULL REFERENCES Robbers(RobberId),
-    SkillId integer NOT NULL REFERENCES Skills(SkillId),
+    RobberId integer NOT NULL REFERENCES Robbers(RobberId)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    SkillId integer NOT NULL REFERENCES Skills(SkillId)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     Preference integer NOT NULL,
     Grade Grades NOT NULL,
 
@@ -202,7 +209,7 @@ CREATE TABLE HasSkills (
  * `Preference` is an integer as the column is for ordering of skills, it has the constraint
     of `NON NULL` as it is a key. It also has the constraint of being greater than  zero to
     make ordering simpler.
- * `Grade` is a user-defined enum `Grades`, to restrict the possible values of the grade 
+ * `Grade` is a user-defined enum `Grades`, to restrict the possible values of the grade
     and keep the value in a reasonable range. The constraint of `NOT NULL` is added
     as the robber will always have a level for their skill.
 
@@ -218,44 +225,172 @@ two skills with the same preference to ensure a proper ordering.
 
 The `Skills` table has two foreign keys to `Robbers` and `Skills` via the columns `RobberId`
 and `SkillId` respectfully.
-The foreign key relation to `Robbers` is set to cascade on delete as the values 
-in `HasSkills` lose value when the robber it is associated to is deleted.
-The foreign key relation to `Skills` is set to <>.
+The foreign keys are set to cascade on delete and update so
+that the `HasSkills` table reflects what is currently in the
+database without nulls.
 
 ## `HasAccounts`
 
 ```sql
 CREATE TABLE HasAccounts (
-    RobberId integer NOT NULL REFERENCES Robbers(RobberId) ON DELETE CASCADE,
+    RobberId integer NOT NULL REFERENCES Robbers(RobberId)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     BankName text NOT NULL,
     City text NOT NULL,
 
+    CONSTRAINT one_robber_acc UNIQUE (RobberId, BankName, City),
     CONSTRAINT fk_account_bank FOREIGN KEY (BankName, City)
-    REFERENCES Banks(BankName, City) ON DELETE CASCADE
+    REFERENCES Banks(BankName, City)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 ```
 
 ### Attributes
 
+ * `RobberId` is an integer field as it is a foreign key to `Robbers`, and is set to be non-null
+    as it is a part of key of the table.
+ * `BankName` is a text field as it is a foreign key to `Banks`, and is set to be non-null
+    as it is a part of key of the table.
+ * `City` is a text field as it is a foreign key to `Banks`, and is set to be non-null
+    as it is a part of key of the table.
+
+
 ### Keys
 
+The key for this table is all the columns as the purpose of the table is a binary question of
+if a robber has an account(s) at a bank or not. Thus having duplicate entries is redundant.
+
 ### Foreign Keys
+
+`RobberId` is a foreign key to the `Robbers` table. This has been configured
+cascade on deletion or an update of the referenced robber it will be deleted or updated
+respectfully.
+This is the same for the `BankName` and `City` foreign key to `Banks`.
 
 ## `Accomplices`
 
 ```sql
 CREATE TABLE Accomplices (
+    RobberId integer REFERENCES Robbers(RobberId)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    BankName text NOT NULL,
+    City text NOT NULL,
+    RobberyDate date NOT NULL,
+    "Share" money NOT NULL,
 
+    CONSTRAINT non_neg_share CHECK ("Share" >= '0'::money),
+    CONSTRAINT uniq_accomplices UNIQUE
+        (RobberId, BankName, City, RobberyDate),
+    CONSTRAINT fk_accomplice_bank FOREIGN KEY (BankName, City)
+    REFERENCES Banks(BankName, City)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_accomplice_robbery FOREIGN KEY (BankName, City, RobberyDate)
+    REFERENCES Robberies(BankName, City, "Date")
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 ```
 
 ### Attributes
 
+ * `RobberId` is an integer field and is a part of the foreign key to
+    the `Robbers` table. It is non-null as it is required for the
+    data to make sense and is a part of the key.
+ * `BankName` is a text field and is a part of the foreign key to `Banks`.
+    It is non-null as it is required for the data to make sense and is a part of the key.
+ * `City` is a text field and is a part of the foreign key to `Banks`.
+    It is non-null as it is required for the data to make sense and is a part of the key.
+ * `RobberyDate` is a date field, and has the constraint of non-null
+    as there is always a known date and is a part of the key.
+ * `Share` is a money field as the data represented is money, has
+    the added constraints of being a positive number and not null.
+
 ### Keys
+
+The key for this table is `{RobberId, BankName, City, RobberyDate}`
+because this combination is the minimum unique key.
+In the case of the same robber is an accomplice to a robbery
+on the same date at the same bank the `Share` value would be
+the sum of the these two robberies but it is assumed the bank will
+close for the rest of the day after a robbery.
 
 ### Foreign Keys
 
+This table has three foreign keys to `Banks` and `Robbers` and
+`Robberies`.
+Each table's primary keys are included in this table to
+reference these tables.
+Both foreign relations use a cascade technique for updates
+and deletions of their foreign keys.
+This is so the Accomplices table can follow the changes of
+the tables it is dependent on.
+
 # Question 2
+
+## Part 1
+
+```sql
+\COPY Banks FROM data/banks_17.data;
+\COPY Robberies FROM data/robberies_17.data;
+\COPY Plans FROM data/plans_17.data;
+\COPY Robbers(Nickname, Age, NoYears) FROM data/robbers_17.data;
+```
+
+
+```sql
+CREATE TABLE SkillsRaw (
+    Nickname text NOT NULL,
+    Description text NOT NULL,
+    Preference integer NOT NULL,
+    Grade text NOT NULL
+);
+
+\COPY SkillsRaw FROM data/hasskills_17.data
+
+INSERT INTO Skills (Description)
+    (SELECT DISTINCT (Description) FROM SkillsRaw);
+
+INSERT INTO HasSkills (RobberId, SkillId, Preference, Grade)
+    (SELECT RobberId, SkillId, Preference, TRIM(Grade)::Grades
+        FROM skillsraw NATURAL JOIN robbers NATURAL JOIN skills);
+
+DROP TABLE SkillsRaw;
+```
+
+```sql
+CREATE TABLE HasAccountsRaw (
+    Nickname text NOT NULL,
+    BankName text NOT NULL,
+    City text NOT NULL
+);
+
+\COPY HasAccountsRaw FROM data/hasaccounts_17.data
+
+INSERT INTO HasAccounts (RobberId, BankName, City)
+    (SELECT RobberId, BankName, City
+        FROM HasAccountsRaw NATURAL JOIN Robbers);
+
+DROP TABLE HasAccountsRaw;
+```
+
+```sql
+CREATE TABLE AccomplicesRaw (
+    Nickname text NOT NULL,
+    BankName text NOT NULL,
+    City text NOT NULL,
+    RobberyDate date NOT NULL,
+    "Share" money NOT NULL
+);
+
+\COPY AccomplicesRaw FROM data/accomplices_17.data
+
+INSERT INTO Accomplices (RobberId, BankName, City, RobberyDate, "Share")
+    (SELECT RobberId, BankName, City, RobberyDate, "Share" FROM
+    AccomplicesRaw NATURAL JOIN Robbers);
+
+DROP TABLE AccomplicesRaw;
+```
+
+## Part 2
 
 # Question 3
 
