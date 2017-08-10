@@ -328,6 +328,10 @@ the tables it is dependent on.
 
 ## Part 1
 
+For the `Banks`, `Robberies`, `Plans` and `Robbers` tables
+a simple `\COPY` command into the tables was sufficient to
+load the data.
+
 ```sql
 \COPY Banks FROM data/banks_17.data;
 \COPY Robberies FROM data/robberies_17.data;
@@ -335,6 +339,15 @@ the tables it is dependent on.
 \COPY Robbers(Nickname, Age, NoYears) FROM data/robbers_17.data;
 ```
 
+To load data into the `Skills` and `HasSkills` table the
+use of a temporary table, `SkillsRaw`, is used
+because it requires some manipulation.
+For the `Skills` table this distinct descriptions of skills
+are extracted from the `SkillsRaw` table to ensure there
+are no duplicates.
+For `HasSkills` a natural join between `SkillsRaw`, `Robbers` and
+`Skills` so that the related robber skills are paired with
+their `SkillIds`.
 
 ```sql
 CREATE TABLE SkillsRaw (
@@ -356,6 +369,12 @@ INSERT INTO HasSkills (RobberId, SkillId, Preference, Grade)
 DROP TABLE SkillsRaw;
 ```
 
+`HasAccounts` also requires the use of a temporary table to
+allow for a natural join between robbers to pair the nicknames
+used to robber ids.
+This has the assumption that for the data given that
+the nicknames are unique.
+
 ```sql
 CREATE TABLE HasAccountsRaw (
     Nickname text NOT NULL,
@@ -371,6 +390,11 @@ INSERT INTO HasAccounts (RobberId, BankName, City)
 
 DROP TABLE HasAccountsRaw;
 ```
+
+`Accomplices` also uses a temporary table to pair up
+nicknames of robbers with their robber ids.
+This has the assumption that for the data given that
+the nicknames are unique.
 
 ```sql
 CREATE TABLE AccomplicesRaw (
@@ -392,8 +416,415 @@ DROP TABLE AccomplicesRaw;
 
 ## Part 2
 
+A partial order of the data being loaded was enforced by the
+dependencies between tables.
+This made certain key tables of `Banks`, `Robbers` and `Skills` have to
+be loaded before other tables that reference it, such as
+`Accomplices` or `HasSkills`
+
 # Question 3
+
+## 1.
+
+### A)
+
+```sql
+INSERT INTO Banks (BankName, City, NoAccounts, Security)
+    VALUES ('Loanshark Bank', 'Evanston', 100, 'very good'::SecurityLevel);
+```
+
+Error produced:
+
+`ERROR:  duplicate key value violates unique constraint "banks_pkey"
+DETAIL:  Key (bankname, city)=(Loanshark Bank, Evanston) already exists.`
+
+### B)
+
+```sql
+INSERT INTO Banks (BankName, City, NoAccounts, Security)
+    VALUES ('Loanshark Bank', 'Evanston', -5, 'excellent'::SecurityLevel);
+```
+
+Error produced: 
+
+`ERROR:  new row for relation "banks" violates check constraint "no_neg_accounts"
+DETAIL:  Failing row contains (Loanshark Bank, Evanston, -5, excellent).`
+
+### C)
+
+```sql
+INSERT INTO Banks (BankName, City, NoAccounts, Security)
+    VALUES ('Loanshark Bank', 'Evanston', 100, 'poor'::SecurityLevel);
+```
+
+Error produced:
+
+`ERROR: invalid input value for enum securitylevel: "poor"
+ VALUES ('Loanshark Bank', 'Evanston', 100, 'poor'::Secur...`
+
+This is caused by using my defined type `SecurityLevel` to enforce
+an acceptable list of security levels.
+
+## 2.
+
+### A)
+
+```sql
+INSERT INTO Skills (SkillId, Description)
+    VALUES (20, 'Guarding');
+```
+
+Error produced:
+
+`ERROR:  duplicate key value violates unique constraint "skills_description_key"
+DETAIL:  Key (description)=(Guarding) already exists.`
+
+## 3.
+
+### A)
+
+```sql
+INSERT INTO Robbers (RobberId, Nickname, Age, NoYears)
+    VALUES (1, 'Shotgun', 70, 0);
+```
+
+Error produced:
+
+`ERROR:  duplicate key value violates unique constraint "robbers_pkey"
+DETAIL:  Key (robberid)=(1) already exists.`
+
+### B)
+
+```sql
+INSERT INTO Robbers (RobberId, Nickname, Age, NoYears)
+    VALUES (333, 'Jail Mouse', 25, 35);
+```
+
+Error produced:
+
+`ERROR:  new row for relation "robbers" violates check constraint "age_gt_noyears"
+DETAIL:  Failing row contains (333, Jail Mouse, 25, 35).`
+
+## 4.
+
+### A)
+
+```sql
+INSERT INTO HasSkills (RobberId, SkillId, Preference, Grade)
+    VALUES (333, 1, 1, 'B-');
+```
+
+Error produced:
+
+`ERROR:  insert or update on table "hasskills" violates foreign key constraint "hasskills_robberid_fkey"
+DETAIL:  Key (robberid)=(333) is not present in table "robbers".`
+
+### B)
+
+
+```sql
+INSERT INTO HasSkills (RobberId, SkillId, Preference, Grade)
+    VALUES (3, 20, 3, 'B+');
+```
+
+Error produced:
+
+`ERROR:  insert or update on table "hasskills" violates foreign key constraint "hasskills_skillid_fkey"
+DETAIL:  Key (skillid)=(20) is not present in table "skills".`
+
+### C)
+
+
+```sql
+INSERT INTO HasSkills (RobberId, SkillId, Preference, Grade)
+    VALUES (1, 7, 1, 'A+');
+```
+
+Error produced:
+
+`ERROR:  duplicate key value violates unique constraint "unique_robber_pref"
+DETAIL:  Key (robberid, preference)=(1, 1) already exists.`
+
+### D)
+
+
+```sql
+INSERT INTO HasSkills (RobberId, SkillId, Preference, Grade)
+    VALUES (1, 2, 0, 'A');
+```
+
+Error produced:
+
+`ERROR:  new row for relation "hasskills" violates check constraint "pref_positive"
+DETAIL:  Failing row contains (1, 2, 0, A).`
+
+## 5.
+
+## A)
+
+```sql
+INSERT INTO Robberies
+    VALUES ('NXP Bank', 'Chicago', '2009-01-08', 1000);
+```
+
+Error produced:
+
+`ERROR:  duplicate key value violates unique constraint "uniq_robberies"
+DETAIL:  Key (bankname, city, "Date")=(NXP Bank, Chicago, 2009-01-08) already exists.`
+
+## 6.
+
+### A)
+
+```sql
+DELETE FROM Banks WHERE 
+    BankName = 'PickPocket Bank' AND
+    City = 'Evanston' AND
+    NoAccounts = 2000 AND
+    Security = 'very good';
+```
+
+There was no error.
+The tuple targeted was deleted from the table, and since
+the tables referencing this table are set to `ON DELETE CASCADE`
+they were also deleted.
+If the references were setup differently, e.g. using `RESTRICT`
+then an error of foreign key constraints will be raised.
+
+### B)
+
+```sql
+DELETE FROM Banks WHERE 
+    BankName = 'Outside Bank' AND
+    City = 'Chicago' AND
+    NoAccounts = 5000 AND
+    Security = 'good';
+```
+
+
+There was no error.
+The tuple targeted was deleted from the table, and since
+the tables referencing this table are set to `ON DELETE CASCADE`
+they were also deleted.
+If the references were setup differently, e.g. using `RESTRICT`
+then an error of foreign key constraints will be raised.
+
+## 7.
+
+### A)
+
+```sql
+DELETE FROM Robbers WHERE 
+    RobberId = 1 AND
+    Nickname = 'Al Capone' AND
+    Age = 31 AND
+    NoYears = 2;
+```
+
+There was no error.
+The tuple targeted was deleted from the table, and since
+the tables referencing this table are set to `ON DELETE CASCADE`
+they were also deleted.
+If the references were setup differently, e.g. using `RESTRICT`
+then an error of foreign key constraints will be raised.
+
+## 8.
+
+### A)
+
+```sql
+DELETE FROM Skills WHERE 
+    SkillId = 1 AND
+    Description = 'Driving';
+```
+
+There was no error.
+No tuples were deleted by this query as there is no complete 
+match for it in the database.
 
 # Question 4
 
+## 1)
+
+```sql
+SELECT BankName, Security FROM Banks WHERE NoAccounts > 9000;
+```
+
+### Results
+
+BankName         | Security  
+-----------------+-----------
+ NXP Bank        | very good
+ Bankrupt Bank   | weak
+ Loanshark Bank  | excellent
+ Loanshark Bank  | very good
+ Loanshark Bank  | excellent
+ Inter-Gang Bank | excellent
+ Inter-Gang Bank | excellent
+ NXP Bank        | excellent
+ Penny Pinchers  | weak
+ Dollar Grabbers | very good
+ Penny Pinchers  | excellent
+ Dollar Grabbers | good
+ Gun Chase Bank  | excellent
+ PickPocket Bank | weak
+ Hidden Treasure | excellent
+
+## 2)
+
+```sql
+SELECT BankName FROM HasAccounts NATURAL JOIN Robbers WHERE Nickname = 'Calamity Jane';
+```
+
+### Results
+
+| BankName      |
+|---------------|
+|PickPocket Bank|
+|Bad Bank       |
+|Dollar Grabbers|
+
+## 3)
+
+```sql
+SELECT BankName, City FROM Banks 
+WHERE BankName NOT IN 
+    (SELECT DISTINCT BankName FROM Banks WHERE City = 'Chicago')
+ORDER BY NoAccounts;
+```
+
+### Results
+
+ BankName       |   City    
+----------------+-----------
+ Gun Chase Bank | Deerfield
+ Bankrupt Bank  | Evanston
+ Gun Chase Bank | Evanston
+
+## 4)
+
+```sql
+SELECT BankName, City FROM Banks
+NATURAL JOIN Robberies
+ORDER BY "Date" LIMIT 1;
+```
+
+### Results
+
+ BankName       |   City   
+----------------+----------
+ Loanshark Bank | Evanston
+
+## 5)
+
+```SQL
+SELECT * FROM 
+    (SELECT NickName, SUM("Share") AS Earnings 
+     FROM Robbers NATURAL JOIN Accomplices 
+     GROUP BY RobberId) AS RobberEarnings 
+WHERE Earnings > '30000'::money 
+ORDER BY Earnings DESC;
+```
+
+### Results
+
+ Nickname          |  Earnings  
+-------------------+------------
+ Mimmy The Mau Mau | \$70,000.00
+ Boo Boo Hoff      | \$61,447.61
+ King Solomon      | \$59,725.80
+ Bugsy Siegel      | \$52,601.10
+ Lucky Luchiano    | \$42,667.00
+ Bonnie            | \$40,085.00
+ Anastazia         | \$39,169.62
+ Clyde             | \$31,800.00
+
+## 6)
+
+```sql
+SELECT Description, RobberId, Nickname 
+FROM HasSkills NATURAL JOIN Robbers NATURAL JOIN Skills 
+ORDER BY description;
+```
+
+### Results
+
+ Description    | RobberId | Nickname      
+----------------+----------+-------------------
+ Cooking        |       18 | Vito Genovese
+ Driving        |        3 | Lucky Luchiano
+ Driving        |       23 | Lepke Buchalter
+ Driving        |       20 | Longy Zwillman
+ Driving        |        5 | Mimmy The Mau Mau
+ Driving        |       17 | Bugsy Siegel
+ Driving        |        7 | Dutch Schulz
+ Eating         |       18 | Vito Genovese
+ Eating         |        6 | Tony Genovese
+ Explosives     |        2 | Bugsy Malone
+ Explosives     |       24 | Sonny Genovese
+ Guarding       |       17 | Bugsy Siegel
+ Guarding       |        4 | Anastazia
+ Guarding       |       23 | Lepke Buchalter
+ Gun-Shooting   |        9 | Calamity Jane
+ Gun-Shooting   |       21 | Waxey Gordon
+ Lock-Picking   |       22 | Greasy Guzik
+ Lock-Picking   |        3 | Lucky Luchiano
+ Lock-Picking   |        7 | Dutch Schulz
+ Lock-Picking   |        8 | Clyde
+ Lock-Picking   |       24 | Sonny Genovese
+ Money Counting |       14 | Kid Cann
+ Money Counting |       13 | Mickey Cohen
+ Money Counting |       19 | Mike Genovese
+ Planning       |        5 | Mimmy The Mau Mau
+ Planning       |       15 | Boo Boo Hoff
+ Planning       |       16 | King Solomon
+ Planning       |        8 | Clyde
+ Preaching      |       22 | Greasy Guzik
+ Preaching      |       10 | Bonnie
+ Safe-Cracking  |       11 | Meyer Lansky
+ Safe-Cracking  |       12 | Moe Dalitz
+ Safe-Cracking  |       24 | Sonny Genovese
+ Scouting       |        8 | Clyde
+ Scouting       |       18 | Vito Genovese
+
+
+## 7)
+
+```sql
+SELECT RobberId, Nickname FROM Robbers WHERE NoYears > 3;
+```
+
+### Results
+
+ RobberId |    nickname    
+----------+----------------
+        2 | Bugsy Malone
+        3 | Lucky Luchiano
+        4 | Anastazia
+        6 | Tony Genovese
+        7 | Dutch Schulz
+       11 | Meyer Lansky
+       15 | Boo Boo Hoff
+       16 | King Solomon
+       17 | Bugsy Siegel
+       20 | Longy Zwillman
+
+
+## 8)
+
+```sql
+SELECT RobberId, Nickname, (Age - NoYears) AS NotInPrison
+FROM Robbers WHERE (NoYears * 2 >= Age);
+```
+
+
+### Results
+
+ RobberId |   Nickname    | NotInPrison 
+----------+---------------+-------------
+        6 | Tony Genovese |          12
+       16 | King Solomon  |          31
+
 # Question 5
+
+

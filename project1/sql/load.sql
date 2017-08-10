@@ -19,7 +19,7 @@ INSERT INTO HasSkills (RobberId, SkillId, Preference, Grade)
     (SELECT RobberId, SkillId, Preference, TRIM(Grade)::Grades
         FROM skillsraw NATURAL JOIN robbers NATURAL JOIN skills);
 
-DROP TABLE SkillsRaw;
+-- DROP TABLE SkillsRaw;
 
 CREATE TABLE HasAccountsRaw (
     Nickname text NOT NULL,

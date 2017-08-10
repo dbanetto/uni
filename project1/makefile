@@ -19,3 +19,13 @@ schema:
 
 loaddata:
 	psql "$(DB)" -f sql/load.sql
+
+insert:
+	psql "$(DB)" -f sql/insert.sql
+
+query:
+	find sql/ -type f -name 'Query4_Task*.sql' -exec psql "$(DB)" -f {} \;
+
+complex:
+	find sql/ -type f -name 'Query5_Task*.sql' -exec psql "$(DB)" -f {} \;
+
