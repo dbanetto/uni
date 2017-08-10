@@ -445,7 +445,7 @@ INSERT INTO Banks (BankName, City, NoAccounts, Security)
     VALUES ('Loanshark Bank', 'Evanston', -5, 'excellent'::SecurityLevel);
 ```
 
-Error produced: 
+Error produced:
 
 `ERROR:  new row for relation "banks" violates check constraint "no_neg_accounts"
 DETAIL:  Failing row contains (Loanshark Bank, Evanston, -5, excellent).`
@@ -577,7 +577,7 @@ DETAIL:  Key (bankname, city, "Date")=(NXP Bank, Chicago, 2009-01-08) already ex
 ### A)
 
 ```sql
-DELETE FROM Banks WHERE 
+DELETE FROM Banks WHERE
     BankName = 'PickPocket Bank' AND
     City = 'Evanston' AND
     NoAccounts = 2000 AND
@@ -594,7 +594,7 @@ then an error of foreign key constraints will be raised.
 ### B)
 
 ```sql
-DELETE FROM Banks WHERE 
+DELETE FROM Banks WHERE
     BankName = 'Outside Bank' AND
     City = 'Chicago' AND
     NoAccounts = 5000 AND
@@ -614,7 +614,7 @@ then an error of foreign key constraints will be raised.
 ### A)
 
 ```sql
-DELETE FROM Robbers WHERE 
+DELETE FROM Robbers WHERE
     RobberId = 1 AND
     Nickname = 'Al Capone' AND
     Age = 31 AND
@@ -633,13 +633,13 @@ then an error of foreign key constraints will be raised.
 ### A)
 
 ```sql
-DELETE FROM Skills WHERE 
+DELETE FROM Skills WHERE
     SkillId = 1 AND
     Description = 'Driving';
 ```
 
 There was no error.
-No tuples were deleted by this query as there is no complete 
+No tuples were deleted by this query as there is no complete
 match for it in the database.
 
 # Question 4
@@ -652,7 +652,7 @@ SELECT BankName, Security FROM Banks WHERE NoAccounts > 9000;
 
 ### Results
 
-BankName         | Security  
+BankName         | Security
 -----------------+-----------
  NXP Bank        | very good
  Bankrupt Bank   | weak
@@ -687,15 +687,15 @@ SELECT BankName FROM HasAccounts NATURAL JOIN Robbers WHERE Nickname = 'Calamity
 ## 3)
 
 ```sql
-SELECT BankName, City FROM Banks 
-WHERE BankName NOT IN 
+SELECT BankName, City FROM Banks
+WHERE BankName NOT IN
     (SELECT DISTINCT BankName FROM Banks WHERE City = 'Chicago')
 ORDER BY NoAccounts;
 ```
 
 ### Results
 
- BankName       |   City    
+ BankName       |   City
 ----------------+-----------
  Gun Chase Bank | Deerfield
  Bankrupt Bank  | Evanston
@@ -711,24 +711,24 @@ ORDER BY "Date" LIMIT 1;
 
 ### Results
 
- BankName       |   City   
+ BankName       |   City
 ----------------+----------
  Loanshark Bank | Evanston
 
 ## 5)
 
 ```SQL
-SELECT * FROM 
-    (SELECT NickName, SUM("Share") AS Earnings 
-     FROM Robbers NATURAL JOIN Accomplices 
-     GROUP BY RobberId) AS RobberEarnings 
-WHERE Earnings > '30000'::money 
+SELECT * FROM
+    (SELECT NickName, SUM("Share") AS Earnings
+     FROM Robbers NATURAL JOIN Accomplices
+     GROUP BY RobberId) AS RobberEarnings
+WHERE Earnings > '30000'::money
 ORDER BY Earnings DESC;
 ```
 
 ### Results
 
- Nickname          |  Earnings  
+ Nickname          |  Earnings
 -------------------+------------
  Mimmy The Mau Mau | \$70,000.00
  Boo Boo Hoff      | \$61,447.61
@@ -742,14 +742,14 @@ ORDER BY Earnings DESC;
 ## 6)
 
 ```sql
-SELECT Description, RobberId, Nickname 
-FROM HasSkills NATURAL JOIN Robbers NATURAL JOIN Skills 
+SELECT Description, RobberId, Nickname
+FROM HasSkills NATURAL JOIN Robbers NATURAL JOIN Skills
 ORDER BY description;
 ```
 
 ### Results
 
- Description    | RobberId | Nickname      
+ Description    | RobberId | Nickname
 ----------------+----------+-------------------
  Cooking        |       18 | Vito Genovese
  Driving        |        3 | Lucky Luchiano
@@ -796,7 +796,7 @@ SELECT RobberId, Nickname FROM Robbers WHERE NoYears > 3;
 
 ### Results
 
- RobberId |    nickname    
+ RobberId |    nickname
 ----------+----------------
         2 | Bugsy Malone
         3 | Lucky Luchiano
@@ -820,11 +820,347 @@ FROM Robbers WHERE (NoYears * 2 >= Age);
 
 ### Results
 
- RobberId |   Nickname    | NotInPrison 
+ RobberId |   Nickname    | NotInPrison
 ----------+---------------+-------------
         6 | Tony Genovese |          12
        16 | King Solomon  |          31
 
 # Question 5
 
+## 1
+
+### Step-wise
+
+```sql
+CREATE VIEW ParticipatedIn AS 
+    SELECT RobberId, COUNT(RobberId) as participated, SUM("Share") as earnings FROM accomplices 
+    GROUP BY robberid;
+
+CREATE VIEW AvgParticipation AS
+    SELECT AVG(Participated) as AvgPart FROM ParticipatedIn;
+
+
+CREATE VIEW AboveAvgParticipation AS
+    SELECT Nickname FROM 
+    Robbers NATURAL JOIN ParticipatedIn NATURAL JOIN AvgParticipation
+    WHERE (AvgPart < Participated) AND (NoYears = 0)
+    ORDER BY Earnings DESC;
+
+SELECT * FROM AboveAvgParticipation;
+```
+
+#### Results
+
+|Nickname      |
+|--------------|
+|Bonnie        |
+|Clyde         |
+|Sonny Genovese|
+
+
+### Nest queries
+
+```sql
+SELECT Nickname FROM
+Robbers NATURAL JOIN
+    (SELECT RobberId, COUNT(RobberId) as Part, SUM("Share") as Earn FROM Accomplices
+    GROUP BY RobberID) AS P
+    NATURAL JOIN
+    (SELECT AVG(Pa) AS PartAvg FROM
+        (SELECT RobberId, COUNT(RobberId) as Pa FROM Accomplices
+        GROUP BY RobberID) AS PP
+    ) AS AV
+WHERE (PartAvg < Part) AND (NoYears = 0)
+ORDER BY Earn DESC;
+```
+
+#### Results
+
+|Nickname      |
+|--------------|
+|Bonnie        |
+|Clyde         |
+|Sonny Genovese|
+
+## 2
+
+### Step-wise
+
+```sql
+CREATE VIEW BankRobberies AS
+    SELECT Security, Count(*) as TotalRobberies, AVG(Amount::numeric) as AvgAmount
+    FROM robberies NATURAL JOIN Banks GROUP BY Security;
+
+SELECT * FROM BankRobberies;
+```
+
+#### Results
+
+ Security  | TotalRobberies | AvgAmount
+-----------+----------------+-----------
+ good      |              2 | 3980.00
+ weak      |              4 | 2299.50
+ excellent |             12 | 39238.083
+ very good |              1 | 34302.30
+
+### Nest queries
+
+```sql
+SELECT Security, Count(*) as TotalRobberies, AVG(Amount::numeric) as AvgAmount
+    FROM robberies NATURAL JOIN Banks GROUP BY Security;
+```
+
+#### Results
+
+ Security  | TotalRobberies | AvgAmount
+-----------+----------------+-----------
+ good      |              2 | 3980.00
+ weak      |              4 | 2299.50
+ excellent |             12 | 39238.083
+ very good |              1 | 34302.30
+
+## 3
+
+### Step-wise
+
+```sql
+CREATE VIEW RobberSkills AS
+    SELECT RobberId, Nickname, Description FROM
+    Robbers NATURAL JOIN HasSkills NATURAL JOIN Skills;
+
+CREATE VIEW RobberySecurity AS
+    SELECT RobberId, Security FROM
+    Robbers NATURAL JOIN Accomplices NATURAL JOIN Banks;
+
+CREATE VIEW SkillsUsed AS
+    SELECT Security, Description, Nickname FROM
+    RobberSkills NATURAL JOIN RobberySecurity;
+
+SELECT DISTINCT * FROM SkillsUsed;
+```
+
+#### Results
+
+ Security  |  Description   | Nickname      
+-----------+----------------+-------------------
+ weak      | Cooking        | Vito Genovese
+ weak      | Driving        | Bugsy Siegel
+ weak      | Driving        | Dutch Schulz
+ weak      | Driving        | Lepke Buchalter
+ weak      | Eating         | Vito Genovese
+ weak      | Explosives     | Sonny Genovese
+ weak      | Guarding       | Bugsy Siegel
+ weak      | Guarding       | Lepke Buchalter
+ weak      | Lock-Picking   | Clyde
+ weak      | Lock-Picking   | Dutch Schulz
+ weak      | Lock-Picking   | Greasy Guzik
+ weak      | Lock-Picking   | Sonny Genovese
+ weak      | Planning       | Boo Boo Hoff
+ weak      | Planning       | Clyde
+ weak      | Preaching      | Greasy Guzik
+ weak      | Safe-Cracking  | Sonny Genovese
+ weak      | Scouting       | Clyde
+ weak      | Scouting       | Vito Genovese
+ good      | Cooking        | Vito Genovese
+ good      | Eating         | Vito Genovese
+ good      | Money Counting | Kid Cann
+ good      | Money Counting | Mickey Cohen
+ good      | Scouting       | Vito Genovese
+ very good | Driving        | Lepke Buchalter
+ very good | Driving        | Longy Zwillman
+ very good | Explosives     | Bugsy Malone
+ very good | Guarding       | Anastazia
+ very good | Guarding       | Lepke Buchalter
+ very good | Planning       | King Solomon
+ excellent | Driving        | Bugsy Siegel
+ excellent | Driving        | Dutch Schulz
+ excellent | Driving        | Longy Zwillman
+ excellent | Driving        | Lucky Luchiano
+ excellent | Driving        | Mimmy The Mau Mau
+ excellent | Explosives     | Sonny Genovese
+ excellent | Guarding       | Anastazia
+ excellent | Guarding       | Bugsy Siegel
+ excellent | Gun-Shooting   | Waxey Gordon
+ excellent | Lock-Picking   | Clyde
+ excellent | Lock-Picking   | Dutch Schulz
+ excellent | Lock-Picking   | Greasy Guzik
+ excellent | Lock-Picking   | Lucky Luchiano
+ excellent | Lock-Picking   | Sonny Genovese
+ excellent | Planning       | Boo Boo Hoff
+ excellent | Planning       | Clyde
+ excellent | Planning       | King Solomon
+ excellent | Planning       | Mimmy The Mau Mau
+ excellent | Preaching      | Bonnie
+ excellent | Preaching      | Greasy Guzik
+ excellent | Safe-Cracking  | Meyer Lansky
+ excellent | Safe-Cracking  | Sonny Genovese
+ excellent | Scouting       | Clyde
+
+
+### Nest queries
+
+```sql
+SELECT DISTINCT Security, Description, Nickname FROM
+    Robbers NATURAL JOIN HasSkills NATURAL JOIN Skills
+    NATURAL JOIN Accomplices NATURAL JOIN Banks;
+```
+
+#### Results
+
+ Security  |  Description   | Nickname      
+-----------+----------------+-------------------
+ weak      | Cooking        | Vito Genovese
+ weak      | Driving        | Bugsy Siegel
+ weak      | Driving        | Dutch Schulz
+ weak      | Driving        | Lepke Buchalter
+ weak      | Eating         | Vito Genovese
+ weak      | Explosives     | Sonny Genovese
+ weak      | Guarding       | Bugsy Siegel
+ weak      | Guarding       | Lepke Buchalter
+ weak      | Lock-Picking   | Clyde
+ weak      | Lock-Picking   | Dutch Schulz
+ weak      | Lock-Picking   | Greasy Guzik
+ weak      | Lock-Picking   | Sonny Genovese
+ weak      | Planning       | Boo Boo Hoff
+ weak      | Planning       | Clyde
+ weak      | Preaching      | Greasy Guzik
+ weak      | Safe-Cracking  | Sonny Genovese
+ weak      | Scouting       | Clyde
+ weak      | Scouting       | Vito Genovese
+ good      | Cooking        | Vito Genovese
+ good      | Eating         | Vito Genovese
+ good      | Money Counting | Kid Cann
+ good      | Money Counting | Mickey Cohen
+ good      | Scouting       | Vito Genovese
+ very good | Driving        | Lepke Buchalter
+ very good | Driving        | Longy Zwillman
+ very good | Explosives     | Bugsy Malone
+ very good | Guarding       | Anastazia
+ very good | Guarding       | Lepke Buchalter
+ very good | Planning       | King Solomon
+ excellent | Driving        | Bugsy Siegel
+ excellent | Driving        | Dutch Schulz
+ excellent | Driving        | Longy Zwillman
+ excellent | Driving        | Lucky Luchiano
+ excellent | Driving        | Mimmy The Mau Mau
+ excellent | Explosives     | Sonny Genovese
+ excellent | Guarding       | Anastazia
+ excellent | Guarding       | Bugsy Siegel
+ excellent | Gun-Shooting   | Waxey Gordon
+ excellent | Lock-Picking   | Clyde
+ excellent | Lock-Picking   | Dutch Schulz
+ excellent | Lock-Picking   | Greasy Guzik
+ excellent | Lock-Picking   | Lucky Luchiano
+ excellent | Lock-Picking   | Sonny Genovese
+ excellent | Planning       | Boo Boo Hoff
+ excellent | Planning       | Clyde
+ excellent | Planning       | King Solomon
+ excellent | Planning       | Mimmy The Mau Mau
+ excellent | Preaching      | Bonnie
+ excellent | Preaching      | Greasy Guzik
+ excellent | Safe-Cracking  | Meyer Lansky
+ excellent | Safe-Cracking  | Sonny Genovese
+ excellent | Scouting       | Clyde
+
+
+## 4
+
+### Step-wise
+
+```sql
+CREATE VIEW PlannedRobberies AS
+    SELECT BankName, City, Security, PlannedDate FROM
+    Banks NATURAL JOIN Plans
+    WHERE PlannedDate < (NOW() + interval '1 year')::Date AND
+          PlannedDate > NOW();
+
+CREATE VIEW RecentRobberies AS
+    SELECT BankName, City, Security, "Date" FROM
+    Banks NATURAL JOIN Robberies
+    WHERE "Date" > (NOW() - interval '1 year')::Date AND
+          "Date" < NOW()::Date;
+
+CREATE VIEW SoonVictims AS
+    SELECT P.BankName, P.City, P.Security FROM
+    PlannedRobberies as P LEFT JOIN RecentRobberies as R
+    ON R.Bankname = P.Bankname AND R.City = P.City;
+
+SELECT * FROM SoonVictims;
+```
+
+#### Results
+
+ BankName        |   City    | Security  
+-----------------+-----------+-----------
+ Loanshark Bank  | Deerfield | very good
+ PickPocket Bank | Deerfield | excellent
+ Bad Bank        | Chicago   | weak
+
+### Nest queries
+
+```sql
+SELECT P.BankName, P.City, P.Security FROM
+    (SELECT BankName, City, Security, PlannedDate FROM
+    Banks NATURAL JOIN Plans
+    WHERE PlannedDate < (NOW() + interval '1 year')::Date AND
+    PlannedDate > NOW()) AS P
+LEFT JOIN
+    (SELECT BankName, City, Security, "Date" FROM
+    Banks NATURAL JOIN Robberies
+    WHERE "Date" > (NOW() - interval '1 year')::Date AND
+          "Date" < NOW()::Date) AS R
+    ON R.Bankname = P.Bankname AND R.City = P.City;
+```
+
+#### Results
+
+ BankName        |   City    | Security  
+-----------------+-----------+-----------
+ Loanshark Bank  | Deerfield | very good
+ PickPocket Bank | Deerfield | excellent
+ Bad Bank        | Chicago   | weak
+
+
+## 5
+
+### Step-wise
+
+```sql
+CREATE VIEW AvgShareByCity AS
+    SELECT City, AVG("Share"::numeric) AS AvgShare FROM
+        Accomplices
+        GROUP BY City;
+
+CREATE VIEW DistrictSummary AS
+    SELECT 'Other'::text AS City, AVG(AvgShare) AS DistrictShare FROM
+    AvgShareByCity
+    GROUP BY City
+    HAVING (City != 'Chicago');
+
+CREATE VIEW chicagosummary AS
+    SELECT City, AVG(AvgShare) AS DistrictShare FROM
+    AvgShareByCity
+    GROUP BY City
+    HAVING (City = 'Chicago');
+    
+CREATE VIEW Summary AS
+    SELECT * FROM DistrictSummary
+    UNION
+    SELECT * FROM ChicagoSummary;
+
+SELECT * FROM Summary;
+```
+
+#### Results
+
+  City   |     DistrictShare     
+---------+-----------------------
+ Chicago | 4221.41
+ Other   | 8255.15
+
+
+### Nest queries
+
+```sql
+```
 
