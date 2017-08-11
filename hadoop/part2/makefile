@@ -7,6 +7,7 @@ HADOOP_OUTPUT:=aol-output
 LOCAL_OUTPUT:=output
 MAIN_CLASS:=nz.ac.vuw.ecs.barnetdavi.LogAnalysis
 SRC:=$(shell find src/ -type f -name '*.java')
+ANON_ID?=7980225
 
 all: $(JAR)
 
@@ -21,7 +22,7 @@ reset:
 	hadoop dfs -rm -r -f $(HADOOP_OUTPUT)
 
 run: $(JAR) reset
-	hadoop jar $(JAR) $(MAIN_CLASS)  $(HADOOP_INPUT) $(HADOOP_OUTPUT)
+	hadoop jar $(JAR) $(MAIN_CLASS)  $(HADOOP_INPUT) $(HADOOP_OUTPUT) -anonid $(ANON_ID)
 
 download:
 	rm -rf $(LOCAL_OUTPUT)
