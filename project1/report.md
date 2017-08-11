@@ -51,7 +51,7 @@ CREATE TABLE Robberies (
     "Date" date NOT NULL,
     Amount money NOT NULL CHECK (Amount >= '0.0'::money),
 
-    CONSTRAINT uniq_robberies UNIQUE (BankName, City, "Date"),
+    CONSTRAINT pk_robberies PRIMARY KEY (BankName, City, "Date"),
 
     CONSTRAINT fk_robberies_bank
     FOREIGN KEY (BankName, City)
@@ -70,7 +70,7 @@ CREATE TABLE Robberies (
 
 ### Keys
 
-The key for the table is `{BankName, City, Date}` because it
+The primary key for the table is `{BankName, City, Date}` because it
 is the minimum candidate key for the table. In the case
 of a duplicate the `Amount` stolen record should just be a sum
 of all the robberies that day but it is assumed the bank will
@@ -93,6 +93,9 @@ CREATE TABLE Plans (
     PlannedDate date NOT NULL,
     NoRobbers integer NOT NULL CHECK (NoRobbers >= 0),
 
+    CONSTRAINT pk_plans PRIMARY KEY
+        (BankName, City, PlannedDate, NoRobbers),
+
     CONSTRAINT fk_plan_bank FOREIGN KEY (BankName, City)
     REFERENCES Banks(BankName, City)
         ON UPDATE CASCADE ON DELETE CASCADE
@@ -110,10 +113,8 @@ CREATE TABLE Plans (
 
 ### Keys
 
-There is no suitable primary keys for this table.
-This is due to being a valid business case that two robberies
-could be planned for the same bank on the same day with the same amount
-of people.
+The minimum candidate key for this table is all attributes.
+Thus the primary key is `{BankName, City, PlannedDate, NoRobbers}`.
 
 ### Foreign Keys
 
@@ -195,8 +196,7 @@ CREATE TABLE HasSkills (
     Grade Grades NOT NULL,
 
     CONSTRAINT pref_positive CHECK (Preference > 0),
-    CONSTRAINT unique_robber_skill UNIQUE (RobberId, SkillId),
-    CONSTRAINT unique_robber_pref UNIQUE (RobberId, Preference)
+    CONSTRAINT pk_has_skill PRIMARY KEY  (RobberId, SkillId, Preference)
 );
 ```
 
@@ -215,11 +215,8 @@ CREATE TABLE HasSkills (
 
 ### Keys
 
-This table has two keys and no primary key.
-The combination of a `RobberId` and `SkillId` is to ensure that a robber will only
-list a skill once.
-The combination of a `RobberId` and `Preference` is to ensure that a robber cannot rank
-two skills with the same preference to ensure a proper ordering.
+This table has the minimum candidate key of `{RobberId, SkillId, Preference}` thus
+is set to be the primary key.
 
 ### Foreign Keys
 
@@ -238,7 +235,7 @@ CREATE TABLE HasAccounts (
     BankName text NOT NULL,
     City text NOT NULL,
 
-    CONSTRAINT one_robber_acc UNIQUE (RobberId, BankName, City),
+    CONSTRAINT pk_has_accounts PRIMARY KEY (RobberId, BankName, City),
     CONSTRAINT fk_account_bank FOREIGN KEY (BankName, City)
     REFERENCES Banks(BankName, City)
         ON DELETE CASCADE ON UPDATE CASCADE
@@ -278,9 +275,10 @@ CREATE TABLE Accomplices (
     RobberyDate date NOT NULL,
     "Share" money NOT NULL,
 
-    CONSTRAINT non_neg_share CHECK ("Share" >= '0'::money),
-    CONSTRAINT uniq_accomplices UNIQUE
+    CONSTRAINT pk_accomplices PRIMARY KEY
         (RobberId, BankName, City, RobberyDate),
+
+    CONSTRAINT non_neg_share CHECK ("Share" >= '0'::money),
     CONSTRAINT fk_accomplice_bank FOREIGN KEY (BankName, City)
     REFERENCES Banks(BankName, City)
         ON UPDATE CASCADE ON DELETE CASCADE,
@@ -736,6 +734,7 @@ ORDER BY Earnings DESC;
  Bugsy Siegel      | \$52,601.10
  Lucky Luchiano    | \$42,667.00
  Bonnie            | \$40,085.00
+ Al Capone         | \$39,486.00
  Anastazia         | \$39,169.62
  Clyde             | \$31,800.00
 
@@ -752,41 +751,45 @@ ORDER BY description;
  Description    | RobberId | Nickname
 ----------------+----------+-------------------
  Cooking        |       18 | Vito Genovese
- Driving        |        3 | Lucky Luchiano
- Driving        |       23 | Lepke Buchalter
- Driving        |       20 | Longy Zwillman
- Driving        |        5 | Mimmy The Mau Mau
  Driving        |       17 | Bugsy Siegel
+ Driving        |        3 | Lucky Luchiano
+ Driving        |        5 | Mimmy The Mau Mau
+ Driving        |       23 | Lepke Buchalter
  Driving        |        7 | Dutch Schulz
- Eating         |       18 | Vito Genovese
+ Driving        |       20 | Longy Zwillman
  Eating         |        6 | Tony Genovese
- Explosives     |        2 | Bugsy Malone
+ Eating         |       18 | Vito Genovese
  Explosives     |       24 | Sonny Genovese
- Guarding       |       17 | Bugsy Siegel
+ Explosives     |        2 | Bugsy Malone
  Guarding       |        4 | Anastazia
+ Guarding       |       17 | Bugsy Siegel
  Guarding       |       23 | Lepke Buchalter
  Gun-Shooting   |        9 | Calamity Jane
  Gun-Shooting   |       21 | Waxey Gordon
- Lock-Picking   |       22 | Greasy Guzik
+ Lock-Picking   |        8 | Clyde
  Lock-Picking   |        3 | Lucky Luchiano
  Lock-Picking   |        7 | Dutch Schulz
- Lock-Picking   |        8 | Clyde
+ Lock-Picking   |       22 | Greasy Guzik
  Lock-Picking   |       24 | Sonny Genovese
- Money Counting |       14 | Kid Cann
  Money Counting |       13 | Mickey Cohen
+ Money Counting |       14 | Kid Cann
  Money Counting |       19 | Mike Genovese
- Planning       |        5 | Mimmy The Mau Mau
  Planning       |       15 | Boo Boo Hoff
- Planning       |       16 | King Solomon
  Planning       |        8 | Clyde
+ Planning       |        5 | Mimmy The Mau Mau
+ Planning       |        1 | Al Capone
+ Planning       |       16 | King Solomon
  Preaching      |       22 | Greasy Guzik
  Preaching      |       10 | Bonnie
- Safe-Cracking  |       11 | Meyer Lansky
- Safe-Cracking  |       12 | Moe Dalitz
+ Preaching      |        1 | Al Capone
+ Safe-Cracking  |        1 | Al Capone
  Safe-Cracking  |       24 | Sonny Genovese
+ Safe-Cracking  |       12 | Moe Dalitz
+ Safe-Cracking  |       11 | Meyer Lansky
  Scouting       |        8 | Clyde
  Scouting       |       18 | Vito Genovese
 
+> (38 rows)
 
 ## 7)
 
@@ -808,6 +811,8 @@ SELECT RobberId, Nickname FROM Robbers WHERE NoYears > 3;
        16 | King Solomon
        17 | Bugsy Siegel
        20 | Longy Zwillman
+
+> (10 rows)
 
 
 ## 8)
@@ -832,8 +837,8 @@ FROM Robbers WHERE (NoYears * 2 >= Age);
 ### Step-wise
 
 ```sql
-CREATE VIEW ParticipatedIn AS 
-    SELECT RobberId, COUNT(RobberId) as participated, SUM("Share") as earnings FROM accomplices 
+CREATE VIEW ParticipatedIn AS
+    SELECT RobberId, COUNT(RobberId) as participated, SUM("Share") as earnings FROM accomplices
     GROUP BY robberid;
 
 CREATE VIEW AvgParticipation AS
@@ -841,7 +846,7 @@ CREATE VIEW AvgParticipation AS
 
 
 CREATE VIEW AboveAvgParticipation AS
-    SELECT Nickname FROM 
+    SELECT Nickname FROM
     Robbers NATURAL JOIN ParticipatedIn NATURAL JOIN AvgParticipation
     WHERE (AvgPart < Participated) AND (NoYears = 0)
     ORDER BY Earnings DESC;
@@ -898,10 +903,10 @@ SELECT * FROM BankRobberies;
 
  Security  | TotalRobberies | AvgAmount
 -----------+----------------+-----------
- good      |              2 | 3980.00
- weak      |              4 | 2299.50
- excellent |             12 | 39238.083
- very good |              1 | 34302.30
+ good      |              2 |  3980.00
+ excellent |             12 | 39238.08
+ weak      |              4 |  2299.50
+ very good |              3 | 12292.42
 
 ### Nest queries
 
@@ -914,10 +919,10 @@ SELECT Security, Count(*) as TotalRobberies, AVG(Amount::numeric) as AvgAmount
 
  Security  | TotalRobberies | AvgAmount
 -----------+----------------+-----------
- good      |              2 | 3980.00
- weak      |              4 | 2299.50
- excellent |             12 | 39238.083
- very good |              1 | 34302.30
+ good      |              2 |  3980.00
+ excellent |             12 | 39238.08
+ weak      |              4 |  2299.50
+ very good |              3 | 12292.42
 
 ## 3
 
@@ -941,7 +946,7 @@ SELECT DISTINCT * FROM SkillsUsed;
 
 #### Results
 
- Security  |  Description   | Nickname      
+ Security  |  Description   | Nickname
 -----------+----------------+-------------------
  weak      | Cooking        | Vito Genovese
  weak      | Driving        | Bugsy Siegel
@@ -955,9 +960,12 @@ SELECT DISTINCT * FROM SkillsUsed;
  weak      | Lock-Picking   | Dutch Schulz
  weak      | Lock-Picking   | Greasy Guzik
  weak      | Lock-Picking   | Sonny Genovese
+ weak      | Planning       | Al Capone
  weak      | Planning       | Boo Boo Hoff
  weak      | Planning       | Clyde
+ weak      | Preaching      | Al Capone
  weak      | Preaching      | Greasy Guzik
+ weak      | Safe-Cracking  | Al Capone
  weak      | Safe-Cracking  | Sonny Genovese
  weak      | Scouting       | Clyde
  weak      | Scouting       | Vito Genovese
@@ -969,9 +977,16 @@ SELECT DISTINCT * FROM SkillsUsed;
  very good | Driving        | Lepke Buchalter
  very good | Driving        | Longy Zwillman
  very good | Explosives     | Bugsy Malone
+ very good | Explosives     | Sonny Genovese
  very good | Guarding       | Anastazia
  very good | Guarding       | Lepke Buchalter
+ very good | Lock-Picking   | Sonny Genovese
+ very good | Planning       | Al Capone
  very good | Planning       | King Solomon
+ very good | Preaching      | Al Capone
+ very good | Safe-Cracking  | Al Capone
+ very good | Safe-Cracking  | Moe Dalitz
+ very good | Safe-Cracking  | Sonny Genovese
  excellent | Driving        | Bugsy Siegel
  excellent | Driving        | Dutch Schulz
  excellent | Driving        | Longy Zwillman
@@ -986,16 +1001,20 @@ SELECT DISTINCT * FROM SkillsUsed;
  excellent | Lock-Picking   | Greasy Guzik
  excellent | Lock-Picking   | Lucky Luchiano
  excellent | Lock-Picking   | Sonny Genovese
+ excellent | Planning       | Al Capone
  excellent | Planning       | Boo Boo Hoff
  excellent | Planning       | Clyde
  excellent | Planning       | King Solomon
  excellent | Planning       | Mimmy The Mau Mau
+ excellent | Preaching      | Al Capone
  excellent | Preaching      | Bonnie
  excellent | Preaching      | Greasy Guzik
+ excellent | Safe-Cracking  | Al Capone
  excellent | Safe-Cracking  | Meyer Lansky
  excellent | Safe-Cracking  | Sonny Genovese
  excellent | Scouting       | Clyde
 
+> (65 rows)
 
 ### Nest queries
 
@@ -1007,7 +1026,7 @@ SELECT DISTINCT Security, Description, Nickname FROM
 
 #### Results
 
- Security  |  Description   | Nickname      
+ Security  |  Description   | Nickname
 -----------+----------------+-------------------
  weak      | Cooking        | Vito Genovese
  weak      | Driving        | Bugsy Siegel
@@ -1021,9 +1040,12 @@ SELECT DISTINCT Security, Description, Nickname FROM
  weak      | Lock-Picking   | Dutch Schulz
  weak      | Lock-Picking   | Greasy Guzik
  weak      | Lock-Picking   | Sonny Genovese
+ weak      | Planning       | Al Capone
  weak      | Planning       | Boo Boo Hoff
  weak      | Planning       | Clyde
+ weak      | Preaching      | Al Capone
  weak      | Preaching      | Greasy Guzik
+ weak      | Safe-Cracking  | Al Capone
  weak      | Safe-Cracking  | Sonny Genovese
  weak      | Scouting       | Clyde
  weak      | Scouting       | Vito Genovese
@@ -1035,9 +1057,16 @@ SELECT DISTINCT Security, Description, Nickname FROM
  very good | Driving        | Lepke Buchalter
  very good | Driving        | Longy Zwillman
  very good | Explosives     | Bugsy Malone
+ very good | Explosives     | Sonny Genovese
  very good | Guarding       | Anastazia
  very good | Guarding       | Lepke Buchalter
+ very good | Lock-Picking   | Sonny Genovese
+ very good | Planning       | Al Capone
  very good | Planning       | King Solomon
+ very good | Preaching      | Al Capone
+ very good | Safe-Cracking  | Al Capone
+ very good | Safe-Cracking  | Moe Dalitz
+ very good | Safe-Cracking  | Sonny Genovese
  excellent | Driving        | Bugsy Siegel
  excellent | Driving        | Dutch Schulz
  excellent | Driving        | Longy Zwillman
@@ -1052,16 +1081,20 @@ SELECT DISTINCT Security, Description, Nickname FROM
  excellent | Lock-Picking   | Greasy Guzik
  excellent | Lock-Picking   | Lucky Luchiano
  excellent | Lock-Picking   | Sonny Genovese
+ excellent | Planning       | Al Capone
  excellent | Planning       | Boo Boo Hoff
  excellent | Planning       | Clyde
  excellent | Planning       | King Solomon
  excellent | Planning       | Mimmy The Mau Mau
+ excellent | Preaching      | Al Capone
  excellent | Preaching      | Bonnie
  excellent | Preaching      | Greasy Guzik
+ excellent | Safe-Cracking  | Al Capone
  excellent | Safe-Cracking  | Meyer Lansky
  excellent | Safe-Cracking  | Sonny Genovese
  excellent | Scouting       | Clyde
 
+> (65 rows)
 
 ## 4
 
@@ -1090,7 +1123,7 @@ SELECT * FROM SoonVictims;
 
 #### Results
 
- BankName        |   City    | Security  
+ BankName        |   City    | Security
 -----------------+-----------+-----------
  Loanshark Bank  | Deerfield | very good
  PickPocket Bank | Deerfield | excellent
@@ -1114,7 +1147,7 @@ LEFT JOIN
 
 #### Results
 
- BankName        |   City    | Security  
+ BankName        |   City    | Security
 -----------------+-----------+-----------
  Loanshark Bank  | Deerfield | very good
  PickPocket Bank | Deerfield | excellent
@@ -1142,7 +1175,7 @@ CREATE VIEW chicagosummary AS
     AvgShareByCity
     GROUP BY City
     HAVING (City = 'Chicago');
-    
+
 CREATE VIEW Summary AS
     SELECT * FROM DistrictSummary
     UNION
@@ -1153,14 +1186,34 @@ SELECT * FROM Summary;
 
 #### Results
 
-  City   |     DistrictShare     
----------+-----------------------
- Chicago | 4221.41
- Other   | 8255.15
+ City     | DistrictShare
+----------+-----------------------
+ Chicago  | 4221.41
+ Evanston | 8255.15
 
 
 ### Nest queries
 
 ```sql
+SELECT * FROM
+    (SELECT 'Other'::text AS City, AVG(AvgShare) AS DistrictShare
+        FROM (SELECT City, AVG("Share"::numeric) AS AvgShare FROM
+            Accomplices
+            GROUP BY City) AS AvgShareCity
+    GROUP BY City
+    HAVING (City != 'Chicago')) AS District
+    UNION
+    SELECT * FROM
+    (SELECT City, AVG("Share"::numeric) AS DistrictShare FROM
+        Accomplices
+        GROUP BY City
+        HAVING (City = 'Chicago')
+    ) AS CHICAGO;
 ```
 
+#### Results
+
+ City     | DistrictShare
+----------+-----------------------
+ Chicago  | 4221.41
+ Evanston | 8255.15

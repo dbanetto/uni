@@ -7,10 +7,11 @@ CREATE VIEW AvgShareByCity AS
         GROUP BY City;
 
 CREATE VIEW DistrictSummary AS
-    SELECT 'Other'::text AS City, AVG(AvgShare) AS DistrictShare FROM
+    SELECT City, AVG(AvgShare) AS DistrictShare FROM
     AvgShareByCity
     GROUP BY City
-    HAVING (City != 'Chicago');
+    HAVING (City != 'Chicago')
+    ORDER BY DistrictShare LIMIT 1;
 
 CREATE VIEW chicagosummary AS
     SELECT City, AVG(AvgShare) AS DistrictShare FROM
@@ -38,4 +39,19 @@ DROP VIEW AvgShareByCity;
 
 --- Nested queries
 
-
+SELECT * FROM
+    (SELECT City, AVG(AvgShare) AS DistrictShare
+        FROM (SELECT City, AVG("Share"::numeric) AS AvgShare FROM
+            Accomplices
+            GROUP BY City) AS AvgShareCity
+    GROUP BY City
+    HAVING (City != 'Chicago')
+    ORDER BY DistrictShare
+    LIMIT 1) AS District
+    UNION
+    SELECT * FROM
+    (SELECT City, AVG("Share"::numeric) AS DistrictShare FROM
+        Accomplices
+        GROUP BY City
+        HAVING (City = 'Chicago')
+    ) AS CHICAGO;
