@@ -3,7 +3,7 @@ DB:=swen304_p1
 all: report.pdf
 
 %.pdf: %.md
-	pandoc $< -o $@
+	pandoc $< -o $@ -V geomentry:margin=1cm
 
 conn:
 	psql "$(DB)"
