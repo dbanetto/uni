@@ -22,11 +22,11 @@ public class LogAnalysis {
         private Text textKey = new Text();
         private Text textValue = new Text();
 
-        private Configuration conf;
+        private String targetId ;
 
         @Override
         public void setup(Context context) throws IOException {
-            conf = context.getConfiguration();
+            targetId = context.getConfiguration().get("LogAnalysis.Mapper.id");
         }
 
         @Override
@@ -46,7 +46,6 @@ public class LogAnalysis {
                 return;
             }
 
-            String targetId = conf.get("LogAnalysis.Mapper.id");
 
             if (anonId.equals(targetId)) {
                 // build string in output format for non-key sections
@@ -263,6 +262,7 @@ public class LogAnalysis {
             job.setMapperClass(ResultSummaryMap.class);
             job.setCombinerClass(ResultSummaryReduce.class);
             job.setReducerClass(ResultSummaryReduce.class);
+            job.setNumReduceTasks(reduceTasks);
 
             FileInputFormat.addInputPath(job, new Path(otherArgs.get(1)+ "_temp"));
             FileOutputFormat.setOutputPath(job, new Path(otherArgs.get(1) ));
