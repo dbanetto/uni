@@ -8,6 +8,7 @@ LOCAL_OUTPUT:=output
 MAIN_CLASS:=nz.ac.vuw.ecs.barnetdavi.LogAnalysis
 SRC:=$(shell find src/ -type f -name '*.java')
 ANON_ID?=7980225
+REDUCE_TASKS?=5
 
 all: $(JAR)
 
@@ -21,8 +22,12 @@ clean:
 reset:
 	hadoop dfs -rm -r -f $(HADOOP_OUTPUT)
 
-run: $(JAR) reset
-	hadoop jar $(JAR) $(MAIN_CLASS)  $(HADOOP_INPUT) $(HADOOP_OUTPUT) -anonid $(ANON_ID)
+search: $(JAR) reset
+	hadoop jar $(JAR) $(MAIN_CLASS)  $(HADOOP_INPUT) $(HADOOP_OUTPUT) -anonid $(ANON_ID) -reducetasks $(REDUCE_TASKS)
+
+summary: $(JAR) reset
+	hadoop dfs -rm -r -f "$(HADOOP_OUTPUT)_temp"
+	hadoop jar $(JAR) $(MAIN_CLASS)  $(HADOOP_INPUT) $(HADOOP_OUTPUT) -summary -reducetasks $(REDUCE_TASKS)
 
 download:
 	rm -rf $(LOCAL_OUTPUT)
