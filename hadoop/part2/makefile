@@ -32,3 +32,6 @@ summary: $(JAR) reset
 download:
 	rm -rf $(LOCAL_OUTPUT)
 	hadoop dfs -copyToLocal -f $(HADOOP_OUTPUT) $(LOCAL_OUTPUT)
+
+zip:
+	zip -r Part2.zip -r src makefile pom.xml data

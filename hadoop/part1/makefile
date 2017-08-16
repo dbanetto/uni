@@ -28,3 +28,6 @@ upload: $(DATA)
 
 download:
 	hadoop dfs -copyToLocal $(HADOOP_OUTPUT) $(LOCAL_OUTPUT)
+
+zip:
+	zip Part1.zip -r output src makefile pom.xml

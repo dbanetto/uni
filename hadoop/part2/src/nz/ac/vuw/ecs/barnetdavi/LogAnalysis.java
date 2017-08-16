@@ -18,6 +18,13 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 public class LogAnalysis {
 
+    /**
+     * Finds the search history for a given user
+     *
+     * This is set via the configuration of <code>LogAnalysis.Mapper.id</code> as a string
+     *
+     * Emits a key pair of &gt;AnonId, (Query, ItemRank, ClickUrl)&lt;
+     */
     public static class SearchMap extends Mapper<LongWritable, Text, Text, Text> {
         private Text textKey = new Text();
         private Text textValue = new Text();
@@ -33,26 +40,34 @@ public class LogAnalysis {
         public void map(LongWritable key, Text value, Context context)
                 throws IOException, InterruptedException {
 
+            // splits up the columns of the log file
             String[] sections = value.toString().split("\t", 5);
 
+            // validates the row is really a log and not from an invalid line
             if (sections.length <= 3) {
                 return;
             }
 
-            String anonId = sections[0];
 
             // validate it is an ID
-            if (anonId.isEmpty() || !Character.isDigit(anonId.charAt(0))) {
+            String anonId = sections[0];
+            if (anonId.isEmpty() ||
+                    !Character.isDigit(anonId.charAt(0))) {
                 return;
             }
 
 
+            // filters by the target ID
             if (anonId.equals(targetId)) {
+
                 // build string in output format for non-key sections
                 StringBuilder builder = new StringBuilder();
                 boolean first = true;
                 for (int i = 1; i < sections.length; i++) {
+                    // column 2 is QueryTime & ignores it
+                    // skips empty columns as well
                     if (i == 2 || sections[i].isEmpty()) { continue; }
+
                     if (!first) {
                         builder.append('\t');
                     }
@@ -60,6 +75,7 @@ public class LogAnalysis {
                     builder.append(sections[i]);
                 }
 
+                // outputs the key & reconstructed log line with removed columns
                 textKey.set(anonId);
                 textValue.set(builder.toString());
 
@@ -67,12 +83,27 @@ public class LogAnalysis {
             }
         }
     }
- 
+
+    /**
+     * Reduce codes the results from SearchMap
+     *
+     * Is an identity function since map already filters based on IDs
+     *
+     * Emits a key pair of &gt;AnonId, (Query, ItemRank, ClickUrl)&lt;
+     */
     public static class SearchReduce extends Reducer<Text, Text, Text, Text> {
         // do not require a reduce
 
     }
 
+    /**
+     * Map phase of the 1st round of computing summary statistics of all searches
+     *
+     * Emits a key pair of &gt; AnonId, (UserCount, QueryCount, ClickCount) &lt;
+     *
+     * Usercount will always be 1
+     * Only one of QueryCount or ClickCount is exclusively 1, otherwise 0
+     */
     public static class SummaryMap extends Mapper<LongWritable, Text, Text, Text> {
         private final static IntWritable one = new IntWritable(1);
         private Text textKey = new Text();
@@ -121,6 +152,16 @@ public class LogAnalysis {
 
     }
 
+
+    /**
+     * Reduce phase of the 1st round of computing summary statistics of all searches
+     *
+     * Emits a key pair of &gt; AnonId, (UserCount, QueryCount, ClickCount) &lt;
+     *
+     * UserCount will always be 1,
+     * QueryCount will be the total count of queries for the given AnonId
+     * ClickCount will be the total count of click through for the given AnonId
+     */
     public static class SummaryReduce extends Reducer<Text, Text, Text, Text> {
 
         @Override
@@ -149,6 +190,14 @@ public class LogAnalysis {
         }
     }
 
+    /**
+     * Map phase of the final round of computing summary statistics of all searches
+     *
+     * This takes the results of SummaryMap/SummaryReduce such that the total number of
+     * distinct users can be found.
+     *
+     * Emits a key pair of &gt; 'summary', (UserCount, QueryCount, ClickCount) &lt;
+     */
     public static class ResultSummaryMap extends Mapper<LongWritable, Text, Text, Text> {
         private final static IntWritable one = new IntWritable(1);
         private Text textKey = new Text();
@@ -168,7 +217,15 @@ public class LogAnalysis {
 
     }
 
-
+    /**
+     * Reduce phase of the final round of computing summary statistics of all searches
+     *
+     * Emits a key pair of &gt; 'summary', (UserCount, QueryCount, ClickCount) &lt;
+     *
+     * UserCount will be the total count of distinct users
+     * QueryCount will be the sum of all users queries
+     * ClickCount will be the sum of all users clicks
+     */
     public static class ResultSummaryReduce extends Reducer<Text, Text, Text, Text> {
 
         @Override
@@ -199,6 +256,7 @@ public class LogAnalysis {
             context.write(key, new Text(summary.toString()) );
         }
     }
+
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
@@ -215,6 +273,7 @@ public class LogAnalysis {
         Boolean isSearch = null;
         int reduceTasks = 5;
 
+        // Handle arguments passed in
         List<String> otherArgs = new ArrayList<String>();
         for (int i=0; i < remainingArgs.length; ++i) {
             if ("-anonid".equals(remainingArgs[i])) {
@@ -231,24 +290,32 @@ public class LogAnalysis {
             }
         }
 
+        // apply reduce task setting
         System.err.println("Allocating " + reduceTasks + " reduce tasks");
         job.setNumReduceTasks(reduceTasks);
 
         FileInputFormat.addInputPath(job, new Path(otherArgs.get(0)));
         FileOutputFormat.setOutputPath(job, new Path(otherArgs.get(1)));
 
+        // Handle the chosen operation
         if (isSearch == null) {
            System.err.println("No arguments to determine mode were given, provide -anonid <ID> for filter by id or -summary for statistics");
            System.exit(2);
+
            return;
         } else if (isSearch) {
+            // Do the search of user id
             System.err.println("Running Search algorithm");
+
             job.setJobName("aol-filter");
+
             job.setMapperClass(SearchMap.class);
             job.setCombinerClass(SearchReduce.class);
             job.setReducerClass(SearchReduce.class);
         } else {
+            // Compute the summary statistics
             System.err.println("Running Summary algorithm");
+
             job.setJobName("aol-summary-1");
             FileOutputFormat.setOutputPath(job, new Path(otherArgs.get(1) + "_temp"));
             job.setMapperClass(SummaryMap.class);
@@ -256,6 +323,8 @@ public class LogAnalysis {
             job.setReducerClass(SummaryReduce.class);
 
             job.waitForCompletion(true);
+
+            // completed 1st phase, now collates the final statistics
 
             job  = setupJob(conf);
             job.setJobName("aol-summary-2");
@@ -271,6 +340,13 @@ public class LogAnalysis {
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 
+    /**
+     * Sets up most of a Hadoop job
+     *
+     * @param conf
+     * @return a partially setup Job object
+     * @throws IOException
+     */
     private static Job setupJob(Configuration conf) throws IOException {
 
         Job job = Job.getInstance(conf);
