@@ -62,15 +62,20 @@ From the length of the array it can be determined if the log line is for a query
 
 ### Evidence of Correctness
 
+Compared the results to published statistics of the [data set](http://www.michael-noll.com/blog/2006/08/07/aol-research-publishes-500k-user-queries/)[^3]
+
+### Results
+
+ Distinct Users |  Total Queries | Total Click through
+--------------- +----------------+---------
+ 657426         | 16946938       | 19442628
+
+[^3]: http://www.michael-noll.com/blog/2006/08/07/aol-research-publishes-500k-user-queries/
+
 ## Task 3
 
 <!--
     Document how you conducted your experiment, include the raw data, graph it and explain what you observed.
 -->
 
-
-### Documentation & How it Works
-
-### Design
-
-### Evidence of Correctness
+![](graph.eps)
