@@ -1,6 +1,21 @@
 % NWEN406 - Project 1
 % David Barnett (300313764)
 
+# Preface
+
+My solution uses the Hadoop libraries supplied via maven central.
+
+If an error occurs while building or it takes a long to fetch the libraries
+this is most likely due to maven not having the correct proxy settings.
+
+Here are some resources to solve this:
+
+ * [Maven Documentation](https://maven.apache.org/guides/mini/guide-proxies.html)[^1], or
+ * [Stackoverflow](https://stackoverflow.com/questions/1251192/how-do-i-use-maven-through-a-proxy#1251216)[^2]
+
+[^1]: https://maven.apache.org/guides/mini/guide-proxies.html
+[^2]: https://stackoverflow.com/questions/1251192/how-do-i-use-maven-through-a-proxy#1251216
+
 # Part 1
 
 ## Results for `WordCount`
@@ -10,9 +25,30 @@
 
 # Part 2
 
+The source code for the
+
 ## Task 1
 
+<!--
+ Document your code in a report. Include the source code and briefly explain how it works. Include evidence of testing for correctness.
+ -->
+
+### Documentation & How it Works
+
+`SearchMap` and `SearchReduce` classes are used for this tasks
+
+
+### Evidence of Correctness
+
+ * Ran on popular ID's listed on the data leak's Wikipedia page
+
 ## Task 2
+
+<!--
+ Document your code in a report. Include the source code and briefly explain how it works. Include evidence of testing for correctness.
+ -->
+
+### Documentation & How it Works
 
 ### Design
 
@@ -24,4 +60,17 @@ data folder.
 The parsing split the log line from its tab-separated columns into an array of strings.
 From the length of the array it can be determined if the log line is for a query or a click through.
 
+### Evidence of Correctness
+
 ## Task 3
+
+<!--
+    Document how you conducted your experiment, include the raw data, graph it and explain what you observed.
+-->
+
+
+### Documentation & How it Works
+
+### Design
+
+### Evidence of Correctness
