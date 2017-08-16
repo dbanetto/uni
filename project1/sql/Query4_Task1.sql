@@ -1,1 +1,1 @@
-SELECT BankName, Security FROM Banks WHERE NoAccounts > 9000;
+SELECT BankName, Security FROM Banks WHERE City LIKE 'Chicago' AND NoAccounts > 9000;

@@ -1,9 +1,12 @@
-DB:=swen304_p1
+DB:=barnetdavi_swen304_p1
 
 all: report.pdf
 
 %.pdf: %.md
-	pandoc $< -o $@ -V geomentry:margin=1cm
+	pandoc -V geometry:margin=1in $< -o $@ 
+
+clean:
+	rm report.pdf
 
 conn:
 	psql "$(DB)"

@@ -1,1 +1,1 @@
-SELECT RobberId, Nickname FROM Robbers WHERE NoYears > 3;
+SELECT RobberId, Nickname, NoYears FROM Robbers WHERE NoYears > 3;

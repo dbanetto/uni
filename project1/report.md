@@ -558,7 +558,7 @@ DETAIL:  Failing row contains (1, 2, 0, A).`
 
 ## 5.
 
-## A)
+### A)
 
 ```sql
 INSERT INTO Robberies
@@ -645,7 +645,7 @@ match for it in the database.
 ## 1)
 
 ```sql
-SELECT BankName, Security FROM Banks WHERE NoAccounts > 9000;
+SELECT BankName, Security FROM Banks WHERE City LIKE 'Chicago' AND NoAccounts > 9000;
 ```
 
 ### Results
@@ -653,18 +653,10 @@ SELECT BankName, Security FROM Banks WHERE NoAccounts > 9000;
 BankName         | Security
 -----------------+-----------
  NXP Bank        | very good
- Bankrupt Bank   | weak
- Loanshark Bank  | excellent
- Loanshark Bank  | very good
  Loanshark Bank  | excellent
  Inter-Gang Bank | excellent
- Inter-Gang Bank | excellent
- NXP Bank        | excellent
  Penny Pinchers  | weak
  Dollar Grabbers | very good
- Penny Pinchers  | excellent
- Dollar Grabbers | good
- Gun Chase Bank  | excellent
  PickPocket Bank | weak
  Hidden Treasure | excellent
 
@@ -717,7 +709,7 @@ ORDER BY "Date" LIMIT 1;
 
 ```SQL
 SELECT * FROM
-    (SELECT NickName, SUM("Share") AS Earnings
+    (SELECT RobberId, NickName, SUM("Share") AS Earnings
      FROM Robbers NATURAL JOIN Accomplices
      GROUP BY RobberId) AS RobberEarnings
 WHERE Earnings > '30000'::money
@@ -726,17 +718,17 @@ ORDER BY Earnings DESC;
 
 ### Results
 
- Nickname          |  Earnings
--------------------+------------
- Mimmy The Mau Mau | \$70,000.00
- Boo Boo Hoff      | \$61,447.61
- King Solomon      | \$59,725.80
- Bugsy Siegel      | \$52,601.10
- Lucky Luchiano    | \$42,667.00
- Bonnie            | \$40,085.00
- Al Capone         | \$39,486.00
- Anastazia         | \$39,169.62
- Clyde             | \$31,800.00
+ RobberId |     Nickname      |  Earnings  
+----------+-------------------+------------
+        5 | Mimmy The Mau Mau | \$70,000.00
+       15 | Boo Boo Hoff      | \$61,447.61
+       16 | King Solomon      | \$59,725.80
+       17 | Bugsy Siegel      | \$52,601.10
+        3 | Lucky Luchiano    | \$42,667.00
+       10 | Bonnie            | \$40,085.00
+        1 | Al Capone         | \$39,486.00
+        4 | Anastazia         | \$39,169.62
+        8 | Clyde             | \$31,800.00
 
 ## 6)
 
@@ -794,23 +786,23 @@ ORDER BY description;
 ## 7)
 
 ```sql
-SELECT RobberId, Nickname FROM Robbers WHERE NoYears > 3;
+SELECT RobberId, Nickname, NoYears FROM Robbers WHERE NoYears > 3;
 ```
 
 ### Results
 
- RobberId |    nickname
-----------+----------------
-        2 | Bugsy Malone
-        3 | Lucky Luchiano
-        4 | Anastazia
-        6 | Tony Genovese
-        7 | Dutch Schulz
-       11 | Meyer Lansky
-       15 | Boo Boo Hoff
-       16 | King Solomon
-       17 | Bugsy Siegel
-       20 | Longy Zwillman
+ RobberId |    Nickname    | NoYears 
+----------+----------------+---------
+        2 | Bugsy Malone   |      15
+        3 | Lucky Luchiano |      15
+        4 | Anastazia      |      15
+        6 | Tony Genovese  |      16
+        7 | Dutch Schulz   |      31
+       11 | Meyer Lansky   |       6
+       15 | Boo Boo Hoff   |      13
+       16 | King Solomon   |      43
+       17 | Bugsy Siegel   |      13
+       20 | Longy Zwillman |       6
 
 > (10 rows)
 
@@ -838,7 +830,8 @@ FROM Robbers WHERE (NoYears * 2 >= Age);
 
 ```sql
 CREATE VIEW ParticipatedIn AS
-    SELECT RobberId, COUNT(RobberId) as participated, SUM("Share") as earnings FROM accomplices
+    SELECT RobberId, COUNT(RobberId) as participated, SUM("Share") 
+        as earnings FROM accomplices
     GROUP BY robberid;
 
 CREATE VIEW AvgParticipation AS
@@ -1165,12 +1158,13 @@ CREATE VIEW AvgShareByCity AS
         GROUP BY City;
 
 CREATE VIEW DistrictSummary AS
-    SELECT 'Other'::text AS City, AVG(AvgShare) AS DistrictShare FROM
+    SELECT City, AVG(AvgShare) AS DistrictShare FROM
     AvgShareByCity
     GROUP BY City
-    HAVING (City != 'Chicago');
+    HAVING (City != 'Chicago')
+    ORDER BY DistrictShare LIMIT 1;
 
-CREATE VIEW chicagosummary AS
+CREATE VIEW ChicagoSummary AS
     SELECT City, AVG(AvgShare) AS DistrictShare FROM
     AvgShareByCity
     GROUP BY City

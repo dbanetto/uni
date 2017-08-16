@@ -13,7 +13,7 @@ CREATE VIEW DistrictSummary AS
     HAVING (City != 'Chicago')
     ORDER BY DistrictShare LIMIT 1;
 
-CREATE VIEW chicagosummary AS
+CREATE VIEW ChicagoSummary AS
     SELECT City, AVG(AvgShare) AS DistrictShare FROM
     AvgShareByCity
     GROUP BY City
