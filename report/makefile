@@ -14,3 +14,6 @@ $(PDF): $(TEX) $(BIB)
 clean:
 	rm -f *.aux *.log *.bbl *.blg *.dvi *.toc *.lof
 	rm -f $(PDF)
+
+view: $(PDF)
+	evince $< &
