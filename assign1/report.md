@@ -5,35 +5,166 @@
 
 ## a)
 
+Privacy is a right of an individual to not have private information publicly
+disclosed without consent.
+An example of this is a patient has privacy rights to their medical records
+so they may choose who can access them, such as trusted individuals like their GP.
+
+Confidentially is the intention of keeping some information secret.
+For example encrypting a message so only Bob can see Alice's message.
+
+The key differences between these two concepts are:
+ * that privacy is focused on the individual's right to keep information private, and
+ * confidentially is focused on the intention of keeping the given information private.
+
 ## b)
+
+A service that would have a moderate level of availability could be one
+that provides a service that could be substituted easily if unavailable or
+is not critical to the use of a greater service.
+For example a single node in a cloud environment has a moderate availability
+as they are generally built with commodity hardware and would be prone to fail.
+This is would be fine for the greater service as there are enough nodes to
+absorb the loss of availability of a single node over a large number of nodes.
 
 ## c)
 
+The use of encryption can prevent some passive attacks on a user's data.
+A release of message contents attack has the intent of reading a message
+transmitted by some user. This involves reading the messages send by the
+user, the use of encryption would prevent this information being read.
+However, if they were to use traffic analysis on the encrypted messages
+the user sent some information can still be scraped.
+This is because the message will still retain some metadata about the message
+itself unencrypted as it is required for the protocol or application to function.
+
 ## d)
+
+The principle of least privilege is minimising the privilege of an
+application or user to only what they require for the current task and request
+more when required. If this is applied to the given context the user would
+be prompted to elevate only the programs that require administration access,
+as an operating system updater.
+This would help to improve the security of their system so that any other programs
+that are executed would not automatically be granted administration access.
+This would of lessen the impact of the ransomware attack but would most likely
+not prevent it.
 
 ## e)
 
+An attack surface is the potential of an application or service to be
+leveraged in the event on an attack, for example having anonymous access
+to an FTP server or having the ECHO server open to the internet.
+
+An attack tree is a formal method to describe the security of a system
+by detailing the various methods that could attack a system with increasing
+detail with the depth of the tree.
+
+The difference between an attack surface and an attack tree is an
+attack surface is the potential methods that could be utilised.
+Where an attack tree uses the attack surfaces to describe the
+security of the system.
+
 ## f)
+
+Objective: Obtain a copy of the NWEN406 Exam held by Ian
+
+Target:
+
+ * Digital copy kept on Ian's ECS account, or
+ * Physical copy kept in Ian's locked cabinet in his office
+
+Ideas:
+
+ * Digital copy
+     + observe email from Ian for Exam checking/submission from head of school
+     + infect latex package to upload compiled documents, force a re-compilation
+     + use knowledge of ECS's version of PDF readers to use an exploit
+ * Physical copy
+     + heist 
+     + enlist honours students
+     + ask politely
 
 # Question 2 - Malware
 
 ## a)
 
+The three main propagation mechanisms for malware are: infection, exploitation and
+social engineering.
+
+To propagate via infection a malware would modify another program to include
+the code for the virus itself.
+To propagate itself the malware would then need to infect other applications
+or devices, such as corrupting USB firmware or networked drives.
+An example of this would be a malware that upon execution would embed itself
+into the operating system and infect USB devices so it can then propagate to
+more systems via the system user's USB devices.
+
+Exploitation of bugs and misusing features is another method for malware to propagate.
+The main idea behind this propagation technique is to exploit bugs in applications
+and services to achieve a goal such as privilege escalation, arbitrary code execution, 
+and so on. An example of this would be worms that would exploit weakness in network
+protocols or applications to propagate themselves. An example would be a worm
+is programmed to exploit a foreign code execution bug that would allow it to send
+itself to the target machine and execute itself.
+
+Social engineering is another method to propagate malware.
+To use this propagation technique the attacker must have the intention to
+trick the user to execute the malware, such as posing to be a useful program like
+Photoshop. An example of this is providing cracks to popular applications or games
+to trick users into installing the software, with presumably administration rights.
+This can also be propagated via attachments for emails from "reputable" sources
+or social media.
+
 ## b)
+
+Four (plus a bonus) methods that a virus could conceal itself:
+
+ 1. Encrypts or compresses the main body of code
+ 2. Modifies its own code such that anti-virus software cannot match a signature
+    to it, e.g. padding itself with `NOOP` instructions
+ 3. Modifies the code of every infection so no two infections look the same,
+    some may be found but maybe not all of them
+ 4. Disabling anti-virus or other intrusion detection services
+ 5. Instructing the user to disable their anti-virus via social engineering
 
 ## c)
 
 ### (i)
 
+You should be suspicious of the game, as those permissions are
+unrelated to the task you are installing it for.
+This is because the game would have very little legitimate use
+for these permissions than exploiting them or harvesting data.
+
 ### (ii)
 
+Given the permissions of sending SMS messages and the address book
+your phone has taken on the threat of being taken over to be used
+a spam bot to send spam to contacts or paid SMS services.
+This is because the mobile operating system has universal method
+to prevent any abuse, some may prevent obvious abuse like
+thousand of messages per minute, of these functions after the permission
+is granted. In more modern versions of the mobile operating systems
+a permission can be revoked after the fact which provides some mitigation
+to these types of attacks.
+
 ### (iii)
+
+The app would be a malware that has been propagated via social engineering.
+This is due to desire to install the suspicious free version has been
+created by the social desire to jump on the current trend and this malware
+is exploiting that by providing a "free" version.
 
 ## d)
 
 ### (i)
 
+anti-virus
+ 
 ### (ii)
+
+firewall
 
 ## e)
 
