@@ -67,6 +67,11 @@ security of the system.
 
 ## f)
 
+
+![Attack Tree](./attack-tree.png)
+
+TODO: Actually answer this properly
+
 Objective: Obtain a copy of the NWEN406 Exam held by Ian
 
 Target:
@@ -160,11 +165,24 @@ is exploiting that by providing a "free" version.
 
 ### (i)
 
-anti-virus
+An anti-virus program would help to block a macro virus via email attachments.
+This is because an anti-virus program would be able to scan the contents of the
+email attachments and have a database of malware signatures to be able to compare
+the attachment to thus have a chance to stop the virus. However, a firewall
+would be able to help since it can only filter the packets that are passed
+by applications by lower layers of the network stack.
  
 ### (ii)
 
-firewall
+A firewall is the best tool to use to block a backdoor. This is because
+with a firewall the user can configure it such that only known services are
+permitted to send outward bound network traffic. By using a firewall 
+the backdoor will be blocked from sending traffic back to its control server
+thus making it useless.
+An anti-virus software cannot block the backdoor like a firewall,
+but it could be able to detect malware operating the backdoor and remove it.
+Since the use of a firewall can block the backdoor without knowledge of it,
+the use of a firewall is better to block the use of backdoors over anti-virus software.
 
 ## e)
 
