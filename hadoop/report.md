@@ -279,6 +279,9 @@ has on the wall clock time for a Hadoop job.
 In this case the wall clock is the time recorded in the log when the
 MapReduce job started and ended ; this is not the total collective CPU time of
 all nodes.
+From parallelisation it is known that the ideal speed up is $1/n$ where $n$ is the
+number of nodes, this implies that ideally by increasing the node count from 1 to 2
+the total time would reduce by $1/2$.
 
 ### Hypothesis
 
@@ -359,10 +362,8 @@ a user made timer wrapping the job would include more unknown variations, such a
 uploading the application to the server.
 However, this measurement is not precise as the log only gives the resolution
 of seconds.
-This is not an issue as the time that a job take is long enough so finer resolutions
-of the timing does not add much, for example the log above shows a wall clock time
-of 25 seconds and if there were also fractions of a second it would not make
-much difference to the end result.
+This is an acceptable trade-off as the experiment is focused on observing large changes
+in the recorded time not putting it under a microscope to find the absolute fastest time.
 
 ### Results
 
@@ -387,10 +388,38 @@ mined from the raw experiment data.
 4| 18s| 23s|  9s
 6| 16s| 23s|  9s
 
+### Expected Idealised results
+
+**Note: these are to show what was expected**
+
+\# of reduce tasks | Search | Summary stage 1 | Summary stage 2
+-------------------+--------+-----------------+-------------------
+2                  | 17s    | 23s             | 11s
+4 (projected)      | 9s\*   | 12s\*           |  5s\*
+6 (projected)      | 6s\*\* | 8s\*\*          |  3s\*\*
+
+> \*: reduced by half of results of using 2 reduce tasks
+
+> \*\*: reduced by a third of the projected results of using 4 reduce tasks
+
 ![Graph of Wall time vs. number of reduce nodes](graph.eps)
 
 Figure 1 is the rendered graph of the compute time differences.
 
+The results show a negative correlation between the number of reduce tasks and wall clock time.
+This is shown by for all jobs tested the by increasing the reduce tasks the elapsed time
+decreased.
+However, the actual results are very different to the expected idealised results projected.
+The graph in figure 1 shows that the relationship is a small overall negative relation.
+
 ### Discussion
 
+There are many factors that lead to the difference in expected idealised results of `1/N` speed up and the
+recorded figures.
+A factor that played a role in this result was that only the reduce part of the job was
+reduced where as opposed to the map and combinator phases.
+Another factor at play is the volume of data of the job going to the reduce tasks.
+A third factor that has impacted the result is the structure of the applications and the use
+of combinators.
 
+<!-- TODO: a paragraph for each factor -->
