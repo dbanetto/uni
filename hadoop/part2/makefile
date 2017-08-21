@@ -18,6 +18,7 @@ $(JAR): $(SRC)
 
 clean:
 	rm -rf target
+	rm -f Part2.zip
 
 reset:
 	hadoop dfs -rm -r -f $(HADOOP_OUTPUT)

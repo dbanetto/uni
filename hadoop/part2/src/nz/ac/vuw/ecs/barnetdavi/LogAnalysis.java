@@ -32,6 +32,9 @@ public class LogAnalysis {
      * Emits a key pair of &gt;AnonId, (Query, ItemRank, ClickUrl)&lt;
      */
     public static class SearchMap extends Mapper<LongWritable, Text, Text, Text> {
+
+        public static final String ANON_ID_CONFIG = "LogAnalysis.Mapper.id";
+
         private Text textKey = new Text();
         private Text textValue = new Text();
 
@@ -39,7 +42,7 @@ public class LogAnalysis {
 
         @Override
         public void setup(Context context) throws IOException {
-            targetId = context.getConfiguration().get("LogAnalysis.Mapper.id");
+            targetId = context.getConfiguration().get(ANON_ID_CONFIG);
         }
 
         @Override
@@ -50,7 +53,7 @@ public class LogAnalysis {
             String[] sections = value.toString().split("\t", 5);
 
             // validates the row is really a log and not from an invalid line
-            if (sections.length <= 3) {
+            if (sections.length < 3) {
                 return;
             }
 
@@ -332,7 +335,7 @@ public class LogAnalysis {
             // Do the search of user id
             System.err.println("Running Search algorithm");
 
-            job.getConfiguration().set("LogAnalysis.Mapper.id", anonId);
+            job.getConfiguration().set(SearchMap.ANON_ID_CONFIG, anonId);
             job.setJobName("aol-filter");
 
             job.setMapperClass(SearchMap.class);
