@@ -29,7 +29,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class SearchMapTest {
+public class TestMapReduce {
 
        private static final String CLUSTER_1 = "cluster1";
 

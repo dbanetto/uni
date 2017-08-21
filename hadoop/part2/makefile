@@ -1,7 +1,6 @@
 HADOOP_VERSION:=2.8.0
 HADOOP_PREFIX:=/local/Hadoop/hadoop-${HADOOP_VERSION}
 JAR:=target/loganalysis-1.0.jar
-SRC:=$(wildcard src/*.java)
 HADOOP_INPUT:=/tmp/aol
 HADOOP_OUTPUT:=aol-output
 LOCAL_OUTPUT:=output
@@ -11,6 +10,9 @@ ANON_ID?=7980225
 REDUCE_TASKS?=5
 
 all: $(JAR)
+
+test:
+	mvn test
 
 $(JAR): $(SRC)
 	need java
