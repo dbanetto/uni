@@ -30,7 +30,9 @@ The source code for the
 ## Task 1
 
 <!--
- Document your code in a report. Include the source code and briefly explain how it works. Include evidence of testing for correctness.
+ * Document your code in a report.
+ * Include the source code and briefly explain how it works.
+ * Include evidence of testing for correctness.
  -->
 
 ### Documentation & How it Works
@@ -45,7 +47,9 @@ The source code for the
 ## Task 2
 
 <!--
- Document your code in a report. Include the source code and briefly explain how it works. Include evidence of testing for correctness.
+ * Document your code in a report.
+ * Include the source code and briefly explain how it works.
+ * Include evidence of testing for correctness.
  -->
 
 ### Documentation & How it Works
@@ -53,12 +57,26 @@ The source code for the
 ### Design
 
 The design to get the summary statistics included two rounds through Hadoop.
+The first round prepare the data to be easily consumed by the second round.
 
-The first round was filtering and parsing the log.
-The filtering removed invalid log lines, such as reading from the README file in the input
-data folder.
+The first round filters and parses the log to emit a key value pair of
+`<AnonId, (UserCount, QueryCount, ClickCount) >`.
+
+The filtering removed invalid log lines, such as lines from the README file in the input
+data set.
 The parsing split the log line from its tab-separated columns into an array of strings.
 From the length of the array it can be determined if the log line is for a query or a click through.
+
+The values emitted are in the form:
+
+> `<AnonId, (UserCount, QueryCount, ClickCount) >`
+
+ * The `AnonId` is set to the anonymous id parsed from the log
+ * `UserCount` is set always to be `1` as it is confirmed to found 1 user
+ * `QueryCount` is set to `1` if the log line is found to be a query log, otherwise `0`
+ * `ClickCount` is set to `1` if the log line is found to be a click log, otherwise `0`
+
+This is then sent to the reducer/combinator
 
 ### Evidence of Correctness
 
