@@ -37,4 +37,4 @@ download:
 	hadoop dfs -copyToLocal -f $(HADOOP_OUTPUT) $(LOCAL_OUTPUT)
 
 zip:
-	zip -r Part2.zip -r src makefile pom.xml data
+	zip -r Part2.zip -r src makefile pom.xml data data.csv experiment.sh

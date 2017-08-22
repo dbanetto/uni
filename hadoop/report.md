@@ -416,6 +416,7 @@ The graph in figure 1 shows that the relationship is a small overall negative re
 
 There are many factors that lead to the difference in expected idealised results of `1/N` speed up and the
 recorded figures.
+Three of these factors will be discussed on how they impacted the result and how they could be mitigated.
 A factor that played a role in this result was that only the reduce part of the job was
 reduced where as opposed to the map and combinator phases.
 Another factor at play is the volume of data of the job going to the reduce tasks.
@@ -423,3 +424,56 @@ A third factor that has impacted the result is the structure of the applications
 of combinators.
 
 <!-- TODO: a paragraph for each factor -->
+<!-- reduce is one step of MapReduce -->
+
+A factor that influenced the difference between the final and expected results is that the reduce phase is
+one phase in the MapReduce architecture.
+A MapReduce job on Hadoop has multiple stages and by configuring a single stage will not show the ideal
+speedup as the other stages are still fully parallel.
+From the logs produced in the experiment with 2 reduce tasks 
+there is a trend of the sum time spent reducing is a third of the sum time of mapping.
+This implies by spreading this summed time over more nodes, assuming an ideal spread of no overhead, 
+could only have a maximum theoretical speed up of 33% with infinite nodes in this case.
+This could be mitigated by configuring the number of nodes for both the map and reduce stages.
+This would allow a comparison from linear (1 map node, 1 reduce node) to fully parallel ($n$ map nodes, $r$ reduce nodes)
+to better explore how number of each type of node impacts the wall clock time of a job to complete.
+However, other hidden steps of MapReduce may also reduce the total speedup, for example the costs of
+writing to HDFS for intermediate keys and shuffling the key-values to reduce nodes.
+
+<!-- volume of data -->
+A factor that influenced the difference between the final and expected results is the volume of data
+was not enough to make the reduce nodes the bottleneck.
+To achieve large speedups such as described in the ideal case it would require that the bottleneck
+is in the reduce nodes not being able to keep up with the flow of data into it.
+For example if the bottleneck was at the reduce phase by horizontally scaling the compute for that
+section it could greatly improve the speedup between each set number of reduce nodes.
+In this case the data set was only a few gigabytes and the for both the search and summary stage 2 the
+data set is greatly reduced in the map and combinator phase before it reaches the reducers.
+The difference between the recorded input records for map and reduce phases are large, with reduce being 
+1% of map's in the case of the search job.
+This could be mitigated by generating additional data using the current data set as the base to
+find the point when the reduce nodes become the bottleneck and then modify the number of reduce tasks.
+
+<!-- combinators -->
+A factor that influenced the difference between the final and expected results was the use of combinators.
+In Hadoop a combinator is a local reduce that is applied on the map node to all key-values pairs before
+they are send to the reducer.
+For the jobs used in the experiment all three had combinators that would of reduced the amount of data
+to the reduce node.
+This influenced the impact of the number of reduce nodes as the reduce was partially completed by
+the time it left the map node. This is also exacerbated since the data input has the property of
+being ordered by anonymous id for the majority of the data thus the map nodes will likely have 
+localised data that would cover a single anonymous id.
+This could be mitigated by not using the combinators for the sake of the experiment.
+However, this is unlike a real-world example as these optimisations are always utilised.
+An alternative could be to shuffle the input data set such that there is no more locality of
+anonymous ids to make the data more akin to real time logs.
+
+## Conclusion
+
+In conclusion the ideal speedup was not observed due to a range of factors.
+These include that configuring the reduce tasks will only affect a fraction of the
+total time, the volume of data is not large enough to make the reduce nodes the bottleneck
+and the use of combinators remove work from the reducers.
+The ideal speedup of $1/n$ was not observed and was observed to be a minor negative collation between
+number of reduce tasks and wall time.
