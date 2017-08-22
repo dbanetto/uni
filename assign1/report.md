@@ -67,28 +67,7 @@ security of the system.
 
 ## f)
 
-
 ![Attack Tree](./attack-tree.png)
-
-TODO: Actually answer this properly
-
-Objective: Obtain a copy of the NWEN406 Exam held by Ian
-
-Target:
-
- * Digital copy kept on Ian's ECS account, or
- * Physical copy kept in Ian's locked cabinet in his office
-
-Ideas:
-
- * Digital copy
-     + observe email from Ian for Exam checking/submission from head of school
-     + infect latex package to upload compiled documents, force a re-compilation
-     + use knowledge of ECS's version of PDF readers to use an exploit
- * Physical copy
-     + heist 
-     + enlist honours students
-     + ask politely
 
 # Question 2 - Malware
 
@@ -126,12 +105,12 @@ or social media.
 Four (plus a bonus) methods that a virus could conceal itself:
 
  1. Encrypts or compresses the main body of code
- 2. Modifies its own code such that anti-virus software cannot match a signature
+ 2. Modifies its own code such that antivirus software cannot match a signature
     to it, e.g. padding itself with `NOOP` instructions
  3. Modifies the code of every infection so no two infections look the same,
     some may be found but maybe not all of them
- 4. Disabling anti-virus or other intrusion detection services
- 5. Instructing the user to disable their anti-virus via social engineering
+ 4. Disabling antivirus or other intrusion detection services
+ 5. Instructing the user to disable their antivirus via social engineering
 
 ## c)
 
@@ -165,8 +144,8 @@ is exploiting that by providing a "free" version.
 
 ### (i)
 
-An anti-virus program would help to block a macro virus via email attachments.
-This is because an anti-virus program would be able to scan the contents of the
+An antivirus program would help to block a macro virus via email attachments.
+This is because an antivirus program would be able to scan the contents of the
 email attachments and have a database of malware signatures to be able to compare
 the attachment to thus have a chance to stop the virus. However, a firewall
 would be able to help since it can only filter the packets that are passed
@@ -179,12 +158,15 @@ with a firewall the user can configure it such that only known services are
 permitted to send outward bound network traffic. By using a firewall 
 the backdoor will be blocked from sending traffic back to its control server
 thus making it useless.
-An anti-virus software cannot block the backdoor like a firewall,
+An antivirus software cannot block the backdoor like a firewall,
 but it could be able to detect malware operating the backdoor and remove it.
 Since the use of a firewall can block the backdoor without knowledge of it,
-the use of a firewall is better to block the use of backdoors over anti-virus software.
+the use of a firewall is better to block the use of backdoors over antivirus software.
 
 ## e)
+
+Antivirus software use a range of heuristics scanners and activity traps to 
+detect if some software is infected.
 
 ## f)
 
