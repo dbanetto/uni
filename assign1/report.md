@@ -166,21 +166,65 @@ the use of a firewall is better to block the use of backdoors over antivirus sof
 ## e)
 
 Antivirus software use a range of heuristics scanners and activity traps to 
-detect if some software is infected.
+detect if some software is infected but not necessarily able to detect what it is.
+This is because the heuristic scanners and activity traps monitor the system for
+what they define as suspicious activity, such as an odd arrangement of system
+calls, attempts to access kernel memory, etc.
+These techniques are able to detect that some program is operating in an infected
+manner and the antivirus can stop this. However, the observed behaviour
+cannot be easily used to identify the virus as it may be proxying through different
+exploits in many programs to hide the origin and that many viruses can use 
+the same techniques and being able to differentiate between them is an undecidable problem
+from behaviour alone.
 
 ## f)
 
 ### (i)
 
+APT: targeted attack
+Banking Trojan:
+
 ### (ii)
 
+APT: targeted attack
+Banking Trojan:
+
 ### (iii)
+
+APT: education of social attacks
+Banking Trojan: 
 
 # Question 3 - Denial-of-Service (DoS)  attacks
 
 ## a)
 
+The aim of for a denial-of-service attack on different resources
+all have the aim of reducing or preventing the availability of the resource.
+By targeting different resources they impact other resources.
+For example by targeting the network bandwidth the other networked services
+using that bandwidth is also denied, for example a bot net spamming a
+node to saturate a link.
+A denial-of-service attack on system resources, such as memory, disk or
+CPU usage, not only the service under attack is impacted but all services
+on the computer. An example of this would be using an exploit in the zip
+format to decompress 4KiB to 4 terabytes in memory to deny other applications
+memory space.
+Another target resource is application resources, such as database connections 
+or rate-limited API calls. A denial of service attack on this would disable the
+application and other services that depend on it, such as an authentication
+micro service that has exhausted its database connection pool from bogus requests.
+
 ## b)
+
+The general principle behind a reflection attack is to
+forge a request such that the response will be sent to
+the target and not the attacker.
+It is more advantageous for the attacker if the response is 
+larger than the request allowing for a amplification of the attack
+and can be requested anonymously.
+An example of this would be forging a DNS request such that
+the response IP address is set to the target rather than back
+to the attacker.
 
 ## c)
 
