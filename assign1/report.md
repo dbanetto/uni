@@ -181,18 +181,69 @@ from behaviour alone.
 
 ### (i)
 
-APT: targeted attack
-Banking Trojan:
+The method of propagation for an Advance Persistent Threat (APT)
+is a targeted attack which has been specialised to appeal to the target.
+This lends the attack to have a higher chance of success through personalised
+or targeted social engineering attempts directed at the target.
+This is called spear phishing as it requires a reasonable amount of
+background knowledge of the target to pull off effectively and is
+relatively successful.
+
+The main method of Banking Trojans use to propagate via
+malicious emails or by victims visiting websites infected with exploit kits.
+The difference between this method and APT's is that the Banking Trojans
+aim for anyone with a bank account to drain it where APT is a targeted
+attack. The difference also lays in the intent in both attacks
+where Banking Trojans wish to steal cash, an APT has a range of intents
+from the attacker from political to finical.
+The likely hood of a successful strike for a Banking Trojan relies more
+on the defences of the victim, such as educated to not open poorly written
+"bank" emails or having up-to-date operating system, browser and antivirus.
+This differs from APT as Banking Trojans are about gaining success through
+volume and APT is through getting a hole into the target.
 
 ### (ii)
 
-APT: targeted attack
-Banking Trojan:
+The role of the APT is to open the door for the payload to
+steal sensitive data.
+This was achieved by exploiting a user opening the malicious
+attached Microsoft\texttrademark{} Word document.
+From there the payload of a command-control service
+for the attacker other programs to collect data were deployed.
+
+The role of the Banking Trojan's is to collect or trick
+the victim into exposing their banking credentials.
+This is achieved by installing a keylogger and additional
+malware that would either proxy the login via the attackers
+or by injecting additional fields into webpages to make the 
+user reveal more credentials.
+
+Both of the attacks have similarities and differences.
+They both share the intent to deliver some payload 
+to the target.
+However, they different in what that payload set out to achieve.
+The ADT payload sets out to establish control to the attacker
+to retrieve sensitive data from the victim.
+While Banking Trojans will autonomously attempt to
+steal banking credentials from the victim.
 
 ### (iii)
 
-APT: education of social attacks
+The article does not talk about any countermeasures for the given APT attack.
+From the described scenario some countermeasures, technical and non-technical,
+can be derived.
+Such as for a business to introduce a strong spam filter that has the capacity to detect,
+either via signatures or executing in a sandboxing, malicious attachments to mitigate some
+risk of dangerous attachments being sent to potential victims inside the target
+organisation.
+A non-technical solution is to educate or introduce policies so that the staff
+know of unsolicited emails that could be exploited for an APT attack.
+This could come in the form of having staff or email filters check an invoice
+against an internal ledger of expected invoices or expected email.
+
 Banking Trojan: 
+
+Compare
 
 # Question 3 - Denial-of-Service (DoS)  attacks
 
