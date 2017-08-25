@@ -105,7 +105,7 @@ $\pi_{StudentId, Name, NoOfPts, CourName} (
 
 See figure 1.
 
-![Expression tree of query](./q2_2_tree.png)
+![Expression tree of query for Question 2.a](./q2_1_tree.png)
 
 ### 3)
 
@@ -181,7 +181,7 @@ $r(Student) \Join_{Student.StudentId = Enrolled.StudentId} r(Enrolled)$
 
 See figure 2
 
-![Expression tree of query](./q3_a_tree.png)
+![Expression tree of query for Question 2.b.1](./q2_2_tree.png)
 
 #### Cost function
 
@@ -222,8 +222,16 @@ join
     \sigma_{Term = 2014 \wedge CourseId = 'SWEN304' } (r(Enrolled))
 \end{equation*}
 
+#### Expression tree
+
+See figure 3
+
+![Expression tree of query for Question 2.b.2](./q2_3_tree.png)
+
 # Question 3
 
 ## A)
 
 ## B)
+
+## C)
