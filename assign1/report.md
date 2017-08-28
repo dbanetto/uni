@@ -241,9 +241,21 @@ know of unsolicited emails that could be exploited for an APT attack.
 This could come in the form of having staff or email filters check an invoice
 against an internal ledger of expected invoices or expected email.
 
-Banking Trojan: 
+The effectiveness of countermeasures for Banking Trojans are not discussed
+in the article itself but in how the attacks are commenced some mitigation tactics
+and countermeasures can be formed.
+For example a technical solution to attack vector of exploit kits is to 
+reduce the attack surface by ensuring the operating system, web browser and
+plugins are up to date.
+A non-technical to prevent these attacks would be to educate the general
+public of their occurrences, such as malware weather reports and general
+guidelines to follow for internet safety, e.g. do not open email from unknown
+senders.
 
-Compare
+Both of these mitigation techniques are similar between APT and Banking Trojans.
+However, APT is more focused on a targeted group than the general populace like
+banking Trojans.
+
 
 # Question 3 - Denial-of-Service (DoS)  attacks
 
