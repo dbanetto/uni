@@ -45,11 +45,11 @@ Each of these tools have different uses throughout the penetration testing.
 ### Zenmap (nmap)
 
 `Zenmap` is a GUI front end for a network exploration tool `nmap`.
-`nmap` is an open source command line tool that is used during the reconnaissance phase
+`nmap` is an open source command line tool that is used during the discovery phase
 of the penetration testing of the banking system.
 This tool was designed to be used for this purpose
 The tool provides features that can discover a range of information about
-a network and the hosts on it.
+a network and the hosts on it [@pen-test].
 One of the features it can discover and map the topology of a network by
 pinging hosts and using trace routes to build up the map.
 Another feature allows `nmap` to scan the ports of a target host
@@ -57,7 +57,7 @@ machine for open ports and relates then to services.
 It goes one step further by attempting to finger print the open services
 but trying to identify what software is running the service and what version, e.g. 
 testing port 80 and finds out it is an Apache web server running version
-`2.4.27`\cite{nmap}.
+`2.4.27` [@nmap].
 `nmap` by itself is very feature rich but lacks the accessibility and 
 requires the user to parse and understand the output of the commands to
 be useful.
@@ -68,30 +68,70 @@ displaying it with additional hints, such as colouring and in the case of
 the network topology even a map.
 With these features the `Zenmap` tool is an accessible reconnaissance tool.
 
+<!--
 * recon for other tools to then use
 * gives hints at what services could be exploitable
 * list the ports of interest that were found
 * tried anon access to some services
 * finger printed services, e.g. IIS host & version
+-->
 
 ### FileZilla
 
 `FileZilla` is a GUI FTP client that is used to interact with FTP service.
-This is an open source tool that in the penetration lab was used to test
-and potentially be used to exploit the host of the FTP service, in this case
-the Bank Server.
+This is an open source tool that in the penetration lab was used to as 
+an attack tool to attempt to test and exploit a potential weakness on
+the bank server [@pen-test].
 This tool was not designed to be used as a part of penetration testing but
-is useful as a consequence of FTP being exploitable.
+is useful as a consequence of FTP being exploitable [@ftpsec].
+In this lab it was found via `Zenmap` that the target Bank machine allows
+anonymous access. This was tested with `FileZilla` by directly connecting
+to the machine via FTP. From experimenting with the connection reading
+the files in the FTP directory was allowed, however writing to the server
+was not.
 
+Compared to `Zennmap` and `Nessus`the information gained from using this tool is limited.
+Using `FileZilla` in this penetration testing allows for testing the FTP service
+as a well behaved user.
+However, `Nessus` informs the tester of what is possible as a 
+malicious user.
+This shows that `FileZilla` is a good tool for testing for
+misconfiguration of FTP services, such as anonymous write access,
+but does not reveal deeper vulnerabilities such as the potential of
+bounce attacks from a malicious client [@ftpsec].
 
+<!--
  * Used to prod into open anon FTP
  * could not write to disk
  * could read listing
  * 
+-->
 
 ### Nessus
 
+`Nessus` is a commercial tool to scan and report vulnerabilities
+in system.
+`Nessus` scans for a range of possible vulnerabilities  from checking
+for default passwords, misconfiguration, known exploits and more.
+This tool is used during the discovery phase to identify common
+vulnerabilities in a system [@pen-test].
+In the lab this tool was used to identify possible vulnerabilities
+of the system, a complete scan showed over 40 potential exploits.
+
+`Nessus` shares common functionality with `Zenmap`.
+Both of these tools would be used during the discovery phase
+but with different aims [@pen-test].
+Where `Zenmap` is more focused on identifying open ports and fingerprinting
+services `Nessus` expands on this by testing for known vulnerabilities 
+either by exploits or misconfiguration.
+Both of these tools provides reporting back to the user to understand
+what has been discovered of the network or a single host.
+However, the main draw back of `Nessus` against `Zenmap` is that
+it is a commercial product as opposed to an open-source project.
+
+ <!--
  * 
+ -->
 
 ## Additional Tools used
 
@@ -128,3 +168,7 @@ is useful as a consequence of FTP being exploitable.
    * how it is  possible to extract personal data from HTTPS
   (NOTE: ONLY IT ENGR side, not legal/ethics of it)
 -->
+
+\pagebreak
+
+# Bibliography 
