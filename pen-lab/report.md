@@ -35,7 +35,7 @@ This was to provide a banking service to clients.
 
 There were three tools used during the first part of the lab.
 These were:
- 
+
  * Zenmap,
  * FileZilla, and
  * Nessus
@@ -55,16 +55,16 @@ pinging hosts and using trace routes to build up the map.
 Another feature allows `nmap` to scan the ports of a target host
 machine for open ports and relates then to services.
 It goes one step further by attempting to finger print the open services
-but trying to identify what software is running the service and what version, e.g. 
+but trying to identify what software is running the service and what version, e.g.
 testing port 80 and finds out it is an Apache web server running version
 `2.4.27` [@nmap].
-`nmap` by itself is very feature rich but lacks the accessibility and 
+`nmap` by itself is very feature rich but lacks the accessibility and
 requires the user to parse and understand the output of the commands to
 be useful.
-`Zenmap` solves this issue by providing a GUI over top of 
-these features and makes then even more accessible. 
+`Zenmap` solves this issue by providing a GUI over top of
+these features and makes then even more accessible.
 This has been achieved by parsing the output of a normal `nmap` command and
-displaying it with additional hints, such as colouring and in the case of 
+displaying it with additional hints, such as colouring and in the case of
 the network topology even a map.
 With these features the `Zenmap` tool is an accessible reconnaissance tool.
 
@@ -79,7 +79,7 @@ With these features the `Zenmap` tool is an accessible reconnaissance tool.
 ### FileZilla
 
 `FileZilla` is a GUI FTP client that is used to interact with FTP service.
-This is an open source tool that in the penetration lab was used to as 
+This is an open source tool that in the penetration lab was used to as
 an attack tool to attempt to test and exploit a potential weakness on
 the bank server [@pen-test].
 This tool was not designed to be used as a part of penetration testing but
@@ -93,7 +93,7 @@ was not.
 Compared to `Zennmap` and `Nessus`the information gained from using this tool is limited.
 Using `FileZilla` in this penetration testing allows for testing the FTP service
 as a well behaved user.
-However, `Nessus` informs the tester of what is possible as a 
+However, `Nessus` informs the tester of what is possible as a
 malicious user.
 This shows that `FileZilla` is a good tool for testing for
 misconfiguration of FTP services, such as anonymous write access,
@@ -104,7 +104,7 @@ bounce attacks from a malicious client [@ftpsec].
  * Used to prod into open anon FTP
  * could not write to disk
  * could read listing
- * 
+ *
 -->
 
 ### Nessus
@@ -114,7 +114,7 @@ in system.
 `Nessus` scans for a range of possible vulnerabilities  from checking
 for default passwords, misconfiguration, known exploits and more.
 This tool is used during the discovery phase to identify common
-vulnerabilities in a system [@pen-test].
+vulnerabilities in a system [@pen-test][@nessus].
 In the lab this tool was used to identify possible vulnerabilities
 of the system, a complete scan showed over 40 potential exploits.
 
@@ -122,7 +122,7 @@ of the system, a complete scan showed over 40 potential exploits.
 Both of these tools would be used during the discovery phase
 but with different aims [@pen-test].
 Where `Zenmap` is more focused on identifying open ports and fingerprinting
-services `Nessus` expands on this by testing for known vulnerabilities 
+services `Nessus` expands on this by testing for known vulnerabilities
 either by exploits or misconfiguration.
 Both of these tools provides reporting back to the user to understand
 what has been discovered of the network or a single host.
@@ -130,11 +130,10 @@ However, the main draw back of `Nessus` against `Zenmap` is that
 it is a commercial product as opposed to an open-source project.
 
  <!--
- * 
+ *
  -->
 
 ## Additional Tools used
-
 
 
 # Part 2 - Intrusion Detection
@@ -144,6 +143,147 @@ it is a commercial product as opposed to an open-source project.
  * explain how the CLI version functions
  * discuss monitoring & reporting facilities of SNORBY
 -->
+
+## SNORT
+
+`SNORT` is an open source network intrusion detection system (NIDS).
+The objective of `SNORT` is to monitor and warn of detected
+attacks or probes from potential attacks.
+In this lab `SNORT` was used by the monitoring laptop in the
+Bank.
+The NIDS function is the main feature of `SNORT` but it also
+exposes the key features that enable it, packet sniffing and
+packet logging [@snort].
+To achieve its NIDS goal `SNORT` sniffs all of the packets
+that are received by the host and applies a user defined rule
+set to identify the traffic, either as normal or as a possible
+attack.
+The use of user defined rule sets are a major feature of
+`SNORT` and is what enables it to be a great tool to
+monitor a system.
+
+
+## SNORBY
+
+`SNORBY` is an open source web front-end to multiple
+intrusion detection system (IDS) [@snorby].
+`SNORBY` consumes the logs of IDS and presents them
+with a user friendly interface that includes graphs
+and summary dashboard.
+In the lab this tool was used to easily digest the
+information that `SNORT` found via monitoring the network.
+From `SNORBY`  providing an easy to use interface of
+the IDS data it allows for system administrators to be able
+to react faster to possible attacks as it is clearer when
+graphs spike then reading and digesting a wall of text from
+tools like `SNORT`.
+However, this tool looks to be abandoned, as there has been
+no recent developments on their public repository and
+their domain ( snorby.org ) has lapsed and now serves
+domain registration advertising.
+
+`SNORT` and `SNORBY` are not competing tools but are
+supplementary to each other.
+This is because `SNORT` is designed to be a configurable NIDS
+that outputs a large log of what it has detected during its
+monitoring of the network.
+`SNORBY` then supplements this by consuming the log of what
+have been monitored and presents this to the administrators
+in an easy to digest format of graphs and summary statistics.
+
+## Fail2Ban
+
+`Fail2Ban` is another open-source intrusion detection system
+that focuses on preventing brute force attacks [@fail2ban].
+This is achieved by monitoring logs of applications, such
+as apache web server, sshd and more to identify remote
+hosts that are attempting to brute force passwords or exploits.
+To prevent further attempts the IP address is then added to
+a blacklist on the host firewall to drop all requests from
+untrusted user.
+
+`Fail2Ban` has the same overall goal as `SNORT` and `SNORBY` of
+detecting possible intrusions, but the method to achieve this
+is vastly different.
+For `Fail2Ban` it achieves this goal by detecting
+a possible attacker and then blocking them via the firewall.
+While, `SNORT` monitors for possible attack that the user
+has defined and `SNORBY` displays the findings of the monitoring.
+
+
+## Identified Risks
+
+During the lab a range of potential security risks
+were identified. Some of these risks are exploitable
+from a remote host.
+These include:
+
+ * the anonymous access to the FTP service,
+ * MySQL server port open across the firewall,
+ * SMB/CIFS ports open across the firewall, and
+ * MS-RPC port open across the firewall.
+
+### Anonymous FTP Access
+
+The anonymous access to the FTP service opens the
+risk of being used in a port bounce attack [@ftpsec].
+This attack abuses the FTP protocol to send a file to
+a target machine.
+The Bank can mitigate this issue in multiple ways.
+If the FTP service is designed to be local to within the
+business the FTP service itself could be configured to only
+accept connections from inside the same network or subnet.
+Another approach would be to configure the firewall to reject
+all attempts for external hosts connecting to the FTP service.
+These configuration can be managed by the system administrators
+by documenting the changes and the reasons why, or implement
+the changes with a configuration-as-code package such as Puppet.
+If the FTP service is suppose to be used publicly,
+the FTP service could be patched or choose a
+server implementation that supports the prevention of
+sending files to hosts other than the connected host.
+This can then be maintained by the system administrators
+via documentation of the reasons why a particular patch
+was applied or server was chosen.
+The use of a patch is less maintainable as it requires
+additional effort to update the service as it would require
+more testing after it has been applied.
+
+### MySQL
+
+Another potential risk is exposing the MySQL port over the
+firewall.
+This allows for the risk of an attacker brute forcing the
+password or acquiring it somehow and having access to the
+databases.
+There are some methods to mitigate this risk.
+One would be to configure the MySQL service to only accept
+connections from the local network or the current subnet.
+This would prevent direct access from a remote attacker.
+Another method would be to block external connections
+to MySQL by configuring the firewall to block it.
+These can be maintained by the system administrators through
+documenting the configuration used for the services
+and by implementing and applying them via tools such as
+Puppet or Chef to ensure they are set.
+
+However, both of these options assume that the Bank does
+not allow for external uses of the MySQL database.
+If the Bank did want this a possible mitigation would be
+to use a tool like `Fail2Ban` to prevent brute force attacks
+on default users like `mysql` or leaked user names.
+This would mitigate brute force attacks but would not
+help to prevent a user with stolen credentials outside of
+the network accessing the database.
+A possible solution would be to configure the service to use
+a two factor login for MySQL.
+The maintenance for this solution is a lot heavier than
+blocking external users, as it requires the configuration and
+maintained of an additional local service.
+
+## SMB / CIFS Ports open
+
+## MS-RPC Ports open
 
 <!--
  * Identify remote services in operation
@@ -171,4 +311,4 @@ it is a commercial product as opposed to an open-source project.
 
 \pagebreak
 
-# Bibliography 
+# Bibliography
