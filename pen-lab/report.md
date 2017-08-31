@@ -166,6 +166,8 @@ future development of the system do not introduce this kind of exploit.
 
 \pagebreak
 
+\pagebreak
+
 # Part 2 - Intrusion Detection
 
 <!--
@@ -231,6 +233,10 @@ hosts that are attempting to brute force passwords or exploits.
 To prevent further attempts the IP address is then added to
 a blacklist on the host firewall to drop all requests from
 untrusted user.
+However, this can be by-passed with a distributed effort
+to brute force a password. This is due to `Fail2Ban` focuses
+on a single host attempting too many times and cannot recognise
+a distributed attempt and has no means to prevent it.
 
 `Fail2Ban` has the same overall goal as `SNORT` and `SNORBY` of
 detecting possible intrusions, but the method to achieve this
@@ -302,8 +308,10 @@ not allow for external uses of the MySQL database.
 If the Bank did want this a possible mitigation would be
 to use a tool like `Fail2Ban` to prevent brute force attacks
 on default users like `mysql` or leaked user names.
-This would mitigate brute force attacks but would not
-help to prevent a user with stolen credentials outside of
+This would mitigate brute force attacks from a single host
+but would not
+help to prevent a distributed brute force attack or a
+user with stolen credentials outside of
 the network accessing the database.
 A possible solution would be to configure the service to use
 a two factor login for MySQL.
@@ -311,9 +319,34 @@ The maintenance for this solution is a lot heavier than
 blocking external users, as it requires the configuration and
 maintained of an additional local service.
 
-### SMB / CIFS Ports open
+### SMB / CIFS and MS-RPC Ports open
 
-### MS-RPC Ports open
+Allowing SMB/CIFS and MS-RPC ports to be open to the internet is
+a security risk.
+The risk comes from the potential of having an exploit
+in the service backing the port.
+In case of the SMB server on Windows,
+it recently was exploited in the high profile
+WannaCry attack [@wannacry].
+MS-RPC is very similar to the SMB/CIFS service in this 
+regard but control services such as remote shutdown and more.
+
+To mitigate this risk the system administrators can
+configure their firewalls to not allow external
+hosts accessing the service.
+However, if the business requires this access externally
+the administrators should regularly patch their servers to
+keep up to date with latest fixes of possible exploits.
+An alternative to this would be to make external users 
+of the service first connect via VPN's and using the service
+via the VPN.
+This would ensure that only authorized individuals could access
+the service externally.
+However, this incurs the additional maintenance for the
+administrators as they will need to manage the keys for the
+VPN and maintain the service.
+Those could be managed by tooling that associates keys
+with users via package managers or a database.
 
 <!--
  * Identify remote services in operation
