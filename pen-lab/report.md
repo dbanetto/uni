@@ -133,8 +133,38 @@ it is a commercial product as opposed to an open-source project.
  *
  -->
 
-## Additional Tools used
+### Dotdotpwn
 
+`dotdotpwn` is a vulnerabilities testing tool that uses fuzzing to discover
+directory traversal exploits.
+The tool supports fuzzing over HTTP and FTP urls.
+It tests for possible urls that would read from an arbitrary path on
+the target machine.
+For example the HTTP server behind `example.com` might allow or be poorly
+configured that a malformed request such as `http://example.com/../server.crt`
+would send the private key for the SSL of the server from the parent directory
+on the server.
+This is a major leakage of private information that could then lend to
+handing over passwords stored on the server.
+This tool is useful in the discovery phase of a penetration test as 
+it givens additional information on possible attack vectors [@pen-test].
+
+Compared to the other tools used in the lab `dotdotpwn` is very domain 
+specific to malformed URLs.
+Where `Zenmap` is useful for finding more general information about a
+target host and some additional fingerprinting if it can.
+`Nessus` is similar in regard of find particular exploits of the host but
+differ in the range of exploits they seek to detect.
+As opposed to all of the other tools `dotdotpwn` would be a good
+addition to a set of security integration tests to ensure
+future development of the system do not introduce this kind of exploit.
+
+
+![Screen shot of Kali Linux running dotdotpwn on local web server](./img/dotdotpwn_1.png)
+
+![Additional output of dotdotpwn test on local web server](./img/dotdotpwn_2.png)
+
+\pagebreak
 
 # Part 2 - Intrusion Detection
 
@@ -281,9 +311,9 @@ The maintenance for this solution is a lot heavier than
 blocking external users, as it requires the configuration and
 maintained of an additional local service.
 
-## SMB / CIFS Ports open
+### SMB / CIFS Ports open
 
-## MS-RPC Ports open
+### MS-RPC Ports open
 
 <!--
  * Identify remote services in operation
@@ -298,6 +328,8 @@ maintained of an additional local service.
    + new developments are installed for clients
    + how Cloud Services will operate in practice
 -->
+
+\pagebreak
 
 # Part 3 - Interception of Encrypted Traffic
 
