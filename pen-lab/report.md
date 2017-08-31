@@ -364,7 +364,123 @@ with users via package managers or a database.
 
 \pagebreak
 
-# Part 3 - Interception of Encrypted Traffic
+# Part 3 - Interception of HTTPS Traffic
+
+## How was HTTPS intercepted
+
+<!-- How & why it works -->
+
+To intercept the HTTPS traffic from a client multiple
+requirements are to be met.
+One of these is having an network topology setup to allow
+for a man-in-the-middle (MITM) attack, either via
+ARP spoofing or DHCP control [@dhcpspoof].
+For this lab the network was laid out as shown in figure 4.
+This shows the user is connecting via a wireless connection
+to the hub and from there the MITM and the Bank server are connected to it.
+
+![Network Diagram of SSL Intercept](./img/ssl-intercept.png)
+
+The attacker server is running Mallory, an interceptor engine
+application, which also hosts a rouge DHCP server to
+setup a MITM between the mobile user and the bank server.
+This is achieved by the DHCP server is configured by
+Mallory to resolve requests for the bank server from
+the wireless AP to go to the MITM machine instead of the
+indented host.
+In this case the Mallory engine has been configured to
+forward the requests to their intended host after the requests
+have been processed.
+
+After the request has been redirected to the MITM
+the Mallory engine can intercept and modify the TCP
+stream.
+For example, the requested page by the mobile user could
+be modified on the fly from the index page to the about page.
+
+To intercept the HTTPS traffic from the mobile user
+Mallory generates an SSL cert on the fly to use
+between it and the user.
+To the mobile user a warning about the SSL certificate is
+self signed or not signed by a trusted root certificate.
+In this lab the mobile user accepted this warning and
+trusted this certificate.
+With the mobile user accepting this certificate a
+secure HTTPS connection between the mobile user
+and the MITM is established [@jarmoc2012ssl] [@gangan2015review].
+From there the MITM will then make a separate secure connection
+to the Bank server to forward the request from the user.
+During the forwarding between these two connections the
+MITM machine has the opportunity to inspect the traffic.
+This is how the HTTPS interception occurred during this lab.
+
+This interception shows the vulnerability in HTTPS
+is that the user assumes it is encrypted to
+the service machine.
+This is not an vulnerability of the HTTPS protocol but of 
+how the assumption of end-to-end connections can
+be exploited.
+
+A possible extension to this attack would be to make the
+generated certificate look trusted.
+This could be achieved by either installing a root certificate to the victim's 
+machine, or by acquiring leaked SSL certificates from
+the service.
+This would make the end user unaware, no SSL prompts and the
+browser reports it secure, that they are not
+connected to the actual service but a MITM.
+
+## How to prevent HTTPS interception
+
+To prevent this interception the first part to
+stop is the underpinning MITM attack.
+In this lab this in the form of DHCP control,
+this could be mitigated with secure DHCP [@komori2002secure].
+This would prevent a rouge DHCP server in the network
+from redirecting traffic to the MITM host and
+would then prevent the entire interception attack.
+However, this would not help in the case of a user
+being connected via a network completely controlled by
+the attacker, such as a public WiFi that the attacker is
+hosting or spoofing such as Wellington City's free WiFi 
+`cbdfree`.
+
+In the case of a network controlled completely by an attacker
+the user would need to strengthen its rules of accepting
+SSL certificates [@jarmoc2012ssl].
+This could be enforced in a range of methods.
+One such strengthening would be to not trust certificates
+recently created as tool such as Mallory will generate
+the certificates on the fly during the attack.
+However, this could also impact legitimate use cases as
+the rise of free SSL certificates from vendors such as
+LetsEncrypt has brought upon some administrators refreshing
+certificates as frequent as once a week.
+Another strengthening is that web browsers do not allow
+for the use of self-signed certificates outside of the
+local domain, including not allowing users to allow an
+exception without extra informed steps. 
+This would prevent an unsuspecting user to add the exception
+easily and allow the attack.
+Web browsers can enforce this more strongly in the current
+web as there is no longer a cost barrier to getting trusted
+SSL certificates thanks to services such as LetsEncrypt.
+
+However, this is all for naught if the attacker
+has installed root certificate onto the target machine.
+In recent times Lenovo laptops had an untrustworthy
+certificate authority installed by default.
+As well as a free SSL certificate issued false certificates
+for well known website, Github.com.
+To mitigate this Chrome and Firefox has started
+to blacklist some certificate authorities and showing
+the error of untrusted certificate authority [@distrust].
+
+<!-- How to prevent it, example in practice -->
+
+## Additional method to intercept HTTPS
+
+<!-- Another method to intercept HTTPS -->
 
 <!--
   Intercept encrypted traffic
