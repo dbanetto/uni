@@ -420,7 +420,11 @@ id)
 
 ```
 
-The estimated cost of the query is 91.99
+The estimated cost of the query is 91.99.
+This is an inefficient query as the HashAggregate against the results of SubPlan1
+is re-applied over each row.
+Thus the estimated cost of it is $3.53 * 23 = 81.19$ which blows
+the total estimated cost to 91.
 
 The optimized query is:
 
@@ -432,9 +436,9 @@ SELECT f_name, l_name, COUNT(*) as noofbooks FROM Customer NATURAL JOIN loaned_b
 The explain is:
 
 ```
-swen304_a2=# explain select f_name, l_name, count(*) as noofbooks from customer natural join loaned_book
-group by f_name, l_name order by count(*) DESC limit 3;
-                                       QUERY PLAN
+swen304_a2=# explain select f_name, l_name, count(*) as noofbooks from customer natural join
+loaned_book group by f_name, l_name order by count(*) DESC LIMIT 3;
+                                       QUERY PLAN                                        
 -----------------------------------------------------------------------------------------
  Limit  (cost=3.83..3.83 rows=3 width=136)
    ->  Sort  (cost=3.83..3.88 rows=23 width=136)
@@ -446,10 +450,18 @@ group by f_name, l_name order by count(*) DESC limit 3;
                      ->  Seq Scan on loaned_book  (cost=0.00..1.26 rows=26 width=4)
                      ->  Hash  (cost=1.23..1.23 rows=23 width=132)
                            ->  Seq Scan on customer  (cost=0.00..1.23 rows=23 width=132)
-(10 rows)
 ```
 
+The speed up of 95.76%.
+This assumes that in the case that there are 100 1\^{st} / 2\^{nd} / 3\^{rd} equal 
+do not all need to be in the final result and the top 3 borrowers of books is good enough.
 This speedup is a result of removing the sub-queries that repeated work that could not
 be optimised.
-However the use of `COUNT(*)` twice in the optimized query is only calculated once and removed
-the need for a sub-query.
+However the use of `COUNT(*)` multiple times in the optimized query is only
+calculated once and removed the need for a sub-query.
+
+The use of sub-queries would of blown out the estimated cost.
+This is due to the estimated cost for sub-queries are multiplied by
+the number of rows they operate over, so even if the query has an estimated
+cost of 1 if it runs over 5 or more tuples it will not reach the goal of 
+95% speedup.
