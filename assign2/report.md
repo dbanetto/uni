@@ -338,31 +338,118 @@ Below are the original results of the query plan.
 ```
 swen304_a2=# explain select * from customer where customerid = 4567;
                         QUERY PLAN
-----------------------------------------------------------
- Seq Scan on customer  (cost=0.00..52.94 rows=1 width=49)
+-----------------------------------------------------------
+ Seq Scan on customer  (cost=0.00..74.75 rows=9 width=200)
    Filter: (customerid = 4567)
 (2 rows)
 ```
 
-An attempt to reduce to the size of a tuple was to move the
-repeating city names into a separate table such that `cusomter` had
-replaced the `city` column for `cityid` that is a foreign key to a `city`
-table that contains `name` and `cityid`.
 By making the customer id a primary key there was a speedup
-of 84.32% for the query. The results of the `EXPLAIN` are below.
+of 88.90% for the query. The results of the `EXPLAIN` are below.
 
+```sql
+ALTER TABLE customer ADD PRIMARY KEY (customerid);
+```
 
 ```
 swen304_a2=# explain select * from customer where customerid = 4567;
                                   QUERY PLAN
 -------------------------------------------------------------------------------
- Index Scan using customer_pkey on customer  (cost=0.28..8.30 rows=1 width=44)
+ Index Scan using customer_pkey on customer  (cost=0.28..8.30 rows=1 width=56)
    Index Cond: (customerid = 4567)
 (2 rows)
 ```
 
-This speed up has occurred by the making the `customerid` a primary key since the
-DBMS can make the assumption that that value is unique and can speed up the search
-for it using B+ trees or other indexing data structures.
+Since the query looks be checking if there exists the given key in the
+table the query can be reduced to only returning the `customerid` attribute.
+Since this reduces the width of the retrieved tuple the cost of the query
+decreases.
+
+```
+swen304_a2=# explain select customerid from customer where customerid = 4567;
+                                    QUERY PLAN
+-----------------------------------------------------------------------------------
+ Index Only Scan using customer_pkey on customer  (cost=0.28..4.30 rows=1 width=4)
+   Index Cond: (customerid = 4567)
+(2 rows)
+```
+
+This has a speedup of 94.25% compared to the original query.
 
 ## C)
+
+```
+swen304_a2=# explain select clb.f_name, clb.l_name, noofbooks
+from (select f_name, l_name, count(*) as noofbooks
+from customer natural join loaned_book
+group by f_name, l_name) as clb
+where 3 > (select count(*)
+from (select f_name, l_name, count(*) as noofbooks
+from customer natural join loaned_book
+group by f_name, l_name) as clb1
+where clb.noofbooks<clb1.noofbooks)
+order by noofbooks desc;
+                                                 QUERY PLAN
+
+---------------------------------------------------------------------------------------
+ Sort  (cost=91.97..91.99 rows=8 width=136)
+   Sort Key: clb.noofbooks DESC
+   ->  Subquery Scan on clb  (cost=3.30..91.85 rows=8 width=136)
+         Filter: (3 > (SubPlan 1))
+         ->  HashAggregate  (cost=3.30..3.53 rows=23 width=136)
+               Group Key: customer.f_name, customer.l_name
+               ->  Hash Join  (cost=1.52..3.10 rows=26 width=128)
+                     Hash Cond: (loaned_book.customerid = customer.customerid)
+                     ->  Seq Scan on loaned_book  (cost=0.00..1.26 rows=26 width=4)
+                     ->  Hash  (cost=1.23..1.23 rows=23 width=132)
+                           ->  Seq Scan on customer  (cost=0.00..1.23 rows=23 width=132)
+         SubPlan 1
+           ->  Aggregate  (cost=3.82..3.83 rows=1 width=8)
+                 ->  HashAggregate  (cost=3.30..3.53 rows=23 width=136)
+                       Group Key: customer_1.f_name, customer_1.l_name
+                       Filter: (clb.noofbooks < count(*))
+                       ->  Hash Join  (cost=1.52..3.10 rows=26 width=128)
+                             Hash Cond: (loaned_book_1.customerid = customer_1.customer
+id)
+                             ->  Seq Scan on loaned_book loaned_book_1  (cost=0.00..1.2
+6 rows=26 width=4)
+                             ->  Hash  (cost=1.23..1.23 rows=23 width=132)
+                                   ->  Seq Scan on customer customer_1  (cost=0.00..1.2
+3 rows=23 width=132)
+(21 rows)
+
+```
+
+The estimated cost of the query is 91.99
+
+The optimized query is:
+
+```sql
+SELECT f_name, l_name, COUNT(*) as noofbooks FROM Customer NATURAL JOIN loaned_book
+    GROUP BY f_name, l_name ORDER BY COUNT(*) DESC LIMIT 3;
+```
+
+The explain is:
+
+```
+swen304_a2=# explain select f_name, l_name, count(*) as noofbooks from customer natural join loaned_book
+group by f_name, l_name order by count(*) DESC limit 3;
+                                       QUERY PLAN
+-----------------------------------------------------------------------------------------
+ Limit  (cost=3.83..3.83 rows=3 width=136)
+   ->  Sort  (cost=3.83..3.88 rows=23 width=136)
+         Sort Key: (count(*)) DESC
+         ->  HashAggregate  (cost=3.30..3.53 rows=23 width=136)
+               Group Key: customer.f_name, customer.l_name
+               ->  Hash Join  (cost=1.52..3.10 rows=26 width=128)
+                     Hash Cond: (loaned_book.customerid = customer.customerid)
+                     ->  Seq Scan on loaned_book  (cost=0.00..1.26 rows=26 width=4)
+                     ->  Hash  (cost=1.23..1.23 rows=23 width=132)
+                           ->  Seq Scan on customer  (cost=0.00..1.23 rows=23 width=132)
+(10 rows)
+```
+
+This speedup is a result of removing the sub-queries that repeated work that could not
+be optimised.
+However the use of `COUNT(*)` twice in the optimized query is only calculated once and removed
+the need for a sub-query.
