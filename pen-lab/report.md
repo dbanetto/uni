@@ -481,6 +481,35 @@ the error of untrusted certificate authority [@distrust].
 ## Additional method to intercept HTTPS
 
 <!-- Another method to intercept HTTPS -->
+Another method to intercept HTTPS traffic is to exploit
+implementation details of SSL certificate verification [@sslstrip].
+The main target of this attack is that previously 
+the implementations did not check if the certificate
+in the chain had the right permissions to sign the child
+certificate in the chain.
+For example you obtain a legitimate SSL certificate from a
+vendor and then use that certificate to sign your own
+spoof certificate for a site like KiwiBank.
+This ends up with a site certificate signing another
+site certificate.
+This exploit relies on the fact that implementation of
+SSL certificate verification only test the chain of 
+trust for valid signatures and if the leaf node matches
+the domain connecting to.
+This leaves open the possibility that a certificate signed
+another certificate even though it did not have the rights
+to do so.
+From the client perspective the spoof certificate will
+be validated as correct and proceed to use it.
+This allows an attacker to make a phishing site with a valid
+the SSL certificate or use it in conjunction with the MITM
+attack as used in the lab.
+With this spoofing of SSL certificates HTTPS is rendered useless
+and the traffic to the server can be intercepted.
+However, this attack has been fixed as implementations of
+SSL certificate validation has been updated to prevent this
+by checking if the signing certificate can actually sign the
+child certificate.
 
 <!--
   Intercept encrypted traffic
