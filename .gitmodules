@@ -1,3 +1,6 @@
 [submodule "wyc"]
 	path = wyc
 	url = git@github.com:zyphrus/WhileyCompiler.git
+[submodule "wyeval"]
+	path = wyeval
+	url = git@github.com:zyphrus/WyEval.git
