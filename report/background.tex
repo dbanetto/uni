@@ -53,26 +53,12 @@ prime candidate language to extend.
 
 \subsubsection{Overview of Whiley}
 
-
 \subsubsection{Whiley Semantics}
 
 % \todo{could probably add more here}
 
-% \cite{whiley-design}
-% \cite{whiley-arrays}
-
-% \subsubsection*{2.1.2 Dafny}
-% % dafny - other formal languages
-
-% An alternative to the Whiley language is the Dafny.
-% Dafny is a research language for a verifying compiler by Microsoft
-% \cite{dafny-lang}.
-% The language shares a majority of the same features as 
-
-
-% \todo{dafny alternative}
-% \cite{dafny-started}
-% \cite{dafny-lang}
+\cite{whiley-design}
+\cite{whiley-arrays}
 
 
 \subsection{Loop Invariants}
@@ -165,7 +151,7 @@ ensures r == |items|:
     \label{lst:whiley-inv}
 \end{figure}
 
-\subsection{Classification of loop invariants}
+\subsection{Classification of Loop Invariants}
 % classification of loop invariants
 %  * proves property
 %  * hints to theorem prover
@@ -198,32 +184,39 @@ of the loop condition imply the postcondition \cite{invarints-classifiction}.
 This class of invariant are more tailored to achieve
 the goal of the loop than bounding invariants.
 
-\subsection{Methods to generate loop invariants}
+\subsection{Categories of Generated Loop Invariants}
 %% Methods to generate loop invariants
 % generally generating loop invariants are impossible!
 
-The current state of the art can already generate some loop invariants
-from source code.
 It has been proven that it is not possible to generate loop invariants
 generally % TODO: cite this
-so various techniques have been developed to generate some invariants.
-These techniques can be classified into two categories,
-static inference and dynamic checking.
+so various methods have been developed to generate some invariants.
+These methods can be sorted into one of two categories, static and dynamic.
+
+\subsubsection{Static Generation of Loop Invariants}
+
+The static generation of loop invariants use the
+semantics and analysis of the source code to generate the loop invariants.
+This includes the use of language semantics and static analysis to 
+
 The key difference between the categories is
 that invariants found statical hold true
 but is restricted to what can be generated.
 \cite{benderfinding}\cite{Leino2005LoopIO}.
-However, dynamic
-checking are techniques that may produce a valid invariant
-but multiple rounds of testing is required
-\cite{infer-dynamic}
-\cite{infer-postconditions}.
 
-\subsubsection{Variable Aging}
+% CHECK: refer to THIS as project or research?
+This project uses the principles of static methods to
+generate loop invariants.
 
-\subsubsection{Coupling}
+\subsubsection{Dynamic Generation of Loop Invariants}
 
-\subsubsection{The 3rd one from the paper}
+Dynamic generation of loop invariants involves static inference
+with execution of the program.
+
+
+However, dynamic checking are techniques that may produce
+a valid invariant but multiple rounds of testing is required
+\cite{infer-dynamic} \cite{infer-postconditions}.
 
 \subsection{Static Analysis}
 
@@ -234,7 +227,33 @@ but multiple rounds of testing is required
 % by making specification from code
 % OK since it is at such a small scale with limited scope
 
-% \todo{invariant inference paradox}
-% \cite{infer-postconditions}
+\todo{invariant inference paradox}
+\cite{infer-postconditions}
 
-\section{Literature Review}
+\subsection{Loop Pattern}
+
+\cite{patterns}
+
+\section{Related Work}
+
+\subsection{Dafny}
+% dafny - other formal languages
+
+An alternative to the Whiley language is the Dafny.
+Dafny is a research language for a verifying compiler by Microsoft
+\cite{dafny-lang}.
+The language shares a majority of the same features as 
+
+\todo{dafny alternative}
+\cite{dafny-started}
+\cite{dafny-lang}
+
+\subsection{Methods to Create Candidate Loop Invariants}
+
+\subsubsection{Backwards Propagation}
+
+\subsubsection{Variable Aging}
+
+\subsubsection{Coupling}
+
+\subsubsection{Term dropping}
