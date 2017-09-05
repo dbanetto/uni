@@ -38,11 +38,14 @@ The Whiley compiler is designed to be verifying compiler \cite{whiley-origin}.
 
 \subsection{Language Semantics}
 % Explain the basics of reading language semantics
-% show how 
+% explain how to read a semantics thing, with the \frac{pre-cond}{post-con}
+%
 
 \subsection{Whiley}
 %% Whiley
-% whiley design paper
+% * goals of the lang
+% * samples of code
+% * whiley design paper
 
 The Whiley language was built from the ground up with the idea to be used with
 a verifying compiler \cite{whiley-origin}.
@@ -56,12 +59,17 @@ prime candidate language to extend.
 \subsubsection{Overview of Whiley}
 
 \subsubsection{Whiley Semantics}
+%% Cover the key semantics used in the loop invariants
+% These are semantics that may differ languages so will be covered
+% * while loops
+% * where clause
+% * array copy
+% * array generator
 
 % \todo{could probably add more here}
 
 \cite{whiley-design}
 \cite{whiley-arrays}
-
 
 \subsection{Loop Invariants}
 %% Loop invariants
@@ -194,6 +202,8 @@ It has been proven that it is not possible to generate loop invariants
 generally % TODO: cite this
 so various methods have been developed to generate some invariants.
 These methods can be sorted into one of two categories, static and dynamic.
+This section will give an overview of static and dynamic methods of loop
+invariants.
 
 \subsubsection{Static Generation of Loop Invariants}
 
@@ -221,6 +231,7 @@ a valid invariant but multiple rounds of testing is required
 \cite{infer-dynamic} \cite{infer-postconditions}.
 
 \subsection{Static Analysis}
+% overview of static analysis techniques, e.g. partial ordered sets, lattices
 
 \subsection{Inference Paradox}
 % issue with inference creates correct code
@@ -249,7 +260,7 @@ The language shares a majority of the same features as
 \cite{dafny-started}
 \cite{dafny-lang}
 
-\subsection{Methods to Create Candidate Loop Invariants}
+\subsection{Methods to Generate Loop Invariants}
 % explain how these methods create loop invariants
 
 \subsubsection{Backwards Propagation}

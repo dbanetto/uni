@@ -47,12 +47,62 @@ code to ensure backwards compatibility and reduce surprise to the user.
 Conversely should an error occur the resulting error message should not be
 confusing, such as referring to generated code.
 
+% intro to problem, what is the design space for this issue
+%
 
 \section{Considerations}
+% These are designs for the project and the changes and impacts on the Whiley
+% Language & compiler
+
+\subsection{Backwards compatibility}
+% pre-existing code should not fail because of the generated invariants
+% code that compiles without the flag should still compile with the flag
+% restricts loop invariants to be precise  and strict to avoid "wrong"
+
+\subsection{Inspection}
+% Allow debugging / reviewing  of generated code
+% achieved by emitting compiler messages about what, where and why they are
+% generated
+
+\subsection{Creating Variables}
+% Whiley does not have the notion of ghost variables
+%  * possible name collisions
+%  * This is to be avoided
+%
+%  Does force the programmer to make ghost variables or make copies
+%  that make sense if they were making the invariants themselves vs generated
 
 \subsection{Usability}
+% COMPILER FLAGS
+% How easy it is to control the functionality 
+% Error messages
 
-\section{Limitations}
+% 1st design decision  was at what level are the invariants going to be inferred
+% then where are they going to be generated
+\section{Approaches}
 
-\section{}
+\subsection{Working on the Intermediate Language}
+% possible method to create tool on WyIL
+% What could be achieve with this
+%  * WyIL goal is to make intermediate language between ALL targets of Whiley
+%  * AST converted into loosely connected values via integers
+%  * less information readily available 
 
+
+\subsection{Working on the Specification Language}
+%% WyAL
+% what it is
+% * changes would be more dramatic
+% * Does not have the same level of control
+% * hosted inside the theorem prover
+
+\subsection{Working on the Abstract Syntax Tree}
+% Whiley files
+% * Closest to programmer code
+% * most information in the most related form
+% * 
+
+\section{Structure of Loop Invariant Generators}
+% Explain how each generator is distinct code
+% UML of strategy pattern
+% the utility package
