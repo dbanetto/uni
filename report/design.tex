@@ -14,39 +14,6 @@
 % Do not give the impression that you settled on a design because it “felt right”
 % or that you tinkered around until you found something that worked. 
 
-Since the Whiley compiler has multiple passes over the abstract syntax tree
-(AST)
-the current design adds a new pass. The compiler passes runs checks of properties
-of the program such as the definite assignment of variables and sound usage of
-types. This project adds an additional pass that searches for loop patterns and
-inserts generated code into the AST.
-This has been called the Loop Invariant Generator (LIG) pass.
-This is akin to a modern macro system operating directly onto the AST.
-
-The overall design of the Loop Invariant Generator is to collect the required
-information before a loop to be used to infer loop invariants.
-This is using forward propagation to determine if the
-information collected is safe to use. Once the LIG reaches a loop
-it tests the loop to see if it fits a loop pattern. This has been
-designed using the strategy pattern, where each loop pattern is encoded
-into a single strategy and produces a single invariant.
-The invariant is known to be valid since they are built up via language
-semantics.
-
-This is in contrast with other state of the art loop invariant generators.
-The general design of other loop invariant generators are to infer a set
-of possible invariants and iterate through them trying to prove which
-invariants are valid \cite{infer-dynamic} \cite{infer-postconditions}.
-However, these loop invariant generators have the design to be used as a tool
-to use with the source code where this project aims to integrate with the
-compiler itself. Being apart of the compiler imposes multiple constraints.
-This includes a constraint on keeping the impact on compile time to a
-reasonable level.
-Another constraint to consider is to not fail compilation for otherwise valid
-code to ensure backwards compatibility and reduce surprise to the user.
-Conversely should an error occur the resulting error message should not be
-confusing, such as referring to generated code.
-
 % intro to problem, what is the design space for this issue
 %
 
@@ -54,12 +21,12 @@ confusing, such as referring to generated code.
 % These are designs for the project and the changes and impacts on the Whiley
 % Language & compiler
 
-\subsection{Backwards compatibility}
+\subsection{Backwards Compatibility}
 % pre-existing code should not fail because of the generated invariants
 % code that compiles without the flag should still compile with the flag
 % restricts loop invariants to be precise  and strict to avoid "wrong"
 
-\subsection{Inspection}
+\subsection{Inspection and Debugging}
 % Allow debugging / reviewing  of generated code
 % achieved by emitting compiler messages about what, where and why they are
 % generated
@@ -77,32 +44,51 @@ confusing, such as referring to generated code.
 % How easy it is to control the functionality 
 % Error messages
 
-% 1st design decision  was at what level are the invariants going to be inferred
-% then where are they going to be generated
-\section{Approaches}
+\subsection{Impact on Compile time}
+% No goal on time impact
+% choice to not repeat compilation and verification
 
-\subsection{Working on the Intermediate Language}
+\subsection{Essential Invariants}
+% It is known that all invariants genereated will not be useful to proving the post-condition
+% (due to P-C has no input generated inv)
+% It is OK to have the minimal set of invariants
+% to test if it is essential requires repetitive verifications, infringes on
+% impact on compile time
+
+
+% Biggest design decision  was at what level are the invariants going to be inferred
+% then where are they going to be generated
+\section{Approaches to Loop Invariant Generation}
+
+The principle design decision of this project was at what point in the Whiley Compiler pipeline
+to generate the loop invariants at.
+There are three main stages in the Whiley Compiler that the input program will 
+
+\subsection{Working on the Whiley Intermediate Language (WyIL)}
 % possible method to create tool on WyIL
 % What could be achieve with this
+%  * is designed to be a binary version of the code
 %  * WyIL goal is to make intermediate language between ALL targets of Whiley
 %  * AST converted into loosely connected values via integers
 %  * less information readily available 
 
+\cite{wyil}
 
-\subsection{Working on the Specification Language}
+\subsection{Working on the Whiley Specification Language (WyAL)}
 %% WyAL
 % what it is
 % * changes would be more dramatic
 % * Does not have the same level of control
 % * hosted inside the theorem prover
 
-\subsection{Working on the Abstract Syntax Tree}
+\subsection{Working on the Whiley Abstract Syntax Tree}
 % Whiley files
 % * Closest to programmer code
 % * most information in the most related form
 % * 
 
 \section{Structure of Loop Invariant Generators}
+% ALL ONE BLOB! vs strategy + a common set of information
 % Explain how each generator is distinct code
 % UML of strategy pattern
 % the utility package

@@ -241,14 +241,19 @@ a valid invariant but multiple rounds of testing is required
 \todo{invariant inference paradox}
 \cite{infer-postconditions}
 
-\subsection{Loop Pattern}
+\subsection{Loop Design Pattern}
 
+\cite{loop-patterns}
 \cite{patterns}
 
 \section{Related Work}
+% Covers the literature review and compare current solution to similar projects
 
 \subsection{Dafny}
 % explain how dafny is an alternative to Whiley in the Spec Lang space
+% has some features that are missing in Whiley that would be interesting to use
+% * declaring variables as increasing or decreasing
+% * defining variables / fields as ghosts, to only be used in specifications
 % dafny - other formal languages
 
 An alternative to the Whiley language is the Dafny.
@@ -259,14 +264,30 @@ The language shares a majority of the same features as
 \todo{dafny alternative}
 \cite{dafny-started}
 \cite{dafny-lang}
+\cite{dafny-mech}
 
 \subsection{Methods to Generate Loop Invariants}
 % explain how these methods create loop invariants
 
+
 \subsubsection{Backwards Propagation}
+
+\cite{infer-postconditions}
+\cite{infer-dynamic}
 
 \subsubsection{Variable Aging}
 
+\cite{infer-postconditions}
+\cite{infer-dynamic}
+
 \subsubsection{Coupling}
 
+\cite{infer-postconditions}
+\cite{infer-dynamic}
+
 \subsubsection{Term dropping}
+
+\cite{infer-postconditions}
+\cite{infer-dynamic}
+
+\cite{struct-induction}
