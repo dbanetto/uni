@@ -17,6 +17,19 @@
 % intro to problem, what is the design space for this issue
 %
 
+This chapter will discuss the consideration taken to design the implementation
+of this project.
+These considerations are guided by improving or retaining the same level of 
+usability of the Whiley Compiler for a Whiley developer and a maintainer of the
+compiler fixing or updating the modified compiler. 
+It will also discuss the internal design decisions of
+where to place the loop invariants generators in the
+current architecture of the Whiley Compiler.
+This includes where the generated loop invariants are found and
+how they are inserted into the program.
+The final design decision discussed is how the multiple generators are managed.
+
+
 \section{Considerations}
 % These are designs for the project and the changes and impacts on the Whiley
 % Language & compiler
@@ -43,8 +56,6 @@
 % COMPILER FLAGS
 % How easy it is to control the functionality 
 % Error messages
-
-\subsection{Impact on Compile time}
 % No goal on time impact
 % choice to not repeat compilation and verification
 
@@ -55,16 +66,33 @@
 % to test if it is essential requires repetitive verifications, infringes on
 % impact on compile time
 
+\subsection{Maintainability}
+% Whiley is an on-going project
+% how could loop inv generated best be handled over time
+% two cases: adding a new one, changing an older one
 
 % Biggest design decision  was at what level are the invariants going to be inferred
 % then where are they going to be generated
+
 \section{Approaches to Loop Invariant Generation}
 
-The principle design decision of this project was at what point in the Whiley Compiler pipeline
-to generate the loop invariants at.
-There are three main stages in the Whiley Compiler that the input program will 
+The principle design decision of this project was at
+what point in the Whiley Compiler pipeline
+to generate the loop invariants.
+There are three candidate stages in the Whiley Compiler
+that the input program will go through in the process of
+being verified, the list is not necessarily in order of occurrence:
 
-\subsection{Working on the Whiley Intermediate Language (WyIL)}
+\begin{itemize}
+    \item{Whiley Intermediate Language}
+    \item{Whiley Assertion Language}
+    \item{Whiley's Abstract Syntax Tree}
+\end{itemize}
+
+Each of these stages have different representations of the Whiley program and
+associated information about the program itself.
+
+\subsection{Whiley Intermediate Language (WyIL)}
 % possible method to create tool on WyIL
 % What could be achieve with this
 %  * is designed to be a binary version of the code
@@ -74,21 +102,31 @@ There are three main stages in the Whiley Compiler that the input program will
 
 \cite{wyil}
 
-\subsection{Working on the Whiley Specification Language (WyAL)}
+\subsection{Whiley Assertion Language (WyAL)}
 %% WyAL
 % what it is
 % * changes would be more dramatic
 % * Does not have the same level of control
 % * hosted inside the theorem prover
 
-\subsection{Working on the Whiley Abstract Syntax Tree}
+\subsection{Whiley Abstract Syntax Tree}
 % Whiley files
 % * Closest to programmer code
 % * most information in the most related form
 % * 
 
-\section{Structure of Loop Invariant Generators}
+\section{Architecture of Loop Invariant Generators}
 % ALL ONE BLOB! vs strategy + a common set of information
 % Explain how each generator is distinct code
 % UML of strategy pattern
 % the utility package
+
+\subsection{Monolithic}
+% What would a monolithic look like
+% how would it impact metrics such as maintainability
+% how would it impact performance
+
+\subsection{Strategy Pattern}
+% What would a monolithic look like
+% how would it impact metrics such as maintainability
+% how would it impact performance

@@ -25,8 +25,7 @@ the same length as another.
 This is used generally when transforming every element in array into a separate
 variable. See figure~\ref{lst:whiley-length} for a simple example.
 
-\section{Common Information} % TODO: rename this section
-
+\section{Discovering Loop Context}
 % Write about the pre-loop stuff
 %  * how it collects data
 %  * what data it collects
@@ -34,14 +33,14 @@ variable. See figure~\ref{lst:whiley-length} for a simple example.
 %  * how it decides what to collect
 %  * how it differ between variables and parameters
 
+\subsection{Variables}
 
 
-\section{Recurring structures}
-
+% \section{Recurring structures}
 % * simple iterative mutation
 % *  
 
-\section{Starting value invariant}
+\section{Starting Value Invariant}
 % entry value
 % TODO: Update to include lattice
 
@@ -115,7 +114,20 @@ In figure~\ref{lst:whiley-start} the variable \code{i} is clearly increasing
 with each iteration due to line 7 and the inferred invariant, on line 5, is
 obvious from the context.
 
-\section{Equal length arrays invariant}
+\subsection{Loop Pattern}
+
+\subsubsection{Examples}
+\subsubsection{Context}
+\subsubsection{Problem}
+\subsubsection{Forces}
+\subsubsection{Solution}
+\subsubsection{Resulting Context}
+
+\subsection{Formal Definition}
+
+\subsection{Limitations}
+
+\section{Equal Length of Copied Arrays Invariant}
 % array length
 
 From a common pattern of making a copy of arrays or generating another array
@@ -169,7 +181,6 @@ invariant of the lengths are equal.
 See figure~\ref{lst:whiley-length} line 5 for the invariant generated
 from the example code.
 
-
 \subsection{Loop Pattern}
 
 \subsubsection{Examples}
@@ -178,7 +189,10 @@ from the example code.
 \subsubsection{Forces}
 \subsubsection{Solution}
 \subsubsection{Resulting Context}
-\subsubsection{Notes} % optional
+
+\subsection{Formal Definition}
+
+\subsection{Limitations}
 
 \section{Loop Condition Ageing Invariant}
 
@@ -190,13 +204,12 @@ from the example code.
 \subsubsection{Forces}
 \subsubsection{Solution}
 \subsubsection{Resulting Context}
-\subsubsection{Notes} % optional
 
 \subsection{Formal Definition}
 
 \subsection{Limitations}
 
-\section{Array Quantified Assignment Invariant}
+\section{Iterative Array Assignment Invariant}
 
 \subsection{Loop Pattern}
 
@@ -206,7 +219,6 @@ from the example code.
 \subsubsection{Forces}
 \subsubsection{Solution}
 \subsubsection{Resulting Context}
-\subsubsection{Notes} % optional
 
 \subsection{Formal Definition}
 
