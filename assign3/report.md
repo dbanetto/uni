@@ -246,17 +246,41 @@ PL/pgSQL function coursepass(integer,character,integer,character,date) line 7 at
 ### Database `ROLE`
 <!-- What is a database ROLE? -->
 
+A database role is a database management concept of a user of the database.
+Like an OS user it has a name and an authentication method (password, anonymous, etc.).
+To connect to the database the connector will need to authenticate as an existing role.
+Like an OS user a role has an associated set of permissions, such as creating and deleting
+of databases, tables and tuples.
+
 ### `ROLE-BASED ACCESS CONTROL`
 <!-- What is ROLE-BASED ACCESS CONTROL? -->
+
+Role based access control is a security model that restricts the
+abilities of a user to what their role requires.
+For example, a user with the role of `administrator` has the ability
+to create, delete and modify everything in the database.
+While a user with the role of `roll_viewer` would only
+have the ability to read a single table, `roll`.
 
 ### `PUBLIC` Role
 <!-- What kind of a role is PUBLIC? -->
 
+The `PUBLIC` role is a keyword that is functionally akin to a global group that roles are apart of.
+In practise this means when a permission is granted to be `PUBLIC` all roles are granted the permission.
+This is useful when you want all roles to be able to read from a common table or database.
+
 ### `GRANT` Clause
 <!-- What is the GRANT clause used for? -->
 
+The `GRANT` clause is a method to grant privileges to a given role.
+This can be as high-level as access to a database to the read-write-modify permissions
+of an individual table.
+
 ### `REVOKE` Clause
 <!-- What is the REVOKE clause used for? -->
+
+The `REVOKE` clause is the opposite of the `GRANT` clause by removing the
+permission from the given role.
 
 ## B)
 
@@ -268,8 +292,30 @@ What is the purpose of executing the following SQL commands before users are per
     COURSE, RESULT, GRADUATE TO PUBLIC;
 -->
 
+The purpose of executing the following SQL is to allow any role on the
+database to be able to access the given database.
+The second `GRANT` allows any role to be able to execute any
+of the given queries on the provided tables.
+This is effectively allowing anyone with a role to read-write-modify
+anything in the given database.
+
+```sql
+GRANT CONNECT ON DATABASE <your_database_name> TO PUBLIC;
+GRANT SELECT, INSERT, DELETE, UPDATE ON MAJOR, STUDENT,
+COURSE, RESULT, GRADUATE TO PUBLIC;
+```
+
 ## C)
 <!-- What happens if the RESULT table is missing in the SQL command in part b) -->
 
+If the RESULT table was not included in the grant statement then only the
+creator of the table would have the rights to run `SELECT, INSERT, DELETE, UPDATE`
+queries on the table.
+This is effectively protecting the table from unprivileged users from reading or modifying
+the table.
+
 ## D)
 <!-- What happens if the UPDATE operation is missing in the SQL command in part b)? -->
+
+If the UPDATE operation was missing in the `GRANT` statement then the public users of the database
+would not be able to execute `UPDATE` queries on any of the given tables.
