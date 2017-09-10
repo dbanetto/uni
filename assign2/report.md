@@ -77,9 +77,8 @@ play an instrument.
 
 #### English
 
-Retrieve the Instrument id and instrument name from
-the aggregate count of the natural join between instruments
-and whom they are played by.
+Retrieve the Instrument id and instrument name and count
+of number of musicians for that instrument.
 
 #### Tutorial D
 
@@ -103,9 +102,9 @@ $\pi_{StudentId, Name, NoOfPts, CourName} (
 
 ### 2)
 
-See figure 1.
+See figure 1 for query tree.
 
-![Expression tree of query for Question 2.a](./q2_1_tree.png)
+![Expression tree of query for Question 2.a.2](./q2_1_tree.png)
 
 ### 3)
 
@@ -115,6 +114,10 @@ See figure 1.
     &\pi_{StudentId, CourName} (\pi_{(StudentId, CourseId)} (r(Enrolled)) \ast \\
     &\pi_{(CourseId, CourName)} (\sigma_{(CourseId = 'SWEN304')} ( r(Course) ) )))
 \end{align*}
+
+See figure 2 for query tree.
+
+![Expression tree of query for Question 2.a.3](./q2_a3_tree.png)
 
 ## B)
 
@@ -134,20 +137,29 @@ Column      | Size (bytes)
 `NoOfPts`   | 2
 `Tutor`     | 4\*
 
-Total: $1 + 15 + 2 + 4 = 25\text{bytes}$
+Total: $1 + 15 + 2 + 4 = 25\text{ bytes}$
+
+$f_s = \lfloor \frac{block}{size} \rfloor =  \lfloor \frac{500}{25} \rfloor  = 20$
+
+$b_s = \lceil \frac{r_s}{f_s} \rceil = \lceil \frac{20000}{20} \rceil =  1000$
 
 The size of a tuple in the Enrolled table is
 
 Column      | Size (bytes)
 ------------+--------------
 `StudentId` | 4\*
-`CourseId`  | 4\dag{}
+`CourseId`  | 15\dag{}
 `Term`      | 2
-`Grade`     | 2
+`Grade`     | 15
 
-Total: $4 + 4 + 2 + 2 = 12\text{bytes}$
+Total: $4 + 15 + 2 + 15 = 36\text{ bytes}$
 
 \pagebreak
+
+$f_e = \lfloor \frac{block}{size} \rfloor = \lfloor \frac{500}{36} \rfloor = 13$
+
+$b_e = \lceil \frac{r_e}{f_e} \rceil = \lceil \frac{300000}{13} \rceil = 23077$
+
 
 \begin{equation*}
 \begin{split}
@@ -160,8 +172,8 @@ Total: $4 + 4 + 2 + 2 = 12\text{bytes}$
 \begin{equation*}
 \begin{split}
     f &= \lfloor \frac{buffer size}{tuple size} \rfloor \\
-      &= \lfloor \frac{500}{25 + 12} \rfloor \\
-      &= 13
+      &= \lfloor \frac{500}{25 + 36} \rfloor \\
+      &= 8
 \end{split}
 \end{equation*}
 
@@ -194,25 +206,13 @@ Solving for $Student \Join Enrolled$
 \begin{equation*}
 \begin{split}
     C &= b_s + b_e \lceil \frac{b_s}{n - 2} \rceil + \lceil \frac{r_e}{f} \rceil \\
-      &= 1000 + 7200 \lceil \frac{1000}{8 - 2} \rceil + \lceil \frac{300000}{13} \rceil \\
-      &= 1000 + 1202400 + 23077 \\
-      &= 1226477
+      &= 1000 + 23077 \lceil \frac{1000}{8 - 2} \rceil + \lceil \frac{300000}{8} \rceil \\
+      &= 1000 + 23077 * 167 + 37500 \\
+      &= 1000 + 3853859 + 37500 \\
+      &= 3892359
 \end{split}
 \end{equation*}
 
-Solving for $Enrolled \Join Student$
-
-\begin{equation*}
-\begin{split}
-    C &= b_e + b_s \lceil \frac{b_e}{n - 2} \rceil + \lceil \frac{r_s}{f} \rceil \\
-      &= 7200 + 1000 \lceil \frac{7200}{8 - 2} \rceil + \lceil \frac{20000}{13} \rceil \\
-      &= 7200 + 1200000 + 1539 \\
-      &= 1208739
-\end{split}
-\end{equation*}
-
-The query of $Enrolled \Join Student$ has the lowest cost with the nested-loop
-join
 
 ### 2)
 
@@ -232,22 +232,22 @@ See figure 3
 
 $b$ is the number of blocks of the input relation
 
-In this case $b = 7200$
+In this case $b = 23077$
 
 $s$ is the selection cardinality of the search argument Y
 
 It is assumed that each year equal number of enrollments and
 that in each year there are even enrollments into each course.
 This implies the expected cardinality of the selection is
-$(300000 / (2017 - 1997)) / 500 = 30$. In this case $s = 30$
+$\frac{300000}{(2017 - 1997) * 500} = \frac{300000}{10000} = 30$. In this case $s = 30$
 
 $f$ is the block factor
 
 \begin{equation*}
 \begin{split}
     f &= \lfloor \frac{buffer size}{tuple size} \rfloor \\
-      &= \lfloor \frac{500}{12} \rfloor \\
-      &= 41
+      &= \lfloor \frac{500}{36} \rfloor \\
+      &= 13
 \end{split}
 \end{equation*}
 
@@ -262,22 +262,22 @@ $f$ is the block factor
 \begin{equation*}
 \begin{split}
     C &= b + \lceil \frac{s(Y)}{f} \rceil \\
-      &= 7200 + \lceil \frac{30}{41} \rceil \\
-      &= 7200 + 1 \\
-      &= 7201
+      &= 23077 + \lceil \frac{30}{13} \rceil \\
+      &= 23077 + 3 \\
+      &= 23080
 \end{split}
 \end{equation*}
 
 ##### Index Search
 
-Given that $m = 8$ and $h = 7$
+Given that $m = \frac{f}{2} = \frac{8}{2} = 2$ and $h = 7$
 
 \begin{equation*}
 \begin{split}
     C &= h + \lceil  \frac{s}{m} \rceil + s + \lceil  \frac{s}{f} \rceil \\
-      &= 7 + \lceil  \frac{30}{8} \rceil + 30 + \lceil  \frac{30}{41} \rceil \\
-      &= 7 + 4 + 30 + 1 \\
-      &= 42
+      &= 7 + \lceil  \frac{30}{4} \rceil + 30 + \lceil  \frac{30}{13} \rceil \\
+      &= 7 + 8 + 30 + 3 \\
+      &= 48
 \end{split}
 \end{equation*}
 
@@ -285,7 +285,7 @@ Given that $m = 8$ and $h = 7$
 
 In this case the Index search is faster as the two attributes being queried on
 are part of the primary key of the relation.
-This resulted in a ~1000 times speed up between the two algorithms.
+This resulted in a ~500 times speed up between the two algorithms.
 
 # Question 3
 
@@ -336,16 +336,21 @@ fall by such large margins.
 Below are the original results of the query plan.
 
 ```
-swen304_a2=# explain select * from customer where customerid = 4567;
-                        QUERY PLAN
+swen304_a2=> explain select * from customer where customerid = 4567;
+                        QUERY PLAN                         
 -----------------------------------------------------------
- Seq Scan on customer  (cost=0.00..74.75 rows=9 width=200)
+ Seq Scan on customer  (cost=0.00..114.25 rows=1 width=56)
    Filter: (customerid = 4567)
 (2 rows)
 ```
 
 By making the customer id a primary key there was a speedup
-of 88.90% for the query. The results of the `EXPLAIN` are below.
+of 93% for the query. The results of the `EXPLAIN` are below.
+This is due to indexing allows for a shortcut to tuple values which
+then gives a fast speedup compared to not having them.
+This is akin to changing a lookup from seeking through an array to
+indexing in a B+-tree or hash table, orders of magnitude faster.
+
 
 ```sql
 ALTER TABLE customer ADD PRIMARY KEY (customerid);
@@ -360,21 +365,6 @@ swen304_a2=# explain select * from customer where customerid = 4567;
 (2 rows)
 ```
 
-Since the query looks be checking if there exists the given key in the
-table the query can be reduced to only returning the `customerid` attribute.
-Since this reduces the width of the retrieved tuple the cost of the query
-decreases.
-
-```
-swen304_a2=# explain select customerid from customer where customerid = 4567;
-                                    QUERY PLAN
------------------------------------------------------------------------------------
- Index Only Scan using customer_pkey on customer  (cost=0.28..4.30 rows=1 width=4)
-   Index Cond: (customerid = 4567)
-(2 rows)
-```
-
-This has a speedup of 94.25% compared to the original query.
 
 ## C)
 
