@@ -130,7 +130,14 @@ During the design of this solution it is known that not all generated
 invariants will be essential invariants.
 This implies that not all of the generated loop invariants will be useful
 in proving the post-condition of the loop's function.
-The trade-off of 
+If only the essential invariants where generated the solution would need
+to determine what is essential either by increasing the complexity of the
+generators by inferring the invariants from the post-condition or by 
+attempting to minimize the generated loop invariants by testing combinations 
+of invariants.
+The trade-off of this decision is that at the cost of having some non-essential
+invariants that the complexity of code and time generating loop invariants is
+greatly reduced.
 
 \subsection{Maintainability}
 % Whiley is an on-going project
