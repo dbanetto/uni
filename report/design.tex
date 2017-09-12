@@ -32,17 +32,70 @@ The final design decision discussed is how the multiple generators are managed.
 
 \section{Considerations}
 % These are designs for the project and the changes and impacts on the Whiley
-% Language & compiler
+% Language and compiler
+
+Throughout the design of the overall architecture and each individual loop invariant
+generator some design considerations were kept in mind.
+\begin{itemize}
+    \item{Backward creditability with non-loop invariant generated code.}
+    \item{Not to hamper the ability to inspect and debug generated code.}
+    \item{Avoid creating new local variables when generating code.}
+    \item{Ensure the user can control the feature.}
+    \item{Not all of the generated loop invariants will be useful.}
+    \item{The final artifact needs to be maintainable.}
+\end{itemize}
 
 \subsection{Backwards Compatibility}
 % pre-existing code should not fail because of the generated invariants
 % code that compiles without the flag should still compile with the flag
 % restricts loop invariants to be precise  and strict to avoid "wrong"
 
+A design consideration for this project was that existing code that compiled
+and verify without the loop invariant generator should still compile and verify
+with it.
+This consideration limits the generated loop invariants from creating
+invariants that would not be supported by the program during verification.
+Figure~\ref{lst:backwards-compat} shows an example of a potential loop
+invariant generator that would cause previously working code to fail.
+%% TODO: explain the example
+When this occurs it is considered a bug and evidence that the implementation or
+the design of the generated loop invariant is unsound and should be reviewed.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+// TODO: Make an example of where a generated invariant would make the code
+// fail
+\end{lstlisting}
+    \label{lst:backwards-compat}
+    \caption{Example of a Whiley program with generated loop invariants that will
+    make it fail to verify.}
+\end{figure}
+
+However, this consideration is not reflexive.
+This implies that it does not ensure that a program that verifies with
+generated loop invariants must still verify without them.
+This design issue is considered as it is important that a user could
+switch to using the generated loop invariants without suddenly having
+their program failing to verify.
+
+
 \subsection{Inspection and Debugging}
 % Allow debugging / reviewing  of generated code
 % achieved by emitting compiler messages about what, where and why they are
 % generated
+
+The ability to be able to inspect the generated code is an important feature to
+design into the solution.
+This could come in the form of compiler message describing what, where and why
+the loop invariants were generated or by writing the modified program back
+to disk as source code.
+This allows a user to be able to inspect and review the generated loop invariants for
+debugging of their code or in the process of debugging a generator.
+The compromise made by this feature is that it requires coupling to other
+subsystems to report back these changes.
+For example to emit a compiler message appropriately it would need
+to couple with the logging sub-system to enforce common log modes such as
+\code{DEBUG} and \code{VERBOSE}.
 
 \subsection{Creating Variables}
 % Whiley does not have the notion of ghost variables
@@ -51,6 +104,13 @@ The final design decision discussed is how the multiple generators are managed.
 %
 %  Does force the programmer to make ghost variables or make copies
 %  that make sense if they were making the invariants themselves vs generated
+
+Whiley does not have a notion of ghost variables that are only used for
+specifications \cite{whiley-origin}.
+This forces a loop generator to either create their own ghost variables or
+attempt to identify another local variable in the program that will act as the
+same.
+Generating new local variables 
 
 \subsection{Usability}
 % COMPILER FLAGS
@@ -65,6 +125,12 @@ The final design decision discussed is how the multiple generators are managed.
 % It is OK to have the minimal set of invariants
 % to test if it is essential requires repetitive verifications, infringes on
 % impact on compile time
+
+During the design of this solution it is known that not all generated
+invariants will be essential invariants.
+This implies that not all of the generated loop invariants will be useful
+in proving the post-condition of the loop's function.
+The trade-off of 
 
 \subsection{Maintainability}
 % Whiley is an on-going project

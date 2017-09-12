@@ -17,3 +17,7 @@ clean:
 
 view: $(PDF)
 	evince $< &
+
+count: $(PDF)
+	pdftotext $(PDF) - | wc -w
+
