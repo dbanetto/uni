@@ -105,12 +105,52 @@ to couple with the logging sub-system to enforce common log modes such as
 %  Does force the programmer to make ghost variables or make copies
 %  that make sense if they were making the invariants themselves vs generated
 
-Whiley does not have a notion of ghost variables that are only used for
-specifications \cite{whiley-origin}.
+The design consideration of creating variables that only used in specifications
+were made for each generator.
+Whiley does not have a notion of ghost variables, variables only used for
+specifications, this forces the use of additional local variables instead \cite{whiley-origin}.
+Figure~\ref{lst:vars} shows a common code example when the additional local
+variables are used, in this case \code{items} variable is used to compare
+against the previous value.
 This forces a loop generator to either create their own ghost variables or
 attempt to identify another local variable in the program that will act as the
 same.
-Generating new local variables 
+To generate the local variable the type of the copied variable is needed to be
+known to mimic and a new statement directly before the loop is needed to be
+added.
+For example figure~\ref{lst:vars} would replace the \code{modified} variable
+with \code{items} and the generated code will have an assignment just before
+the while loop.
+The issue of creating local variables is that it could add a runtime cost by
+adding an additional copy of a potentially large data structure
+and holding it in memory without being used.
+The alternative to this is to restrict the loop invariant generators to check
+for other variables that can work as pseudo-ghost variables.
+This pattern is common in Whiley code as the lack of ghost variables require
+the style of code in figure~\ref{lst:vars} to verify. 
+This resolves the issue of hidden local variables from the programmer
+and gives them control over how they are handled.
+The trade-off of not having a hidden runtime cost with restricted generators
+is the most beneficial for the end-user as existing code will also benefit
+and for more complex invariants the ghost variables are still required.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function add\_one(int[] items) -> int[]:
+    i = 0
+    modified = items
+    //
+    while i < |items|
+        where all { k in 0..i | modified[i] == items[i] + 1 }
+        where |modified| == |items|:
+        modified = items[i] + 1
+        i = i + 1
+    //
+    return modified
+\end{lstlisting}
+    \label{lst:vars}
+    \caption{Example of Whiley program with \code{modified} .}
+\end{figure}
 
 \subsection{Usability}
 % COMPILER FLAGS
