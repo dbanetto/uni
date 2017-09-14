@@ -292,12 +292,33 @@ return %1
 % * Does not have the same level of control
 % * hosted inside the theorem prover
 
+\cite{wyal}
+
+
+\begin{figure}
+\noindent\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
+i = 0
+while i < |items|
+    where i >= 0:
+    i = i + 1
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={WyAL Code},frame=tlrb,numbers=none]{Name}
+
+\end{lstlisting}
+\end{minipage}
+    \label{lst:design-wyil}
+    \caption{Example of simple Whiley snippet as WyAL}
+\end{figure}
 
 \subsection{Whiley Abstract Syntax Tree}
 % Whiley files
 % * Closest to programmer code
 % * most information in the most related form
 % * 
+
 
 The Whiley abstract syntax tree (AST) is the closest representation to
 the source code.
