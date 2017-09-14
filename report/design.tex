@@ -259,7 +259,8 @@ intermediate language equivalent.
 \noindent\begin{minipage}{.45\textwidth}
 \begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
 i = 0
-while i < |items|:
+while i < |items|
+    where i >= 0:
     i = i + 1
 \end{lstlisting}
 \end{minipage}\hfill
