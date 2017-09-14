@@ -42,7 +42,6 @@ generator some design considerations were kept in mind.
     \item{Avoid creating new local variables when generating code.}
     \item{Ensure the user can control the feature.}
     \item{Not all of the generated loop invariants will be useful.}
-    \item{The final artifact needs to be maintainable.}
 \end{itemize}
 
 \subsection{Backwards Compatibility}
@@ -159,6 +158,8 @@ function add\_one(int[] items) -> int[]:
 % No goal on time impact
 % choice to not repeat compilation and verification
 
+
+
 \subsection{Essential Invariants}
 % It is known that all invariants genereated will not be useful to proving the post-condition
 % (due to P-C has no input generated inv)
@@ -179,14 +180,8 @@ The trade-off of this decision is that at the cost of having some non-essential
 invariants that the complexity of code and time generating loop invariants is
 greatly reduced.
 
-\subsection{Maintainability}
-% Whiley is an on-going project
-% how could loop inv generated best be handled over time
-% two cases: adding a new one, changing an older one
-
 % Biggest design decision  was at what level are the invariants going to be inferred
 % then where are they going to be generated
-
 \section{Approaches to Loop Invariant Generation}
 
 The principle design decision of this project was at
@@ -197,13 +192,37 @@ that the input program will go through in the process of
 being verified, the list is not necessarily in order of occurrence:
 
 \begin{itemize}
+    \item{Whiley's Abstract Syntax Tree}
     \item{Whiley Intermediate Language}
     \item{Whiley Assertion Language}
-    \item{Whiley's Abstract Syntax Tree}
 \end{itemize}
 
 Each of these stages have different representations of the Whiley program and
 associated information about the program itself.
+
+\subsection{Whiley Abstract Syntax Tree}
+% Whiley files
+% * Closest to programmer code
+% * most information in the most related form
+% * 
+
+
+
+\begin{figure}
+\noindent\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
+i = 0
+while i < |items|:
+    i = i + 1
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+    %TODO: UML diagram
+    PUT A UML DIAGRAM OF THE AST
+\end{minipage}
+    \label{lst:design-wyil}
+    \caption{Example of a Whiley snippet and UML of its AST}
+\end{figure}
 
 \subsection{Whiley Intermediate Language (WyIL)}
 % possible method to create tool on WyIL
@@ -213,7 +232,58 @@ associated information about the program itself.
 %  * AST converted into loosely connected values via integers
 %  * less information readily available 
 
-\cite{wyil}
+The Whiley Intermediate Language is a binary representation of a Whiley program
+that can be easily transformed into other targets such as languages or
+instruction sets \cite{wyil}.
+It is a register based language that also includes blocks to group together
+statements such as the body of a loop.
+This allows the language to keep a majority of its structure with the 
+exception of local variables and intermediate values becoming indistinguishable 
+without analysis.
+
+The structure of internal API to query and modify WyIL code impedes a
+generator's ability to match it against a loop pattern.
+This is from the internal structure of a statement in WyIL where each
+statement is loosely defined with op codes and blocks.
+By generating the loop invariants as additional byte code the ability to
+inspect the result and debug them are hampered relative to operating on the
+AST.  This is because the ability to decompile from WyIL to Whiley could
+be impeded which prevents the user from being able to inspect the generated
+code. 
+WyIL can also be decompiled to a representation similar to assembly, see
+figure~\ref{lst:design-wyil} for an example of Whiley code compared to its
+intermediate language equivalent.
+
+
+\begin{figure}
+\noindent\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
+i = 0
+while i < |items|:
+    i = i + 1
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={WyIL Code},frame=tlrb,numbers=none]{Name}
+const %1 = 0
+loop modifies %1
+    invariant :
+        const %2 = 0
+        ifge %1, %2
+        goto lab_0
+        fail
+    .lab_0
+        return
+    ifge %1, %0
+    goto lab_1
+    add %1 = %1, %0
+.lab_1
+return %1
+\end{lstlisting}
+\end{minipage}
+    \label{lst:design-wyil}
+    \caption{Example of simple Whiley snippet as WyIL}
+\end{figure}
 
 \subsection{Whiley Assertion Language (WyAL)}
 %% WyAL
@@ -222,11 +292,9 @@ associated information about the program itself.
 % * Does not have the same level of control
 % * hosted inside the theorem prover
 
-\subsection{Whiley Abstract Syntax Tree}
-% Whiley files
-% * Closest to programmer code
-% * most information in the most related form
-% * 
+
+
+
 
 \section{Architecture of Loop Invariant Generators}
 % ALL ONE BLOB! vs strategy + a common set of information
