@@ -192,24 +192,15 @@ that the input program will go through in the process of
 being verified, the list is not necessarily in order of occurrence:
 
 \begin{itemize}
-    \item{Whiley's Abstract Syntax Tree}
     \item{Whiley Intermediate Language}
     \item{Whiley Assertion Language}
+    \item{Whiley's Abstract Syntax Tree}
 \end{itemize}
 
 Each of these stages have different representations of the Whiley program and
 associated information about the program itself.
-
-\subsection{Whiley Abstract Syntax Tree}
-% Whiley files
-% * Closest to programmer code
-% * most information in the most related form
-% * 
-
-The Whiley abstract syntax tree (AST) is the closest representation to
-the source code.
-This also includes the most information available, which includes detailed
-types 
+In the resulting solution the design approach taken was to build upon 
+Whiley's abstract syntax tree.
 
 
 \begin{figure}
@@ -257,6 +248,10 @@ code.
 WyIL can also be decompiled to a representation similar to assembly, see
 figure~\ref{lst:design-wyil} for an example of Whiley code compared to its
 intermediate language equivalent.
+This example shows the amount of information available about the variables
+in the program and their usage in the loop.
+This approach was not selected due to the disconnect between loop patterns
+in the programmer source code to their representation in WyIL.
 
 
 \begin{figure}
@@ -298,8 +293,40 @@ return %1
 % * hosted inside the theorem prover
 
 
+\subsection{Whiley Abstract Syntax Tree}
+% Whiley files
+% * Closest to programmer code
+% * most information in the most related form
+% * 
 
+The Whiley abstract syntax tree (AST) is the closest representation to
+the source code.
+This also includes the most information available, which includes detailed
+types, variable names and expression trees \cite{whiley-origin}.
+The AST is broken into three types of: top level declarations of types,
+methods and functions ; statements blocks for individual statements
+such as assignments or structures such as if statements; and, expressions
+that include the usage of variables, function calls and constants.
+There is some overlap between statements and expressions in the AST,
+such as function calls are both statements and expressions given that they
+return a value.
+This gives the invariant generator to be able to identify loop patterns in the
+structure.
 
+However, the amount of information comes as at a cost of being able to parse
+it and discover relevant information.
+The structure of internal API of the Whiley AST forces a recursive decent
+approach, much like the other internal languages in the compiler.
+However, the AST is the richest in terms of number of types of nodes
+in the AST needed to be supported to parse properly with
+statement trees, expression trees and top-level declarations of methods and
+types.
+The cost of supporting all of these different nodes in the AST is
+repeated code handling traversal and needing to handle a large range
+of cases to parse a statement.
+These costs are acceptable since it allows for generators to be
+the most expressive and enable other design constraints of
+debugging and inspection.
 
 \section{Architecture of Loop Invariant Generators}
 % ALL ONE BLOB! vs strategy + a common set of information
