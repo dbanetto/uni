@@ -206,6 +206,10 @@ associated information about the program itself.
 % * most information in the most related form
 % * 
 
+The Whiley abstract syntax tree (AST) is the closest representation to
+the source code.
+This also includes the most information available, which includes detailed
+types 
 
 
 \begin{figure}
@@ -235,8 +239,8 @@ while i < |items|:
 The Whiley Intermediate Language is a binary representation of a Whiley program
 that can be easily transformed into other targets such as languages or
 instruction sets \cite{wyil}.
-It is a register based language that also includes blocks to group together
-statements such as the body of a loop.
+It is a register based language with no nested expressions 
+that also includes blocks to group together statements such as the body of a loop.
 This allows the language to keep a majority of its structure with the 
 exception of local variables and intermediate values becoming indistinguishable 
 without analysis.

@@ -1,0 +1,8 @@
+Type,Control,Minimized,Generated Invariants
+Total Invariants,160,135,176
+Source Invariants,160,135,41
+Generated Invariants,0,0,135
+Starting bound,0,0,94
+Arrays Equal,0,0,16
+Ageing,0,0,17
+Iterative Assign,0,0,8
