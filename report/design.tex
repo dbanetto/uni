@@ -227,7 +227,7 @@ while i < |items|:
 %  * AST converted into loosely connected values via integers
 %  * less information readily available 
 
-The Whiley Intermediate Language is a binary representation of a Whiley program
+The Whiley Intermediate Language (WyIL) is a binary representation of a Whiley program
 that can be easily transformed into other targets such as languages or
 instruction sets \cite{wyil}.
 It is a register based language with no nested expressions 
@@ -292,8 +292,26 @@ return %1
 % * Does not have the same level of control
 % * hosted inside the theorem prover
 
-\cite{wyal}
+The Whiley Assertion language (WyAL) is derived from WyIL to create
+assertions for the Whiley automated theorem prover \cite{wyal}.
+WyAL follows a similar syntax to regular Whiley except that the program
+is a collection of boolean expressions with additional constructs such as
+if branches and universal quantifiers.
+No program logic or structure is held in WyAL but are kept in the source
+WyIL program.
 
+Figure~\ref{lst:design-wyal} shows an example of WyAL code generated from
+the given Whiley code.
+This figure shows the assertions for a simple loop invariant as well as the
+assertion message which are directly displayed to the user on failure.
+The main benefit of generating loop invariants at the WyAL level is the
+impact of the new loop invariants are contained to only the verification
+process and prevents a generator author from breaking a design consideration,
+such as not creating variables, as the Whiley code is immutable by this point.
+However, since the lack of program logic in WyAL requires the use of a WyIL program
+as backing the same issues with WyIL are present with working on WyAL.
+This includes the difficultly to correlate between the high-level structure
+in a Whiley program to the resulting WyIL code.
 
 \begin{figure}
 \noindent\begin{minipage}{.45\textwidth}
@@ -305,11 +323,33 @@ while i < |items|
 \end{lstlisting}
 \end{minipage}\hfill
 \begin{minipage}{.45\textwidth}
-\begin{lstlisting}[caption={WyAL Code},frame=tlrb,numbers=none]{Name}
+\begin{lstlisting}[caption={WyAL Code},frame=tlrb,numbers=none,breaklines=true]{Name}
+function count(int[] ls) -> (int n)
 
+define count_loopinv_6(int i) is:
+  i >= 0
+
+
+assert "loop invariant does not hold on entry":
+  forall(int i):
+    if:
+      i == 0
+    then:
+      count_loopinv_6(i)
+
+
+assert "loop invariant not restored":
+  forall(int i$1, int i, int i$2):
+    if:
+      i == 0
+      count_loopinv_6(i$1)
+      i$1 > 0
+      i$2 == (i$1 + 1)
+    then:
+      count_loopinv_6(i$2)
 \end{lstlisting}
 \end{minipage}
-    \label{lst:design-wyil}
+    \label{lst:design-wyal}
     \caption{Example of simple Whiley snippet as WyAL}
 \end{figure}
 
