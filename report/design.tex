@@ -331,11 +331,11 @@ define count_loopinv_6(int i) is:
 
 
 assert "loop invariant does not hold on entry":
-  forall(int i):
+  forall(int i$0):
     if:
-      i == 0
+      i$0 == 0
     then:
-      count_loopinv_6(i)
+      count_loopinv_6(i$0)
 
 
 assert "loop invariant not restored":
@@ -395,12 +395,63 @@ debugging and inspection.
 % UML of strategy pattern
 % the utility package
 
-\subsection{Monolithic}
+Another critical design decision was the architecture of how loop invariant
+generators operate on the AST. 
+The architecture needs to fit with other similar static analysis checks
+implemented, such as the definite assignment and type system, which all
+traverse the AST once.
+For this solution two architectural options are available to solve this issue:
+
+\begin{itemize}
+    \item{Monolithic, traversing the AST once and apply all generators at once,}
+    \item{Multiple sweeps, traversing the AST once but repeat loops multiple times for each generator}
+\end{itemize}
+
+The architecture chosen for the resulting solution is  traversing the AST once
+but repeating on loops so that each generator could inspect the loop.
+
+\subsection{Monolithic Single Sweep}
 % What would a monolithic look like
+% single pass
 % how would it impact metrics such as maintainability
 % how would it impact performance
 
-\subsection{Strategy Pattern}
+A monolithic single sweep of the AST will only visit each
+node in the AST once to generate the loop invariants.
+This requires all loop invariant generators to be operating
+during the pass or have all of their required information collected
+in the single pass.
+This minimizes the operational cost of traversing the loop body
+multiple times at the cost of maintaining a monolithic loop invariant generator.
+However, with the interweaving of multiple generators the maintenance of the
+monolithic structure becomes issue prone.
+This option was not implemented as the maintenance cost out weighed any
+runtime performance benefits gained.
+
+
+% include UML of what the pipeline would look like with this arch
+
+\subsection{Multiple Sweeps with the Strategy Pattern}
 % What would a monolithic look like
+% multi-pass, no entire file multiple-times but same section
 % how would it impact metrics such as maintainability
 % how would it impact performance
+
+Multiple sweeps of loops in the AST with a different strategy for each sweep
+will only visit most nodes once but loop bodies.
+This gives loop generators complete control over how they traverse the loop
+body's AST at the cost of traversing the loop multiple times. 
+The additional benefit of each generator being separate is the maintenance cost
+of adding a new generator or modifying an existing generator is greatly reduced
+relative to a monolithic approach as each generator is not intertwined with
+each other.
+This option was selected as the cost of maintenance was significantly less
+than a monolithic solution.
+Another factor is that the architecture could still progress towards
+a partial monolithic-strategy based architecture if the performance hit
+of traversing loops becomes a bottleneck.
+This can be achieved by finding patterns of what information generators are
+seeking and provide an interface where that information is computed once for
+all generators that require it and keep the traversal interface for unique generators.
+
+% include UML of what the pipeline would look like with this arch
