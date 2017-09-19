@@ -1,15 +1,16 @@
 \chapter{Future Work}\label{C:future}
-% Future work should not just be a list of things that you
-% would have done if you had a little more time.
-% Talk about new things that are possible now that you have finished your project.
-% What projects could a ’489 student tackle next year if they started from your end point?
-
+\comment{
+Future work should not just be a list of things that you \\
+would have done if you had a little more time. \\
+Talk about new things that are possible now that you have finished your project. \\
+What projects could a ’489 student tackle next year if they started from your end point? \\
+}
 This chapter outlines potential future work from the result of this project.
 Each section gives a brief outline of an issue raised or faced during this
 project and a possible project that could provide a solution to it.
 
 \section{Detection of Duplicate Loop Invariant}
-% this could be in the form of lexical, AST, logical equivalence
+\comment{this could be in the form of lexical, AST, logical equivalence}
 
 With the introduction of generated loop invariants the duplication of loop
 invariants become an issue.
@@ -24,9 +25,11 @@ as \code{i >= 0}.
 
 
 \section{Expanding Loop Invariant Generators}
-% There is more loop patterns that could be used to generate loop invariants
-% Not all possible cases are covered by the current implementations
-% either find these new invariants by hand, or ML
+\comment{
+There is more loop patterns that could be used to generate loop invariants \\
+Not all possible cases are covered by the current implementations \\
+either find these new invariants by hand, or ML \\
+}
 
 Only some of the loop patterns in Whiley were identified and exploited for loop
 invariants.
@@ -40,11 +43,13 @@ approach could be identified, such as applying machine learning or other static
 analysis techniques.
 
 \section{Visitor Pattern for the Whiley Compiler}
-% Current implementations of Generators have cloned structures
-% Code duplication could be reduced by using Visitor Pattern
-%  * decreases maintenance cost
-%  * makes adding new syntax / AST nodes easier
-% * technical debt having so many duplicate AST descents
+\comment{
+Current implementations of Generators have cloned structures \\
+Code duplication could be reduced by using Visitor Pattern \\
+ * decreases maintenance cost \\
+ * makes adding new syntax / AST nodes easier \\
+ * technical debt having so many duplicate AST descents \\
+}
 
 A technical issue of extending the Whiley compiler is the architecture forces
 the programmer to support all statements and expressions.
@@ -65,9 +70,11 @@ syntax either strictly for each syntax element (via Java interfaces) or
 non-strictly (via extending Java classes).
 
 \section{Ghost Variables in Whiley}
-% See Ada's `'Old`  syntax
-% Declaration of `ghost` prefix to variable declaration so they are only usable
-% in program verification
+\comment{
+See Ada's `'Old`  syntax \\
+Declaration of `ghost` prefix to variable declaration so they are only usable \\
+in program verification \\
+}
 
 During the project the issue of lack of ghost variables in Whiley blocked some
 invariants and limited others.
@@ -85,16 +92,13 @@ cross other boundaries.
 This has been achieved in other formal specification languages such as Ada and
 Dafny.
 
-\section{Whiley Pattern Language}
-% Regular Expressions for Whiley
-% kind of a meta-language to search AST for patterns
-
-
 \section{Generated Loop Invariants in WhileyWeb}
-% Update WhileyWeb to include generated loop invariants
-%  * show in the same manner as counter-examples
-%  * is the tool most likely used in future course work of the course
-% * a pleasant UX in a web IDE
+\comment{
+Update WhileyWeb to include generated loop invariants \\
+ * show in the same manner as counter-examples \\
+ * is the tool most likely used in future course work of the course \\
+ * a pleasant UX in a web IDE \\
+}
 
 WhileyWeb is Whiley's web developer environment that is mostly used when
 developing Whiley.

@@ -56,10 +56,31 @@
 
 % Personal LateX Commands
 \newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\todo}[1]{\huge{\underline{\textbf{\textcolor{RubineRed}{TODO}}: \textcolor{ForestGreen}{#1}}}\normalsize }
+\newcommand{\todo}[1]{
+    {   \break
+        \color{blue} 
+        \fbox{\parbox{\textwidth}{
+        \textbf{TODO}
+        \textcolor{black}{\textit{#1}}
+    }}}
+}
+\newcommand{\fixme}[1]{
+    {   \break
+        \color{red} 
+        \fbox{\parbox{\textwidth}{
+        \textbf{FIXME}
+        \textit{#1}
+    }}}
+}
 \newcommand{\sst}{\textsuperscript{st}}
 \newcommand{\snd}{\textsuperscript{nd}}
 \newcommand{\sth}{\textsuperscript{th}}
+
+\newcommand{\comment}[1]{
+    {  \color{ForestGreen}
+       \fbox{\parbox{\textwidth}{#1}}
+   }
+}
 
 \begin{document}
 

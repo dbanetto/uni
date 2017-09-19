@@ -1,18 +1,21 @@
 \chapter{Design}\label{C:design}
-% The aim here is to identify the key trade-offs in any design work you have undertaken.
-% When solving a complex problem, there are normally many different
-% approaches one can take — each with its own advantages and disadvantages.
-% It is expected that students will have initially considered a range of different solutions,
-% and will then have narrowed these down. The reasons why a particular approach was
-% discounted should be documented here.
-%
-% Remember:
-% Appropriate design notation (e.g. UML diagrams) can be very helpful in conveying different aspects of a design.
-% It is vital that your design not be carried out in a vacuum.
-% Your design should be motivated very clearly by your goals and specifications.
-% Make sure that it is clear why you took the decisions that you did.
-% Do not give the impression that you settled on a design because it “felt right”
-% or that you tinkered around until you found something that worked. 
+\comment{
+The aim here is to identify the key trade-offs in any design work you have undertaken.
+When solving a complex problem, there are normally many different
+approaches one can take — each with its own advantages and disadvantages.
+It is expected that students will have initially considered a range of different solutions,
+and will then have narrowed these down. The reasons why a particular approach was
+discounted should be documented here.
+
+
+Remember:
+Appropriate design notation (e.g. UML diagrams) can be very helpful in conveying different aspects of a design.
+It is vital that your design not be carried out in a vacuum.
+Your design should be motivated very clearly by your goals and specifications.
+Make sure that it is clear why you took the decisions that you did.
+Do not give the impression that you settled on a design because it “felt right”
+or that you tinkered around until you found something that worked. 
+}
 
 % intro to problem, what is the design space for this issue
 %
@@ -31,8 +34,10 @@ The final design decision discussed is how the multiple generators are managed.
 
 
 \section{Considerations}
-% These are designs for the project and the changes and impacts on the Whiley
-% Language and compiler
+\comment{
+These are designs for the project and the changes and impacts on the Whiley
+Language and compiler
+}
 
 Throughout the design of the overall architecture and each individual loop invariant
 generator some design considerations were kept in mind.
@@ -45,9 +50,11 @@ generator some design considerations were kept in mind.
 \end{itemize}
 
 \subsection{Backwards Compatibility}
-% pre-existing code should not fail because of the generated invariants
-% code that compiles without the flag should still compile with the flag
-% restricts loop invariants to be precise  and strict to avoid "wrong"
+\comment{
+pre-existing code should not fail because of the generated invariants
+code that compiles without the flag should still compile with the flag
+restricts loop invariants to be precise  and strict to avoid "wrong"
+}
 
 A design consideration for this project was that existing code that compiled
 and verify without the loop invariant generator should still compile and verify
@@ -56,7 +63,7 @@ This consideration limits the generated loop invariants from creating
 invariants that would not be supported by the program during verification.
 Figure~\ref{lst:backwards-compat} shows an example of a potential loop
 invariant generator that would cause previously working code to fail.
-%% TODO: explain the example
+\todo{explain the example}
 When this occurs it is considered a bug and evidence that the implementation or
 the design of the generated loop invariant is unsound and should be reviewed.
 
@@ -79,9 +86,11 @@ their program failing to verify.
 
 
 \subsection{Inspection and Debugging}
-% Allow debugging / reviewing  of generated code
-% achieved by emitting compiler messages about what, where and why they are
-% generated
+\comment{
+Allow debugging / reviewing  of generated code
+achieved by emitting compiler messages about what, where and why they are
+generated
+}
 
 The ability to be able to inspect the generated code is an important feature to
 design into the solution.
@@ -96,13 +105,17 @@ For example to emit a compiler message appropriately it would need
 to couple with the logging sub-system to enforce common log modes such as
 \code{DEBUG} and \code{VERBOSE}.
 
-\subsection{Creating Variables}
-% Whiley does not have the notion of ghost variables
-%  * possible name collisions
-%  * This is to be avoided
-%
-%  Does force the programmer to make ghost variables or make copies
-%  that make sense if they were making the invariants themselves vs generated
+\subsection{Creating Variables}\label{s:design-create-var}
+\comment{
+Whiley does not have the notion of ghost variables
+
+* possible name collisions
+
+* This is to be avoided
+
+Does force the programmer to make ghost variables or make copies
+that make sense if they were making the invariants themselves vs generated
+}
 
 The design consideration of creating variables that only used in specifications
 were made for each generator.
@@ -152,11 +165,17 @@ function add\_one(int[] items) -> int[]:
 \end{figure}
 
 \subsection{Usability}
-% COMPILER FLAGS
-% How easy it is to control the functionality 
-% Error messages
-% No goal on time impact
-% choice to not repeat compilation and verification
+\comment{
+COMPILER FLAGS
+
+How easy it is to control the functionality 
+
+Error messages
+
+No goal on time impact
+
+Choice to not repeat compilation and verification
+}
 
 How users can utilise the loop invariants generators were a
 consideration to the design of the solution.
@@ -166,11 +185,14 @@ flag such as the verification flag.
 
 
 \subsection{Essential Invariants}
-% It is known that all invariants genereated will not be useful to proving the post-condition
-% (due to P-C has no input generated inv)
-% It is OK to have the minimal set of invariants
-% to test if it is essential requires repetitive verifications, infringes on
-% impact on compile time
+\comment{
+It is known that all invariants generated will not be useful to proving the post-condition
+(due to P-C has no input generated inv)
+
+It is OK to have the minimal set of invariants
+to test if it is essential requires repetitive verifications, infringes on
+impact on compile time.
+}
 
 During the design of this solution it is known that not all generated
 invariants will be essential invariants.
@@ -185,8 +207,10 @@ The trade-off of this decision is that at the cost of having some non-essential
 invariants that the complexity of code and time generating loop invariants is
 greatly reduced.
 
-% Biggest design decision  was at what level are the invariants going to be inferred
-% then where are they going to be generated
+\comment{
+Biggest design decision  was at what level are the invariants going to be inferred
+then where are they going to be generated
+}
 \section{Approaches to Loop Invariant Generation}
 
 The principle design decision of this project was at
@@ -225,12 +249,19 @@ while i < |items|:
 \end{figure}
 
 \subsection{Whiley Intermediate Language (WyIL)}
-% possible method to create tool on WyIL
-% What could be achieve with this
-%  * is designed to be a binary version of the code
-%  * WyIL goal is to make intermediate language between ALL targets of Whiley
-%  * AST converted into loosely connected values via integers
-%  * less information readily available 
+\comment{
+possible method to create tool on WyIL
+
+What could be achieve with this:
+
+ * is designed to be a binary version of the code
+
+ * WyIL goal is to make intermediate language between ALL targets of Whiley
+
+ * AST converted into loosely connected values via integers
+
+ * less information readily available 
+}
 
 The Whiley Intermediate Language (WyIL) is a binary representation of a Whiley program
 that can be easily transformed into other targets such as languages or
@@ -291,11 +322,15 @@ return %1
 \end{figure}
 
 \subsection{Whiley Assertion Language (WyAL)}
-%% WyAL
-% what it is
-% * changes would be more dramatic
-% * Does not have the same level of control
-% * hosted inside the theorem prover
+\comment{
+WyAL, what it is:
+
+* changes would be more dramatic
+
+* Does not have the same level of control
+
+* hosted inside the theorem prover
+}
 
 The Whiley Assertion language (WyAL) is derived from WyIL to create
 assertions for the Whiley automated theorem prover \cite{wyal}.
@@ -359,11 +394,13 @@ assert "loop invariant not restored":
 \end{figure}
 
 \subsection{Whiley Abstract Syntax Tree}
-% Whiley files
-% * Closest to programmer code
-% * most information in the most related form
-% * 
+\comment{
+Whiley files
 
+* Closest to programmer code
+
+* most information in the most related form
+}
 
 The Whiley abstract syntax tree (AST) is the closest representation to
 the source code.
@@ -395,10 +432,16 @@ the most expressive and enable other design constraints of
 debugging and inspection.
 
 \section{Architecture of Loop Invariant Generators}
-% ALL ONE BLOB! vs strategy + a common set of information
-% Explain how each generator is distinct code
-% UML of strategy pattern
-% the utility package
+\comment{
+
+ALL ONE BLOB! vs strategy + a common set of information
+
+Explain how each generator is distinct code
+
+UML of strategy pattern
+
+the utility package
+}
 
 Another critical design decision was the architecture of how loop invariant
 generators operate on the AST. 
@@ -416,10 +459,15 @@ The architecture chosen for the resulting solution is  traversing the AST once
 but repeating on loops so that each generator could inspect the loop.
 
 \subsection{Monolithic Single Sweep}
-% What would a monolithic look like
-% single pass
-% how would it impact metrics such as maintainability
-% how would it impact performance
+\comment{
+What would a monolithic look like
+
+single pass
+
+how would it impact metrics such as maintainability
+
+how would it impact performance
+}
 
 A monolithic single sweep of the AST will only visit each
 node in the AST once to generate the loop invariants.
@@ -434,13 +482,18 @@ This option was not implemented as the maintenance cost out weighed any
 runtime performance benefits gained.
 
 
-% include UML of what the pipeline would look like with this arch
+\todo{include UML of what the pipeline would look like with this arch}
 
 \subsection{Multiple Sweeps with the Strategy Pattern}
-% What would a monolithic look like
-% multi-pass, no entire file multiple-times but same section
-% how would it impact metrics such as maintainability
-% how would it impact performance
+\comment{
+What would a monolithic look like
+
+* multi-pass, no entire file multiple-times but same section
+
+* how would it impact metrics such as maintainability
+
+* how would it impact performance
+}
 
 Multiple sweeps of loops in the AST with a different strategy for each sweep
 will only visit most nodes once but loop bodies.
@@ -459,4 +512,4 @@ This can be achieved by finding patterns of what information generators are
 seeking and provide an interface where that information is computed once for
 all generators that require it and keep the traversal interface for unique generators.
 
-% include UML of what the pipeline would look like with this arch
+\todo{include UML of what the pipeline would look like with this arch}
