@@ -239,7 +239,9 @@ $s$ is the selection cardinality of the search argument Y
 It is assumed that each year equal number of enrollments and
 that in each year there are even enrollments into each course.
 This implies the expected cardinality of the selection is
-$\frac{300000}{(2017 - 1997) * 500} = \frac{300000}{10000} = 30$. In this case $s = 30$
+$\frac{300000}{(2017 - 2007) * 500} = \frac{300000}{5000} = 60$. In this case $s = 60$
+
+Assuming that the student records are only over the past ten years.
 
 $f$ is the block factor
 
@@ -262,9 +264,9 @@ $f$ is the block factor
 \begin{equation*}
 \begin{split}
     C &= b + \lceil \frac{s(Y)}{f} \rceil \\
-      &= 23077 + \lceil \frac{30}{13} \rceil \\
-      &= 23077 + 3 \\
-      &= 23080
+      &= 23077 + \lceil \frac{60}{13} \rceil \\
+      &= 23077 + 5 \\
+      &= 23082
 \end{split}
 \end{equation*}
 
@@ -275,9 +277,9 @@ Given that $m = \frac{f}{2} = \frac{8}{2} = 2$ and $h = 7$
 \begin{equation*}
 \begin{split}
     C &= h + \lceil  \frac{s}{m} \rceil + s + \lceil  \frac{s}{f} \rceil \\
-      &= 7 + \lceil  \frac{30}{4} \rceil + 30 + \lceil  \frac{30}{13} \rceil \\
-      &= 7 + 8 + 30 + 3 \\
-      &= 48
+      &= 7 + \lceil  \frac{30}{4} \rceil + 30 + \lceil  \frac{60}{13} \rceil \\
+      &= 7 + 8 + 30 + 5 \\
+      &= 50
 \end{split}
 \end{equation*}
 
