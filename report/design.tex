@@ -15,6 +15,11 @@ Your design should be motivated very clearly by your goals and specifications.
 Make sure that it is clear why you took the decisions that you did.
 Do not give the impression that you settled on a design because it “felt right”
 or that you tinkered around until you found something that worked. 
+
+Should cover: \\
+ * techniques of loop invariant generation, \\
+ * problem analysis \\
+ * express the requirements of the solution \\
 }
 
 % intro to problem, what is the design space for this issue
@@ -31,6 +36,26 @@ current architecture of the Whiley Compiler.
 This includes where the generated loop invariants are found and
 how they are inserted into the program.
 The final design decision discussed is how the multiple generators are managed.
+
+\section{Requirements}
+\comment{
+Original Outline:
+
+Whiley is a programming language designed to support formal verification, and now using in teacher SWEN224 at VUW.
+One of the biggest obstacles to practical use of Whiley,
+especially in a teaching context, is the need for  the programmer to provide detailed loop invariants,
+many of which are stating trivial or obvious properties.
+The aim of this project is to develop techniques to generate simple loop invariants for Whiley,
+so as to ease the burden on the programmer,
+allowing them to focus on more interesting invariants that relate directly to
+the properties the are trying to establish. \\
+
+It is well that generating loop invariants is very hard, indeed, it is uncomputable in general.
+The emphasis in this project is not on generality but on practicality.
+The first step will be to look at some of the approaches that have been described in the literature,
+and then implement one of them, or some combination, in Whiley, then look at ways in which this can be improved.
+Ideally, then implementation will be available in time to be evaluated with SWEN224 students in Trimester 2.
+}
 
 
 \section{Considerations}
@@ -107,11 +132,9 @@ to couple with the logging sub-system to enforce common log modes such as
 
 \subsection{Creating Variables}\label{s:design-create-var}
 \comment{
-Whiley does not have the notion of ghost variables
-
-* possible name collisions
-
-* This is to be avoided
+Whiley does not have the notion of ghost variables \\
+* possible name collisions \\
+* This is to be avoided \\
 
 Does force the programmer to make ghost variables or make copies
 that make sense if they were making the invariants themselves vs generated
@@ -120,7 +143,7 @@ that make sense if they were making the invariants themselves vs generated
 The design consideration of creating variables that only used in specifications
 were made for each generator.
 Whiley does not have a notion of ghost variables, variables only used for
-specifications, this forces the use of additional local variables instead \cite{whiley-origin}.
+specifications, this forces the use of additional local variables instead~\cite{whiley-origin}.
 Figure~\ref{lst:vars} shows a common code example when the additional local
 variables are used, in this case \code{items} variable is used to compare
 against the previous value.
@@ -160,20 +183,16 @@ function add\_one(int[] items) -> int[]:
     //
     return modified
 \end{lstlisting}
-    \label{lst:vars}
-    \caption{Example of Whiley program with \code{modified} .}
+\label{lst:vars}
+\caption{Example of Whiley program with \code{modified}.}
 \end{figure}
 
 \subsection{Usability}
 \comment{
-COMPILER FLAGS
-
-How easy it is to control the functionality 
-
-Error messages
-
-No goal on time impact
-
+COMPILER FLAGS \\
+How easy it is to control the functionality  \\
+Error messages \\
+No goal on time impact \\
 Choice to not repeat compilation and verification
 }
 
@@ -187,7 +206,7 @@ flag such as the verification flag.
 \subsection{Essential Invariants}
 \comment{
 It is known that all invariants generated will not be useful to proving the post-condition
-(due to P-C has no input generated inv)
+(due to P-C has no input generated inv) \\
 
 It is OK to have the minimal set of invariants
 to test if it is essential requires repetitive verifications, infringes on
@@ -241,11 +260,10 @@ while i < |items|:
 \end{lstlisting}
 \end{minipage}\hfill
 \begin{minipage}{.45\textwidth}
-    %TODO: UML diagram
-    PUT A UML DIAGRAM OF THE AST
+    \todo{PUT A UML DIAGRAM OF THE AST}
 \end{minipage}
-    \label{lst:design-wyil}
-    \caption{Example of a Whiley snippet and UML of its AST}
+\label{lst:design-whiley}
+\caption{Example of a Whiley snippet and UML of its AST}
 \end{figure}
 
 \subsection{Whiley Intermediate Language (WyIL)}
@@ -395,11 +413,9 @@ assert "loop invariant not restored":
 
 \subsection{Whiley Abstract Syntax Tree}
 \comment{
-Whiley files
-
-* Closest to programmer code
-
-* most information in the most related form
+    Whiley files \\
+    * Closest to programmer code \\
+    * most information in the most related form \\
 }
 
 The Whiley abstract syntax tree (AST) is the closest representation to
@@ -433,14 +449,10 @@ debugging and inspection.
 
 \section{Architecture of Loop Invariant Generators}
 \comment{
-
-ALL ONE BLOB! vs strategy + a common set of information
-
-Explain how each generator is distinct code
-
-UML of strategy pattern
-
-the utility package
+    ALL ONE BLOB! vs strategy + a common set of information \\
+    Explain how each generator is distinct code \\
+    UML of strategy pattern \\
+    the utility package
 }
 
 Another critical design decision was the architecture of how loop invariant
@@ -460,13 +472,10 @@ but repeating on loops so that each generator could inspect the loop.
 
 \subsection{Monolithic Single Sweep}
 \comment{
-What would a monolithic look like
-
-single pass
-
-how would it impact metrics such as maintainability
-
-how would it impact performance
+What would a monolithic look like \\
+single pass \\
+how would it impact metrics such as maintainability \\
+how would it impact performance \\
 }
 
 A monolithic single sweep of the AST will only visit each
@@ -486,12 +495,9 @@ runtime performance benefits gained.
 
 \subsection{Multiple Sweeps with the Strategy Pattern}
 \comment{
-What would a monolithic look like
-
-* multi-pass, no entire file multiple-times but same section
-
-* how would it impact metrics such as maintainability
-
+What would a monolithic look like \\
+* multi-pass, no entire file multiple-times but same section \\
+* how would it impact metrics such as maintainability \\
 * how would it impact performance
 }
 
