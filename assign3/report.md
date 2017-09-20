@@ -135,7 +135,8 @@ BEGIN
     -- her/his earned points. A student may earn the points for the same course only once.
     SELECT SUM(points) AS points INTO totalpts FROM
         (SELECT MIN(points) AS points FROM result NATURAL JOIN course
-            WHERE result.sid = In_sId group by (result.cid, result.sid)) as p;
+           WHERE result.sid = In_sId AND grade IN ('C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+')
+            group by (result.cid, result.sid)) as p;
 
     UPDATE student SET pointsEarned = (totalpts.points) WHERE student.sid = In_sId;
     
