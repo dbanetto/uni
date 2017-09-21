@@ -1,0 +1,73 @@
+| Hack-a-Vote
+| a simple voting machine
+| by David Price <dwp@alumni.rice.edu>
+| for David Dill <dill@cs.stanford.edu>
+| & Dan Wallach <dwallach@cs.rice.edu>
+| Updated by Brian Armstrong <barmstrong@gmail.com>
+\------------------------------------
+
+Hack-a-Vote is a purely honest voting machine; it tabulates votes
+correctly and outputs anonymized ballots, by default to the directory
+"ballotbox".  The ballot forms are in .ini file format, by default in
+the file "form".
+
+INTRODUCTION
+
+The interface should be straightforward:
+
+1. First the administrators console is started by invoking "java
+Console".  This maintains a list of valid pin numbers.  One pin should
+be given to each voter as they come in.  The pin becomes invalid after
+a voter has logged in with it.
+
+2. As many voting machines can be started as desired by invoking "java
+BallotControl".  This is where the voter enters the pin number they
+are provided with.  Voters page through ballots, one page per issue to
+be voted on. When every issue has been voted upon, a button to
+complete votes is activated; clicking on this button brings up a
+confirmation pane with all the votes the user cast. When the user
+confirms, the ballot machine resets itself, ready for the next voter.
+
+3. When everyone is done voting, the admin goes to each BallotControl
+and logs in with a pin, then they enter the administrator's password,
+which is "secret" into the "administer machine" field in the top
+right.  If a valid administrator password is entered, an "End
+Election" button becomes available.  When this is clicked, the
+BallotControl prints out totals for all the votes it recorded.  It
+also outputs the ballot images, anonymized, into the specified
+directory ("ballotbox" by default).
+
+USAGE
+
+To use Hack-a-vote, an administrative console must first be started.
+This is done by running
+
+java Console
+
+After this, a number of voting machine GUIs are started.  Each is
+started by running
+
+java BallotControl
+
+ on the same host where the console is running.  The default election
+configuration file is "form", although this can be changed using the
+"-formfile" option.
+
+for help on specifying files, run  "java BallotControl -h".
+
+SELF TESTING
+
+There are two self-test options:
+-guidedtest [directory] - specify a directory that contains ballot images
+       labeled ballotN.txt, where N is a decimal number from 1 to the
+       number of ballots desired.
+
+       Please note that, due to the anonymizing file scrambling, verifying
+       the test is more difficult than simply cat'ing all files. Here's
+       a set of commands that works for me:
+
+       md5sum ballotbox/ballot* | cut -f 1 -d " " | sort > file1
+       md5sum ballotest/ballot* | cut -f 1 -d " " | sort > file2
+       diff file1 file2
+
+-randomtest - Cast random ballots.
