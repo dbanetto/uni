@@ -25,9 +25,10 @@ Should cover: \\
 % intro to problem, what is the design space for this issue
 %
 
-This chapter will discuss the consideration taken to design the implementation
+This chapter will discuss the requirements and Considerations taken to design the implementation
 of this project.
-These considerations are guided by improving or retaining the same level of 
+These considerations are derived by the project requirements
+and guided by improving or retaining the same level of 
 usability of the Whiley Compiler for a Whiley developer and a maintainer of the
 compiler fixing or updating the modified compiler. 
 It will also discuss the internal design decisions of
@@ -39,24 +40,14 @@ The final design decision discussed is how the multiple generators are managed.
 
 \section{Requirements}
 \comment{
-Original Outline:
-
-Whiley is a programming language designed to support formal verification, and now using in teacher SWEN224 at VUW.
-One of the biggest obstacles to practical use of Whiley,
-especially in a teaching context, is the need for  the programmer to provide detailed loop invariants,
-many of which are stating trivial or obvious properties.
-The aim of this project is to develop techniques to generate simple loop invariants for Whiley,
-so as to ease the burden on the programmer,
-allowing them to focus on more interesting invariants that relate directly to
-the properties the are trying to establish. \\
-
-It is well that generating loop invariants is very hard, indeed, it is uncomputable in general.
-The emphasis in this project is not on generality but on practicality.
-The first step will be to look at some of the approaches that have been described in the literature,
-and then implement one of them, or some combination, in Whiley, then look at ways in which this can be improved.
-Ideally, then implementation will be available in time to be evaluated with SWEN224 students in Trimester 2.
+    should cover the functional and non-functional requirements
 }
 
+The requirements of the project were derived from the project outline (see
+Appendix~\ref{A:proj-outline} for the full original text).
+
+\todo{expand on the problem}
+\todo{make requirements eat the considerations section}
 
 \section{Considerations}
 \comment{
@@ -225,6 +216,32 @@ of invariants.
 The trade-off of this decision is that at the cost of having some non-essential
 invariants that the complexity of code and time generating loop invariants is
 greatly reduced.
+
+\section{Techniques to Identify Invariants}
+\comment{
+Cover the individual techniques that were used in each generator \\
+ - discovering loop context \\
+ - determining if a variable has a simple mutation \\
+ - determining if a sequence is increasing or decreasing  \\
+ - decomposing loop conditions \\
+ - identify usage of variables in the loop \\
+ - associating a copied array back to its source \\
+ - checking for self dependencies \\
+}
+
+Each loop invariant is the composition multiple techniques to generate their
+invariants. This section will provide discuss the techniques, what they
+accomplish and where their limitations lay.
+The techniques covered are:
+
+\begin{itemize}
+    \item{\todo{list of techniques?}}
+\end{itemize}
+
+\subsection{}
+
+% ==========================================================
+\todo{Looks best to move the next sections into impl chapter}
 
 \comment{
 Biggest design decision  was at what level are the invariants going to be inferred

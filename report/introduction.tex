@@ -7,7 +7,6 @@ during the project. \\
 
 Remember:  the introduction is the first part of the report an examiner will read. \\
 
-
 If he/she finishes reading it without a proper understanding of the \\
 problem being solved or what has been done, then they will almost certainly  \\
 struggle with understanding the remainder.  You should attempt to make the project goals \\
@@ -24,6 +23,8 @@ Should cover \\
 }
 
 % outline
+\todo{Get a better opening line}
+
 Whiley is a programming language that can be used for formal software
 verification \cite{whiley-origin}.
 One aspect of formal software verification is providing loop
@@ -39,16 +40,32 @@ known to be uncomputable, but generates invariants for specific common cases.
 \section{Motivation}
 
 % Why
-The motivation of this project is to make Whiley more usable in practise.
-Loop invariants are a common pain point for users of formally verified
-languages.
-There are simple loop invariants that are repetitive and are a chore to
-always provide them.
-These include the simple index into an array and other invariants that
-are obvious to the reader on inspection but still are required to be
-provided by the programmer.
-With this project some of this pain is alleviated by generating some of the simple
-and repetitive loop invariants.
+The primary motivation behind this project is to improve the experience writing
+loop invariants in Whiley.
+Currently the process of writing loop invariants can be tedious with 
+repetition of common invariants.
+To relieve some of these burden this project is to generate loop invariants.
+Though it is known that generating loop invariants generally is uncomputable,
+the focus is to generate practical loop invariants. \todo{There should be a cite for this}
+The most practical loop invariants to generate are loop invariants that
+are simple in nature and common throughout verified code.
+For example, the index variable is within the range of the array being
+iterated through~\cite{loop-patterns}.
+
+The secondary motivation for this project is to enable more programmers and
+students to utilise formally verified languages.
+The hypothesise of David J. Pearce, \textit{Verification is challenging when it requires a creative step},
+describes his observations with the difficultly of student's with loop invariants~\cite{spec-usability}.
+The hypothesis covers the disconnect between loop invariants can have from the
+post-condition with invariants about implementation details, such as an index
+of an array.
+In practise from tutoring student's in Whiley
+it has be observed that another issue is from students being able to identify trivial
+properties and assumes the verifier can too.
+This project seeks to relieve some of these problems meeting some of these
+expectations by generating some loop invariants.
+An example of a common misconception is that the verifier knows that a copied
+array has the same size as its source.
 
 \section{Solution}
 
