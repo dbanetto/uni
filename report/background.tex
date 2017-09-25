@@ -4,7 +4,7 @@ The background should cover any important terminology and/or
 concepts used in the remainder of the report, and should demonstrate an
 understanding of previous works which are relevant.
 
-Remember: A good related work section does not just provide a list of previous works, 
+Remember: A good related work section does not just provide a list of previous works,
 accompanied with short summaries.
 Wherever possible it must extract real insight from these works, painting a
 picture of how they relate to each other and the project.
@@ -32,12 +32,19 @@ the intention to prove its correctness.
  * goals of class of languages (could be covered in Whiley)
 }
 
-There are many languages that are centered around being verifiable
-with formal methods.
-This is due to the grand challenge of computer science
-to create a \textit{verifying compiler} set out by Prof. Sir Tony Hoare \cite{Hoare-grand}.
-The Whiley compiler is designed to be verifying compiler \cite{whiley-origin}.
-% An alternative to Whiley is the Dafny compiler.
+Formal software verification is a field of software engineering with the
+purpose to create software that is able to be mathematically verified to be
+correct \cite{survey-formal-soft}.
+Prof. Sir Tony Hoare issued a grand challenge to create a \textit{verifying compiler}
+that guarantees the correctness of the program before running it \cite{Hoare-grand}.
+There has been tool sets that expand languages to achieve this, such as
+the SPARK tool set for the Ada \cite{spark-ada}\cite{spark-high-integ}.
+Though this generally restricts the functionality of the language, for example
+using Ada with SPARK disallows the use of pointers which makes general purpose
+programming more challenging relative to C \cite{spark-ada}.
+There are some languages that are designed and built from the ground up to
+be a formal software language and have a \textit{verifying compiler}.
+These languages include such as Whiley \cite{whiley-origin} and Dafny \cite{dafny-lang}.
 
 \subsection{Language Semantics}
 \comment{
@@ -53,16 +60,19 @@ Whiley \\
  * whiley design paper \\
 }
 
-The Whiley language was built from the ground up with the idea to be used with
-a verifying compiler \cite{whiley-origin}.
-The tool set of Whiley includes a compiler that targets an intermediate
-language. From the intermediate language the Whiley theorem prover can reason
-about the given program \cite{whiley-design} \cite{whiley-origin}.
+The Whiley language is a general purpose language that has first class
+support for formal software verification through its syntax and compiler
+tool set \cite{whiley-origin}.
+The design goal for Whiley is to make a platform for formal verifications \cite{whiley-origin}.
+The tool set includes the compiler and an accompanying theorem prover.
+The compiler translates the source code as an intermediate language which
+can then be used with the theorem prover or transforms it into a target
+language such as JVM byte code or JavaScript \cite{whiley-design}
+\cite{wyil}.
 Since Whiley is an open source project and the primary contributor, David
 J.Pearce, is on staff at Victoria University of Wellington this made Whiley a
 prime candidate language to extend.
 
-\subsubsection{Overview of Whiley}
 
 \subsubsection{Whiley Semantics}
 \comment{
@@ -74,7 +84,78 @@ These are semantics that may differ languages so will be covered \\
 * array generator \\
 }
 
-\todo{could probably add more here}
+In this section there are three key semantics used, while loops with where
+clause, copy semantics and array generators.
+The Whiley language specification book is available for the full
+specification of the language \cite{whiley-spec}.
+
+\paragraph{While loops with where clauses} are the mechanism for the programmer
+to inform the compiler and theorem prover with loop invariants.
+Figure~\ref{lst:whiley-where} shows an example of using where clauses with a
+while loop in Whiley.
+Each of the \code{where} clauses are joined together logically conjunctively.
+Thus the logical loop invariant for the loop in figure~\ref{lst:whiley-where} would be:
+
+$$(i >= 0 \wedge i <= 10) \wedge i < 10$$
+
+\begin{figure}[ht]
+\begin{lstlisting}
+int i = 0
+while i < 10
+    where i >= 0
+    where i <= 10:
+    i = i + 1
+\end{lstlisting}
+    \label{lst:whiley-where}
+    \caption{Example usage of a \code{where} clause in Whiley}
+\end{figure}
+
+\paragraph{Copy semantics} is a design decision of Whiley to
+make clones of data instead of referencing the data on assignment \cite{whiley-array}.
+Figure~\ref{lst:whiley-array-copy} shows an example of the variable
+\code{b} making a copy of \code{a} and that mutating \code{a} later
+will have no affect on the value of \code{b}.
+This is an important feature of Whiley as it disassociates the data
+of the variables after they are copied which allows for simpler verification
+and disallows accidental mutations by unknown references \cite{whiley-array}.
+Whiley does support explicit references to data but they also include
+lifetimes to how long the references can live to remove null reference errors,
+similar to Rust's lifetimes \cite{rust-lang}.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+a = [1, 2, 3]
+b = a
+assert a == b
+assert |a| == |b|
+
+a[0] = 2
+assert a != b
+assert |a| == |b|
+\end{lstlisting}
+    \label{lst:whiley-array-copy}
+    \caption{Example an array copy in Whiley}
+\end{figure}
+
+\paragraph{Array generator} is a feature in Whiley to generate an array
+of a specific element duplicated over a specific size.
+Figure~\ref{lst:whiley-array-gen} shows an example of using an array generator
+in Whiley and its associated results.
+This is a short hand for creating arrays with a default value which is useful
+to
+
+\todo{finish me}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+a = [0; 3]
+
+assert |a| == 3
+assert |a| == [0, 0, 0]
+\end{lstlisting}
+    \label{lst:whiley-array-gen}
+    \caption{Example an array generator in Whiley}
+\end{figure}
 
 \cite{whiley-design}
 \cite{whiley-arrays}
@@ -220,30 +301,29 @@ invariants.
 
 The static generation of loop invariants use the
 semantics and analysis of the source code to generate the loop invariants.
-This includes the use of language semantics and static analysis to 
+This includes the use of language semantics and static analysis to
 
 The key difference between the categories is
 that invariants found statical hold true
 but is restricted to what can be generated.
 \cite{benderfinding}\cite{Leino2005LoopIO}.
-
-\todo{CHECK: refer to THIS as project or research?}
-This project uses the principles of static methods to
-generate loop invariants.
+The solution presented in this report uses
+the principles of static methods to generate loop invariants.
 
 \subsubsection{Dynamic Generation of Loop Invariants}
 
 Dynamic generation of loop invariants involves static inference
-with execution of the program.
-
-
-However, dynamic checking are techniques that may produce
-a valid invariant but multiple rounds of testing is required
+with execution of the program to confirm the results.
+This allows for a greater range of invariants to be inferred
+at the cost of time to verify from testing potential invariants
 \cite{infer-dynamic} \cite{infer-postconditions}.
+This makes dynamic generation less suited to be apart of
+the general compile-test-run development cycle common in general development.
 
 \subsection{Static Analysis}
-\comment{overview of static analysis techniques, e.g. partial ordered sets,
-lattices}
+\comment{overview of static analysis techniques \\
+e.g. partial ordered sets, lattices
+}
 
 \subsection{Inference Paradox}
 \comment{
@@ -258,12 +338,41 @@ OK since it is at such a small scale with limited scope
 
 \subsection{Loop Design Pattern}
 
-\cite{loop-patterns}
+A loop design pattern is similar to an architecture pattern.
+In that they can be classified into groups by there intent of
+the pattern and how they are implemented.
+For example, a strategy pattern is implemented to enable changes of
+behaviour dependent on some input by utilising interfaces.
+An example of a loop pattern would be a search through
+an array for an element or processing all elements of an array
+\cite{loop-patterns}.
+A loop pattern can be described in the same terms of an architectural pattern
+by providing the following outline from figure~\ref{l:design-pattern}
+from \textit{A Pattern Language} \cite{pattern-lang}.
+
+\begin{figure}[ht]
+\begin{itemize}
+    \item{\textbf{Examples} of pattern in application}
+    \item{\textbf{Context} in which the pattern is used}
+    \item{\textbf{Problem} that the pattern addresses or solves}
+    \item{\textbf{Forces} requirements or trade offs that constrain possible
+        solutions}
+    \item{\textbf{Solution} the pattern}
+    \item{\textbf{Resulting Context} having used the pattern, what is needed
+        now}
+\end{itemize}
+    \caption{Elements of a design pattern\cite{pattern-lang}}
+    \label{l:design-pattern}
+\end{figure}
+
+
 \cite{pattern-lang}
 
 \section{Related Work}
-comment{Covers the literature review and compare current solution to similar
+\comment{Covers the literature review and compare current solution to similar
 projects}
+
+\fixme{Should this be in the conclusion section rather than here?}
 
 \subsection{Dafny}
 \comment{
@@ -278,7 +387,7 @@ dafny - other formal languages \\
 An alternative to the Whiley language is the Dafny.
 Dafny is a research language for a verifying compiler by Microsoft
 \cite{dafny-lang}.
-The language shares a majority of the same features as 
+The language shares a majority of the same features as
 
 \todo{dafny alternative}
 \cite{dafny-started}
