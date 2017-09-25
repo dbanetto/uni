@@ -72,10 +72,4 @@ public class Candidate {
 	public String ballotString() {
 		return name + " (" + party + ")";
 	}
-
-	public int hashCode() {
-		int result = name == null ? name.hashCode() : 0;
-		result = 31 * result + (party == null ? party.hashCode() : 0);
-		return result;
-	}
 }

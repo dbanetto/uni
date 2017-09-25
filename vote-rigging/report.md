@@ -17,12 +17,18 @@ Availability: This means that the information is accessible when authorized user
 # Purpose
 <!--
 Which of these purposes does you backdoor implement?
-direct vote-manipulation hack
-attacks aimed at breaking the authentication mechanism for PINs or administrative access
-
-hacks directed at defeating voter anonymity (this allow vote bribing)
-denial-of-service that is not triggered until the last moments of the election or only discovered after the election
+ * direct vote-manipulation hack
+ * attacks aimed at breaking the authentication mechanism for PINs or administrative access
+ * hacks directed at defeating voter anonymity (this allow vote bribing)
+ * denial-of-service that is not triggered until the last moments of the election or only discovered after the election
 -->
+
+The purpose of the hack is to discredit the confidentiality of the election ballot.
+This is achieved by removing the voter anonymity by exporting the ballot and ensuring
+the ballot order can be restored.
+The result of this hack allows the paymasters to associate the full ballot with an individual 
+based on the order that they voted.
+
 
 # Trigger
 <!--
