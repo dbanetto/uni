@@ -107,6 +107,42 @@ $F = \{ A \rightarrow B, B \rightarrow C, CD \rightarrow A , A \rightarrow D \}$
 
 ## 3. Remove Redundant Functional Dependencies
 
+$F = \{ A \rightarrow B, B \rightarrow C, CD \rightarrow A , A \rightarrow D \}$
+
+Testing if  $A \rightarrow B$ is redundant:
+
+$(A)^{+}_{F - \{ A \rightarrow B \}} = AD$
+
+The right hand side of the functional dependency is not contained in the
+result of the closure, it is not redundant.
+
+Testing if  $B \rightarrow C$ is redundant:
+
+$(B)^{+}_{F - \{ B \rightarrow C \}} = B$
+
+The right hand side of the functional dependency is not contained in the
+result of the closure, it is not redundant.
+
+Testing if  $CD \rightarrow A$ is redundant:
+
+$(CD)^{+}_{F - \{ CD \rightarrow A \}} = CD$
+
+The right hand side of the functional dependency is not contained in the
+result of the closure, it is not redundant.
+
+Testing if  $A \rightarrow D$ is redundant:
+
+$(A)^{+}_{F - \{ A \rightarrow D \}} = ABC$
+
+The right hand side of the functional dependency is not contained in the
+result of the closure, it is not redundant.
+
+No functional dependencies are redundant.
+
+The minimal cover is:
+
+$F = \{ A \rightarrow B, B \rightarrow C, CD \rightarrow A , A \rightarrow D \}$
+
 # Question 3 - Normalization
 
 ## A)
