@@ -147,27 +147,122 @@ $F = \{ A \rightarrow B, B \rightarrow C, CD \rightarrow A , A \rightarrow D \}$
 
 ## A)
 
-### 1.
+$R = \{ A, B, C, D \}$
 
-### 2.
+$F = \{ A \rightarrow B, C \rightarrow D \}$
 
-### 3.
+### 1. Identify Keys
+
+$R = \{ A, B, C, D \}$
+
+$(ABCD)^{+}_{F} = ABCD$ A possible candidate key since all attributes are in
+the resulting closure.
+
+$(ABCD - A)^{+}_{F} = (BCD)^{+}_{F} = BCD$ Not a key, as all attributes of the
+relation is not in the resulting closure.
+
+$(ABCD - B)^{+}_{F} = (ACD)^{+}_{F} = ABCD$ A possible candidate key
+since all attributes are in the resulting closure.
+
+$(ACD - C)^{+}_{F} = (AD)^{+}_{F} = ABD$ Not a key, as all attributes of the
+relation is not in the resulting closure.
+
+$(ACD - D)^{+}_{F} = (AC)^{+}_{F} = ABCD$ A possible candidate key
+since all attributes are in the resulting closure.
+
+The key is $AC$ as it is the minimal candidate key.
+
+### 2. Highest Normal Form
+
+The highest normal form is 1NF, as there is no nested relations.
+However, it does not meet the 2NF's test of all functional dependencies
+much not have a left hand side that is a sub-set of the key, which is the case
+for both functional dependencies.
+
+### 3. Lossless transformation to 3NF
+
+> TODO
 
 ## B)
 
-### 1.
+$R = \{ A, B, C, D \}$
 
-### 2.
+$F = \{ B \rightarrow C, CD \rightarrow A, B \rightarrow D \}$
 
-### 3.
+### 1. Identify Keys
+
+$R = \{ A, B, C, D \}$
+
+$(ABCD)^{+}_{F} = ABCD$ A possible candidate key since all attributes are in
+the resulting closure.
+
+$(ABCD - A)^{+}_{F} = (BCD)^{+}_{F} = ABCD$ is a possible candidate key since
+all attributes are in the resulting closure.
+
+$(BCD - B)^{+}_{F} = (CD)^{+}_{F} = ACD$ is **not** a possible candidate key since
+not all attributes are in the resulting closure.
+
+$(BCD - C)^{+}_{F} = (BD)^{+}_{F} = ABCD$ is a possible candidate key since
+all attributes are in the resulting closure.
+
+$(BD - D)^{+}_{F} = (B)^{+}_{F} = ABCD$ is a possible candidate key since
+all attributes are in the resulting closure.
+
+$B$ is the key since it is the minimal candidate key.
+
+### 2. Highest Normal Form
+
+The highest normal form is 1NF, as there is no nested relations.
+However, it does not meet the 2NF's test of all functional dependencies
+much not have a left hand side that is a sub-set of the key, which is the case
+for $CD \rightarrow A$.
+
+### 3. Lossless transformation to 3NF
+
+> TODO
 
 ## C)
 
-### 1.
+$R = \{ A, B, C, D \}$
 
-### 2.
+$F = \{ A \rightarrow C, D \rightarrow B, BC \rightarrow A, BC \rightarrow D \}$
 
-### 3.
+### 1. Identify Keys
+
+$R = \{ A, B, C, D \}$
+
+$(ABCD)^{+}_{F} = ABCD$ A possible candidate key since all attributes are in
+the resulting closure.
+
+$(ABCD - A)^{+}_{F} = (BCD)^{+}_{F} = ABCD$ is a possible candidate key
+since all attributes are in the resulting closure.
+
+$(BCD - B)^{+}_{F} = (CD)^{+}_{F} = ABCD$ is a possible candidate key
+since all attributes are in the resulting closure.
+
+$(CD - C)^{+}_{F} = (D)^{+}_{F} = DB$ is **not** a possible candidate key
+since not all attributes are in the resulting closure.
+
+$(CD - D)^{+}_{F} = (C)^{+}_{F} = C$ is **not** a possible candidate key
+since not all attributes are in the resulting closure.
+
+The key is $CD$ since it is the smallest candidate key found though there are other
+candidate keys with the same length, such as $AD$ and $BC$.
+
+For simplicity the key $BC$ is used as it matches most of the functional
+dependencies.
+
+### 2. Highest Normal Form
+
+The highest normal form is 1NF, as there is no nested relations.
+However, it does not meet the 2NF's test of all functional dependencies
+much not have a left hand side that is a sub-set of the key (or and of the
+possible keys), which is the case for $A \rightarrow C$ and $D \rightarrow B$
+with the key $BC$.
+
+### 3. Lossless transformation to 3NF
+
+> TODO
 
 # Question 4 - Enhanced Entity Relationship
 
