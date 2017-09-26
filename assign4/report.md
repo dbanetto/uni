@@ -64,11 +64,46 @@ The functional dependencies are in the 3NF as it is the highest normal form that
 
 Initial set $F = \{ A \rightarrow B, B \rightarrow C, CD \rightarrow A , AC \rightarrow D \}$
 
-## 1. Decomposition 
+## 1. Decomposition of right hand side
 
 $F = \{ A \rightarrow B, B \rightarrow C, CD \rightarrow A , AC \rightarrow D \}$
 
+No decomposition required.
+
 ## 2. Reduce Redundant Attributes
+
+Only two functional dependencies have more than once attribute on the
+left hand side to the checked if they can be reduced,
+$CD \rightarrow A$ and $AC \rightarrow D$.
+
+Checking $CD \rightarrow A$
+
+$(CD - C)^{+}_{F - \{ CD \rightarrow A \}} = (D)^{+}_{F - \{ CD \rightarrow A \}} = D$
+
+Closure of attribute does not contain the removed attribute, $C$ from $CD \rightarrow A$ 
+is not redundant.
+
+$(CD - D)^{+}_{F - \{ CD \rightarrow A \}} = (C)^{+}_{F - \{ CD \rightarrow A \}} = C$
+
+Closure of attribute does not contain the removed attribute, $C$ from $CD \rightarrow A$ 
+is not redundant.
+
+
+Checking $AC \rightarrow D$
+
+$(AC - A)^{+}_{F - \{ AC \rightarrow D \}} = (C)^{+}_{F - \{ AC \rightarrow D \}} = C$
+
+Closure of attribute does not contain the removed attribute, $A$ from $AC \rightarrow D$ 
+is not redundant.
+
+$(AC - C)^{+}_{F - \{ AC \rightarrow D \}} = (A)^{+}_{F - \{ AC \rightarrow D \}} = ABC$
+
+Does include the removed attribute, $C$ from $AC \rightarrow D$ is redundant and can be 
+removed.
+
+The resulting functional dependencies is:
+
+$F = \{ A \rightarrow B, B \rightarrow C, CD \rightarrow A , A \rightarrow D \}$
 
 ## 3. Remove Redundant Functional Dependencies
 
