@@ -103,6 +103,10 @@ static {
 After this point given that only one collection is shuffled, the ballot, the initial
 order can be reconstructed from the output.
 
+This introduces a key difference between the original code that the shuffled
+ballots will have an unknown seed in the random number generator and 
+thus the resulting order of the ballots cannot be re-ordered.
+
 ### How to re-order
 
 To re-order the ballot from the shuffled state to the original voting order a
@@ -115,7 +119,7 @@ List list = new ArrayList();
 for (int i = 0; i < VoteCount; i++) {
     list.add(i)
 }
-//Shuffle the list, same shuffle as the ballot shuffle
+// Shuffle the list, same seed as ballot shuffle
 Collections.shuffle(list, new Random(1840)) // uses the shared seed
 // Now list[i] maps to its original position in the list
 // where i is the "anonymized" ballot number
