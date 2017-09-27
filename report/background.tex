@@ -111,7 +111,7 @@ while i < 10
 \end{figure}
 
 \paragraph{Copy semantics} is a design decision of Whiley to
-make clones of data instead of referencing the data on assignment \cite{whiley-array}.
+make clones of data instead of referencing the data on assignment \cite{whiley-arrays}.
 Figure~\ref{lst:whiley-array-copy} shows an example of the variable
 \code{b} making a copy of \code{a} and that mutating \code{a} later
 will have no affect on the value of \code{b}.
@@ -142,9 +142,10 @@ of a specific element duplicated over a specific size.
 Figure~\ref{lst:whiley-array-gen} shows an example of using an array generator
 in Whiley and its associated results.
 This is a short hand for creating arrays with a default value which is useful
-to
-
-\todo{finish me}
+to fill an array of arbitrary length with a default value.
+A result of this feature is with static analysis is possible to infer the 
+length of the array at runtime by equating the array length to the value
+from the generator.
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -152,6 +153,9 @@ a = [0; 3]
 
 assert |a| == 3
 assert |a| == [0, 0, 0]
+
+b = [0; |a|]
+assert |a| == |b|
 \end{lstlisting}
     \label{lst:whiley-array-gen}
     \caption{Example an array generator in Whiley}
