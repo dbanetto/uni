@@ -1,4 +1,4 @@
-% SWEN304 - Assignment 4 
+% SWEN304 - Assignment 4
 % David Barnett (300313764)
 
 # Question 1 - Functional Dependencies and Normal Forms
@@ -43,7 +43,7 @@ The functional dependencies are in the 1NF as it is the highest normal form that
 
 3NF holds - no functional dependency is transitive to another dependency.
 
-BCNF holds - all functional dependencies in the set has there left hand side is a super key  of or equal to $AB$ 
+BCNF holds - all functional dependencies in the set has there left hand side is a super key  of or equal to $AB$
 
 The functional dependencies are in the BCNF as it is the highest normal form that holds.
 
@@ -80,12 +80,12 @@ Checking $CD \rightarrow A$
 
 $(CD - C)^{+}_{F - \{ CD \rightarrow A \}} = (D)^{+}_{F - \{ CD \rightarrow A \}} = D$
 
-Closure of attribute does not contain the removed attribute, $C$ from $CD \rightarrow A$ 
+Closure of attribute does not contain the removed attribute, $C$ from $CD \rightarrow A$
 is not redundant.
 
 $(CD - D)^{+}_{F - \{ CD \rightarrow A \}} = (C)^{+}_{F - \{ CD \rightarrow A \}} = C$
 
-Closure of attribute does not contain the removed attribute, $C$ from $CD \rightarrow A$ 
+Closure of attribute does not contain the removed attribute, $C$ from $CD \rightarrow A$
 is not redundant.
 
 
@@ -93,12 +93,12 @@ Checking $AC \rightarrow D$
 
 $(AC - A)^{+}_{F - \{ AC \rightarrow D \}} = (C)^{+}_{F - \{ AC \rightarrow D \}} = C$
 
-Closure of attribute does not contain the removed attribute, $A$ from $AC \rightarrow D$ 
+Closure of attribute does not contain the removed attribute, $A$ from $AC \rightarrow D$
 is not redundant.
 
 $(AC - C)^{+}_{F - \{ AC \rightarrow D \}} = (A)^{+}_{F - \{ AC \rightarrow D \}} = ABC$
 
-Does include the removed attribute, $C$ from $AC \rightarrow D$ is redundant and can be 
+Does include the removed attribute, $C$ from $AC \rightarrow D$ is redundant and can be
 removed.
 
 The resulting functional dependencies is:
@@ -181,7 +181,50 @@ for both functional dependencies.
 
 ### 3. Lossless transformation to 3NF
 
-> TODO
+$F = \{ A \rightarrow B, C \rightarrow D \}$
+
+$K = { AC }$
+
+#### Computing Minimal Cover
+
+ 1. Decompose right hand side
+
+No functional dependencies have multiple attributes on the right hand side, no action required
+
+ 2. Reducing left hand side
+
+No functional dependencies have multiple attributes on the left hand side, no action required
+
+ 3. Removing redundant functional dependencies
+
+$(A)^{+}_{F - \{ A \rightarrow B \}} = A$
+
+$A \rightarrow B$ not redundant
+
+$(C)^{+}_{F - \{ C \rightarrow D \}} = C$
+
+$C \rightarrow D$ not redundant
+
+The minimal cover is $F = \{ A \rightarrow B, C \rightarrow D \}$
+
+#### Group Functional Dependencies by left-hand side
+
+$R_{A} = \{ A \rightarrow B \} = R_{A}(\underline{A}, B)$
+
+$R_{C} = \{ C \rightarrow D \} = R_{C}(\underline{C}, D)$
+
+#### Handle Left over attributes
+
+No left over attributes, no action needed
+
+#### Testing lossless property
+
+$R_{A} \cap R_{C} = \emptyset$
+
+Neither keys of $R_{A}$ or $R_{C}$ are contained in the other relation.
+
+This is a lossy join decomposition as we have not built the universal relation
+from applying the lossless join decomposition algorithm.
 
 ## B)
 
