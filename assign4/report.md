@@ -262,7 +262,67 @@ for $CD \rightarrow A$.
 
 ### 3. Lossless transformation to 3NF
 
-> TODO
+$F = \{ B \rightarrow C, CD \rightarrow A, B \rightarrow D \}$
+
+$K = { B }$
+
+#### Computing Minimal Cover
+
+ 1. Decompose right hand side
+
+No functional dependencies have multiple right-hand attributes, thus no action is required
+
+ 2. Reducing left hand side
+
+Testing if $CD \rightarrow A$ left hand side is reducible.
+
+$(CD - C)^{+}_{F - CD \rightarrow A} = (D)^{+}_{F - CD \rightarrow A} = D$
+
+The result of the closure does not contain the right hand side, the attribute $C$
+in this functional dependency is not redundant.
+
+$(CD - D)^{+}_{F - CD \rightarrow A} = (C)^{+}_{F - CD \rightarrow A} = C$
+
+The result of the closure does not contain the right hand side, the attribute $D$
+in this functional dependency is not redundant.
+
+No functional dependencies were found to be reducible.
+
+ 3. Removing redundant functional dependencies
+
+$F = \{ B \rightarrow C, CD \rightarrow A, B \rightarrow D \}$
+
+$(B)^{+}_{F - B \rightarrow C} = BD$
+
+The resulting closure does not contain the right hand side, the functional
+dependency is not redundant.
+
+$(CD)^{+}_{F - CD \rightarrow A} = CD$
+
+The resulting closure does not contain the right hand side, the functional
+dependency is not redundant.
+
+$(B)^{+}_{F - B \rightarrow D} = BC$
+
+The resulting closure does not contain the right hand side, the functional
+dependency is not redundant.
+
+#### Group Functional Dependencies by left-hand side
+
+$R_{B} = \{ B \rightarrow C, B \rightarrow D \} = R(\underline{B}, C, D)$
+$R_{CD} = \{ CD \rightarrow A \} = R(\underline{C,D}, A)$
+
+#### Handle Left over attributes
+
+There is no left over attributes to handle.
+
+#### Testing lossless property
+
+$R_{B} \cap R_{CD} = CD$
+
+The result of the intersection is the key for $R_{CD}$
+
+# FINISH THIS
 
 ## C)
 
