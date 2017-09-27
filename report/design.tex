@@ -14,7 +14,7 @@ It is vital that your design not be carried out in a vacuum.
 Your design should be motivated very clearly by your goals and specifications.
 Make sure that it is clear why you took the decisions that you did.
 Do not give the impression that you settled on a design because it “felt right”
-or that you tinkered around until you found something that worked. 
+or that you tinkered around until you found something that worked.
 
 Should cover: \\
  * techniques of loop invariant generation, \\
@@ -28,9 +28,9 @@ Should cover: \\
 This chapter will discuss the requirements and Considerations taken to design the implementation
 of this project.
 These considerations are derived by the project requirements
-and guided by improving or retaining the same level of 
+and guided by improving or retaining the same level of
 usability of the Whiley Compiler for a Whiley developer and a maintainer of the
-compiler fixing or updating the modified compiler. 
+compiler fixing or updating the modified compiler.
 It will also discuss the internal design decisions of
 where to place the loop invariants generators in the
 current architecture of the Whiley Compiler.
@@ -153,7 +153,7 @@ and holding it in memory without being used.
 The alternative to this is to restrict the loop invariant generators to check
 for other variables that can work as pseudo-ghost variables.
 This pattern is common in Whiley code as the lack of ghost variables require
-the style of code in figure~\ref{lst:vars} to verify. 
+the style of code in figure~\ref{lst:vars} to verify.
 This resolves the issue of hidden local variables from the programmer
 and gives them control over how they are handled.
 The trade-off of not having a hidden runtime cost with restricted generators
@@ -189,7 +189,7 @@ Choice to not repeat compilation and verification
 
 How users can utilise the loop invariants generators were a
 consideration to the design of the solution.
-This is handled but following the current design principles of the 
+This is handled but following the current design principles of the
 Whiley compiler as exposing the loop invariant generator as a compiler
 flag such as the verification flag.
 
@@ -210,8 +210,8 @@ This implies that not all of the generated loop invariants will be useful
 in proving the post-condition of the loop's function.
 If only the essential invariants where generated the solution would need
 to determine what is essential either by increasing the complexity of the
-generators by inferring the invariants from the post-condition or by 
-attempting to minimize the generated loop invariants by testing combinations 
+generators by inferring the invariants from the post-condition or by
+attempting to minimize the generated loop invariants by testing combinations
 of invariants.
 The trade-off of this decision is that at the cost of having some non-essential
 invariants that the complexity of code and time generating loop invariants is
@@ -235,10 +235,89 @@ accomplish and where their limitations lay.
 The techniques covered are:
 
 \begin{itemize}
-    \item{\todo{list of techniques?}}
+    \item{Loop Context}
+    \item{Determining a simple mutation}
+    \item{Decomposing Loop conditions and Invariants}
+    \item{Identify dependencies on itself for mutations}
+    \item{Identify variables used in loop}
+    \item{Associate copied arrays to source}
 \end{itemize}
 
-\subsection{}
+\subsection{Loop Context}\label{s:loop-context}
+\comment{
+Write about the pre-loop stuff \\
+ * how it collects data \\
+ * what data it collects \\
+ * why it collects \\
+ * how it decides what to collect \\
+ * how it differ between variables and parameters
+}
+
+\todo{Explain how the loop context stuff finds suitable variables}
+
+\subsection{Determining a simple mutation}\label{s:simple-mut}
+
+\todo{update with lattice}
+
+The definition of a simple mutation is restricted to an expression that only
+includes addition and subtraction of constant values and the variable in question.
+The mutation must be certain with each iteration so the variable must not be
+modified inside branching statements such as \code{if} blocks or nested loops.
+Since the mutation has to be simple it restricts them to linear monotonic
+functions that is either strictly increasing or decreasing the variable with each iteration.
+This is to keep the loop pattern simple and deterministic of knowing if the
+mutation is increases or decreases the variable with each iteration.
+An expression is checked if it is a simple mutation through static analysis of
+the AST.
+
+\subsection{Determining if a value is increasing or decreasing}\label{s:sequence-dir}
+
+The increase or decreasing nature of the simple mutation it is determined by
+executing the expression. An outline of the mathematical process is outlined
+in figure~\ref{math:simple-mutation}, the expression is denoted with $f(x)$.
+The equations show how the difference between applying the function
+twice and once on a base value is used to determine if the function
+increases or decreases.
+In the case that the expression is stationary the variable will not variate
+between iterations and left alone.
+
+\begin{figure}
+    $$\text{Given that } f(x) \text{ is a linear function}$$
+
+    $$diff = f(f(0)) - f(0)$$
+
+    \[
+        diff \begin{cases}
+            = 0 \quad f(x) \text{ is stationary}\\
+            > 0 \quad f(x) \text{ is increasing}\\
+            < 0 \quad f(x) \text{ is decreasing}\\
+        \end{cases}
+    \]
+\label{math:simple-mutation}
+    \caption{Logic of determining if a function increases or decreases with
+    each application}
+\end{figure}
+
+\subsection{Decomposing Loop conditions and Invariants}\label{s:cond-decompose}
+
+\comment{
+    Whiley semantics means all where clauses are conjunctively joined, \\
+    A loop condition that is conjunctively joined can be broken into
+    segments
+}
+
+\subsection{Identify dependencies if variables depends on itself}\label{s:self-deps}
+
+\comment{ is the variable in the assignment ? }
+
+\subsection{Identify variables used in loop}\label{s:loop-vars}
+
+\comment{ is the variable in the loop ? }
+
+\subsection{Associate copied arrays to source}\label{s:copied-array}
+
+\comment{ was a array initialised with a copy from an array type or use a
+generator }
 
 % ==========================================================
 \todo{Looks best to move the next sections into impl chapter}
@@ -264,7 +343,7 @@ being verified, the list is not necessarily in order of occurrence:
 
 Each of these stages have different representations of the Whiley program and
 associated information about the program itself.
-In the resulting solution the design approach taken was to build upon 
+In the resulting solution the design approach taken was to build upon
 Whiley's abstract syntax tree.
 
 
@@ -295,16 +374,16 @@ What could be achieve with this:
 
  * AST converted into loosely connected values via integers
 
- * less information readily available 
+ * less information readily available
 }
 
 The Whiley Intermediate Language (WyIL) is a binary representation of a Whiley program
 that can be easily transformed into other targets such as languages or
 instruction sets \cite{wyil}.
-It is a register based language with no nested expressions 
+It is a register based language with no nested expressions
 that also includes blocks to group together statements such as the body of a loop.
-This allows the language to keep a majority of its structure with the 
-exception of local variables and intermediate values becoming indistinguishable 
+This allows the language to keep a majority of its structure with the
+exception of local variables and intermediate values becoming indistinguishable
 without analysis.
 
 The structure of internal API to query and modify WyIL code impedes a
@@ -315,7 +394,7 @@ By generating the loop invariants as additional byte code the ability to
 inspect the result and debug them are hampered relative to operating on the
 AST.  This is because the ability to decompile from WyIL to Whiley could
 be impeded which prevents the user from being able to inspect the generated
-code. 
+code.
 WyIL can also be decompiled to a representation similar to assembly, see
 figure~\ref{lst:design-wyil} for an example of Whiley code compared to its
 intermediate language equivalent.
@@ -473,7 +552,7 @@ debugging and inspection.
 }
 
 Another critical design decision was the architecture of how loop invariant
-generators operate on the AST. 
+generators operate on the AST.
 The architecture needs to fit with other similar static analysis checks
 implemented, such as the definite assignment and type system, which all
 traverse the AST once.
@@ -521,7 +600,7 @@ What would a monolithic look like \\
 Multiple sweeps of loops in the AST with a different strategy for each sweep
 will only visit most nodes once but loop bodies.
 This gives loop generators complete control over how they traverse the loop
-body's AST at the cost of traversing the loop multiple times. 
+body's AST at the cost of traversing the loop multiple times.
 The additional benefit of each generator being separate is the maintenance cost
 of adding a new generator or modifying an existing generator is greatly reduced
 relative to a monolithic approach as each generator is not intertwined with

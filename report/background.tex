@@ -85,7 +85,7 @@ These are semantics that may differ languages so will be covered \\
 }
 
 In this section there are three key semantics used, while loops with where
-clause, copy semantics and array generators.
+clause, copy semantics and array generators \cite{whiley-design}.
 The Whiley language specification book is available for the full
 specification of the language \cite{whiley-spec}.
 
@@ -138,14 +138,15 @@ assert |a| == |b|
 \end{figure}
 
 \paragraph{Array generator} is a feature in Whiley to generate an array
-of a specific element duplicated over a specific size.
+of a specific element duplicated over a specific size \cite{whiley-spec}
+\cite{whiley-arrays}.
 Figure~\ref{lst:whiley-array-gen} shows an example of using an array generator
 in Whiley and its associated results.
 This is a short hand for creating arrays with a default value which is useful
 to fill an array of arbitrary length with a default value.
 A result of this feature is with static analysis is possible to infer the 
 length of the array at runtime by equating the array length to the value
-from the generator.
+from the generator, for example line 7 of figure~\ref{lst:whiley-array-gen}.
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -160,9 +161,6 @@ assert |a| == |b|
     \label{lst:whiley-array-gen}
     \caption{Example an array generator in Whiley}
 \end{figure}
-
-\cite{whiley-design}
-\cite{whiley-arrays}
 
 \subsection{Loop Invariants}
 \comment{
@@ -335,9 +333,10 @@ issue with inference creates correct code
 by making specification from code
 
 OK since it is at such a small scale with limited scope
+
 }
 
-\todo{invariant inference paradox}
+\todo{is this needed? Probably not}
 \cite{infer-postconditions}
 
 \subsection{Loop Design Pattern}
@@ -370,8 +369,6 @@ from \textit{A Pattern Language} \cite{pattern-lang}.
 \end{figure}
 
 
-\cite{pattern-lang}
-
 \section{Related Work}
 \comment{Covers the literature review and compare current solution to similar
 projects}
@@ -384,8 +381,8 @@ explain how dafny is an alternative to Whiley in the Spec Lang space
 has some features that are missing in Whiley that would be interesting to use
 
 * declaring variables as increasing or decreasing \\
-* defining variables / fields as ghosts, to only be used in specifications \\
-dafny - other formal languages \\
+* defining variables / fields as ghosts, to only be used in specifications
+dafny - other formal language
 }
 
 An alternative to the Whiley language is the Dafny.

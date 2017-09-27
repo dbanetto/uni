@@ -1,22 +1,23 @@
 \chapter{Implementation}\label{C:impl}
-% The aim here is to explain the technical aspects of the project.
-% The challenge is to ensure the text is clear and understandable.
-% This is not easy, as ideas and concepts involved are often complex in nature.
-% Nevertheless, if an examiners cannot understand how the implementation works,
-% he/she cannot award marks for it.
-% If this happens, the student is fault for poor communication.
-%
-% Remember:
-% nothing is so complicated that it cannot be clearly explained.
-% Classic pitfalls include:
-%     * long convoluted sentences,
-%     * use of long words,
-%     * too much time spent discussing irrelevant details,
-%     * poor organisation of sections, subsections and paragraphs,
-%     * and too few diagrams or examples.
+\comment{
+The aim here is to explain the technical aspects of the project.
+The challenge is to ensure the text is clear and understandable.
+This is not easy, as ideas and concepts involved are often complex in nature.
+Nevertheless, if an examiners cannot understand how the implementation works,
+he/she cannot award marks for it.
+If this happens, the student is fault for poor communication. \\
 
+Remember: \\
+nothing is so complicated that it cannot be clearly explained.
+Classic pitfalls include: \\
+    * long convoluted sentences, \\
+    * use of long words, \\
+    * too much time spent discussing irrelevant details, \\
+    * poor organisation of sections, subsections and paragraphs, \\
+    * and too few diagrams or examples.
+}
 
-% TODO: re-do start of this
+\todo{re-do start of this}
 The first loop pattern is incrementing a variable
 each iteration of the loop, most commonly used for indexes into an array to
 iterate through it. See figure~\ref{lst:whiley-start} for a simple example.
@@ -25,24 +26,19 @@ the same length as another.
 This is used generally when transforming every element in array into a separate
 variable. See figure~\ref{lst:whiley-length} for a simple example.
 
-\section{Discovering Loop Context}
-% Write about the pre-loop stuff
-%  * how it collects data
-%  * what data it collects
-%  * why it collects
-%  * how it decides what to collect
-%  * how it differ between variables and parameters
-
-\subsection{Variables}
-
-
-% \section{Recurring structures}
-% * simple iterative mutation
-% *  
-
 \section{Starting Value Invariant}
-% entry value
-% TODO: Update to include lattice
+\comment{
+finds entry value \\
+creates invariants from composing things \\
+has the loop pattern of \\
+int $i$ = $X$ \\
+while $C$: \\
+    $P_1$ \\
+    $i = i (+|-) N$ \\
+    $P_2$
+}
+
+\ref{s:sequence-dir} \ref{s:simple-mut} \ref{s:loop-context}
 
 From loop pattern of incrementing a variable each iteration of the loop
 a invariant of the starting value can be inferred.
@@ -55,40 +51,6 @@ variable will be increasing or decreasing from the initial value.
 An example of the invariant generated is on line 5 of
 figure~\ref{lst:whiley-start}.
 The loop invariant inferred is a bounding invariant.
-
-The definition of a simple mutation is restricted to an expression that only
-includes addition and subtraction of constant values and the variable in question.
-The mutation must be certain with each iteration so the variable must not be
-modified inside branching statements such as \code{if} blocks or nested loops.
-Since the mutation has to be simple it restricts them to linear monotonic
-functions that is either strictly increasing or decreasing the variable with each iteration.
-This is to keep the loop pattern simple and deterministic of knowing if the
-mutation is increases or decreases the variable with each iteration.
-An expression is checked if it is a simple mutation through static analysis of
-the AST.
-
-\begin{figure}
-    $$f(x) \text{is a linear function}$$
-
-    $$diff = f(f(0)) - f(0)$$
-
-    \[
-        diff \begin{cases}
-            = 0 \quad f(x) \text{ is stationary}\\
-            > 0 \quad f(x) \text{ is increasing}\\
-            < 0 \quad f(x) \text{ is decreasing}\\
-        \end{cases}
-    \]
-\label{math:simple-mutation}
-\end{figure}
-
-The increase or decreasing nature of the simple mutation it is determined by
-executing the expression. An outline of the mathematical process is outlined
-in figure~\ref{math:simple-mutation}, the expression is denoted with $f(x)$.
-The equations show how the difference between applying the function twice and once on a base value is used to
-determine if the function increases or decreases.
-In the case that the expression is stationary the variable will not variate
-between iterations and left alone.
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -129,6 +91,19 @@ obvious from the context.
 
 \section{Equal Length of Copied Arrays Invariant}
 % array length
+\comment{
+    * finds associated arrays \\
+    * checks to make sure source is not modified \\
+    * asserts their length is the same \\
+
+pattern: \\
+
+$x = ( a | [X;|a|] )$ \\
+while C: \\
+    $P$ - not includes $x = X$, $a = Y$\\
+}
+
+\todo{remove techniques to design}
 
 From a common pattern of making a copy of arrays or generating another array
 with an equal length an invariant can be inferred.
@@ -140,6 +115,9 @@ Generally the user would also need to provide an invariant that both arrays
 have the same length to prevent possible out-of-range errors or prove a
 post-condition.
 The loop invariant inferred is a bounding invariant.
+
+\todo{ref to design instead of assuming it is here}
+
 
 With this invariant it is detected that an array is declared with the same
 length as another array.
@@ -196,6 +174,23 @@ from the example code.
 
 \section{Loop Condition Ageing Invariant}
 
+\comment{
+Finds simple mutations \\
+Figures out actually how much the value changes every iteration
+(is slight change on finding sequence direction, just stricter) \\
+checks to ensure that the variable is apart of the termination condition of the
+loop \\
+Allow mutations of +1 or -1 each iteration\\
+
+pattern: \\
+
+$i = N$ \\
+while $C$ \\
+    $P_1$ \\
+    $i = i (+|-) (1|-1)$ \\
+    $P_2$ \\
+}
+
 \subsection{Loop Pattern}
 
 \subsubsection{Examples}
@@ -210,6 +205,26 @@ from the example code.
 \subsection{Limitations}
 
 \section{Iterative Array Assignment Invariant}
+
+\comment{
+Finds arrays that are being set \\
+Ensures the assignments are not self-dependent \\
+Identifies the index variable and is simple mutations \\
+Ensure index start of mutation on array, like starting bound \\
+figures out sequence direction of index, ascending or descending the array \\
+use index as the upper or lower bound \\
+determines range of the mutation \\
+
+pattern: \\
+
+$i = N$ \\
+$a = [ .. ]$ \\
+while $C$: \\
+    $a[i] = f(i)$ \\
+    $i = i (+|-) (1|-1)$ \\
+
+creates $all { \_i in C .. i | a[\_i] == f(\_i) }$
+}
 
 \subsection{Loop Pattern}
 
