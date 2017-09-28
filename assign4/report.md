@@ -255,74 +255,15 @@ $B$ is the key since it is the minimal candidate key.
 
 ### 2. Highest Normal Form
 
-The highest normal form is 1NF, as there is no nested relations.
-However, it does not meet the 2NF's test of all functional dependencies
-much not have a left hand side that is a sub-set of the key, which is the case
-for $CD \rightarrow A$.
+The highest normal form is 3NF.
+The relation meets the 1NF test of no nested relations.
+The relation meets the 2NF test of no functional dependency can have the left hand side as a subset of the key.
+The relation meets the 3NF test of no functional dependencies are transitive.
+
 
 ### 3. Lossless transformation to 3NF
 
-$F = \{ B \rightarrow C, CD \rightarrow A, B \rightarrow D \}$
-
-$K = { B }$
-
-#### Computing Minimal Cover
-
- 1. Decompose right hand side
-
-No functional dependencies have multiple right-hand attributes, thus no action is required
-
- 2. Reducing left hand side
-
-Testing if $CD \rightarrow A$ left hand side is reducible.
-
-$(CD - C)^{+}_{F - CD \rightarrow A} = (D)^{+}_{F - CD \rightarrow A} = D$
-
-The result of the closure does not contain the right hand side, the attribute $C$
-in this functional dependency is not redundant.
-
-$(CD - D)^{+}_{F - CD \rightarrow A} = (C)^{+}_{F - CD \rightarrow A} = C$
-
-The result of the closure does not contain the right hand side, the attribute $D$
-in this functional dependency is not redundant.
-
-No functional dependencies were found to be reducible.
-
- 3. Removing redundant functional dependencies
-
-$F = \{ B \rightarrow C, CD \rightarrow A, B \rightarrow D \}$
-
-$(B)^{+}_{F - B \rightarrow C} = BD$
-
-The resulting closure does not contain the right hand side, the functional
-dependency is not redundant.
-
-$(CD)^{+}_{F - CD \rightarrow A} = CD$
-
-The resulting closure does not contain the right hand side, the functional
-dependency is not redundant.
-
-$(B)^{+}_{F - B \rightarrow D} = BC$
-
-The resulting closure does not contain the right hand side, the functional
-dependency is not redundant.
-
-#### Group Functional Dependencies by left-hand side
-
-$R_{B} = \{ B \rightarrow C, B \rightarrow D \} = R(\underline{B}, C, D)$
-$R_{CD} = \{ CD \rightarrow A \} = R(\underline{C,D}, A)$
-
-#### Handle Left over attributes
-
-There is no left over attributes to handle.
-
-#### Testing lossless property
-
-$R_{B} \cap R_{CD} = CD$
-
-The result of the intersection is the key for $R_{CD}$
-
-# FINISH THIS
+There is no need to perform the transform to 3NF as relation is already at 3NF.
 
 ## C)
 
@@ -357,15 +298,16 @@ dependencies.
 
 ### 2. Highest Normal Form
 
-The highest normal form is 1NF, as there is no nested relations.
-However, it does not meet the 2NF's test of all functional dependencies
-much not have a left hand side that is a sub-set of the key (or and of the
-possible keys), which is the case for $A \rightarrow C$ and $D \rightarrow B$
-with the key $BC$.
+The highest normal form of the relation is 3NF as the 
+relation meets 1NF, 2NF and 3NF.
+The relation meets 1NF as there is no nested relations.
+The relation meets 2NF as there is no functional dependency that has
+a left hand side that is a subset of the key, $BC$.
+The relation meets the 3NF as there is no transitive functional dependencies.
 
 ### 3. Lossless transformation to 3NF
 
-> TODO
+There is no need to perform the transform to 3NF as relation is already at 3NF.
 
 # Question 4 - Enhanced Entity Relationship
 
