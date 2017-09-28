@@ -311,4 +311,41 @@ There is no need to perform the transform to 3NF as relation is already at 3NF.
 
 # Question 4 - Enhanced Entity Relationship
 
+See figure 1
+
+![EER Model for the business (Question 4)](./EER_data_model.png)
+
+## Assumptions
+
+ * That there has to be some employee running a branch
+ * That a free-lancer can run a branch
+ * A free-lancer can work on any project
+ * A manager can only manage one department
+ * A department can have multiple managers
+
 # Question 5 - Mapping EER to Relation Data Model
+
+## Step 1. Mapping of regular entity types
+
+$Student(\{StudentId, S\_Name\}, StudentId)$
+
+$Course(\{CourseId, C\_Name \}, CourseId)$
+
+$Term(\{Trimester, Year\}, \{Trimester + Year\})$
+
+$Lecturer(\{LecturerId, L\_Name\}, LecturerId)$
+
+## Step 2. Mapping of weak entity types
+
+## Step 3. Mapping of binary 1:1 relations
+
+## Step 4. Mapping of binary 1:N relations
+
+## Step 5. Mapping of binary N:M relations
+
+## Step 6. Mapping of multivalve attributes
+
+## Step 7. Mapping of N-ary relationship types
+
+## Step 8. Mapping of IS-A hierarchies
+
