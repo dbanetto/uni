@@ -3,7 +3,13 @@ AWS_ACCESS_KEY_ID?=
 AWS_SECRET_ACCESS_KEY?=
 AWS_SESSION_TOKEN?=
 
-all: requirements
+all: report.pdf
+
+%.pdf: %.md
+	pandoc -V geometry:margin=1in $< -o $@
+
+clean:
+	rm -f report.pdf
 
 $(ENV_NAME):
 	virtualenv $@
