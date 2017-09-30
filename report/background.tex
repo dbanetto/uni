@@ -43,7 +43,7 @@ using Ada with SPARK disallows the use of pointers which makes general purpose
 programming more challenging relative to C \cite{spark-ada}.
 There are some languages that are designed and built from the ground up to
 be a formal software language and have a \textit{verifying compiler}.
-These languages include such as Whiley \cite{whiley-origin} and Dafny \cite{dafny-lang}.
+These languages include such as Whiley~\cite{whiley-origin} and Dafny~\cite{dafny-lang}.
 
 \subsection{Whiley}
 \comment{
@@ -72,8 +72,8 @@ where methods can be impure and can optionally return a result
 Both functions and methods can have pre- and post-conditions using
 \code{requires} and \code{ensures} respectfully as shown for the \code{min}
 function in figure~\ref{lst:whiley-exp}.
-Whiley also supports type invariants and aliasing, such as the \code{nat} type in
-figure~\ref{lst:whiley-exp}.
+Types can be declared as aliases of structures and can include type invariants,
+such as the \code{nat} type in figure~\ref{lst:whiley-exp}.
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -99,52 +99,36 @@ method main():
 \label{lst:whiley-exp}
 \end{figure}
 
-\subsubsection{Whiley Semantics}
+\subsubsection{Whiley Features}
 \comment{
-Cover the key semantics used in the loop invariants \\
-These are semantics that may differ languages so will be covered \\
-* while loops \\
-* where clause \\
+Cover the key features used in the loop invariants generators \\
+These are features differ languages so will be covered \\
+* while loops where clause - covered in While and loop invs \\
 * array copy \\
 * array generator
 }
 
-In this section there are three features leveraged to generate loop invariants.
-These are: while loops with where clause; copy semantics;
-and array generators~\cite{whiley-design}.
+This section explains two features of Whiley leveraged to generate loop invariants.
+These are: copy semantics; and array generators~\cite{whiley-design}.
 The Whiley language specification book is available for the full
 specification of the language~\cite{whiley-spec}.
-
-\paragraph{While loops with where clauses} are the mechanism for the programmer
-to inform the compiler and theorem prover with loop invariants.
-Figure~\ref{lst:whiley-where} shows an example of using where clauses with a
-while loop in Whiley.
-Each of the \code{where} clauses are joined together logically conjunctively.
-Thus the logical loop invariant for the loop in figure~\ref{lst:whiley-where} would be:
-
-\begin{figure}[ht]
-\begin{lstlisting}
-int i = 0
-while i < 10
-    where i >= 0
-    where i <= 10:
-    i = i + 1
-\end{lstlisting}
-    \caption{Example usage of a \code{where} clause in Whiley}
-    \label{lst:whiley-where}
-\end{figure}
 
 \paragraph{Copy semantics} is a design decision of Whiley to
 make clones of data instead of referencing the data on assignment \cite{whiley-arrays}.
 Figure~\ref{lst:whiley-array-copy} shows an example of the variable
 \code{b} making a copy of \code{a} and that mutating \code{a} later
 will have no affect on the value of \code{b}.
-This is an important feature of Whiley as it disassociates the data
-of the variables after they are copied which allows for simpler verification
-and disallows accidental mutations by unknown references \cite{whiley-arrays}.
-Whiley does support explicit references to data but they also include
-lifetimes to how long the references can live to remove null reference errors,
-similar to Rust's lifetimes \cite{rust-lang}.
+This is often utilised to make a copy of an array before mutating it
+and use it as a reference point in an invariant~\cite{whiley-arrays}.
+This is an important usability feature of Whiley as copying values
+instead of taking references allows for simpler verification due to lack
+of pointers and disallows accidental mutations by unknown references.
+\footnote{
+Though it is not related to this project,
+Whiley does support explicit references to data.
+They also include lifetimes to how long the references can live
+to remove null reference errors, similar to Rust's lifetimes~\cite{rust-lang}.
+}
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -157,18 +141,18 @@ a[0] = 2
 assert a != b
 assert |a| == |b|
 \end{lstlisting}
-    \caption{Example an array copy in Whiley}
-    \label{lst:whiley-array-copy}
+\caption{Example an array copy in Whiley}
+\label{lst:whiley-array-copy}
 \end{figure}
 
 \paragraph{Array generator} is a feature in Whiley to generate an array
-of a specific element duplicated over a specific size \cite{whiley-spec}
+of a specific element duplicated over a specific size~\cite{whiley-spec}
 \cite{whiley-arrays}.
 Figure~\ref{lst:whiley-array-gen} shows an example of using an array generator
 in Whiley and its associated results.
 This is a short hand for creating arrays with a default value which is useful
 to fill an array of arbitrary length with a default value.
-A result of this feature is with static analysis is possible to infer the 
+A result of this feature is with static analysis is possible to infer the
 length of the array at runtime by equating the array length to the value
 from the generator, for example line 7 of figure~\ref{lst:whiley-array-gen}.
 
@@ -197,29 +181,47 @@ Theorem prover knows nothing about loop invariants - must give all \\
 * implied by pre-condition \\
 }
 
-Loop invariants are a means to provide a specification for a loop.
-A loop invariant is required to prove the properties of a variable
-that is altered during the loop.
-It is used to as the basis for an inductive proof of a
-property that is to be maintained.
-The entry of the loop, each iteration of the loop and the exit of the
-loop.
+Sir Prof.\ Tony Hoare described a general loop with an invariant in
+the \textit{Rule of iteration} to be
+portion of a program ($S$) that is repeated while a condition ($C$)
+holds and an assertion ($I$) that holds on every
+iteration~\cite{hoare-logic}~\cite{loop-inv-survey}.
+Figure~\ref{lst:general-loop} is an example of this general loop with Whiley
+syntax.
+The loop invariant is then able to be used to prove properties of the
+loop~\cite{loop-inv-survey}.
+The loop invariant is a part of the three stages of the loop: entry;
+iteration; and exit.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+while C:
+    assert I
+    S
+\end{lstlisting}
+    \caption{A general loop with an invariant $I$}
+    \label{lst:general-loop}
+\end{figure}
 
 At the entry of the loop the loop invariant must hold.
-This results in that the pre-condition of the loop must imply
-the loop invariant.
+This results in that the pre-condition of the loop ($P$) must imply
+the loop invariant ($I$) as shown below.
 This is illustrated in figure~\ref{lst:whiley-inv} where pre-condition
 before entering the loop is clearly that \code{i} equals 0 and that holds
 true for the invariants, in particular that \code{i >= 0}.
 
 $$\text{Entry} \quad P \implies I$$
 
-With each iteration of the loop the invariant must still hold.
-Since the loop continue to iterate the condition of the loop
-also holds. Thus each iteration can be described as a conjunction
-between the invariant and the condition.
+With each iteration of the loop the invariant is asserted some where
+inside the loop body~\cite{hoare-logic}.
+This is generally done at the start of the loop for while
+statements~\cite{whiley-origin}.
+With the invariant holding at the start of the loop the end of 
+the loop must then restore the invariant.
+Thus what is known in the loop is that the loop condition ($C$)
+and the loop invariant ($I$) holds as shown below.
 
-$$\text{Iteration} \quad I \wedge C $$
+$$\text{Iteration} \quad C \wedge I $$
 
 On exit of the loop the loop invariant must still hold.
 Since the loop has ceased the loop condition no longer
@@ -250,9 +252,9 @@ In the Whiley language the concept of loop invariants are a 1\textsuperscript{st
 construct.
 Whiley gives syntax for providing \code{where} clauses to a \code{while}
 statement.
-Each of the \code{where} has a boolean expression which is the loop
+Each of the \code{where} is a boolean expression which is the loop
 invariant predicate.
-Having multiple \code{where} clauses are equivalent to all the clauses are
+Having multiple \code{where} clauses is equivalent to all the clauses are
 conjunctively joined.
 Figure~\ref{lst:whiley-inv} gives a full example of using a loop invariant
 in Whiley. The \code{where} clauses on lines 6 and 7 are Whiley's syntax for
@@ -271,8 +273,8 @@ ensures r == |items|:
     //
     return i
 \end{lstlisting}
-    \caption{Example of loop invariant in Whiley}
-    \label{lst:whiley-inv}
+\caption{Example of loop invariant in Whiley}
+\label{lst:whiley-inv}
 \end{figure}
 
 \subsection{Classification of Loop Invariants}
@@ -284,31 +286,49 @@ classification of loop invariants
 }
 
 There are two classifications of loop invariants.
-These are bounding loop invariants and essential invariant
-\cite{invarints-classifiction}.
+These are bounding loop invariants and essential invariant~\cite{invarints-classifiction}~\cite{loop-inv-survey}.
 With the classification of a loop invariant it helps to make
 it clearer what the purpose of the invariant is trying to achieve.
 
 A \textit{bounding loop invariant} is an invariant that is designed
-to limit the values of a variable.
-Figure~\ref{lst:whiley-inv} has an example of this at line 6, as the invariant
-ensures that the variable \code{i} is bounded to be greater than zero
-in every iteration of the loop.
-Generally these types of invariants are used to ensure the body of the loop
-is correct. In the case of figure~\ref{lst:whiley-ex-1} the loop invariant on line
-7 do no effect the post-condition but ensures that the array indexing within
-the loop is correct.
+to limit the values of a variable to assert correctness of the loop
+body~\cite{loop-inv-survey}.
+Figure~\ref{lst:whiley-inv-class} has an example of a bounding invariant on
+line 6. This loop invariant does have any impact on finding an index
+of the given item but is to assert that the variable \code{i} will index
+the array correctly by being inside the valid range of 0 to the length of
+the array (exclusively).
+The loop condition provides the upper limit of the range of \code{i} but
+the lower bound is needed to be provided as an invariant.
+The most common bounding invariant observed is enforcing the starting bound
+of a range.
 
-An \textit{essential invariant} is an invariant that is a step towards the
-post-condition.
-Figure~\ref{lst:whiley-inv} has an example of this at line 7,
-as the invariant shows \code{i} must be less than or
-equal to the length of the \code{items} array.
-The loop invariant is a weaker form of the postcondition,
-since the conjunction of the loop invariant and the negation
-of the loop condition imply the postcondition \cite{invarints-classifiction}.
-This class of invariant are more tailored to achieve
-the goal of the loop than bounding invariants.
+An \textit{essential invariant} is an invariant that is an inductive step towards the
+postcondition\cite{invarints-classifiction}~\cite{loop-inv-survey}.
+Figure~\ref{lst:whiley-inv-class} has an example of an essential invariant on
+line 7.
+In this case loop invariant is a weakening of the postcondition to only
+check that the item is not contained the array previously processed.
+This invariant provides the essential inductive reasoning for when the item is
+not contained inside the array.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function indexOf(int[] items, int item) -> (int r)
+ensures r >= 0 && r < |items| ==> items[r] == item
+ensures r == |items| ==> all { i in 0..|items| | items[i] != item }:
+    int i = 0
+    while i < |items|
+        where i >= 0
+        where all { j in 0..i | items[j] != item }:
+        if items[i] == item:
+            break
+        i = i + 1
+    return i
+\end{lstlisting}
+\caption{Example of loop with bounding and essential invariants}
+\label{lst:whiley-inv-class}
+\end{figure}
 
 \subsection{Categories of Generated Loop Invariants}
 \comment{
