@@ -90,9 +90,9 @@ the design of the generated loop invariant is unsound and should be reviewed.
 // TODO: Make an example of where a generated invariant would make the code
 // fail
 \end{lstlisting}
-    \label{lst:backwards-compat}
     \caption{Example of a Whiley program with generated loop invariants that will
     make it fail to verify.}
+    \label{lst:backwards-compat}
 \end{figure}
 
 However, this consideration is not reflexive.
@@ -176,8 +176,8 @@ function add\_one(int[] items) -> int[]:
     //
     return modified
 \end{lstlisting}
-\label{lst:vars}
 \caption{Example of Whiley program with \code{modified}.}
+\label{lst:vars}
 \end{figure}
 
 \subsection{Usability}
@@ -295,9 +295,9 @@ between iterations and left alone.
             < 0 \quad f(x) \text{ is decreasing}\\
         \end{cases}
     \]
-\label{math:simple-mutation}
     \caption{Logic of determining if a function increases or decreases with
     each application}
+\label{math:simple-mutation}
 \end{figure}
 
 \subsection{Decomposing Loop conditions and Invariants}\label{s:cond-decompose}
@@ -360,8 +360,8 @@ while i < |items|:
 \begin{minipage}{.45\textwidth}
     \todo{PUT A UML DIAGRAM OF THE AST}
 \end{minipage}
-\label{lst:design-whiley}
 \caption{Example of a Whiley snippet and UML of its AST}
+\label{lst:design-whiley}
 \end{figure}
 
 \subsection{Whiley Intermediate Language (WyIL)}
@@ -433,8 +433,8 @@ loop modifies %1
 return %1
 \end{lstlisting}
 \end{minipage}
-    \label{lst:design-wyil}
     \caption{Example of simple Whiley snippet as WyIL}
+    \label{lst:design-wyil}
 \end{figure}
 
 \subsection{Whiley Assertion Language (WyAL)}
@@ -505,8 +505,8 @@ assert "loop invariant not restored":
       count_loopinv_6(i$2)
 \end{lstlisting}
 \end{minipage}
-    \label{lst:design-wyal}
     \caption{Example of simple Whiley snippet as WyAL}
+    \label{lst:design-wyal}
 \end{figure}
 
 \subsection{Whiley Abstract Syntax Tree}

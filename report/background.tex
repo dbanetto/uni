@@ -12,7 +12,7 @@ picture of how they relate to each other and the project.
 
 
 This project draws from the research in the field of formal software verification.
-The project is based off the Whiley language which supports formal software
+The project is based on the Whiley language which supports formal software
 verification.
 The concept of loop invariants are a necessity is a key to this project.
 
@@ -22,7 +22,6 @@ Formal software verification is the specific application to software with
 the intention to prove its correctness.
 
 \todo{fix this stuff}
-
 
 \section{Core Concepts}
 
@@ -46,12 +45,6 @@ There are some languages that are designed and built from the ground up to
 be a formal software language and have a \textit{verifying compiler}.
 These languages include such as Whiley \cite{whiley-origin} and Dafny \cite{dafny-lang}.
 
-\subsection{Language Semantics}
-\comment{
-    Explain the basics of reading language semantics \\
-    explain how to read a semantics thing, with the $\frac{pre-cond}{post-con}$
-}
-
 \subsection{Whiley}
 \comment{
 Whiley \\
@@ -62,17 +55,49 @@ Whiley \\
 
 The Whiley language is a general purpose language that has first class
 support for formal software verification through its syntax and compiler
-tool set \cite{whiley-origin}.
-The design goal for Whiley is to make a platform for formal verifications \cite{whiley-origin}.
+tool set~\cite{whiley-origin}.
+The design goal for Whiley is to make a platform for formal verification~\cite{whiley-origin}.
 The tool set includes the compiler and an accompanying theorem prover.
-The compiler translates the source code as an intermediate language which
+The compiler translates the source code to an intermediate language which
 can then be used with the theorem prover or transforms it into a target
-language such as JVM byte code or JavaScript \cite{whiley-design}
+language such as JVM byte code or JavaScript~\cite{whiley-design}
 \cite{wyil}.
-Since Whiley is an open source project and the primary contributor, David
-J.Pearce, is on staff at Victoria University of Wellington this made Whiley a
-prime candidate language to extend.
 
+The structure of a Whiley program is similar to most imperative languages
+such as Java or Python.
+In Whiley there are functions and methods with the point of difference being
+that functions are pure and must return a result,
+where methods can be impure and can optionally return a result
+\cite{whiley-spec}\cite{whiley-design}.
+Both functions and methods can have pre- and post-conditions using
+\code{requires} and \code{ensures} respectfully as shown for the \code{min}
+function in figure~\ref{lst:whiley-exp}.
+Whiley also supports type invariants and aliasing, such as the \code{nat} type in
+figure~\ref{lst:whiley-exp}.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function min(int a, int b) -> (int m)
+requires true
+ensures m == a || m == b
+ensures m <= a && m <= b:
+    if a < b:
+        return a
+    else:
+        return b
+
+type nat is (int x) where x >= 0
+
+method main():
+    nat i = 0
+    while i < 10:
+        assert min(i, 0) == 0
+        assert min(100, i) == i
+        i = i + 1
+\end{lstlisting}
+\caption{Example of a programs structure in Whiley}
+\label{lst:whiley-exp}
+\end{figure}
 
 \subsubsection{Whiley Semantics}
 \comment{
@@ -84,10 +109,11 @@ These are semantics that may differ languages so will be covered \\
 * array generator
 }
 
-In this section there are three key semantics used, while loops with where
-clause, copy semantics and array generators \cite{whiley-design}.
+In this section there are three features leveraged to generate loop invariants.
+These are: while loops with where clause; copy semantics;
+and array generators~\cite{whiley-design}.
 The Whiley language specification book is available for the full
-specification of the language \cite{whiley-spec}.
+specification of the language~\cite{whiley-spec}.
 
 \paragraph{While loops with where clauses} are the mechanism for the programmer
 to inform the compiler and theorem prover with loop invariants.
@@ -95,8 +121,6 @@ Figure~\ref{lst:whiley-where} shows an example of using where clauses with a
 while loop in Whiley.
 Each of the \code{where} clauses are joined together logically conjunctively.
 Thus the logical loop invariant for the loop in figure~\ref{lst:whiley-where} would be:
-
-$$(i >= 0 \wedge i <= 10) \wedge i < 10$$
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -106,8 +130,8 @@ while i < 10
     where i <= 10:
     i = i + 1
 \end{lstlisting}
-    \label{lst:whiley-where}
     \caption{Example usage of a \code{where} clause in Whiley}
+    \label{lst:whiley-where}
 \end{figure}
 
 \paragraph{Copy semantics} is a design decision of Whiley to
@@ -117,7 +141,7 @@ Figure~\ref{lst:whiley-array-copy} shows an example of the variable
 will have no affect on the value of \code{b}.
 This is an important feature of Whiley as it disassociates the data
 of the variables after they are copied which allows for simpler verification
-and disallows accidental mutations by unknown references \cite{whiley-array}.
+and disallows accidental mutations by unknown references \cite{whiley-arrays}.
 Whiley does support explicit references to data but they also include
 lifetimes to how long the references can live to remove null reference errors,
 similar to Rust's lifetimes \cite{rust-lang}.
@@ -133,8 +157,8 @@ a[0] = 2
 assert a != b
 assert |a| == |b|
 \end{lstlisting}
-    \label{lst:whiley-array-copy}
     \caption{Example an array copy in Whiley}
+    \label{lst:whiley-array-copy}
 \end{figure}
 
 \paragraph{Array generator} is a feature in Whiley to generate an array
@@ -158,8 +182,8 @@ assert |a| == [0, 0, 0]
 b = [0; |a|]
 assert |a| == |b|
 \end{lstlisting}
-    \label{lst:whiley-array-gen}
     \caption{Example an array generator in Whiley}
+    \label{lst:whiley-array-gen}
 \end{figure}
 
 \subsection{Loop Invariants}
@@ -247,8 +271,8 @@ ensures r == |items|:
     //
     return i
 \end{lstlisting}
-    \label{lst:whiley-inv}
     \caption{Example of loop invariant in Whiley}
+    \label{lst:whiley-inv}
 \end{figure}
 
 \subsection{Classification of Loop Invariants}
