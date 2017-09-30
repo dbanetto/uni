@@ -6,6 +6,17 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 
+extern crate curl;
+extern crate futures;
+extern crate tokio_core;
+extern crate tokio_curl;
+
+use curl::easy::Easy;
+use tokio_core::reactor::Core;
+use futures::Future;
+use futures::future::*;
+use tokio_curl::Session;
+
 use std::str::FromStr;
 use std::process::exit;
 use std::time::{Duration, SystemTime};
@@ -34,7 +45,7 @@ fn main() {
 
     let now = SystemTime::now();
     if async {
-        unimplemented!();
+        async_get(url, times);
     } else {
         sync_get(url, times);
     }
@@ -72,6 +83,35 @@ fn sync_get(url: &str, times: u32) {
         print_delta(now.elapsed()); 
         println!();
     }
+
+}
+
+fn async_get(url: &str, times: u32) {
+    
+    let mut lp = Core::new().unwrap();
+    let session = Session::new(lp.handle());
+
+    let requests = join_all((0..times).into_iter().map(|i| {
+        let mut req = Easy::new();
+        req.get(true).unwrap();
+        req.url(url).unwrap();
+        let _ = req.write_function(move |data| {
+            let parsed = match serde_json::from_slice::<Body>(data) {
+                Ok(b) => {
+                    println!("{},{}", i, b.duration_seconds * 1000.0);
+                },
+                Err(e) => {
+                    println!("Something went wrong with parsing response\n{:?}",  e);
+                },
+            };
+            Ok(data.len())   
+        });
+
+        session.perform(req)
+    }));
+
+
+    lp.run(requests).unwrap();
 
 }
 
