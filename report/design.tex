@@ -164,7 +164,7 @@ and for more complex invariants the ghost variables are still required.
 
 \begin{figure}[ht]
 \begin{lstlisting}
-function add\_one(int[] items) -> int[]:
+function add_one(int[] items) -> int[]:
     i = 0
     modified = items
     //
@@ -256,6 +256,51 @@ Write about the pre-loop stuff \\
 }
 
 \todo{Explain how the loop context stuff finds suitable variables}
+
+The loop context provides all of the techniques an understanding of the
+variables before the loop.
+This is used to replace the instance of the variable with its assigned value
+before the loop.
+This base information provides the values of local variables and parameters of
+the function and tracks their values through the statements before the loop.
+On a branching point in the program the context of each path is collected
+separately then the intersection is taken with respect to the
+parent context when the branches join.
+The intersection is used so only variables that were only defined in the
+branch does not leak into the rest of the context and variables defined outside
+of the branch and mutated in it are updated.
+In the case that an existing variable is mutated in a branch the value becomes
+undetermined as it is unknown if the branch will be taken.
+Figure~\ref{lst:loop-context} shows an illustration of information captured as
+the context is collected though the statements before the while loop.
+In particular the variable \code{limit} shows how branches are handled
+and that it becomes indeterminable at the loop due to being mutated in the if
+branch.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function f(int count): // C = { count: <parameter }
+    int[] items = [0; count] // C + { items -> [0; count] }
+
+    int limit = 0 // C +  { limit -> 0 } 
+
+    if g(items): // branch: C -> C`
+        int f = 1 // C' + { f -> 1 }
+        limit = h(items) // C' + { limit -> h(items) }
+    // C` intersection C => C + { limit -> ?? }
+
+    int i = 0 // C + { i -> 0 }
+
+    // Final Loop context
+    // C is { count -> <parameter>, items -> [0;count],
+    //   limit -> ??, i -> 0 }
+    while i <= limit:
+        items[i] = i
+        i = i + 1
+\end{lstlisting}
+\caption{Example of the information gathered by the loop context}
+\label{lst:loop-context}
+\end{figure}
 
 \subsection{Determining a simple mutation}\label{s:simple-mut}
 
