@@ -337,7 +337,7 @@ Generally generating loop invariants are impossible! \\
 }
 
 It has been proven that it is not possible to generate loop invariants
-generally % TODO: cite this
+generally \todo{cite this}
 so various methods have been developed to generate some invariants.
 These methods can be sorted into one of two categories, static and dynamic.
 This section will give an overview of static and dynamic methods of loop
@@ -346,42 +346,39 @@ invariants.
 \subsubsection{Static Generation of Loop Invariants}
 
 The static generation of loop invariants use the
-semantics and analysis of the source code to generate the loop invariants.
-This includes the use of language semantics and static analysis to
+semantics and analysis of the source code to generate the loop invariants
+\cite{java-static-symb}.
+Some of the techniques used to statically generate loop invariants are:
+weakening postconditions~\cite{infer-postconditions};  symbolic symbolic
+execution~\cite{java-static-symb}; and structural
+induction~\cite{struct-induction}.
+These techniques are strict and conservative in generating loop invariants
+to ensure what was generated is a valid invariant without being able to
+verify it.
 
-The key difference between the categories is
-that invariants found statical hold true
-but is restricted to what can be generated.
-\cite{benderfinding}\cite{Leino2005LoopIO}.
-The solution presented in this report uses
-the principles of static methods to generate loop invariants.
+% The key difference between the categories is
+% that invariants found statical hold true
+% but is restricted to what can be generated.
+% \cite{benderfinding}\cite{Leino2005LoopIO}.
+% The solution presented in this report uses
+% the principles of static methods to generate loop invariants.
+
+\todo{EXAMPLES}
 
 \subsubsection{Dynamic Generation of Loop Invariants}
 
-Dynamic generation of loop invariants involves static inference
-with execution of the program to confirm the results.
-This allows for a greater range of invariants to be inferred
-at the cost of time to verify from testing potential invariants
-\cite{infer-dynamic} \cite{infer-postconditions}.
-This makes dynamic generation less suited to be apart of
-the general compile-test-run development cycle common in general development.
+Dynamic invariants are similar to dynamic program analysis
+tools, they execute the program to find properties.
+In the case of dynamically generating loop invariants a
+common techniques to generate a set of candidate invariants
+and modify the program to include them for verification.
+The techniques used to generate the candidate loop invariants
+can be derived from less-strict static analysis techniques and
+from observing the execution of the program.
+This allows a greater range of invariants to be inferred at
+the cost of the time taken to test if the candidate invariants are
+valid~\cite{infer-dynamic}\cite{infer-postconditions}.
 
-\subsection{Static Analysis}
-\comment{overview of static analysis techniques \\
-e.g. partial ordered sets, lattices
-}
-
-\subsection{Inference Paradox}
-\comment{
-issue with inference creates correct code
-by making specification from code
-
-OK since it is at such a small scale with limited scope
-
-}
-
-\todo{is this needed? Probably not}
-\cite{infer-postconditions}
 
 \subsection{Loop Design Pattern}
 
