@@ -337,13 +337,22 @@ $Lecturer(\{LecturerId, L\_Name\}, LecturerId)$
 
 ## Step 2. Mapping of weak entity types
 
+There are no weak entities in the EER.
+
 ## Step 3. Mapping of binary 1:1 relations
+
+There is no 1:1 relations in the EER.
 
 ## Step 4. Mapping of binary 1:N relations
 
+There is no 1:N relations in the EER.
+
 ## Step 5. Mapping of binary N:M relations
 
+$Enrolls(\{StudentId, CourseId, Grade\}, \{ StudentId + CourseId \})$
+
 ## Step 6. Mapping of multivalve attributes
+
 
 ## Step 7. Mapping of N-ary relationship types
 
