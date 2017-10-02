@@ -27,7 +27,7 @@ Should cover: \\
 
 \fixme{Update to include techniques are here, architectures in impl}
 
-This chapter will discuss the requirements and Considerations taken to design the implementation
+This chapter will discuss the requirements and considerations taken to design the implementation
 of this project.
 These considerations are derived by the project requirements
 and guided by improving or retaining the same level of
@@ -45,24 +45,43 @@ The final design decision discussed is how the multiple generators are managed.
     should cover the functional and non-functional requirements
 }
 
-The requirements of the project were derived from the project outline (see
-Appendix~\ref{A:proj-outline} for the full original text).
+The requirements for this project are derived from the original project
+outline (see Appendix~\ref{A:proj-outline}).
+The base requirements of each loop invariant generator is to be grounded
+in practicality of the invariant not the generality of its use cases.
+This is to say that it is not worth expanding a loop invariant
+generator to cover cases that are unlikely to actually occur for generality
+sake.
+
+The other major requirement is that the Whiley compiler will be improved
+with the addition of loop invariant generators.
+This implicitly includes maintaining the current level of quality or
+improving the experience with this extension.
+
+Some parts of the original project outline fell out of scope of this project.
+This included the students of SWEN224 would be used to evaluate this solution.
+The decision to drop this requirement was in favour of focusing on implementing
+many loop invariant generator rather than making a split effort of implementing
+less generators so that proper user testing can be completed.
+It was also found to be impracticable as the course layout of SWEN224 saw the
+Whiley section taught in the last half of the semester with loop invariant in
+particular taught in the final weeks making properly timed user studies
+impracticable.
 
 \todo{expand on the problem}
+
 \todo{make requirements eat the considerations section}
 
-\section{Considerations}
-\comment{
-These are designs for the project and the changes and impacts on the Whiley
-Language and compiler
-}
+Below is a list of design considerations that were identified to keep to ensure
+that these requirements are met.
+Each of these considerations either focus the development of the loop
+generators or to force quality control on how they interact with the rest of the
+compiler.
 
-Throughout the design of the overall architecture and each individual loop invariant
-generator some design considerations were kept in mind.
 \begin{itemize}
-    \item{Backward creditability with non-loop invariant generated code.}
+    \item{Backward compatibility with non-loop invariant generated code.}
     \item{Not to hamper the ability to inspect and debug generated code.}
-    \item{Avoid creating new local variables when generating code.}
+    \item{Avoid impacting runtime with generating code.}
     \item{Ensure the user can control the feature.}
     \item{Not all of the generated loop invariants will be useful.}
 \end{itemize}
@@ -74,34 +93,13 @@ code that compiles without the flag should still compile with the flag
 restricts loop invariants to be precise  and strict to avoid "wrong"
 }
 
-A design consideration for this project was that existing code that compiled
-and verify without the loop invariant generator should still compile and verify
-with it.
-This consideration limits the generated loop invariants from creating
-invariants that would not be supported by the program during verification.
-Figure~\ref{lst:backwards-compat} shows an example of a potential loop
-invariant generator that would cause previously working code to fail.
-\todo{explain the example}
-When this occurs it is considered a bug and evidence that the implementation or
-the design of the generated loop invariant is unsound and should be reviewed.
-
-\begin{figure}[ht]
-\begin{lstlisting}
-// TODO: Make an example of where a generated invariant would make the code
-// fail
-\end{lstlisting}
-    \caption{Example of a Whiley program with generated loop invariants that will
-    make it fail to verify.}
-    \label{lst:backwards-compat}
-\end{figure}
-
-However, this consideration is not reflexive.
-This implies that it does not ensure that a program that verifies with
-generated loop invariants must still verify without them.
-This design issue is considered as it is important that a user could
-switch to using the generated loop invariants without suddenly having
-their program failing to verify.
-
+To maintain the quality of compiler code that previously would verify without 
+generated loop invariants should still verify with them.
+This is important for any existing codebases in Whiley to have choice of
+moving to use the generated loop invariants without needing to resolving new
+errors.
+If and when this occurs it is considered a bug and evidence that the implementation 
+of a generated loop invariant is unsound and should be reviewed.
 
 \subsection{Inspection and Debugging}
 \comment{
@@ -110,9 +108,9 @@ achieved by emitting compiler messages about what, where and why they are
 generated
 }
 
-The ability to be able to inspect the generated code is an important feature to
-design into the solution.
-This could come in the form of compiler message describing what, where and why
+The ability to be able to inspect or debug the generated code is an important feature to
+ensure quality of extension to Whiley.
+This is in the form of compiler message describing what, where and why
 the loop invariants were generated or by writing the modified program back
 to disk as source code.
 This allows a user to be able to inspect and review the generated loop invariants for
@@ -123,7 +121,7 @@ For example to emit a compiler message appropriately it would need
 to couple with the logging sub-system to enforce common log modes such as
 \code{DEBUG} and \code{VERBOSE}.
 
-\subsection{Creating Variables}\label{s:design-create-var}
+\subsection{Impacting Runtime}\label{s:design-create-var}
 \comment{
 Whiley does not have the notion of ghost variables \\
 * possible name collisions \\
@@ -133,8 +131,10 @@ Does force the programmer to make ghost variables or make copies
 that make sense if they were making the invariants themselves vs generated
 }
 
-The design consideration of creating variables that only used in specifications
-were made for each generator.
+To ensure the quality of generated code there should be no impact on the
+runtime of the program.
+The most problematic situation is attempting to refer to previous values of
+a variable during or before the loop.
 Whiley does not have a notion of ghost variables, variables only used for
 specifications, this forces the use of additional local variables instead~\cite{whiley-origin}.
 Figure~\ref{lst:vars} shows a common code example when the additional local
@@ -189,12 +189,18 @@ No goal on time impact \\
 Choice to not repeat compilation and verification
 }
 
-How users can utilise the loop invariants generators were a
-consideration to the design of the solution.
-This is handled but following the current design principles of the
-Whiley compiler as exposing the loop invariant generator as a compiler
-flag such as the verification flag.
-
+The command line interface and the WhileyWeb IDE are the only user interfaces
+of the Whiley Compiler.
+The modification of the WhileyWeb IDE was out of scope of this project as it
+would only be beneficial if user studies were conducted.
+Thus the only user interface that the usability needs to be maintained or
+improved is the command line interface.
+This includes how users can control the loop invariants generators and what
+compiler feedback is required.
+This is handled by exposing control of the loop invariants generators via
+a compiler flag.
+This is inline with how other optional features are handled in Whiley and
+other standard compilers such as the GNU C compiler.
 
 \subsection{Essential Invariants}
 \comment{
@@ -206,20 +212,43 @@ to test if it is essential requires repetitive verifications, infringes on
 impact on compile time.
 }
 
-During the design of this solution it is known that not all generated
-invariants will be essential invariants.
-This implies that not all of the generated loop invariants will be useful
-in proving the post-condition of the loop's function.
-If only the essential invariants where generated the solution would need
-to determine what is essential either by increasing the complexity of the
-generators by inferring the invariants from the post-condition or by
-attempting to minimize the generated loop invariants by testing combinations
-of invariants.
-The trade-off of this decision is that at the cost of having some non-essential
+To provide some base quality of loop invariant generators that generated invariants 
+can be redundant.
+This means that it is acceptable that a generated invariant is not
+checked that it is redundant for the verification of the loop or the function
+as whole.
+If the generated loop invariant were checked if they were redundant
+they would need to determine what is essential either by greatly increasing
+the complexity of the generators by inferring if there is another invariant
+that is a stronger or weaker condition than itself.
+Another method would be to attempting to find the
+minimal set of invariants by testing combinations of invariants.
+The trade-off of this decision is that at the cost of having some redundant
 invariants that the complexity of code and time generating loop invariants is
 greatly reduced.
 
-\section{Techniques to Identify Invariants}
+\section{Targeted loop invariants}
+
+There are four classes of loop invariants that are targeted for generation in
+this report.
+
+\subsection{Starting bound}
+
+\todo{bunch of examples}
+
+\subsection{Equal array length}
+
+\todo{bunch of examples}
+
+\subsection{Upper bound}
+
+\todo{bunch of examples}
+
+\subsection{Array iterative assignment}
+
+\todo{bunch of examples}
+
+\section{Techniques used to infer properties of a loop}
 \comment{
 Cover the individual techniques that were used in each generator \\
  - discovering loop context \\
@@ -312,7 +341,7 @@ because the monotonic property of these operations are dependent on their
 runtime values.
 For example a multiplication between a constant and a variable,
 the result of the expression may change from being an increasing expression
-to decreasing after some unknown point, such as a binomial equation.
+to decreasing after some unknown point, such as a polynomial equation.
 
 The current design only allows a single variable to be in a simple mutation
 expression.
