@@ -240,8 +240,6 @@ The techniques covered are:
     \item{Loop Context}
     \item{Determining a simple mutation}
     \item{Decomposing Loop conditions and Invariants}
-    \item{Identify dependencies on itself for mutations}
-    \item{Identify variables used in loop}
     \item{Associate copied arrays to source}
 \end{itemize}
 
@@ -255,7 +253,7 @@ Write about the pre-loop stuff \\
  * how it differ between variables and parameters
 }
 
-\todo{Explain how the loop context stuff finds suitable variables}
+\fixme{Break up and expand on this}
 
 The loop context provides all of the techniques an understanding of the
 variables before the loop.
@@ -304,32 +302,63 @@ function f(int count): // C = { count: <parameter }
 
 \subsection{Determining a simple mutation}\label{s:simple-mut}
 
-\todo{update with lattice}
+\fixme{Break up and expand on this}
 
-The definition of a simple mutation is restricted to an expression that only
-includes addition and subtraction of constant values and the variable in question.
-The mutation must be certain with each iteration so the variable must not be
-modified inside branching statements such as \code{if} blocks or nested loops.
-Since the mutation has to be simple it restricts them to linear monotonic
-functions that is either strictly increasing or decreasing the variable with each iteration.
-This is to keep the loop pattern simple and deterministic of knowing if the
-mutation is increases or decreases the variable with each iteration.
-An expression is checked if it is a simple mutation through static analysis of
-the AST.
+A simple mutation is an expression that only includes addition or subtraction
+of a known variable or constant.
+This is to test that the expression is a monotonic expression \cite{tanton2005encyclopedia}.
+Operations such as multiplication, division and function calls are disallowed
+because the monotonic property of these operations are dependent on their
+runtime values.
+For example a multiplication between a constant and a variable,
+the result of the expression may change from being an increasing expression
+to decreasing after some unknown point, such as a binomial equation.
+
+The current design only allows a single variable to be in a simple mutation
+expression.
+That variable must also be the variable that is being mutated as well.
+For example in figure~\ref{lst:simple-mutation} the assignment of \code{i} on
+line 3 is simple since it refers to itself variable.
+However, the assignment of \code{f} on line 6 is not simple as
+it refers to a variable that is not \code{f}.
+This limitation is due to a only needing to 
+support single variable mutations for the loop invariants
+that depended on this mechanism.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+int i = 0
+int f = 0
+i = i + 1 // simple
+i = i + 1 - 10 + 1 + 1000 // simple
+f = g(f)  // not simple
+f = i + 1 // not simple
+f = f * f // not simple
+\end{lstlisting}
+\caption{Example simple mutations}
+\label{lst:simple-mutations}
+\end{figure}
 
 \subsection{Determining if a value is increasing or decreasing}\label{s:sequence-dir}
 
-The increase or decreasing nature of the simple mutation it is determined by
-executing the expression. An outline of the mathematical process is outlined
-in figure~\ref{math:simple-mutation}, the expression is denoted with $f(x)$.
-The equations show how the difference between applying the function
-twice and once on a base value is used to determine if the function
-increases or decreases.
-In the case that the expression is stationary the variable will not variate
-between iterations and left alone.
+\fixme{Break up and expand on this}
+
+From a simple mutation inside a loop it can be determined if the value is
+increasing or decreasing with each iteration.
+To achieve this the symbolic executable property of a simple mutation is
+exploited to simulate two iterations worth of mutations.
+The known variable in the mutation is set to an initial value of zero for
+the first iteration and uses the result for the second.
+Since the simple mutation is a linear monotonic function it is known that
+the difference between each iteration will be constant.
+From the result of difference between the first and second iteration the
+value can be observed to increase for all iterations if it is positive or
+decrease if negative. If there is no difference between the iterations then
+it is considered stationary and is considered an error state.
+This process is outlined in figure~\ref{math:simple-mutation}.
 
 \begin{figure}
-    $$\text{Given that } f(x) \text{ is a linear function}$$
+    $$\text{Given that } f(x) \text{ is a linear monotonic function}$$
 
     $$diff = f(f(0)) - f(0)$$
 
@@ -340,31 +369,53 @@ between iterations and left alone.
             < 0 \quad f(x) \text{ is decreasing}\\
         \end{cases}
     \]
-    \caption{Logic of determining if a function increases or decreases with
+    \caption{Outline of determining if a function increases or decreases with
     each application}
 \label{math:simple-mutation}
 \end{figure}
 
 \subsection{Decomposing Loop conditions and Invariants}\label{s:cond-decompose}
-
 \comment{
     Whiley semantics means all where clauses are conjunctively joined, \\
     A loop condition that is conjunctively joined can be broken into
     segments
 }
 
-\subsection{Identify dependencies if variables depends on itself}\label{s:self-deps}
-
-\comment{ is the variable in the assignment ? }
-
-\subsection{Identify variables used in loop}\label{s:loop-vars}
-
-\comment{ is the variable in the loop ? }
-
-\subsection{Associate copied arrays to source}\label{s:copied-array}
-
+\subsection{Associate length of copied arrays to source}\label{s:copied-array}
 \comment{ was a array initialised with a copy from an array type or use a
 generator }
+
+The length of a new array can determine by associating the length to a source
+array.
+This relies on how the new array is created, for example if the array is
+generated using an array generator or from copying another array it can be.
+However, if the array is generated by a function it is more difficult to
+determine and was out-of-scope.
+When using an array generator the length of the array can be determined by
+evaluating the count of the generator.
+Figure~\ref{lst:simple-mutations} has an example of this for the initialisation
+of \code{a}, where the length of the array is associated with the value 10.
+In the case of an array copy the array size can be determined by taking the
+size of the source array as they will be equal.
+This is shown in figure~\ref{lst:simple-mutations} when initialising \code{b}
+and \fixme{should associations be transitive? or transitive to a list of values}
+
+This technique is used to associate ghost arrays used to assist in writing
+loop invariants.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+int[] a = [0; 10] { |a| -> 10 }
+int[] b = a { |b| -> 10, |a| -> |b| }
+int[] c = f() { c -> ?? }
+
+a = f() { |a| -> ?? }
+
+// final association: { |b| -> 10, |a| -> ??, |c| -> ?? }
+\end{lstlisting}
+\caption{Examples of associated array lengths}
+\label{lst:simple-mutations}
+\end{figure}
 
 % ==========================================================
 \todo{Looks best to move the next sections into impl chapter}
