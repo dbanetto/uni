@@ -305,9 +305,34 @@ The relation meets 2NF as there is no functional dependency that has
 a left hand side that is a subset of the key, $BC$.
 The relation meets the 3NF as there is no transitive functional dependencies.
 
-### 3. Lossless transformation to 3NF
+### 3. Lossless transformation to BCNF
 
-There is no need to perform the transform to 3NF as relation is already at 3NF.
+$R = \{ A, B, C, D \}$
+
+$F = \{ A \rightarrow C, D \rightarrow B, BC \rightarrow A, BC \rightarrow D \}$
+
+Key = $BC$
+
+#### Iteration 1:
+
+The functional dependency $D \rightarrow B$ violates BCNF as it is not a
+super key of $BC$.
+
+$R_{1} = \{ A, C, D \}$
+
+$F_{1} = \{ A \rightarrow C, C \rightarrow A, C \rightarrow D \}$
+
+Key for $R_{1} = C$
+
+$R_{1}$ is not in BCNF due to $A \rightarrow C$
+
+$R_{2} = \{ B ,D \}$
+
+$F_{2} = \{ D \rightarrow B \}$
+
+Key for $R_{2} = D$
+
+$R_{2}$ is in BCNF
 
 # Question 4 - Enhanced Entity Relationship
 
@@ -351,10 +376,36 @@ There is no 1:N relations in the EER.
 
 $Enrolls(\{StudentId, CourseId, Grade\}, \{ StudentId + CourseId \})$
 
-## Step 6. Mapping of multivalve attributes
+$Student[StudentId] \subseteq Enrolls[StudentId]$
 
+$Enrolls[StudentId] \subseteq Student[StudentId]$
+
+$Enrolls[CourseId] \subseteq Coruse[CourseId]$
+
+$Course[CourseId] \subseteq Enrolls[CourseId]$
+
+$Null(Enrolls, StudentId) = False$
+
+## Step 6. Mapping of multivalued attributes
+
+No multivalued attributes.
 
 ## Step 7. Mapping of N-ary relationship types
 
+$Taught\_By(\{CourseId, LectuerId, Year, Trimester\}, \{ CourseId, LectuerId, Year, Trimester \} )$
+
+$Course[CourseId] \subseteq Taught\_By[CourseId]$
+
+$Lecturer[LecturerId] \subseteq Taught\_By[LecturerId]$
+
+$Term[Year, Trimester] \subseteq Taught\_By[Year, Trimester]$
+
+$Taught\_By[CourseId] \subseteq Course[CourseId]$
+
+$Taught\_By[LecturerId] \subseteq Lecturer[LecturerId]$
+
+$Taught\_By[Year, Trimester] \subseteq Term[Year, Trimester]$
+
 ## Step 8. Mapping of IS-A hierarchies
 
+There is no IS-A hierarchies in this EER
