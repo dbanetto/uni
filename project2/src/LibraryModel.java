@@ -21,7 +21,7 @@ public class LibraryModel {
 
     static {
         try {
-            Class.forName(org.postgresql.Driver.class.getCanonicalName());
+            Class.forName(org.postgresql.Driver.class.getName());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -55,7 +55,7 @@ public class LibraryModel {
             while(results.next()) {
 
                 int ISBN = results.getInt("isbn");
-                String title = results.getNString("title");
+                String title = results.getString("title");
                 int edition = results.getInt("edition_no");
                 int copies = results.getInt("numofcop");
                 int left = results.getInt("numleft");
