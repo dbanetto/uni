@@ -392,19 +392,22 @@ No multivalued attributes.
 
 ## Step 7. Mapping of N-ary relationship types
 
-$Taught\_By(\{CourseId, LectuerId, Year, Trimester\}, \{ CourseId, LectuerId, Year, Trimester \} )$
+
+Modified $Term$ to $Term(\{TermId, Trimester, Year\}, \{TermId, Trimester + Year\})$
+
+$Taught\_By(\{CourseId, LectuerId, TermId\}, \{ CourseId, LectuerId, TermId \} )$
 
 $Course[CourseId] \subseteq Taught\_By[CourseId]$
 
 $Lecturer[LecturerId] \subseteq Taught\_By[LecturerId]$
 
-$Term[Year, Trimester] \subseteq Taught\_By[Year, Trimester]$
+$Term[TermId] \subseteq Taught\_By[TermId]$
 
 $Taught\_By[CourseId] \subseteq Course[CourseId]$
 
 $Taught\_By[LecturerId] \subseteq Lecturer[LecturerId]$
 
-$Taught\_By[Year, Trimester] \subseteq Term[Year, Trimester]$
+$Taught\_By[TermId] \subseteq Term[TermId]$
 
 ## Step 8. Mapping of IS-A hierarchies
 
