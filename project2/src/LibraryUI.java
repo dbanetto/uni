@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.text.Document;
 import javax.swing.text.BadLocationException;
 
@@ -90,9 +89,13 @@ public class LibraryUI extends JFrame {
 	String password = ad.getDatabasePassword();
 
 	// Create data model
-        model = new LibraryModel(this, userName, password);
+		try {
+			model = new LibraryModel(this, userName, password);
+		} catch (SQLException e) {
+			System.exit(1);
+		}
 
-	// Center window on screen
+		// Center window on screen
 	GraphicsEnvironment ge =
 	    GraphicsEnvironment.getLocalGraphicsEnvironment();
         Point center = ge.getCenterPoint();
@@ -520,7 +523,7 @@ public class LibraryUI extends JFrame {
     	    super("Delete Customer", "customer ID");
     	}
     	protected void doLookup(int customerID) {
-    	    appendOutput(model.deleteCus(customerID));
+    	    appendOutput(model.deleteCustomer(customerID));
     	}
     }
     

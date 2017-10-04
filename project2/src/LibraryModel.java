@@ -12,12 +12,14 @@ import java.sql.SQLException;
 // canary for java is configured properly
 import org.postgresql.Driver;
 
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+
 public class LibraryModel {
 
     // For use in creating dialogs and making them modal
     private JFrame dialogParent;
-    private final String userId;
-    private final String password;
+    private final Connection conn;
 
     static {
         try {
@@ -27,27 +29,23 @@ public class LibraryModel {
         }
     }
 
-    private String getUrl() {
+    private String getUrl(String userId) {
         return "jdbc:postgresql://depot.ecs.vuw.ac.nz/" + userId + "_jdbc";
     }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(getUrl(), userId, password);
+    private Connection getConnection(String userId, String password) throws SQLException {
+        return DriverManager.getConnection(getUrl(userId), userId, password);
     }
 
-    public LibraryModel(JFrame parent, String userid, String password) {
+    public LibraryModel(JFrame parent, String userid, String password) throws SQLException {
         this.dialogParent = parent;
-        this.password = password;
-        this.userId  = userid;
+        this.conn = getConnection(userid, password);
     }
 
     public String bookLookup(int isbn) {
-        Connection conn = null;
         StringBuilder builder = new StringBuilder();
 
         try {
-            conn = getConnection();
-
             Statement stmt = conn.createStatement();
 
             ResultSet results = stmt.executeQuery("SELECT * FROM book WHERE isbn = " + isbn);
@@ -62,16 +60,6 @@ public class LibraryModel {
             builder.append("Error occurred while looking up ").append(isbn).append('\n');
             builder.append(e.toString()).append('\n');
             e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    builder.append("Error occurred while closing connection").append('\n');
-                    builder.append(e.toString()).append('\n');
-                    e.printStackTrace();
-                }
-            }
         }
         return builder.toString();
     }
@@ -105,12 +93,9 @@ public class LibraryModel {
     }
 
     public String showCatalogue() {
-        Connection conn = null;
         StringBuilder builder = new StringBuilder();
 
         try {
-            conn = getConnection();
-
             Statement stmt = conn.createStatement();
 
             ResultSet query = stmt.executeQuery("SELECT * FROM book");
@@ -121,27 +106,14 @@ public class LibraryModel {
             builder.append("Error occurred while looking up catalogue").append('\n');
             builder.append(e.toString()).append('\n');
             e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    builder.append("Error occurred while closing connection").append('\n');
-                    builder.append(e.toString()).append('\n');
-                    e.printStackTrace();
-                }
-            }
         }
         return builder.toString();
     }
 
     public String showLoanedBooks() {
-        Connection conn = null;
         StringBuilder builder = new StringBuilder();
 
         try {
-            conn = getConnection();
-
             Statement stmt = conn.createStatement();
 
             ResultSet query = stmt.executeQuery("SELECT * FROM cust_book");
@@ -156,7 +128,7 @@ public class LibraryModel {
 
                 int ISBN = query.getInt("isbn");
                 String dueDate = query.getString("duedate");
-                int customerId = query.getInt("customer_id");
+                int customerId = query.getInt("customerid");
 
 
                 builder.append(ISBN).append('\t');
@@ -169,16 +141,6 @@ public class LibraryModel {
             builder.append("Error occurred while looking up catalogue").append('\n');
             builder.append(e.toString()).append('\n');
             e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    builder.append("Error occurred while closing connection").append('\n');
-                    builder.append(e.toString()).append('\n');
-                    e.printStackTrace();
-                }
-            }
         }
         return builder.toString();
     }
@@ -206,12 +168,9 @@ public class LibraryModel {
     }
 
     public String showAuthor(int authorID) {
-        Connection conn = null;
         StringBuilder builder = new StringBuilder();
 
         try {
-            conn = getConnection();
-
             Statement stmt = conn.createStatement();
 
             ResultSet query = stmt.executeQuery("SELECT * FROM author WHERE authorid = " + authorID);
@@ -226,27 +185,14 @@ public class LibraryModel {
             builder.append("Error occurred while looking up author ").append(authorID).append('\n');
             builder.append(e.toString()).append('\n');
             e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    builder.append("Error occurred while closing connection").append('\n');
-                    builder.append(e.toString()).append('\n');
-                    e.printStackTrace();
-                }
-            }
         }
         return builder.toString();
     }
 
     public String showAllAuthors() {
-        Connection conn = null;
         StringBuilder builder = new StringBuilder();
 
         try {
-            conn = getConnection();
-
             Statement stmt = conn.createStatement();
 
             ResultSet query = stmt.executeQuery("SELECT * FROM author");
@@ -257,16 +203,6 @@ public class LibraryModel {
             builder.append("Error occurred while looking up authors").append('\n');
             builder.append(e.toString()).append('\n');
             e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    builder.append("Error occurred while closing connection").append('\n');
-                    builder.append(e.toString()).append('\n');
-                    e.printStackTrace();
-                }
-            }
         }
         return builder.toString();
     }
@@ -296,12 +232,9 @@ public class LibraryModel {
     }
 
     public String showCustomer(int customerID) {
-        Connection conn = null;
         StringBuilder builder = new StringBuilder();
 
         try {
-            conn = getConnection();
-
             Statement stmt = conn.createStatement();
 
             ResultSet query = stmt.executeQuery("SELECT * FROM customer WHERE customerid = " + customerID);
@@ -316,27 +249,14 @@ public class LibraryModel {
             builder.append("Error occurred while looking up customer ").append(customerID).append('\n');
             builder.append(e.toString()).append('\n');
             e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    builder.append("Error occurred while closing connection").append('\n');
-                    builder.append(e.toString()).append('\n');
-                    e.printStackTrace();
-                }
-            }
         }
         return builder.toString();
     }
 
     public String showAllCustomers() {
-        Connection conn = null;
         StringBuilder builder = new StringBuilder();
 
         try {
-            conn = getConnection();
-
             Statement stmt = conn.createStatement();
 
             ResultSet query = stmt.executeQuery("SELECT * FROM customer");
@@ -347,41 +267,268 @@ public class LibraryModel {
             builder.append("Error occurred while looking up customers").append('\n');
             builder.append(e.toString()).append('\n');
             e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    builder.append("Error occurred while closing connection").append('\n');
-                    builder.append(e.toString()).append('\n');
-                    e.printStackTrace();
-                }
-            }
         }
         return builder.toString();
     }
 
     public String borrowBook(int isbn, int customerID,
             int day, int month, int year) {
-        return "Borrow Book Stub";
+
+        StringBuilder builder = new StringBuilder();
+
+        try {
+            conn.setAutoCommit(false);
+
+            Statement stmt = conn.createStatement();
+
+            ResultSet customer = stmt.executeQuery("SELECT 1 FROM customer WHERE customerid = " + customerID + " FOR UPDATE");
+            if (!customer.isBeforeFirst()) {
+                throw new SQLException("customer with id " + customerID + " does not exist");
+            }
+
+            ResultSet book = stmt.executeQuery("SELECT numofcop, numleft FROM book WHERE isbn = " + isbn + " FOR UPDATE");
+            int numberLeft;
+            if (!book.isBeforeFirst()) {
+                throw new SQLException("book with ISBN " + isbn + " does not exist");
+            } else {
+                book.next();
+                numberLeft = book.getInt("numleft") - 1;
+                if (numberLeft < 0) {
+                    throw new SQLException(isbn + " does not have enough copies available to borrow");
+                }
+            }
+
+            PreparedStatement borrowInsert = conn.prepareStatement("INSERT INTO cust_book VALUES (? , ?, ?)");
+            borrowInsert.setInt(1, isbn);
+            borrowInsert.setDate(2, Date.valueOf(year + "-" + month + "-" + day));
+            borrowInsert.setInt(3, customerID);
+            int borrowResult = borrowInsert.executeUpdate();
+            if (borrowResult == 0) {
+                throw new SQLException("Failed to insert into cust_book");
+            }
+
+            showMessageDialog(dialogParent, "Confirm to update the Book table",
+                    "Confirm Update", JOptionPane.INFORMATION_MESSAGE);
+
+            PreparedStatement bookUpdate = conn.prepareStatement("UPDATE book SET numleft = ? WHERE isbn = ?");
+            bookUpdate.setInt(1, numberLeft);
+            bookUpdate.setInt(2, isbn);
+            int bookUpdateResult = bookUpdate.executeUpdate();
+            if (bookUpdateResult == 0) {
+                throw new SQLException("Failed to update book count");
+            }
+
+            conn.commit();
+            builder.append("Successfully recorded customer (").append(customerID)
+                    .append(") borrowing ").append(isbn).append(" (ISBN) till ")
+                    .append(year).append('-').append(month).append('-').append(day)
+                    .append(" there is ").append(numberLeft).append(" copies left.")
+                    .append('\n');
+        } catch (SQLException e) {
+            builder.append("Error occurred while borrowing book").append('\n');
+            builder.append(e.getMessage()).append('\n');
+        } finally {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.toString();
     }
 
-    public String returnBook(int isbn, int customerid) {
-        return "Return Book Stub";
+    public String returnBook(int isbn, int customerID) {
+        StringBuilder builder = new StringBuilder();
+
+        try {
+            conn.setAutoCommit(false);
+
+            Statement stmt = conn.createStatement();
+
+            ResultSet customer = stmt.executeQuery("SELECT 1 FROM customer WHERE customerid = " + customerID + " FOR UPDATE");
+            if (!customer.isBeforeFirst()) {
+                throw new SQLException("Customer with id " + customerID + " does not exist");
+            }
+
+            ResultSet book = stmt.executeQuery("SELECT numleft FROM book WHERE isbn = " + isbn + " FOR UPDATE");
+            int numberLeft;
+            if (!book.isBeforeFirst()) {
+                throw new SQLException("book with ISBN " + isbn + " does not exist");
+            } else {
+                book.next();
+                numberLeft = book.getInt("numleft") + 1;
+            }
+
+            PreparedStatement borrowDelete = conn.prepareStatement("DELETE FROM cust_book WHERE customerid = ? AND isbn = ?");
+            borrowDelete.setInt(1, customerID);
+            borrowDelete.setInt(2, isbn);
+            int borrowResult = borrowDelete.executeUpdate();
+            if (borrowResult == 0) {
+                throw new SQLException("Failed to delete from borrow table");
+            }
+
+            PreparedStatement bookUpdate = conn.prepareStatement("UPDATE book SET numleft = ? WHERE isbn = ?");
+            bookUpdate.setInt(1, numberLeft);
+            bookUpdate.setInt(2, isbn);
+            int bookUpdateResult = bookUpdate.executeUpdate();
+            if (bookUpdateResult == 0) {
+                throw new SQLException("Failed to update book count");
+            }
+
+            conn.commit();
+            builder.append("Successfully recorded customer (").append(customerID)
+                    .append(") returning ").append(isbn).append(" (ISBN)").append('\n');
+        } catch (SQLException e) {
+            builder.append("Error occurred while returning book").append('\n');
+            builder.append(e.getMessage()).append('\n');
+        } finally {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.toString();
     }
 
     public void closeDBConnection() {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public String deleteCus(int customerID) {
-        return "Delete Customer";
+    public String deleteCustomer(int customerID) {
+        StringBuilder builder = new StringBuilder();
+
+        try {
+            conn.setAutoCommit(false);
+
+            Statement stmt = conn.createStatement();
+
+            ResultSet customer = stmt.executeQuery("SELECT 1 FROM customer WHERE customerid = " + customerID + " FOR UPDATE");
+            if (!customer.isBeforeFirst()) {
+                throw new SQLException("Customer with id " + customerID + " does not exist");
+            }
+
+            ResultSet book = stmt.executeQuery("SELECT 1 FROM cust_book WHERE customerid = " + customerID);
+            if (book.isBeforeFirst()) {
+                throw new SQLException("Customer has books borrowed, cannot deleted customer until all books are returned");
+            }
+
+            PreparedStatement customerDelete = conn.prepareStatement("DELETE FROM customer WHERE customerid = ?");
+            customerDelete.setInt(1, customerID);
+            int borrowResult = customerDelete.executeUpdate();
+            if (borrowResult == 0) {
+                throw new SQLException("Failed to delete from borrow table");
+            }
+
+            conn.commit();
+            builder.append("Successfully customer deleted customer (").append(customerID)
+                    .append(")") .append('\n');
+        } catch (SQLException e) {
+            builder.append("Error occurred while deleting customer ").append(customerID).append('\n');
+            builder.append(e.getMessage()).append('\n');
+        } finally {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.toString();
     }
 
     public String deleteAuthor(int authorID) {
-        return "Delete Author";
+        StringBuilder builder = new StringBuilder();
+
+        try {
+            conn.setAutoCommit(false);
+
+            Statement stmt = conn.createStatement();
+
+            ResultSet customer = stmt.executeQuery("SELECT 1 FROM author WHERE authorid = " + authorID + " FOR UPDATE");
+            if (!customer.isBeforeFirst()) {
+                throw new SQLException("Author with id " + authorID + " does not exist");
+            }
+
+            ResultSet book = stmt.executeQuery("SELECT 1 FROM book_author WHERE authorid = " + authorID);
+            if (book.isBeforeFirst()) {
+                throw new SQLException("Author has books, cannot delete author until all books are deleted");
+            }
+
+            PreparedStatement customerDelete = conn.prepareStatement("DELETE FROM author WHERE authorid = ?");
+            customerDelete.setInt(1, authorID);
+            int borrowResult = customerDelete.executeUpdate();
+            if (borrowResult == 0) {
+                throw new SQLException("Failed to delete from author table");
+            }
+
+            conn.commit();
+            builder.append("Successfully deleted author (").append(authorID)
+                    .append(")") .append('\n');
+        } catch (SQLException e) {
+            builder.append("Error occurred while deleting author ").append(authorID).append('\n');
+            builder.append(e.getMessage()).append('\n');
+        } finally {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.toString();
     }
 
     public String deleteBook(int isbn) {
-        return "Delete Book";
+        StringBuilder builder = new StringBuilder();
+
+        try {
+            conn.setAutoCommit(false);
+
+            Statement stmt = conn.createStatement();
+
+            ResultSet customer = stmt.executeQuery("SELECT 1 FROM book WHERE isbn = " + isbn + " FOR UPDATE");
+            if (!customer.isBeforeFirst()) {
+                throw new SQLException("Book with ISBN " + isbn + " does not exist");
+            }
+
+            ResultSet book = stmt.executeQuery("SELECT 1 FROM cust_book WHERE isbn = " + isbn);
+            if (book.isBeforeFirst()) {
+                throw new SQLException("A copy of the book is borrowed, cannot deleted book until all copies are returned");
+            }
+
+            PreparedStatement bookDelete = conn.prepareStatement("DELETE FROM book WHERE isbn = ?");
+            bookDelete.setInt(1, isbn);
+            int borrowResult = bookDelete.executeUpdate();
+            if (borrowResult == 0) {
+                throw new SQLException("Failed to delete from book table");
+            }
+
+            PreparedStatement bookAuthorDelete = conn.prepareStatement("DELETE FROM book_author WHERE isbn = ?");
+            bookAuthorDelete.setInt(1, isbn);
+            borrowResult = bookAuthorDelete.executeUpdate();
+
+            conn.commit();
+            builder.append("Successfully deleted book (").append(isbn).append(")").append('\n');
+        } catch (SQLException e) {
+            builder.append("Error occurred while deleting book ").append(isbn).append('\n');
+            builder.append(e.getMessage()).append('\n');
+        } finally {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.toString();
     }
 }
