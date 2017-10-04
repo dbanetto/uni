@@ -15,6 +15,7 @@ to handle all traffic going through it so that finding patterns between anomalie
 is a computational and data heavy task. Where a host-based IDS focuses on the single machine
 it is monitoring to discover potential intrusions.
 
+>>>> FIX ME <<<<
 
 ## B)
 
@@ -37,17 +38,73 @@ that an attack is instead normal network usage.
 
 ## F)
 
+A intrusion  prevention system differs from a firewall.
+This is due to IPS can run a full check up to application level to 
+ensure properties such that HTTP request are valid and not known attack
+patterns. This allows an IPS to gain a context of the packet to allow for
+better detection and prevention.
+While a firewall will enforce the packet policy deployed by the
+administrators.
+
 ## G)
+
+The two key elements to implement a buffer overflow attack is the ability
+to overwrite some additional memory than the buffer was allocated for so that
+the additional data could then spill and corrupt other structures in memory.
+The second element is the ability to move the execution of the program to the
+attackers code, such as overwriting a function pointer of some kind to the 
+attacking code.
 
 ## H)
 
+ * Flagging different pages of memory as data or executable, this separates the buffer from code that could be potentially overwritten by the overflow.
+ * Write protect executable memory, assuming that self-mutating code is undesirable
+   the ability to mutate any memory flagged as executable will prevent potential
+   overwrites into that memory space.
+ * Canary objects on stack frames to detect attempts to overwrite the stack pointer to
+   the attacker's function
+
 ## I)
+
+Software quality and reliability refers to well a code base is formatted and
+how well it handles errors states.
+This has the intention to reduce the attack surface from unmaintainable code
+and poorly handled error states.
+Where software security is about how the code is structured to prevent or
+minimize the impact of a potential bug or exploit.
+This has the intent to limit the damage cause by any exploit that may or may not exit
+by implementing security models or enforcing separation of concerns.
 
 ## J)
 
+An command injection is the act of executing a system command, `dir` for DOS
+machines (Windows) or `ls` on UNIX machines, via an input field due to formatting
+it in a particular manner or exploiting a bug in the software.
+An SQL injection is similar to a command inject but instead of targeting a
+system call it targets commands being sent to the SQL server as part of a
+request.
+
 ## K)
 
+Input fuzzing is when a user input field, such as a free text field in a GUI, is 
+tested against a large range of random strings that include either garbage data or
+just plain wrong encoding to test how well the program can handle the input.
+One field this is used in is to test compilers or serializing frameworks to ensure
+that the fuzzed inputed does not result in an unexpected error or success.
+This should be used for any user-input field that allows free-form text.
+
 ## L)
+
+A security issue that arises due to carelessly putting all of the secret variables into
+the environment variables is that they can be easily leaked.
+For example if the input was not sanitized or used properly an attacker
+could perform an additional commands. Such as
+
+```bash
+TARGET=$1
+
+do_the_thing $TARGET
+```
 
 # Practical Component (Squid Proxy)
 
