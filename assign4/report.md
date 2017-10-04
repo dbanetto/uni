@@ -311,28 +311,103 @@ $R = \{ A, B, C, D \}$
 
 $F = \{ A \rightarrow C, D \rightarrow B, BC \rightarrow A, BC \rightarrow D \}$
 
-Key = $BC$
+Keys $\{ CD , AB, AD, BC \}$
 
 #### Iteration 1:
 
-The functional dependency $D \rightarrow B$ violates BCNF as it is not a
-super key of $BC$.
+$\{ D \rightarrow B \}$ violates the BCNF and will be used to decompose the relations
 
 $R_{1} = \{ A, C, D \}$
 
-$F_{1} = \{ A \rightarrow C, C \rightarrow A, C \rightarrow D \}$
+Projecting the functional dependencies
 
-Key for $R_{1} = C$
+$A^+ = AC$ is $\{ A \rightarrow C \}$
 
-$R_{1}$ is not in BCNF due to $A \rightarrow C$
+$C^+ = C$ is trivial
 
-$R_{2} = \{ B ,D \}$
+$D^+ = DB$ is $\{ D \rightarrow B \}$ when $B$ is then removed to give: trivial
 
-$F_{2} = \{ D \rightarrow B \}$
+$AC^+ = AC$ is trivial
 
-Key for $R_{2} = D$
+$AD^+ = ABCD$ is $\{ AD \rightarrow B, AD \rightarrow C \}$ when $B$ is removed to give: $\{ AD \rightarrow C \}$
 
-$R_{2}$ is in BCNF
+$CD^+ = ABCD$ is $\{ CD \rightarrow A, CD \rightarrow B \}$ when $B$ is removed to give: $\{ CD \rightarrow A \}$
+
+$F_{1} = \{ A \rightarrow C, CD \rightarrow A, AD \rightarrow C \}$
+
+The minimal cover of $F_{1}$ is trivially: $F_{1} = \{ A \rightarrow C, CD \rightarrow A \}$
+
+Keys: $AD, CD$
+
+Relation $R_{2}$
+
+$R_{2} = \{ D, B \}$
+
+Projecting functional dependencies
+
+$D^+ = DB$ is $\{ D \rightarrow B\}$
+
+$B^+ = B$ is trivial
+
+$F_{2} = \{ D \rightarrow B\}$ and is also the minimal cover, trivially.
+
+Keys: $D$
+
+#### Iteration 2:
+
+$R_{2}$ holds for BCNF
+
+$R_{1}$ does not holds for BCNF
+
+$A \rightarrow C$ violates BCNF
+
+$R_{1.1} = { A, D }$
+
+Projecting functional dependencies
+
+$A^+ = AC$ is $\{ A \rightarrow C$ which with $C$ removed is: trivial
+
+$D^+ = D$ which is trivial
+
+There is only trivial functional dependencies, $F_{1.1} = \emptyset$
+
+Key is $AD$
+
+$R_{1.2} = { A, C }$
+
+Projecting functional dependencies
+
+$A^+ = AC$ is $\{ A \rightarrow C \}$
+
+$C^+ = C$ is trivial
+
+$F_{1.2} = \{ A \rightarrow C \}$ which is also trivially the minimal cover
+
+#### Iteration 3:
+
+$R_1.1$ and $R_{1.2}$ are BCNF
+
+There is no relations not in BCNF form, decomposition complete
+
+#### Result
+
+$R_{2} = \{ D, B \}$ with $F_{2} = \{ D \rightarrow B\}$ and keys $\{ D \}$
+
+$R_{1.1} = { A, D }$ with $F_{1.1} = \emptyset$ and keys $\{ A+D, \emptyset \}$
+
+$R_{1.2} = { A, C }$ with $F_{1.2} = \{ A \rightarrow C \}$ and keys $\{ A \}$
+
+#### Lossless test
+
+$R_{2} \cap R_{1.1} = D$, $D$ is a part of $R_{2}$'s key
+
+$U = \{ A, B, D \}$ with key is $D$
+
+$U \cap R_{1.2} = A$, $A$ is apart of $R_{1.2}$'s key
+
+$U = \{ A, B, C, D \}$ with key $A$
+
+This is a lossless, however there was some loss of functional dependencies as that is a side-effect of BCNF
 
 # Question 4 - Enhanced Entity Relationship
 
