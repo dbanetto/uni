@@ -229,10 +229,149 @@ greatly reduced.
 
 \section{Targeted loop invariants}
 
-There are four classes of loop invariants that are targeted for generation in
-this report.
+Though each loop had many individualised loop invariants some invariant held a
+common pattern across the loops.
+From these commonly recurring invariants four of them were identified and
+studied why they were applicable.
+This section outlines these invariants, gives examples of where they apply and
+describes the commonly observed loop structure where they occur.
+with a loop design pattern \cite{pattern-lang}.
+
+\fixme{not sure if the loop pattern stuff actually works out now}
+\fixme{would loop invariant patterns be more applicable?}
 
 \subsection{Starting bound}
+
+The starting bound invariant is a common bounding invariant for a counting
+variable in a loop.
+The use of counting variables are common in Whiley due to a lack of 
+general \code{for} loops that have self-contained counting variables
+that are seen in languages such as Java.
+The most common use case of this loop invariant is enforcing that 
+a variable used to index an array is greater than 0 as shown in
+figures~\ref{lst:starting-bound-sum} and \ref{lst:starting-bound-contains}.
+It is obvious from inspection that the value of \code{i} is 0 at entry
+of the loop and that it will increase with every iteration from the code before
+and inside the loop.
+This is required since the Whiley theorem prover cannot generally 
+determine the value of the variable and instead relies on the programmer
+providing the range, be it partially or completely specified.
+
+\subsubsection{Loop Pattern}
+
+The commonly thread between each instance of a starting bound invariant
+is the structure before and in the loop.
+Before the loop it is observed that initial value of the counting
+variable is initialized or set to constant a constant value.
+This is either the lower or upper bound of the range of the loop.
+Inside the loop the body ensures that the counting variable is within
+the range.
+This is generally be achieved by incrementing or decrementing the variable
+to the other boundary of the array than it started on, from lower to upper or
+upper to lower bound respectfully.
+
+\paragraph{Examples}
+
+Below are three valid Whiley programs that contain a starting bound
+invariant.
+Each of these examples are operating on lists since they are verifiable
+examples in the current version of Whiley.
+This includes a simple iterations that use counters. Though not all
+examples require the starting bound invariants to verify they still hold.
+
+
+\begin{figure}[ht]
+\begin{lstlisting}
+int counter = I
+...
+while C
+    where f(counter) <> I:
+    ... 
+    counter = f(counter)
+    ...
+\end{lstlisting}
+    \caption{Example of a starting bound invariant for Fibonacci sequence (unverified).}
+\label{lst:starting-bound-gen}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function fib(int iter) -> (int r)
+requires iter >= 0
+requires iter == 0 ==> r == 1
+requires iter == 1 ==> r == 1
+ensures  iter > 1  ==> r == fib(iter - 1) + fib(iter - 1):
+    // declarations omitted
+    i, a, b = iter, 1, 0
+    while i >= 0
+        where i <= iter && a >= 1 && b >= 0 // starting bounds
+        ... // omitted
+        int c = a
+        a = a + c
+        b = c
+        i = i + 1
+    //
+    return a
+\end{lstlisting}
+    \caption{Example of a starting bound invariant for Fibonacci sequence (unverified).}
+\label{lst:starting-bound-fib}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function sum(int[] items) -> (int r)
+requires all { i in 0..|items| | items[i] >= 0 }:
+    int i = 0
+    int sum = 0
+    while i < |items|
+    where sum >= 0
+    where i >= 0: // starting bound
+        sum = sum + items[i]
+        i = i + 1
+    //
+    return sum
+\end{lstlisting}
+\caption{Example of a starting bound invariant.}
+\label{lst:starting-bound-sum}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function contains(int[] items, int item) -> (bool r)
+ensures  r ==> some { i in 0..|items| | items[i] == item }
+ensures !r ==> all  { i in 0..|items| | items[i] != item }:
+    int i = 0
+    while i < |items|
+    where i >= 0 // starting bound
+    where all { j in 0..i | items[j] != item }:
+        if items[i] == item:
+            return true
+        i = i + 1
+    //
+    return false
+\end{lstlisting}
+\caption{Example of a starting bound invariant.}
+\label{lst:starting-bound-contains}
+\end{figure}
+
+\fixme{ran out of pages? put this in appendix!}
+
+\paragraph{Context} 
+
+The context of the pattern is to solve the issue that the loop 
+body want to keep track of where it is in the loop.
+This could be to count the number of iterations or keeping track
+of what element is to be processed in the next iteration.
+
+\paragraph{Problem}
+
+This loop pattern seeks to solve the problem of 
+
+\paragraph{Forces}
+
+\paragraph{Solution}
+
+\paragraph{Resulting Context}
 
 \todo{bunch of examples}
 
@@ -240,13 +379,91 @@ this report.
 
 \todo{bunch of examples}
 
+\begin{figure}[ht]
+\begin{lstlisting}
+function add(int[] items, int delta) -> (int[] r)
+ensures |r| == |items|
+ensures all { i in 0..|r| | items[i] + delta == r[i] }:
+    int i = 0
+    int[] mod = items
+    while i < |items|
+    where i >= 0 // starting bound
+    where |mod| == |items| // equal array length
+    where all { j in 0..i | items[j] + delta == mod[j] }:
+        mod[i] = items[i] + delta
+        i = i + 1
+    //
+    return mod
+\end{lstlisting}
+\caption{Example of equal array length invariant.}
+\label{lst:starting-bound-rev}
+\end{figure}
+
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function add(int[] items, int delta) -> (int[] r)
+ensures |r| == |items|
+ensures all { i in 0..|r| | items[i] + delta == r[i] }:
+    int i = 0
+    int[] mod = items
+    while i < |items|
+    where i >= 0 // starting bound
+    where |mod| == |items| // equal array length
+    where all { j in 0..i | items[j] + delta == mod[j] }:
+        mod[i] = items[i] + delta
+        i = i + 1
+    //
+    return mod
+\end{lstlisting}
+\caption{Example of equal array length invariant.}
+\label{lst:starting-bound-rev}
+\end{figure}
+
 \subsection{Upper bound}
 
 \todo{bunch of examples}
 
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function len(int[] items) -> (int r)
+ensures r == |items|:
+    int i = 0
+    while i < |items|
+    where i <= |items| // upper bound
+    where i >= 0:
+        i = i + 1
+    return i
+\end{lstlisting}
+\caption{Example of an upper bound invariant.}
+\label{lst:starting-bound-rev}
+\end{figure}
+ 
+
 \subsection{Array iterative assignment}
 
 \todo{bunch of examples}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function add(int[] items, int delta) -> (int[] r)
+ensures |r| == |items|
+ensures all { i in 0..|r| | (items[i] + delta) == r[i] }:
+    int i = 0
+    int[] mod = items
+    while i < |items|
+    where i >= 0
+    where |items| == |mod|
+    // iterative assignment
+    where all { j in 0..i | mod[j] == (items[j] + delta) }:
+        mod[i] = items[i] + delta
+        i = i + 1
+    return mod
+\end{lstlisting}
+\caption{Example of equal array length invariant.}
+\label{lst:starting-bound-rev}
+\end{figure}
 
 \section{Techniques used to infer properties of a loop}
 \comment{
