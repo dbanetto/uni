@@ -202,7 +202,7 @@ a compiler flag.
 This is inline with how other optional features are handled in Whiley and
 other standard compilers such as the GNU C compiler.
 
-\subsection{Essential Invariants}
+\subsection{Essential Invariants}\label{s:essential-inv}
 \comment{
 It is known that all invariants generated will not be useful to proving the post-condition
 (due to P-C has no input generated inv) \\
@@ -485,7 +485,7 @@ The techniques covered are:
 \begin{itemize}
     \item{Loop Context}
     \item{Determining a simple mutation}
-    \item{Decomposing Loop conditions and Invariants}
+    % \item{Decomposing Loop conditions and Invariants}
     \item{Associate copied arrays to source}
 \end{itemize}
 
@@ -563,7 +563,7 @@ to decreasing after some unknown point, such as a polynomial equation.
 The current design only allows a single variable to be in a simple mutation
 expression.
 That variable must also be the variable that is being mutated as well.
-For example in figure~\ref{lst:simple-mutation} the assignment of \code{i} on
+For example in figure~\ref{lst:simple-mutations} the assignment of \code{i} on
 line 3 is simple since it refers to itself variable.
 However, the assignment of \code{f} on line 6 is not simple as
 it refers to a variable that is not \code{f}.
@@ -620,12 +620,12 @@ This process is outlined in figure~\ref{math:simple-mutation}.
 \label{math:simple-mutation}
 \end{figure}
 
-\subsection{Decomposing Loop conditions and Invariants}\label{s:cond-decompose}
-\comment{
-    Whiley semantics means all where clauses are conjunctively joined, \\
-    A loop condition that is conjunctively joined can be broken into
-    segments
-}
+%\subsection{Decomposing Loop conditions and Invariants}\label{s:cond-decompose}
+%\comment{
+%    Whiley semantics means all where clauses are conjunctively joined, \\
+%    A loop condition that is conjunctively joined can be broken into
+%    segments
+%}
 
 \subsection{Associate length of copied arrays to source}\label{s:copied-array}
 \comment{ was a array initialised with a copy from an array type or use a
@@ -662,300 +662,3 @@ a = f() { |a| -> ?? }
 \caption{Examples of associated array lengths}
 \label{lst:simple-mutations}
 \end{figure}
-
-% ==========================================================
-\todo{Looks best to move the next sections into impl chapter}
-
-\comment{
-Biggest design decision  was at what level are the invariants going to be inferred
-then where are they going to be generated
-}
-\section{Approaches to Loop Invariant Generation}
-
-The principle design decision of this project was at
-what point in the Whiley Compiler pipeline
-to generate the loop invariants.
-There are three candidate stages in the Whiley Compiler
-that the input program will go through in the process of
-being verified, the list is not necessarily in order of occurrence:
-
-\begin{itemize}
-    \item{Whiley Intermediate Language}
-    \item{Whiley Assertion Language}
-    \item{Whiley's Abstract Syntax Tree}
-\end{itemize}
-
-Each of these stages have different representations of the Whiley program and
-associated information about the program itself.
-In the resulting solution the design approach taken was to build upon
-Whiley's abstract syntax tree.
-
-
-\begin{figure}
-\noindent\begin{minipage}{.45\textwidth}
-\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
-i = 0
-while i < |items|:
-    i = i + 1
-\end{lstlisting}
-\end{minipage}\hfill
-\begin{minipage}{.45\textwidth}
-    \todo{PUT A UML DIAGRAM OF THE AST}
-\end{minipage}
-\caption{Example of a Whiley snippet and UML of its AST}
-\label{lst:design-whiley}
-\end{figure}
-
-\subsection{Whiley Intermediate Language (WyIL)}
-\comment{
-possible method to create tool on WyIL
-
-What could be achieve with this:
-
- * is designed to be a binary version of the code
-
- * WyIL goal is to make intermediate language between ALL targets of Whiley
-
- * AST converted into loosely connected values via integers
-
- * less information readily available
-}
-
-The Whiley Intermediate Language (WyIL) is a binary representation of a Whiley program
-that can be easily transformed into other targets such as languages or
-instruction sets \cite{wyil}.
-It is a register based language with no nested expressions
-that also includes blocks to group together statements such as the body of a loop.
-This allows the language to keep a majority of its structure with the
-exception of local variables and intermediate values becoming indistinguishable
-without analysis.
-
-The structure of internal API to query and modify WyIL code impedes a
-generator's ability to match it against a loop pattern.
-This is from the internal structure of a statement in WyIL where each
-statement is loosely defined with op codes and blocks.
-By generating the loop invariants as additional byte code the ability to
-inspect the result and debug them are hampered relative to operating on the
-AST.  This is because the ability to decompile from WyIL to Whiley could
-be impeded which prevents the user from being able to inspect the generated
-code.
-WyIL can also be decompiled to a representation similar to assembly, see
-figure~\ref{lst:design-wyil} for an example of Whiley code compared to its
-intermediate language equivalent.
-This example shows the amount of information available about the variables
-in the program and their usage in the loop.
-This approach was not selected due to the disconnect between loop patterns
-in the programmer source code to their representation in WyIL.
-
-
-\begin{figure}
-\noindent\begin{minipage}{.45\textwidth}
-\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
-i = 0
-while i < |items|
-    where i >= 0:
-    i = i + 1
-\end{lstlisting}
-\end{minipage}\hfill
-\begin{minipage}{.45\textwidth}
-\begin{lstlisting}[caption={WyIL Code},frame=tlrb,numbers=none]{Name}
-const %1 = 0
-loop modifies %1
-    invariant :
-        const %2 = 0
-        ifge %1, %2
-        goto lab_0
-        fail
-    .lab_0
-        return
-    ifge %1, %0
-    goto lab_1
-    add %1 = %1, %0
-.lab_1
-return %1
-\end{lstlisting}
-\end{minipage}
-    \caption{Example of simple Whiley snippet as WyIL}
-    \label{lst:design-wyil}
-\end{figure}
-
-\subsection{Whiley Assertion Language (WyAL)}
-\comment{
-WyAL, what it is:
-
-* changes would be more dramatic
-
-* Does not have the same level of control
-
-* hosted inside the theorem prover
-}
-
-The Whiley Assertion language (WyAL) is derived from WyIL to create
-assertions for the Whiley automated theorem prover \cite{wyal}.
-WyAL follows a similar syntax to regular Whiley except that the program
-is a collection of boolean expressions with additional constructs such as
-if branches and universal quantifiers.
-No program logic or structure is held in WyAL but are kept in the source
-WyIL program.
-
-Figure~\ref{lst:design-wyal} shows an example of WyAL code generated from
-the given Whiley code.
-This figure shows the assertions for a simple loop invariant as well as the
-assertion message which are directly displayed to the user on failure.
-The main benefit of generating loop invariants at the WyAL level is the
-impact of the new loop invariants are contained to only the verification
-process and prevents a generator author from breaking a design consideration,
-such as not creating variables, as the Whiley code is immutable by this point.
-However, since the lack of program logic in WyAL requires the use of a WyIL program
-as backing the same issues with WyIL are present with working on WyAL.
-This includes the difficultly to correlate between the high-level structure
-in a Whiley program to the resulting WyIL code.
-
-\begin{figure}
-\noindent\begin{minipage}{.45\textwidth}
-\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
-i = 0
-while i < |items|
-    where i >= 0:
-    i = i + 1
-\end{lstlisting}
-\end{minipage}\hfill
-\begin{minipage}{.45\textwidth}
-\begin{lstlisting}[caption={WyAL Code},frame=tlrb,numbers=none,breaklines=true]{Name}
-function count(int[] ls) -> (int n)
-
-define count_loopinv_6(int i) is:
-  i >= 0
-
-
-assert "loop invariant does not hold on entry":
-  forall(int i$0):
-    if:
-      i$0 == 0
-    then:
-      count_loopinv_6(i$0)
-
-
-assert "loop invariant not restored":
-  forall(int i$1, int i, int i$2):
-    if:
-      i == 0
-      count_loopinv_6(i$1)
-      i$1 > 0
-      i$2 == (i$1 + 1)
-    then:
-      count_loopinv_6(i$2)
-\end{lstlisting}
-\end{minipage}
-    \caption{Example of simple Whiley snippet as WyAL}
-    \label{lst:design-wyal}
-\end{figure}
-
-\subsection{Whiley Abstract Syntax Tree}
-\comment{
-    Whiley files \\
-    * Closest to programmer code \\
-    * most information in the most related form \\
-}
-
-The Whiley abstract syntax tree (AST) is the closest representation to
-the source code.
-This also includes the most information available, which includes detailed
-types, variable names and expression trees \cite{whiley-origin}.
-The AST is broken into three types of: top level declarations of types,
-methods and functions ; statements blocks for individual statements
-such as assignments or structures such as if statements; and, expressions
-that include the usage of variables, function calls and constants.
-There is some overlap between statements and expressions in the AST,
-such as function calls are both statements and expressions given that they
-return a value.
-This gives the invariant generator to be able to identify loop patterns in the
-structure.
-
-However, the amount of information comes as at a cost of being able to parse
-it and discover relevant information.
-The structure of internal API of the Whiley AST forces a recursive decent
-approach, much like the other internal languages in the compiler.
-However, the AST is the richest in terms of number of types of nodes
-in the AST needed to be supported to parse properly with
-statement trees, expression trees and top-level declarations of methods and
-types.
-The cost of supporting all of these different nodes in the AST is
-repeated code handling traversal and needing to handle a large range
-of cases to parse a statement.
-These costs are acceptable since it allows for generators to be
-the most expressive and enable other design constraints of
-debugging and inspection.
-
-\section{Architecture of Loop Invariant Generators}
-\comment{
-    ALL ONE BLOB! vs strategy + a common set of information \\
-    Explain how each generator is distinct code \\
-    UML of strategy pattern \\
-    the utility package
-}
-
-Another critical design decision was the architecture of how loop invariant
-generators operate on the AST.
-The architecture needs to fit with other similar static analysis checks
-implemented, such as the definite assignment and type system, which all
-traverse the AST once.
-For this solution two architectural options are available to solve this issue:
-
-\begin{itemize}
-    \item{Monolithic, traversing the AST once and apply all generators at once,}
-    \item{Multiple sweeps, traversing the AST once but repeat loops multiple times for each generator}
-\end{itemize}
-
-The architecture chosen for the resulting solution is  traversing the AST once
-but repeating on loops so that each generator could inspect the loop.
-
-\subsection{Monolithic Single Sweep}
-\comment{
-What would a monolithic look like \\
-single pass \\
-how would it impact metrics such as maintainability \\
-how would it impact performance \\
-}
-
-A monolithic single sweep of the AST will only visit each
-node in the AST once to generate the loop invariants.
-This requires all loop invariant generators to be operating
-during the pass or have all of their required information collected
-in the single pass.
-This minimizes the operational cost of traversing the loop body
-multiple times at the cost of maintaining a monolithic loop invariant generator.
-However, with the interweaving of multiple generators the maintenance of the
-monolithic structure becomes issue prone.
-This option was not implemented as the maintenance cost out weighed any
-runtime performance benefits gained.
-
-
-\todo{include UML of what the pipeline would look like with this arch}
-
-\subsection{Multiple Sweeps with the Strategy Pattern}
-\comment{
-What would a monolithic look like \\
-* multi-pass, no entire file multiple-times but same section \\
-* how would it impact metrics such as maintainability \\
-* how would it impact performance
-}
-
-Multiple sweeps of loops in the AST with a different strategy for each sweep
-will only visit most nodes once but loop bodies.
-This gives loop generators complete control over how they traverse the loop
-body's AST at the cost of traversing the loop multiple times.
-The additional benefit of each generator being separate is the maintenance cost
-of adding a new generator or modifying an existing generator is greatly reduced
-relative to a monolithic approach as each generator is not intertwined with
-each other.
-This option was selected as the cost of maintenance was significantly less
-than a monolithic solution.
-Another factor is that the architecture could still progress towards
-a partial monolithic-strategy based architecture if the performance hit
-of traversing loops becomes a bottleneck.
-This can be achieved by finding patterns of what information generators are
-seeking and provide an interface where that information is computed once for
-all generators that require it and keep the traversal interface for unique generators.
-
-\todo{include UML of what the pipeline would look like with this arch}
