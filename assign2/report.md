@@ -86,7 +86,7 @@ request.
 
 ## K)
 
-Input fuzzing is when a user input field, such as a free text field in a GUI, is 
+Input fuzzing is when a user input field, such as a free text field in a GUI or environment variables, is 
 tested against a large range of random strings that include either garbage data or
 just plain wrong encoding to test how well the program can handle the input.
 One field this is used in is to test compilers or serializing frameworks to ensure
@@ -95,16 +95,15 @@ This should be used for any user-input field that allows free-form text.
 
 ## L)
 
-A security issue that arises due to carelessly putting all of the secret variables into
-the environment variables is that they can be easily leaked.
-For example if the input was not sanitized or used properly an attacker
-could perform an additional commands. Such as
-
-```bash
-TARGET=$1
-
-do_the_thing $TARGET
-```
+A security issue that can arise form the careless use of environment variables
+are underlying assumptions should be broken.
+For example the `PATH` variable maybe overwritten or shimmed it look at
+`/tmp/bad/bin` before the correct system binaries or common commands such as
+`cd` or more.
+By doing so an attacker can run their own code at the permission level of the script
+to launch their attack.
+This could have outcome of an attacker taken over an entire user, for example `root`
+or `httpd`.
 
 # Practical Component (Squid Proxy)
 
