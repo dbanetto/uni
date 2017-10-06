@@ -227,20 +227,29 @@ The trade-off of this decision is that at the cost of having some redundant
 invariants that the complexity of code and time generating loop invariants is
 greatly reduced.
 
-\section{Targeted loop invariants}
+\section{Targeted loop invariants}\label{s:target-loop-inv}
 
-Though each loop had many individualised loop invariants some invariant held a
-common pattern across the loops.
+There is a wide range of loop invariants with many made for a particular situation
+but there are some common between most loops.
 From these commonly recurring invariants four of them were identified and
-studied why they were applicable.
-This section outlines these invariants, gives examples of where they apply and
+studied their usage pattern.
+This section outlines these invariants, gives examples of where they apply,
 describes the commonly observed loop structure where they occur.
-with a loop design pattern \cite{pattern-lang}.
 
 \fixme{not sure if the loop pattern stuff actually works out now}
 \fixme{would loop invariant patterns be more applicable?}
 
 \subsection{Starting bound}
+\comment{
+	finds entry value \\
+	creates invariants from composing things \\
+	has the loop pattern of \\
+	int $i$ = $X$ \\
+	while $C$: \\
+	$P_1$ \\
+	$i = i (+|-) N$ \\
+	$P_2$
+}
 
 The starting bound invariant is a common bounding invariant for a counting
 variable in a loop.
@@ -263,9 +272,9 @@ The commonly thread between each instance of a starting bound invariant
 is the structure before and in the loop.
 Before the loop it is observed that initial value of the counting
 variable is initialized or set to constant a constant value.
-This is either the lower or upper bound of the range of the loop.
-Inside the loop the body ensures that the counting variable is within
-the range.
+This is either the lower or upper bound of the loop's range.
+Inside the loop body the counting variable is progressed with each
+iteration.
 This is generally be achieved by incrementing or decrementing the variable
 to the other boundary of the array than it started on, from lower to upper or
 upper to lower bound respectfully.
@@ -377,8 +386,22 @@ This loop pattern seeks to solve the problem of
 
 \subsection{Equal array length}
 
+\comment{
+	* finds associated arrays \\
+	* checks to make sure source is not modified \\
+	* asserts their length is the same \\
+	
+	pattern: \\
+	
+	$x = ( a | [X;|a|] )$ \\
+	while C: \\
+	$P$ - not includes $x = X$, $a = Y$\\
+}
+
 \todo{bunch of examples}
 
+
+
 \begin{figure}[ht]
 \begin{lstlisting}
 function add(int[] items, int delta) -> (int[] r)
@@ -419,8 +442,36 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
 \caption{Example of equal array length invariant.}
 \label{lst:starting-bound-rev}
 \end{figure}
+
+
+\subsubsection{Loop Pattern}
+
+\paragraph{Examples}
+\paragraph{Context}
+\paragraph{Problem}
+\paragraph{Forces}
+\paragraph{Solution}
+\paragraph{Resulting Context}
+
+\subsection{Formal Definition}
 
 \subsection{Upper bound}
+\comment{
+	Finds simple mutations \\
+	Figures out actually how much the value changes every iteration
+	(is slight change on finding sequence direction, just stricter) \\
+	checks to ensure that the variable is apart of the termination condition of the
+	loop \\
+	Allow mutations of +1 or -1 each iteration\\
+	
+	pattern: \\
+	
+	$i = N$ \\
+	while $C$ \\
+	$P_1$ \\
+	$i = i (+|-) (1|-1)$ \\
+	$P_2$ \\
+}
 
 \todo{bunch of examples}
 
@@ -439,11 +490,39 @@ ensures r == |items|:
 \caption{Example of an upper bound invariant.}
 \label{lst:starting-bound-rev}
 \end{figure}
- 
+
+\subsubsection{Loop Pattern}
+
+\paragraph{Examples}
+\paragraph{Context}
+\paragraph{Problem}
+\paragraph{Forces}
+\paragraph{Solution}
+\paragraph{Resulting Context}
 
 \subsection{Array iterative assignment}
 
-\todo{bunch of examples}
+\comment{
+	Finds arrays that are being set \\
+	Ensures the assignments are not self-dependent \\
+	Identifies the index variable and is simple mutations \\
+	Ensure index start of mutation on array, like starting bound \\
+	figures out sequence direction of index, ascending or descending the array \\
+	use index as the upper or lower bound \\
+	determines range of the mutation \\
+	
+	pattern: \\
+	
+	$i = N$ \\
+	$a = [ .. ]$ \\
+	while $C$: \\
+	$a[i] = f(i)$ \\
+	$i = i (+|-) (1|-1)$ \\
+	
+	creates $all { \_i in C .. i | a[\_i] == f(\_i) }$
+}
+
+\todo{examples}
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -464,6 +543,15 @@ ensures all { i in 0..|r| | (items[i] + delta) == r[i] }:
 \caption{Example of equal array length invariant.}
 \label{lst:starting-bound-rev}
 \end{figure}
+
+\subsubsection{Loop Pattern}
+
+\paragraph{Examples}
+\paragraph{Context}
+\paragraph{Problem}
+\paragraph{Forces}
+\paragraph{Solution}
+\paragraph{Resulting Context}
 
 \section{Techniques used to infer properties of a loop}
 \comment{

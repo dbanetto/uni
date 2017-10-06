@@ -321,86 +321,134 @@ the same length as another.
 This is used generally when transforming every element in array into a separate
 variable. See figure~\ref{lst:whiley-length} for a simple example.
 
-\section{Starting Value Invariant}
-\comment{
-finds entry value \\
-creates invariants from composing things \\
-has the loop pattern of \\
-int $i$ = $X$ \\
-while $C$: \\
-    $P_1$ \\
-    $i = i (+|-) N$ \\
-    $P_2$
-}
+\section{Implemented Loop Invariant Generators}
 
-\ref{s:sequence-dir} \ref{s:simple-mut} \ref{s:loop-context}
+This section will cover how each loop invariant generator was implemented and their use cases.
+Each generator only cover a subset of the cases described 
+for their corresponding loop invariant in section~\ref{s:target-loop-inv}.
 
-A common pattern observed in 
 
-From loop pattern of incrementing a variable each iteration of the loop
-a invariant of the starting value can be inferred.
-This invariant requires to know which variable is being
-mutated in a simple manner each iteration,
-the value of the variable at entry of the loop and if the mutation is an
-increasing or decreasing sequence.
-From this information an invariant be generated that encapsulates that the
-variable will be increasing or decreasing from the initial value.
-An example of the invariant generated is on line 5 of
-figure~\ref{lst:whiley-start}.
-The loop invariant inferred is a bounding invariant.
+\subsection{Starting bound}
+
+The implement starting bound invariant covers only linear monotonic counters.
+This generator utilises and composes multiple mechanisms to determine 
+if a variable in the
+loop is a counting variable with a known starting bound to apply the invariant for.
+These mechanisms are: the loop context (see section \ref{s:loop-context}) ;
+determining a simple mutation (see section \ref{s:simple-mut}) ; and,
+determining if a mutation is increase or decreasing (see section \ref{s:sequence-dir}).
+From this a variable is known to be increasing or decreasing, this is known as its direction.
+
+The generator supports multiple mutations of the same variable in the loop.
+To determine the final direction of the variable each mutation is merged though
+using the lattice described in figure~\ref{eq:start-lattice}.
+This shows that a variable could have four directions, unknown ($\top$),
+increasing ($+$), decreasing ($-$) and indeterminable ($\bot$).
+Merges occur on an assignment or when branches, 
+such as \code{if}'s or nested loops, join back.
+With the lattice a given variable's direction can be determined and also
+decided if it is valid (increasing or decreasing) or invalid (unknown or indeterminable).
+
+\begin{figure}
+$$\text{values} = \{ \top, +, -, \bot \}$$
+\[
+\text{Lattice} \begin{cases*}
+\quad X \cup \top = X \\
+\quad X \cup X = X \\
+\quad X \cup Y = \bot
+\end{cases*}
+\]
+\caption{Starting bound lattice to determine mutation direction}
+\label{eq:start-lattice}
+\end{figure}
+
+For variables that have a valid direction and a valid entry in the loop context an invariant
+can be generated.
+There are three components to the generated invariant: variable being mutated, an inequality based
+on the variable's direction, and the known value of the variable before entering the loop.
+The inequalities used in the expression are appropriate to the direction. 
+If the variable was increasing then the variable will be greater than or equal to the known value
+and vis versa for a decreasing variable.
+
+To illustrate this generator the figures~\ref{lst:whiley-start} and \ref{lst:whiley-start-if}
+show simplified examples.
+Figure~\ref{lst:whiley-start} shows the most simplistic and common use case for this
+generator. Where figure~\ref{lst:whiley-start-if} shows a more complex case 
+with an \code{if} branch that changes the magnitude of the mutation but not the direction. 
 
 \begin{figure}[ht]
 \begin{lstlisting}
-    ...
-    int i = 0
+...
+int i = 0
 
-    while i < |items|:
-        // 'where i >= 0' is inferred
-        apply(items[i])
-        i = i + 1
-    ...
+while i < |items|:
+  // 'where i >= 0' is inferred
+  apply(items[i])
+  i = i + 1
+...
 \end{lstlisting}
 \caption{Simple example of inferring starting bound of index}
 \label{lst:whiley-start}
 \end{figure}
 
-With the identification of the variable with a simple mutation and knowing
-if it decreases or increases each iteration an invariant can be made.
-This is in the form of the variable on the left with either a less than or
-equal to ($\leq$) or greater than or equal to ($\geq$) to the initial value on the
-right.
-In figure~\ref{lst:whiley-start} the variable \code{i} is clearly increasing
-with each iteration due to line 7 and the inferred invariant, on line 5, is
-obvious from the context.
+\begin{figure}[ht]
+\begin{lstlisting}
+int i = x
 
-\subsection{Loop Pattern}
+while i < |items|:
+  // 'where i <= x' is inferred
+  apply(items[i])
+  if skip(item[i]):
+    i = i - 2
+  else:
+    i = i - 1
+\end{lstlisting}
+\caption{Starting bound invariant with branch}
+\label{lst:whiley-start-if}
+\end{figure}
 
-\subsubsection{Examples}
-\subsubsection{Context}
-\subsubsection{Problem}
-\subsubsection{Forces}
-\subsubsection{Solution}
-\subsubsection{Resulting Context}
+\subsubsection{Limitations}
 
-\subsection{Formal Definition}
+There are many limitations to the starting bound generator.
+The main root of these limitations is only handling the case
+of single variable linear monotonic functions. 
+This prevents the invariant being generated for other
+methods of counting or using complex logic that determines
+the mutation each iteration.
 
-\subsection{Limitations}
+One example is having multiple nested loops to count or index
+the inner-element then combining them together to a total variable.
+In this example each counter for the nested loops will have a generated
+starting bound invariant but the total will not.
+This is due to the mutation of the total failing the test of a simple
+mutation where the only variable allowed is itself.
 
-\section{Equal Length of Copied Arrays Invariant}
-% array length
-\comment{
-    * finds associated arrays \\
-    * checks to make sure source is not modified \\
-    * asserts their length is the same \\
+Another example of the limitations present is shown in figure~\ref{lst:whiley-start-limit}.
+This shows that the starting bound invariant will not be generated because
+the direction is indeterminable.
+Even though on inspection it is clear that \code{i} will not decrement.
+However, the components of the generator does not understand this
+since they lack the ability to test branches for tautologies
+to prune their traversals. 
 
-pattern: \\
+\begin{figure}[ht]
+\begin{lstlisting}
+int i = 0
 
-$x = ( a | [X;|a|] )$ \\
-while C: \\
-    $P$ - not includes $x = X$, $a = Y$\\
-}
+while i < |items|:
+// 'where i >= 0' cannot be  inferred
+apply(items[i])
+  if false:
+    i = i - 1
+  i = i + 1
+\end{lstlisting}
+\caption{Example of a limitation of the Starting bound generator}
+\label{lst:whiley-start-limit}
+\end{figure}
 
-\todo{remove techniques to design}
+\subsection{Equal array length}
+
+\fixme{remove techniques to design}
 
 From a common pattern of making a copy of arrays or generating another array
 with an equal length an invariant can be inferred.
@@ -456,74 +504,15 @@ invariant of the lengths are equal.
 See figure~\ref{lst:whiley-length} line 5 for the invariant generated
 from the example code.
 
-\subsection{Loop Pattern}
 
-\subsubsection{Examples}
-\subsubsection{Context}
-\subsubsection{Problem}
-\subsubsection{Forces}
-\subsubsection{Solution}
-\subsubsection{Resulting Context}
+\subsubsection{Limitations}
 
-\subsection{Formal Definition}
-
-\subsection{Limitations}
-
-\section{Loop Condition Ageing Invariant}
-
-\comment{
-Finds simple mutations \\
-Figures out actually how much the value changes every iteration
-(is slight change on finding sequence direction, just stricter) \\
-checks to ensure that the variable is apart of the termination condition of the
-loop \\
-Allow mutations of +1 or -1 each iteration\\
-
-pattern: \\
-
-$i = N$ \\
-while $C$ \\
-    $P_1$ \\
-    $i = i (+|-) (1|-1)$ \\
-    $P_2$ \\
-}
+\subsection{Upper bound}
 
 
-\subsection{Formal Definition}
+\subsubsection{Limitations}
 
-\subsection{Limitations}
+\subsection{Array iterative assignment}
 
-\section{Iterative Array Assignment Invariant}
 
-\comment{
-Finds arrays that are being set \\
-Ensures the assignments are not self-dependent \\
-Identifies the index variable and is simple mutations \\
-Ensure index start of mutation on array, like starting bound \\
-figures out sequence direction of index, ascending or descending the array \\
-use index as the upper or lower bound \\
-determines range of the mutation \\
-
-pattern: \\
-
-$i = N$ \\
-$a = [ .. ]$ \\
-while $C$: \\
-    $a[i] = f(i)$ \\
-    $i = i (+|-) (1|-1)$ \\
-
-creates $all { \_i in C .. i | a[\_i] == f(\_i) }$
-}
-
-\subsection{Loop Pattern}
-
-\subsubsection{Examples}
-\subsubsection{Context}
-\subsubsection{Problem}
-\subsubsection{Forces}
-\subsubsection{Solution}
-\subsubsection{Resulting Context}
-
-\subsection{Formal Definition}
-
-\subsection{Limitations}
+\subsubsection{Limitations}
