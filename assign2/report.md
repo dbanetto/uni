@@ -32,9 +32,39 @@ that an attack is instead normal network usage.
 
 ## C)
 
+ * Statistical - the detection system monitors for statistical anomalies such
+  as a high disk usage at a time that is known to be a historic low.
+  Though this method can create false-positives from changes in behaviour, such
+  as a sysadmin realising it is a good idea to do daily backups instead of weekly.
+
+ * Model based detection - is based off a defined model of a working system.
+ Events in the system moves the model to new states where it has "acceptable" transitions.
+ If actions are taken that is not predicted by the model it is considered an
+ anomaly and reported. This method is heavy as ability to create a well defined model
+ is difficult.
+
+ * Machine learning based detection - an advancement on the statistical monitoring
+  to use machine learning techniques to observe more patterns. 
+  Like the model based detection a ML detection can observe when a system diverges from
+  the known patterns to flag as an anomaly.
+
 ## D)
 
+ 1. The firewall must be placed where all traffic (intended to be filtered) must pass through it
+ 2. Only authorized traffic, that is defined by the firewall's policy, is allowed to pass.
+ 3. The firewall cannot be subverted
+
 ## E)
+
+A packet filtering firewall looks at a single packet and match it against simple rules,
+such as no traffic to IP range `192.168.0.1/24`.
+These policies are simple pattern matching on the bytes of the packet.
+This allows these types of firewalls to be implemented as hardware to be fast. 
+A stateful firewall buffers or remembers multiple packets to figure out connections
+between machines that pass the firewall.
+The difference between these types of firewalls are that a packet filtering firewall
+only considers a single packet to apply its policies to while a stateful firewall
+considers the connections, packets over time, in its policies.
 
 ## F)
 
