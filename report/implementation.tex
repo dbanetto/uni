@@ -585,15 +585,44 @@ This has limits the possibility to identify an upper bound.
 To relieve some this limitation the conditions could
 be rearranged or simplified to better identify an upper bound. 
 
-\begin{figure}
-\begin{lstlisting}
-while !(i < |items| || )
-\end{lstlisting}
-\caption{Limitation of the upper bound generator}
-\label{lst:whiley-upper-bound}
-\end{figure}
-
 \subsection{Array iterative assignment}
 
 
+
+\begin{figure}
+\begin{lstlisting}
+int[] a = [0 ; 100]
+int i = 0
+while i < |a|
+	// `where all { _i in 0..i | a[_i] == f(i) }`
+	a[i] = f(i)
+	i = i + 1
+\end{lstlisting}
+\caption{Example array iterative assignment generator}
+\label{lst:array-iter-assign}
+\end{figure}
+
 \subsubsection{Limitations}
+
+A limitation of this generator is that the assignment expression cannot
+reference itself.
+This is shown in figure~\ref{lst:limit-array-iter-assign} where the assignment
+of \code{a[i]} depends on the previous value of \code{a[i]}.
+The limitation of is from the generator not being able to compare the previous
+value of the element.
+A possible solution of this would be to introduce a ghost variable to hold the
+previous value, however this functionality is undesirable (see section~\ref{s:design-create-var}),
+but could utilised if introduced as a language feature.
+
+
+\begin{figure}
+\begin{lstlisting}
+int[] a = g(100)
+int i = 0
+while i < |a|
+	a[i] = a[i] + f(a)
+	i = i + 1
+\end{lstlisting}
+\caption{Limitation of array iterative assignment generator}
+\label{lst:limit-array-iter-assign}
+\end{figure}
