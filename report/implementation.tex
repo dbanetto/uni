@@ -327,10 +327,9 @@ This section will cover how each loop invariant generator was implemented and th
 Each generator only cover a subset of the cases described 
 for their corresponding loop invariant in section~\ref{s:target-loop-inv}.
 
-
 \subsection{Starting bound}
 
-The implement starting bound invariant covers only linear monotonic counters.
+The implementation of the starting bound invariant covers only linear monotonic counters.
 This generator utilises and composes multiple mechanisms to determine 
 if a variable in the
 loop is a counting variable with a known starting bound to apply the invariant for.
@@ -450,62 +449,70 @@ apply(items[i])
 
 \fixme{remove techniques to design}
 
-From a common pattern of making a copy of arrays or generating another array
-with an equal length an invariant can be inferred.
-This loop pattern is found when applying a function that changes the type of
-the element or the user does not wish to update the original array.
-Figure~\ref{lst:whiley-length} shows a simple example of applying a function
-\code{apply ()} to each element of an array.
-Generally the user would also need to provide an invariant that both arrays
-have the same length to prevent possible out-of-range errors or prove a
-post-condition.
-The loop invariant inferred is a bounding invariant.
+The equal array length invariant generator is implementation handles copied and
+generated arrays.
+This generator unities the associated array mechanism to determine if the
+length of two arrays are equal (see Section~\ref{s:copied-array}).
+From this association the generator then discovers what arrays should
+be asserted equal in the loop invariant by checking if they are used in the
+loop body.
+This is to filter out known unessential invariants since they are known not to
+be used.
 
-\todo{ref to design instead of assuming it is here}
+The figure~\ref{lst:whiley-length} shows an example of the equal array length
+invariant being generated.
+Lines 1 and 3 show that the second array's association can be formed by either
+copying or generating an array with by using the length of another array.
+From either of these lines \code{copy} and \code{items} are linked until
+either of these arrays are re-assigned or one falls out of scope.
+Line 6 show that both of the associated arrays are used, one in an expression
+and the other having an element assigned.
+Both of these uses are examples of what the generator considers as usage in
+the loop body.
+Given these findings the generator then can generate the invariant that
+the two associated arrays equal length as shown on line 5.
 
-
-With this invariant it is detected that an array is declared with the same
-length as another array.
-This is achieved by inspecting the AST of the program
-using forward propagation to find assignments to arrays.
-Due to Whiley's copy semantics it is known that the assignment will result
-in a clone of array and are distinct \cite{whiley-origin} \cite{whiley-arrays}.
-This can also be achieved by finding a use of the array
-generator syntax, see line 4 of figure~\ref{lst:whiley-length}.
-
-The arrays that are shown to be equal in length to another array are
-check to ensure the array size does not change.
-This is achieved by checking that there is no assignments to either
-of the two arrays involved either before entering the loop or
-anyway inside the loop.
-If there was an assignment it is no longer a simple to infer if
-the arrays are equal size and an invariant is not generated.
-However, an assignment to an element of the array is passable since it
-is known that it won't change the array size just the contents.
-
-\begin{figure}[ht]
+\begin{figure}
 \begin{lstlisting}
-    ...
     int[] copy = items
     // or
-    float[] copy = [0;|items|]
+    float[] copy = [0.0;|items|]
     while i < |items|:
         // 'where |copy| == |items|' is inferred
         copy[i] = apply(items[i])
-    ...
 \end{lstlisting}
 \caption{Simple example of inferring array lengths are equal}
 \label{lst:whiley-length}
 \end{figure}
 
-From this information an invariant is known and can be generated.
-Given the source array and the array of known equal length the
-invariant of the lengths are equal.
-See figure~\ref{lst:whiley-length} line 5 for the invariant generated
-from the example code.
-
-
 \subsubsection{Limitations}
+
+The limitations present in the implementation of the generator is
+that other methods of creating arrays are not supported.
+This includes the return of a function and an array constant.
+In the case of a function the post-condition would need to
+give a specification about the length of the array to create
+such an invariant.
+These are illustrated in figure~\ref{lst:whiley-length-limit}.
+
+\begin{figure}
+\begin{lstlisting}
+function zeroes(int len) -> (int[] r)
+requires len >= 0
+ensures |r| == len:
+    return [0;len]
+
+function f():
+    int i = 0
+    int[] a = zeroes(5)
+    int[] b = [1,2,3,4,5]
+    while i < |a|
+    // where |a| == |b| could be inferred
+        // omitted
+\end{lstlisting}
+\caption{Limitations of equal array length invariant generator}
+\label{lst:whiley-length-limit}
+\end{figure}
 
 \subsection{Upper bound}
 

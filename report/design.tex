@@ -299,7 +299,7 @@ while C
     counter = f(counter)
     ...
 \end{lstlisting}
-    \caption{Example of a starting bound invariant for Fibonacci sequence (unverified).}
+\caption{The generalized form of the starting bound invariant}
 \label{lst:starting-bound-gen}
 \end{figure}
 
@@ -400,8 +400,6 @@ This loop pattern seeks to solve the problem of
 
 \todo{bunch of examples}
 
-
-
 \begin{figure}[ht]
 \begin{lstlisting}
 function add(int[] items, int delta) -> (int[] r)
@@ -419,30 +417,8 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
     return mod
 \end{lstlisting}
 \caption{Example of equal array length invariant.}
-\label{lst:starting-bound-rev}
+\label{lst:array-length-eq}
 \end{figure}
-
-
-\begin{figure}[ht]
-\begin{lstlisting}
-function add(int[] items, int delta) -> (int[] r)
-ensures |r| == |items|
-ensures all { i in 0..|r| | items[i] + delta == r[i] }:
-    int i = 0
-    int[] mod = items
-    while i < |items|
-    where i >= 0 // starting bound
-    where |mod| == |items| // equal array length
-    where all { j in 0..i | items[j] + delta == mod[j] }:
-        mod[i] = items[i] + delta
-        i = i + 1
-    //
-    return mod
-\end{lstlisting}
-\caption{Example of equal array length invariant.}
-\label{lst:starting-bound-rev}
-\end{figure}
-
 
 \subsubsection{Loop Pattern}
 
@@ -488,7 +464,7 @@ ensures r == |items|:
     return i
 \end{lstlisting}
 \caption{Example of an upper bound invariant.}
-\label{lst:starting-bound-rev}
+\label{lst:upper-bound}
 \end{figure}
 
 \subsubsection{Loop Pattern}
@@ -541,7 +517,7 @@ ensures all { i in 0..|r| | (items[i] + delta) == r[i] }:
     return mod
 \end{lstlisting}
 \caption{Example of equal array length invariant.}
-\label{lst:starting-bound-rev}
+\label{lst:equal-array-len}
 \end{figure}
 
 \subsubsection{Loop Pattern}
@@ -748,5 +724,5 @@ a = f() { |a| -> ?? }
 // final association: { |b| -> 10, |a| -> ??, |c| -> ?? }
 \end{lstlisting}
 \caption{Examples of associated array lengths}
-\label{lst:simple-mutations}
+\label{lst:assoicated-arrays}
 \end{figure}
