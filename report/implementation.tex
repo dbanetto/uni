@@ -516,8 +516,82 @@ function f():
 
 \subsection{Upper bound}
 
+The upper bound generator is implemented to only handle a change of one each iteration.
+This generator is made from composing and modifying mechanisms from other generators.
+The core mechanisms used are finding a simple mutation (see Section~\ref{s:simple-mut}) ,
+a modification to determining if the mutation is increasing or decreasing (see Section~\ref{s:sequence-dir})
+and breaking down the loop condition.
+From these the loop invariant can be generated.
+
+For the upper bound invariant the generator needs to know how much the variable changes
+every iteration. 
+To achieve this the mechanism to determine if the expression is increasing or decreasing is
+modified to expose the change of value between each iteration rather than if it is a positive or
+negative change.
+The lattice in figure~\ref{eq:start-lattice} is modified such that the values used in the lattice
+are now integers instead of only positive or negative.
+The case of handling assignments were also modified such that the value is summed instead of merged.
+This allows for the total change for a block of code to be computed.
+The current implementation only allows a total change of plus or minus one.
+This is due to the generator's instability when generating other values.
+
+After the value that a variable changes every iteration is identified the loop
+condition is used to identify an upper bound.
+To achieve this the loop condition is broken down into each conjunctive parts to handle
+separately.
+Each of these parts are checked for a simple inequality that contains a variable
+with a known mutation compared to a bound.
+Once a candidate condition is found it's weakened by applying the change of the variable
+to the bound.
+An optimisation is added that when the changed value is plus or minus one with the condition containing
+a strict inequality of the corresponding type it is weakened to a regular inequality.
+
+\begin{figure}
+\begin{lstlisting}
+function find(int[] items, int item) -> (int r)
+ensures all { i in 0..r | items[i] != item }
+ensures r != |items| ==> items[i] == item:
+	int i = 0
+	while i < |items|
+		where all { j in 0..i | items[j] != item }
+		// `where i >= 0` inferred starting bound
+		// `where i <= |items|` inferred upper bound
+		if items[i] == item
+			break
+		i = i + 1
+	//
+	return i
+\end{lstlisting}
+\caption{Example of a generated upper bound invariant}
+\label{lst:whiley-upper-bound}
+\end{figure}
+
+Figure~\ref{lst:whiley-upper-bound} illustrates this a case when this invariant is generated.
+The value that \code{i} changes each iteration is clear on inspection that it is one and
+the condition of the loop both contains \code{i} and a simple inequality.
+In this case the optimised method is used by weakening the strict inequality of less than to
+less than or equal to.
 
 \subsubsection{Limitations}
+
+The main limitation applied to this generator is only being able to 
+handle the case of a changed value of plus or minus one.
+This is the most common case for this generator but it could handle
+some more simple cases.
+
+Another limitation is in how the loop condition is broken down.
+Currently the simple task of splitting on conjunctions.
+This has limits the possibility to identify an upper bound.
+To relieve some this limitation the conditions could
+be rearranged or simplified to better identify an upper bound. 
+
+\begin{figure}
+\begin{lstlisting}
+while !(i < |items| || )
+\end{lstlisting}
+\caption{Limitation of the upper bound generator}
+\label{lst:whiley-upper-bound}
+\end{figure}
 
 \subsection{Array iterative assignment}
 
