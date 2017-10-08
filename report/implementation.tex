@@ -514,7 +514,7 @@ function f():
 \label{lst:whiley-length-limit}
 \end{figure}
 
-\subsection{Upper bound}
+\subsection{Upper bound}\label{s:upper-bound-impl}
 
 The upper bound generator is implemented to only handle a change of one each iteration.
 This generator is made from composing and modifying mechanisms from other generators.
@@ -587,14 +587,58 @@ be rearranged or simplified to better identify an upper bound.
 
 \subsection{Array iterative assignment}
 
+The array iterative assignment generator has many steps to build
+a universal quantifier.
+The first step is to identify an array that has elements being assigned each iteration.
+For that assignment the indexing expression used is checked that it linearly
+iterates through the array.
+From there the element assignment is checked to be not depend on itself.
+With this the invariant can be generated.
+This generator is mostly a composition of the starting and upper bound generators with
+the addition of checking assignments.
 
+To identify an assignment that occurs every iteration the generator
+only considers top-level statements in the loop body.
+This disallows variables that are used in other blocks such as
+\code{if}'s or nested loops.
+With this restriction it is known that every iteration of the loop 
+the next element is assigned.
+
+To ensure that each element is assigned in ascending or descending order the index variable's mutations
+are checked.
+This is to make sure that the element assignments proceed one by one and in a consistent order.
+To achieve this the index variable is check that it's mutated by plus or minus one each
+iteration in the same manner as the Upper Bound (see Section~\ref{s:upper-bound-impl}).
+This lets the generator knows that the assignments are ascending or descending order.
+
+With the ordering and assignment the loop invariant can be built.
+There are four components of the universal quantifier generated.
+The first is the variable name of counter in the quantifier expression,
+this is derived from the index variable name.
+For example in figure~\ref{lst:array-iter-assign} the index
+variable \code{i} is transformed into \code{\_i}.
+This done so there is traceability between the generated invariant to
+its the original parts.
+
+The range of the quantifier is split into two parts, the lower and upper
+bound. One of the bounds will be the starting value of the index variable
+and the other the index variable itself.
+The ordering of this is dependent on if the assignment is ascending or 
+descending through the array.
+
+The final component is the expression of the universal quantifier.
+This is a modification of the original assignment in the loop body.
+First the assignment is transformed into a boolean equal.
+The second modification is replacing all occurrences of index variable
+with the quantifier's counting variable.
+From this the invariant is complete.  
 
 \begin{figure}
 \begin{lstlisting}
 int[] a = [0 ; 100]
 int i = 0
 while i < |a|
-	// `where all { _i in 0..i | a[_i] == f(i) }`
+	// `where all { _i in 0..i | a[_i] == f(_i) }`
 	a[i] = f(i)
 	i = i + 1
 \end{lstlisting}
