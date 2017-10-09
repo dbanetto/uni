@@ -40,7 +40,7 @@ This includes where the generated loop invariants are found and
 how they are inserted into the program.
 The final design decision discussed is how the multiple generators are managed.
 
-\section{Requirements}
+\section{Requirements}\label{s:requirements}
 \comment{
     should cover the functional and non-functional requirements
 }
@@ -253,9 +253,7 @@ describes the commonly observed loop structure where they occur.
 
 The starting bound invariant is a common bounding invariant for a counting
 variable in a loop.
-The use of counting variables are common in Whiley due to a lack of 
-general \code{for} loops that have self-contained counting variables
-that are seen in languages such as Java.
+The use of counting variables are generally common in loops.
 The most common use case of this loop invariant is enforcing that 
 a variable used to index an array is greater than 0 as shown in
 figures~\ref{lst:starting-bound-sum} and \ref{lst:starting-bound-contains}.
@@ -290,37 +288,44 @@ examples require the starting bound invariants to verify they still hold.
 
 
 \begin{figure}[ht]
+\noindent\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
-int counter = I
+int counter = S
 ...
 while C
-    where f(counter) <> I:
-    ... 
-    counter = f(counter)
-    ...
+  where f(counter) > S:
+  ... 
+  counter = f(counter)
+  ...
 \end{lstlisting}
+
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int counter = S
+...
+while C
+  where f(counter) < S:
+  ... 
+  counter = f(counter)
+  ...
+\end{lstlisting}	
+\end{minipage}\hfill
+
 \caption{The generalized form of the starting bound invariant}
 \label{lst:starting-bound-gen}
 \end{figure}
 
 \begin{figure}[ht]
 \begin{lstlisting}
-function fib(int iter) -> (int r)
-requires iter >= 0
-requires iter == 0 ==> r == 1
-requires iter == 1 ==> r == 1
-ensures  iter > 1  ==> r == fib(iter - 1) + fib(iter - 1):
-    // declarations omitted
-    i, a, b = iter, 1, 0
-    while i >= 0
-        where i <= iter && a >= 1 && b >= 0 // starting bounds
-        ... // omitted
-        int c = a
-        a = a + c
-        b = c
-        i = i + 1
-    //
-    return a
+function double(int n) -> (int r)
+ensures n * 2 == r:
+	int i = 0
+	int r = 0
+	while i < n:
+		r = r + 2
+		i = 1 + 1
+	return r
 \end{lstlisting}
     \caption{Example of a starting bound invariant for Fibonacci sequence (unverified).}
 \label{lst:starting-bound-fib}
@@ -400,6 +405,43 @@ This loop pattern seeks to solve the problem of
 
 \todo{bunch of examples}
 
+\begin{itemize}
+	\item Find an array that is a copy, generated based off another array
+	\item ensure that neither array is resized
+	\item if either array is used in the loop, assert they are equal length
+\end{itemize}
+
+\begin{figure}[ht]
+\noindent
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+copy = items
+...
+while C:
+  ...
+  copies[i] = f(copies[i])
+  // or
+  items[i] = f(item[i])
+  ...
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+copy = [0; |items|]
+...
+while C:
+  ...
+  copies[i] = f(copies[i])
+  // or
+  items[i] = f(item[i])
+  ...
+\end{lstlisting}
+\end{minipage}
+
+\caption{Generic example of equal array lengths}
+\label{lst:generic-array-length}
+\end{figure}
+
 \begin{figure}[ht]
 \begin{lstlisting}
 function add(int[] items, int delta) -> (int[] r)
@@ -451,6 +493,13 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
 
 \todo{bunch of examples}
 
+\begin{itemize}
+	\item Finds ending limit to a counting variable
+	\item Uses loop condition to infer the ending bound
+	\item Identifies an exit condition of the loop that restricts a counting variable
+	\item Identify how much the variable changes every iteration (should be consistent)
+	\item Applies variable ageing to condition
+\end{itemize}
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -477,7 +526,6 @@ ensures r == |items|:
 \paragraph{Resulting Context}
 
 \subsection{Array iterative assignment}
-
 \comment{
 	Finds arrays that are being set \\
 	Ensures the assignments are not self-dependent \\
@@ -497,6 +545,13 @@ ensures r == |items|:
 	
 	creates $all { \_i in C .. i | a[\_i] == f(\_i) }$
 }
+
+\begin{itemize}
+	\item Find an array that has an element assigned every iteration
+	\item Identify the index variable
+	\item Finds the range of assignment, starting bound + current position
+	\item Combines range with array element assignment with variables replaced
+\end{itemize}
 
 \todo{examples}
 
