@@ -13,8 +13,21 @@
 \section{Accomplishments}
 \comment{talk about how the goal of the project was accomplished, loop invariants are generated for Whiley}
 
-\section{Reflection}
-\comment{How well did things go? Room for improvement? Is this appropriate?}
+This project has accomplished its primary goal.
+The burden of providing repetitive simple loop invariants has been reduced by generating simple loop invariants.
+This was achieved by studying simple loop invariants to find a general loop pattern where they arise.
+From this pattern a loop invariant generator to discover when these patterns apply
+then adding the invariant to the loop.
+The success of this approach is evident from the 70\% overall reduction of the number of loop invariants 
+that the programmer is required to provide in the Whiley compiler test suite.
+From this it is evident that the burden on the programmer to write
+these repetitive simple loop invariants have been reduced.
+
+The secondary goal of allowing more programmers and student utilise formally verifiable
+languages was not evaluated.
+Thus it is undetermined that the introduction of generated loop invariants would achieved this goal.
+This is because of a change in direction of the project to focus on generating simple loop
+invariants over the study of the implications of generated invariants on programmers (see Section~\ref{s:requirements}).
 
 \section{Related Work}
 \comment{Covers the literature review and compare current solution to similar projects}
