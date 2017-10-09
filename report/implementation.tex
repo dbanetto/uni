@@ -45,20 +45,6 @@ In the resulting solution the design approach taken was to build upon
 Whiley's abstract syntax tree.
 
 
-\begin{figure}
-\noindent\begin{minipage}{.45\textwidth}
-\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
-i = 0
-while i < |items|:
-  i = i + 1
-\end{lstlisting}
-\end{minipage}\hfill
-\begin{minipage}{.45\textwidth}
-\todo{PUT A UML DIAGRAM OF THE AST}
-\end{minipage}
-\caption{Example of a Whiley snippet and UML of its AST}
-\label{lst:design-whiley}
-\end{figure}
 
 \subsection{Whiley Intermediate Language (WyIL)}
 \comment{
@@ -176,10 +162,7 @@ where i >= 0:
 \end{minipage}\hfill
 \begin{minipage}{.45\textwidth}
 \begin{lstlisting}[caption={WyAL Code},frame=tlrb,numbers=none,breaklines=true]{Name}
-function count(int[] ls) -> (int n)
-
-define count_loopinv_6(int i) is:
-  i >= 0
+// some omitted
       
 assert "loop invariant does not hold on entry":
     forall(int i$0):
@@ -188,15 +171,7 @@ assert "loop invariant does not hold on entry":
       then:
         count_loopinv_6(i$0)
 
-assert "loop invariant not restored":
-  forall(int i$1, int i, int i$2):
-    if:
-      i == 0
-      count_loopinv_6(i$1)
-      i$1 > 0
-      i$2 == (i$1 + 1)
-    then:
-      count_loopinv_6(i$2)
+// some omitted
 \end{lstlisting}
 \end{minipage}
 \caption{Example of simple Whiley snippet as WyAL}
