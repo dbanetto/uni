@@ -19,14 +19,47 @@ The first step will be to look at some of the approaches that have been describe
 and then implement one of them, or some combination, in Whiley, then look at ways in which this can be improved.
 Ideally, then implementation will be available in time to be evaluated with SWEN224 students in Trimester 2.
 
+\chapter{Code examples}\label{A:code-examples}
+
+\todo{add more examples}
+
+This appendix contains multiple examples of invariants as code samples.
+Some of these samples are fully verified when available where some may
+not due to issues present in Whiley. 
+These can be run using Whiley's web IDE ( \url{http://whileylabs.com} ) .
+
+\section{Starting bound}
+
+\section{Equal array length}
+
+\section{Upper bound}
+
+\section{Array iterative assignment}
+
 \chapter{Evaluation}\label{A:eval}
 
 \section{Failed to Evaluate}\label{A:eval-failed}
 
-    \begin{center}
-        \begin{tabular}{r}
-            \csvautotabular[]{appendix/blacklist.csv}{}
-        \end{tabular}
-    \end{center}
+\begin{center}
+\begin{tabular}{r}
+    \csvautotabular[]{appendix/blacklist.csv}{}
+\end{tabular}
+\end{center}
+
+\section{Code for evaluation walk through}\label{A:eval-walkthrough}
+
+\subsection{Original code}
+
+\subsection{After broken down phase}
+
+\subsection{After minimized phase}
+
+\subsubsection{Without loop invariant generation}
+
+\subsubsection{With loop invariant generation}
+
+\subsection{Output of reporting phase}
+
+\todo{code blocks of a walk through of evaluation}
 
 \end{appendices}

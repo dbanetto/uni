@@ -239,6 +239,8 @@ describes the commonly observed loop structure where they occur.
 \fixme{not sure if the loop pattern stuff actually works out now}
 \fixme{would loop invariant patterns be more applicable?}
 
+\todo{refer to appendix of code examples for additional code}
+
 \subsection{Starting bound}
 \comment{
 	finds entry value \\
@@ -246,10 +248,16 @@ describes the commonly observed loop structure where they occur.
 	has the loop pattern of \\
 	int $i$ = $X$ \\
 	while $C$: \\
-	$P_1$ \\
-	$i = i (+|-) N$ \\
-	$P_2$
+	   $P_1$ \\
+	   $i = i (+|-) N$ \\
+	   $P_2$
 }
+
+\begin{itemize}
+	\item find a variable with a simple mutations
+	\item check the direction of the mutation
+	\item check if the variable is set before to a known value, constant
+\end{itemize}
 
 The starting bound invariant is a common bounding invariant for a counting
 variable in a loop.
@@ -311,25 +319,29 @@ while C
   ...
 \end{lstlisting}	
 \end{minipage}\hfill
-
 \caption{The generalized form of the starting bound invariant}
 \label{lst:starting-bound-gen}
 \end{figure}
 
+
 \begin{figure}[ht]
 \begin{lstlisting}
 function double(int n) -> (int r)
+requires n >= 0
 ensures n * 2 == r:
 	int i = 0
 	int r = 0
-	while i < n:
+	while i < n
+		where r >= 0  // starting bound
+		where i >= 0: // starting bound
 		r = r + 2
 		i = 1 + 1
 	return r
 \end{lstlisting}
-    \caption{Example of a starting bound invariant for Fibonacci sequence (unverified).}
+\caption{Example of a starting bound invariant for doubling a number.}
 \label{lst:starting-bound-fib}
 \end{figure}
+
 
 \begin{figure}[ht]
 \begin{lstlisting}
