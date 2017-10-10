@@ -102,18 +102,18 @@ ensures r == |items| || items[r] == item:
 \caption{Verifiable Whiley code to find index of an item in an array}
 \label{lst:whiley-ex-1}
 \end{figure}
-
-% loop patterns
-These simple loop invariants are a product of common design patterns in loops.
-For this report the idea of loop patterns are introduced and are akin to
-software architecture design patterns on a more mechanical level.
-From studying a known loop pattern properties can be derived from it.
-Such as figure~\ref{lst:whiley-ex-1} that has a common loop pattern of
-iterating an array via an index variable.
-From this pattern you know that that during the loop that the index will be
-within bounds of the array.
-This can be exploited by statically detecting the loop patterns and assisting
-the Whiley Compiler by generating loop invariants.
+%
+%% loop patterns
+%These simple loop invariants are a product of common design patterns in loops.
+%For this report the idea of loop patterns are introduced and are akin to
+%software architecture design patterns on a more mechanical level.
+%From studying a known loop pattern properties can be derived from it.
+%Such as figure~\ref{lst:whiley-ex-1} that has a common loop pattern of
+%iterating an array via an index variable.
+%From this pattern you know that that during the loop that the index will be
+%within bounds of the array.
+%This can be exploited by statically detecting the loop patterns and assisting
+%the Whiley Compiler by generating loop invariants.
 
 \section{Overview}
 
@@ -122,7 +122,7 @@ Chapter~\ref{C:background} explains the background research, concepts and relate
 Chapter~\ref{C:design} discusses the design limitation, goals and choices that went into designing the
 solution for this project.
 Chapter~\ref{C:impl} provides the details of the mechanisms behind the implemented 
-loop invariant generators including their backing loop patterns, examples of application and limitation.
+loop invariant generators including examples of application and their limitations.
 Chapter~\ref{C:eval} details of the experiment carried out with this project to determine if it is
 successful, including the tool and data sets used.
 Chapter~\ref{C:con} concludes the report with the conclusions drawn from the project,

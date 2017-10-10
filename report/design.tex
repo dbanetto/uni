@@ -388,9 +388,7 @@ ensures !r ==> all  { i in 0..|items| | items[i] != item }:
 \label{lst:starting-bound-contains}
 \end{figure}
 
-
 \subsection{Equal array length}
-
 \comment{
 	* finds associated arrays \\
 	* checks to make sure source is not modified \\
@@ -402,8 +400,6 @@ ensures !r ==> all  { i in 0..|items| | items[i] != item }:
 	while C: \\
 	$P$ - not includes $x = X$, $a = Y$\\
 }
-
-\todo{bunch of examples}
 
 \begin{itemize}
 	\item Find an array that is a copy, generated based off another array
@@ -462,17 +458,6 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
 \label{lst:array-length-eq}
 \end{figure}
 
-\subsubsection{Loop Pattern}
-
-\paragraph{Examples}
-\paragraph{Context}
-\paragraph{Problem}
-\paragraph{Forces}
-\paragraph{Solution}
-\paragraph{Resulting Context}
-
-\subsection{Formal Definition}
-
 \subsection{Upper bound}
 \comment{
 	Finds simple mutations \\
@@ -515,15 +500,6 @@ ensures r == |items|:
 \caption{Example of an upper bound invariant.}
 \label{lst:upper-bound}
 \end{figure}
-
-\subsubsection{Loop Pattern}
-
-\paragraph{Examples}
-\paragraph{Context}
-\paragraph{Problem}
-\paragraph{Forces}
-\paragraph{Solution}
-\paragraph{Resulting Context}
 
 \subsection{Array iterative assignment}
 \comment{
@@ -574,15 +550,6 @@ ensures all { i in 0..|r| | (items[i] + delta) == r[i] }:
 \caption{Example of equal array length invariant.}
 \label{lst:equal-array-len}
 \end{figure}
-
-\subsubsection{Loop Pattern}
-
-\paragraph{Examples}
-\paragraph{Context}
-\paragraph{Problem}
-\paragraph{Forces}
-\paragraph{Solution}
-\paragraph{Resulting Context}
 
 \section{Techniques used to infer properties of a loop}
 \comment{
