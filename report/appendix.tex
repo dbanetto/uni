@@ -30,6 +30,44 @@ These can be run using Whiley's web IDE ( \url{http://whileylabs.com} ) .
 
 \section{Starting bound}
 
+\begin{figure}[ht]
+\begin{lstlisting}
+function sum(int[] items) -> (int r)
+requires all { i in 0..|items| | items[i] >= 0 }:
+  int i = 0
+  int sum = 0
+  //
+  while i < |items|
+    where sum >= 0
+    where i >= 0: // starting bound
+    //
+    sum = sum + items[i]
+    i = i + 1
+  //
+  return sum
+\end{lstlisting}
+\caption{Example of a starting bound invariant.}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function count(int[] items, int x) -> (int c):
+  int i = 0
+  int c = 0
+  while i < |items|
+    where i >= 0
+    where c >= 0:
+    //
+    if items[i] == x:
+      c = c + 1
+    //
+    i = i + 1
+  //
+  return c
+\end{lstlisting}
+\caption{Example of a starting bound invariant with mutation within a conditional block.}
+\end{figure}
+
 \section{Equal array length}
 
 \section{Upper bound}

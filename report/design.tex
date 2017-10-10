@@ -229,12 +229,21 @@ greatly reduced.
 
 \section{Targeted loop invariants}\label{s:target-loop-inv}
 
-There is a wide range of loop invariants with many made for a particular situation
-but there are some common between most loops.
-From these commonly recurring invariants four of them were identified and
-studied their usage pattern.
-This section outlines these invariants, gives examples of where they apply,
-describes the commonly observed loop structure where they occur.
+This project targeted four simple loop invariants to generate.
+These invariants have been observed to be repetitive in Whiley code and 
+can be inferred from the code before the loop and  in the loop body itself.
+This section will describe each of these invariants and their conditions
+with examples annotated to highlight the target invariant\footnote{There are additional examples of each invariant included in appendix~\ref{A:code-examples}}.
+The targeted loop invariants are:
+
+\begin{itemize}
+	\item Starting bound invariant
+	\item Equal array lengths
+	\item Upper bound
+	\item Array iterative assignment
+\end{itemize}
+
+
 
 \fixme{not sure if the loop pattern stuff actually works out now}
 \fixme{would loop invariant patterns be more applicable?}
@@ -253,75 +262,92 @@ describes the commonly observed loop structure where they occur.
 	   $P_2$
 }
 
-\begin{itemize}
-	\item find a variable with a simple mutations
-	\item check the direction of the mutation
-	\item check if the variable is set before to a known value, constant
-\end{itemize}
+The starting bound invariant is a common invariant used with counting
+variables.
+It is used to assert that the counting variable will increase or decrease
+in terms of a starting value.
+The most common use of this invariant is when the counting variable is 
+used to index an array.
+For example, given a variable \code{i} that is used to iterate 
+through an array from start to end, 
+\code{i} can be said to always be equal to or greater than \code{0}.
+This would become \code{i >= 0} as a Whiley loop invariant.
+Other uses include counting down attempts or counting the number of iterations
+that meet a condition.
 
-The starting bound invariant is a common bounding invariant for a counting
-variable in a loop.
-The use of counting variables are generally common in loops.
-The most common use case of this loop invariant is enforcing that 
-a variable used to index an array is greater than 0 as shown in
-figures~\ref{lst:starting-bound-sum} and \ref{lst:starting-bound-contains}.
-It is obvious from inspection that the value of \code{i} is 0 at entry
-of the loop and that it will increase with every iteration from the code before
-and inside the loop.
-This is required since the Whiley theorem prover cannot generally 
-determine the value of the variable and instead relies on the programmer
-providing the range, be it partially or completely specified.
-
-\subsubsection{Loop Pattern}
-
-The commonly thread between each instance of a starting bound invariant
-is the structure before and in the loop.
-Before the loop it is observed that initial value of the counting
-variable is initialized or set to constant a constant value.
-This is either the lower or upper bound of the loop's range.
-Inside the loop body the counting variable is progressed with each
-iteration.
-This is generally be achieved by incrementing or decrementing the variable
-to the other boundary of the array than it started on, from lower to upper or
-upper to lower bound respectfully.
-
-\paragraph{Examples}
-
-Below are three valid Whiley programs that contain a starting bound
-invariant.
-Each of these examples are operating on lists since they are verifiable
-examples in the current version of Whiley.
-This includes a simple iterations that use counters. Though not all
-examples require the starting bound invariants to verify they still hold.
-
+The resulting loop invariant is built up of three components.
+The first component is the counting variable ;
+the second component is the known start point of the counting variable before the loop ; 
+and, the third is an inequality that is determined by if the counting variable will increase or decrease
+from its starting point during the loop.
+Figure~\ref{lst:starting-bound-gen} shows a generalised form of the invariant
+in both the increasing (left) and decreasing (right) forms.
 
 \begin{figure}[ht]
 \noindent\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
-int counter = S
+int i = C
 ...
-while C
-  where f(counter) > S:
+while P
+  where i >= C:
   ... 
-  counter = f(counter)
+  i = i + D
   ...
 \end{lstlisting}
 
 \end{minipage}\hfill
 \begin{minipage}{.45\textwidth}
 \begin{lstlisting}
-int counter = S
+int i = C
 ...
-while C
-  where f(counter) < S:
+while P
+  where i <= C:
   ... 
-  counter = f(counter)
+  i = i - D
   ...
 \end{lstlisting}	
 \end{minipage}\hfill
 \caption{The generalized form of the starting bound invariant}
 \label{lst:starting-bound-gen}
 \end{figure}
+
+To identify the invariant each component of it needs to be identified in the program.
+The starting point of the invariant is identified by observing a variable being
+assigned to a known value before the loop.
+From this observation the starting point of the variable is known.
+In the general form in figure~\ref{lst:starting-bound-gen} shows that a variable \code{i} 
+is assigned a value of \code{C} some time before the loop.
+This is generally being set to 0 when the count increases or the length of
+an array when the count decreases.
+Figure~\ref{lst:starting-bound-double} and \ref{lst:starting-bound-contains} illustrates this
+in the context of working Whiley functions.
+In figure~\ref{lst:starting-bound-double} it can be observed
+that \code{i} and \code{r} are both set to \code{0} before the loop with no modifications.
+Figure~\ref{lst:starting-bound-contains} is similar except that 
+the starting value for \code{i} is \code{|items|}
+instead of a constant value. The value of \code{|items|} is known since the 
+size of \code{items} is not mutated before or during the loop.
+
+To identify if a variable is used as for counting the value has to be
+mutated during the loop with relation it self.
+This behaviour is generally observed with all counting since the 
+new value builds upon its previous value.
+In the general form in figure~\ref{lst:starting-bound-gen} this is
+shown on line 6 where \code{i} is mutated by changing the value by plus or minus
+\code{D}.
+\code{D} in this case is the total change in one iteration.
+This allows for \code{D} to be within conditional blocks or nested-loops.
+The value of \code{D} must be determinable to either monotonically increase or decrease \code{i} each iteration.
+
+
+If the mutation can be determined to be either increasing or decreasing 
+the appropriate inequality can be used with the counting variable and starting value.
+This can be seen in invariants of figures~\ref{lst:starting-bound-double} and \ref{lst:starting-bound-contains}.
+In figure~\ref{lst:starting-bound-double} it can be observed that \code{i} and \code{r} are both
+increasing and have starting value of \code{0}.
+From this the invariants on lines 7 and 8 can be inferred.
+In figure~\ref{lst:starting-bound-contains} shows that \code{i} has a starting value of
+\code{|items|} and is decreasing with each iteration thus the invariant on line 6 can be inferred.
 
 
 \begin{figure}[ht]
@@ -339,67 +365,29 @@ ensures n * 2 == r:
 	return r
 \end{lstlisting}
 \caption{Example of a starting bound invariant for doubling a number.}
-\label{lst:starting-bound-fib}
+\label{lst:starting-bound-double}
 \end{figure}
 
-
-\begin{figure}[ht]
-\begin{lstlisting}
-function sum(int[] items) -> (int r)
-requires all { i in 0..|items| | items[i] >= 0 }:
-    int i = 0
-    int sum = 0
-    while i < |items|
-    where sum >= 0
-    where i >= 0: // starting bound
-        sum = sum + items[i]
-        i = i + 1
-    //
-    return sum
-\end{lstlisting}
-\caption{Example of a starting bound invariant.}
-\label{lst:starting-bound-sum}
-\end{figure}
 
 \begin{figure}[ht]
 \begin{lstlisting}
 function contains(int[] items, int item) -> (bool r)
 ensures  r ==> some { i in 0..|items| | items[i] == item }
 ensures !r ==> all  { i in 0..|items| | items[i] != item }:
-    int i = 0
-    while i < |items|
-    where i >= 0 // starting bound
-    where all { j in 0..i | items[j] != item }:
-        if items[i] == item:
-            return true
-        i = i + 1
-    //
-    return false
+  int i = |items|
+  while i > 0
+  where i <= |items| // starting bound
+  where all { j in i..|items| | items[j] != item }:
+    i = i - 1
+    if items[i] == item:
+      return true
+  //
+  return false
 \end{lstlisting}
-\caption{Example of a starting bound invariant.}
+\caption{Example of a starting bound invariant for a contains function.}
 \label{lst:starting-bound-contains}
 \end{figure}
 
-\fixme{ran out of pages? put this in appendix!}
-
-\paragraph{Context} 
-
-The context of the pattern is to solve the issue that the loop 
-body want to keep track of where it is in the loop.
-This could be to count the number of iterations or keeping track
-of what element is to be processed in the next iteration.
-
-\paragraph{Problem}
-
-This loop pattern seeks to solve the problem of 
-
-\paragraph{Forces}
-
-\paragraph{Solution}
-
-\paragraph{Resulting Context}
-
-\todo{bunch of examples}
 
 \subsection{Equal array length}
 
