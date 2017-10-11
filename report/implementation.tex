@@ -71,7 +71,7 @@ exception of local variables and intermediate values becoming indistinguishable
 without analysis.
 
 The structure of internal API to query and modify WyIL code impedes a
-generator's ability to match it against a loop pattern.
+generator's ability to identify components of invariants.
 This is from the internal structure of a statement in WyIL where each
 statement is loosely defined with op codes and blocks.
 By generating the loop invariants as additional byte code the ability to
@@ -84,8 +84,9 @@ figure~\ref{lst:design-wyil} for an example of Whiley code compared to its
 intermediate language equivalent.
 This example shows the amount of information available about the variables
 in the program and their usage in the loop.
-This approach was not selected due to the disconnect between loop patterns
-in the programmer source code to their representation in WyIL.
+This approach was not selected due to the disconnect between the loops
+seen by in the programmer source code to their representation in WyIL which
+would make it difficult to understand why an invariant was generated.
 
 
 \begin{figure}
@@ -284,17 +285,6 @@ of traversing loops becomes a bottleneck.
 This can be achieved by finding patterns of what information generators are
 seeking and provide an interface where that information is computed once for
 all generators that require it and keep the traversal interface for unique generators.
-
-\todo{include UML of what the pipeline would look like with this arch}
-
-\todo{re-do start of this}
-The first loop pattern is incrementing a variable
-each iteration of the loop, most commonly used for indexes into an array to
-iterate through it. See figure~\ref{lst:whiley-start} for a simple example.
-The second loop pattern is making a copy of an array or creating an array with
-the same length as another.
-This is used generally when transforming every element in array into a separate
-variable. See figure~\ref{lst:whiley-length} for a simple example.
 
 \section{Implemented Loop Invariant Generators}
 
