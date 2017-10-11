@@ -401,11 +401,21 @@ ensures !r ==> all  { i in 0..|items| | items[i] != item }:
 	$P$ - not includes $x = X$, $a = Y$\\
 }
 
-\begin{itemize}
-	\item Find an array that is a copy, generated based off another array
-	\item ensure that neither array is resized
-	\item if either array is used in the loop, assert they are equal length
-\end{itemize}
+The equal array length invariant is a common invariant when accessing two
+arrays with the same length.
+This invariant correlates the length of two arrays by asserting they are equal.
+The most common usage of this is when the values of one array are being mutated
+and stored into another array.
+Other common uses are when each element in an array is being applied
+a function then stored in another array of equal length.
+
+The resulting loop invariant has a single components it needs to identify.
+That there is an association of length between arrays and it is maintained
+throughout the loop.
+From these components the loop invariant can be inferred.
+Figure~\ref{lst:equal-array-length-gen} is a generalized form
+of this invariant.
+
 
 \begin{figure}[ht]
 \noindent
@@ -415,9 +425,9 @@ copy = items
 ...
 while C:
   ...
-  copies[i] = f(copies[i])
+  items[i] = f(copy[i])
   // or
-  items[i] = f(item[i])
+  copy[i] = f(item[i])
   ...
 \end{lstlisting}
 \end{minipage}\hfill
@@ -427,16 +437,32 @@ copy = [0; |items|]
 ...
 while C:
   ...
-  copies[i] = f(copies[i])
+  copy[i] = f(items[i])
   // or
-  items[i] = f(item[i])
+  items[i] = f(copy[i])
   ...
 \end{lstlisting}
 \end{minipage}
-
 \caption{Generic example of equal array lengths}
-\label{lst:generic-array-length}
+\label{lst:equal-array-length-gen}
 \end{figure}
+
+The association of length between the arrays can be identified by inspecting 
+how the arrays are constructed.
+Arrays could be directly associated with an array copy or generating
+a new array with the length set to another array's length.
+They can also be indirectly related by two arrays being generated
+to have same length via the same value (e.g. variable or constant).
+To ensure that this association is maintained the arrays must not 
+be assigned a new value before or during the loop after the association
+is formed.
+Figure~\ref{lst:equal-array-length-gen} shows these two methods to
+identify these associations, with copy on the left and generated 
+arrays on the right.
+Figure~\ref{lst:array-length-eq} shows an example of 
+Whiley code using this invariant.
+The \code{mod} and \code{items} arrays are associated on line
+8 when \code{mod} is assigned a clone of \code{items}. 
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -446,8 +472,8 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
     int i = 0
     int[] mod = items
     while i < |items|
-    where i >= 0 // starting bound
     where |mod| == |items| // equal array length
+    where i >= 0
     where all { j in 0..i | items[j] + delta == mod[j] }:
         mod[i] = items[i] + delta
         i = i + 1

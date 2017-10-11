@@ -70,6 +70,31 @@ function count(int[] items, int x) -> (int c):
 
 \section{Equal array length}
 
+\begin{figure}[ht]
+\begin{lstlisting}
+type nat is (int x) where x >= 0
+
+function toNat(int[] items) -> (nat[] r)
+ensures |items| == |r|
+ensures all { i in 0..|items| | (items[i] >= 0 ==> items[i] == r[i])
+                             && (items[i] < 0 ==> r[i] == 0 ) }:
+  nat[] result = [0;|items|]
+  int i = 0
+  while i < |items|
+  where |result| == |items| // equal array length
+  where i >= 0
+  where all { j in i..|result| | result[j] == 0 }
+  where all { j in 0..i | (items[j] >= 0 ==> items[j] == result[j]) 
+                     && (items[j] < 0 ==> result[j] == 0 ) }:
+    if items[i] >= 0:
+      result[i] = items[i]
+    i = i + 1
+  //
+  return result
+\end{lstlisting}
+\caption{Example equal array length with generated arrays.}
+\end{figure}
+
 \section{Upper bound}
 
 \section{Array iterative assignment}
