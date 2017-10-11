@@ -23,9 +23,7 @@ the intention to prove its correctness.
 
 \todo{fix this stuff}
 
-\section{Core Concepts}
-
-\subsection{Formal Software Verification Languages}
+\section{Formal Software Verification Languages}
 \comment{
  * Formal Software Verification \\
  * goals of class of languages (could be covered in Whiley)
@@ -45,7 +43,7 @@ There are some languages that are designed and built from the ground up to
 be a formal software language and have a \textit{verifying compiler}.
 These languages include such as Whiley~\cite{whiley-origin} and Dafny~\cite{dafny-lang}.
 
-\subsection{Whiley}
+\section{Whiley}
 \comment{
 Whiley \\
  * goals of the lang \\
@@ -99,7 +97,7 @@ method main():
 \label{lst:whiley-exp}
 \end{figure}
 
-\subsubsection{Whiley Features}
+\subsection{Whiley Features}
 \comment{
 Cover the key features used in the loop invariants generators \\
 These are features differ languages so will be covered \\
@@ -113,7 +111,7 @@ These are: copy semantics; and array generators~\cite{whiley-design}.
 The Whiley language specification book is available for the full
 specification of the language~\cite{whiley-spec}.
 
-\paragraph{Copy semantics} is a design decision of Whiley to
+\subsubsection{Copy semantics} is a design decision of Whiley to
 make clones of data instead of referencing the data on assignment \cite{whiley-arrays}.
 Figure~\ref{lst:whiley-array-copy} shows an example of the variable
 \code{b} making a copy of \code{a} and that mutating \code{a} later
@@ -145,7 +143,7 @@ assert |a| == |b|
 \label{lst:whiley-array-copy}
 \end{figure}
 
-\paragraph{Array generator} is a feature in Whiley to generate an array
+\subsubsection{Array generator} is a feature in Whiley to generate an array
 of a specific element duplicated over a specific size~\cite{whiley-spec}
 \cite{whiley-arrays}.
 Figure~\ref{lst:whiley-array-gen} shows an example of using an array generator
@@ -170,7 +168,7 @@ assert |a| == |b|
     \label{lst:whiley-array-gen}
 \end{figure}
 
-\subsection{Loop Invariants}
+\section{Loop Invariants}
 \comment{
 Loop invariants - overview of loop invariants
 Theorem prover knows nothing about loop invariants - must give all \\
@@ -246,7 +244,7 @@ This implies the post-condition of the function that $r = |items|$ with
 the variable \code{i} renamed to \code{r}.
 Each of the stages of a loop are similar to building an inductive proof \cite{invarints-classifiction}.
 
-\subsubsection{Loop Invariants in Whiley}
+\subsection{Loop Invariants in Whiley}
 
 In the Whiley language the concept of loop invariants are a 1\textsuperscript{st} class
 construct.
@@ -277,7 +275,7 @@ ensures r == |items|:
 \label{lst:whiley-inv}
 \end{figure}
 
-\subsection{Classification of Loop Invariants}
+\section{Classification of Loop Invariants}
 \comment{
 classification of loop invariants
  * proves property \\
@@ -330,7 +328,7 @@ ensures r == |items| ==> all { i in 0..|items| | items[i] != item }:
 \label{lst:whiley-inv-class}
 \end{figure}
 
-\subsection{Categories of Generated Loop Invariants}
+\section{Categories of Generated Loop Invariants}
 \comment{
 Methods to generate loop invariants \\
 Generally generating loop invariants are impossible! \\
@@ -343,7 +341,7 @@ These methods can be sorted into one of two categories, static and dynamic.
 This section will give an overview of static and dynamic methods of loop
 invariants.
 
-\subsubsection{Static Generation of Loop Invariants}
+\subsection{Static Generation of Loop Invariants}
 
 The static generation of loop invariants use the
 semantics and analysis of the source code to generate the loop invariants
@@ -365,7 +363,7 @@ verify it.
 
 \todo{EXAMPLES}
 
-\subsubsection{Dynamic Generation of Loop Invariants}
+\subsection{Dynamic Generation of Loop Invariants}
 
 Dynamic invariants are similar to dynamic program analysis
 tools, they execute the program to find properties.
@@ -409,3 +407,69 @@ valid~\cite{infer-dynamic}\cite{infer-postconditions}.
 %    \label{l:design-pattern}
 %\end{figure}
 
+
+\section{Related Work}
+\comment{Covers the literature review and compare current solution to similar projects}
+
+\todo{THIS SECTION}
+
+\fixme{Should this be in the conclusion section rather than here?}
+
+\subsection{Dafny}
+\comment{
+	explain how dafny is an alternative to Whiley in the Spec Lang space
+	has some features that are missing in Whiley that would be interesting to use
+	
+	* declaring variables as increasing or decreasing \\
+	* defining variables / fields as ghosts, to only be used in specifications
+	dafny - other formal language
+}
+
+An comparative formally specified language to the Whiley language is the Dafny.
+Dafny is a research language for a verifying compiler by Microsoft
+\cite{dafny-lang}.
+The language share a majority of features with Whiley and makes advances
+in others.
+One feature Dafny is to provide a termination metric.
+This tells Dafny that the given expression will decrease with each iteration. 
+In turn this proves that with each iteration a step towards its termination is achieved \cite{dafny-started}\cite{dafny-lang}.
+Another feature of Dafny is variables can be annotated to be ghost variables that
+can only be used for verifications and has zero impact on the runtime of the program \cite{dafny-started}\cite{dafny-lang}.
+
+\cite{dafny-started}
+\cite{dafny-lang}
+\cite{dafny-mech}
+
+\subsection{Pattern-based loop invariant generation}
+
+\cite{pattern-loop-inv}
+
+\subsection{Methods to Generate Loop Invariants}
+\comment{explain how these methods create loop invariants}
+
+\subsubsection{Manual Generation}
+\comment{Manual is always a thing }
+
+\cite{broda-loop-tech}
+
+\subsubsection{Backwards Propagation}
+
+\cite{infer-postconditions}
+\cite{infer-dynamic}
+
+\subsubsection{Variable Aging}
+
+\cite{infer-postconditions}
+\cite{infer-dynamic}
+
+\subsubsection{Coupling}
+
+\cite{infer-postconditions}
+\cite{infer-dynamic}
+
+\subsubsection{Term dropping}
+
+\cite{infer-postconditions}
+\cite{infer-dynamic}
+
+\cite{struct-induction}
