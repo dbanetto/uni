@@ -97,6 +97,28 @@ ensures all { i in 0..|items| | (items[i] >= 0 ==> items[i] == r[i])
 
 \section{Upper bound}
 
+\begin{figure}[ht]
+\begin{lstlisting}
+function min(int[] items) -> (int r)
+requires |items| > 0
+ensures all { i in 0..|items| | r <= items[i] }
+ensures some { i in 0..|items| | r == items[i] }:
+  int i = 1
+  int m = items[0]
+  while i < |items|
+  where i >= 1
+  where i <= |items| // upper bound
+  where all { j in 0..i | m <= items[j] }
+  where some { j in 0..i | m == items[j] }:
+    if m > items[i]:
+      m = items[i]
+    i = i + 1
+  return m
+\end{lstlisting}
+\caption{Example of an upper bound invariant.}
+\label{lst:upper-bound-min}
+\end{figure}
+
 \section{Array iterative assignment}
 
 \chapter{Evaluation}\label{A:eval}

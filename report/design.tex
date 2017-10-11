@@ -250,7 +250,7 @@ The targeted loop invariants are:
 
 \todo{refer to appendix of code examples for additional code}
 
-\subsection{Starting bound}
+\subsection{Starting bound}\label{s:design-starting-bound}
 \comment{
 	finds entry value \\
 	creates invariants from composing things \\
@@ -423,7 +423,8 @@ of this invariant.
 \begin{lstlisting}
 copy = items
 ...
-while C:
+while C
+  where |copy| == |items|:
   ...
   items[i] = f(copy[i])
   // or
@@ -435,7 +436,8 @@ while C:
 \begin{lstlisting}
 copy = [0; |items|]
 ...
-while C:
+while C
+  where |copy| == |items|:
   ...
   copy[i] = f(items[i])
   // or
@@ -502,29 +504,131 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
 	$P_2$ \\
 }
 
-\todo{bunch of examples}
+The upper bound invariant limits the range of a counting variable.
+This is common when the counter has a known range it has to be within,
+such as indexing an array.
+The common use case is when finding the index of an element,
+this requires the index to be bound between the start and end of the
+array with the inclusion of the error result of -1 or the length of the array.
+Much like how the starting bound invariant bounds
+the counting variable based on knowledge before the loop,
+the upper bound invariant gives a bound based on during the loop.
 
-\begin{itemize}
-	\item Finds ending limit to a counting variable
-	\item Uses loop condition to infer the ending bound
-	\item Identifies an exit condition of the loop that restricts a counting variable
-	\item Identify how much the variable changes every iteration (should be consistent)
-	\item Applies variable ageing to condition
-\end{itemize}
+The resulting loop invariant is built of three components.
+The first is identifying the counting variable; 
+the second is identifying the upper bound by inspecting the
+loop conditions; and, the third is determining the 
+magnitude of which the counting variable changes each iteration.
+Figure~\ref{lst:upper-bound-gen} shows a generalised form
+of this invariant with its two variants of a positive 
+upper bound (left) and a negative upper bound (right).
+
+\begin{figure}[ht]
+\noindent
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i
+...
+while i > C && P
+  where i - D > C:
+  ...
+  i = i + D
+  ...
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i
+...
+while i < C && P
+  where i + D < C:
+  ...
+  i = i - D
+  ...
+\end{lstlisting}
+\end{minipage}
+\caption{Generic example of upper bound}
+\label{lst:upper-bound-gen}
+\end{figure}
+
+The method to identify the counting variable component
+of the invariant is the same as described in the 
+starting bound invariant (see Section~\ref{s:design-starting-bound}).
+This is shown in the generic example of figure~\ref{lst:upper-bound-gen}
+that a variable \code{i} exists.
+
+To find the upper bound the loop condition is analyzed.
+This is to identify a loop condition that includes an
+inequality that includes the counting variable.
+To achieve this the loop condition can be split
+by conjunctive statements so each can be checked on their own.
+This is shown in the generic example in figure~\ref{lst:upper-bound-gen}
+by the while condition is a conjunctive between and condition code{P}
+and an inequality involving the counting variable \code{i}.
+From this it can be inferred that the upper bound of the counting 
+variable is \code{C}.
+Figures~\ref{lst:upper-bound} and \ref{lst:upper-bound-indexof}
+both provide full examples of the loop condition being mutated
+into the upper bound invariant.
+
+The final component of the invariant determines the range of 
+which \code{i} will exceed the upper bound on termination of the
+loop.
+This is similar to the starting bound invariant's method to 
+determine the direction of a mutation (see
+Section~\ref{s:design-starting-bound}).
+However, in this case instead of tracking if the change is positive or
+negative the value of the mutation is tracked.
+This allows sequential mutations to concatenate and when merging
+branches differing values would cause it to be indeterminable.
+
+This invariant can be simplified in particular cases.
+The conditions for this are that the magnitude
+of the change of the count variable is either positive or negative one
+and the inequality in the loop condition is strict.
+With these conditions the invariant can be simplified to converting the
+strict inequalities to non-strict inequalities.
+This is due to counting variables always being integer values.
+This is shown in figures~\ref{lst:upper-bound} and
+\ref{lst:upper-bound-indexof} where both upper bound
+invariant as in this simplified form.
 
 \begin{figure}[ht]
 \begin{lstlisting}
 function len(int[] items) -> (int r)
 ensures r == |items|:
-    int i = 0
-    while i < |items|
-    where i <= |items| // upper bound
-    where i >= 0:
-        i = i + 1
-    return i
+  int i = 0
+  while i < |items|
+  where i <= |items| // upper bound
+  where i >= 0:
+    i = i + 1
+  return i
 \end{lstlisting}
-\caption{Example of an upper bound invariant.}
+\caption{Example of an upper bound invariant for the length of a list.}
 \label{lst:upper-bound}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function indexOf(int[] items, int item) -> (int r)
+ensures r == |items| ==> all { i in 0..|items| | items[i] != item }
+ensures r >= 0  && r < |items| ==> items[r] == item
+ensures r >= 0 && r <= |items|:
+  //
+  int i = 0
+  while i < |items|
+  where i >= 0
+  where i <= |items| // upper bound
+  where all { k in 0 .. i | items[k] != item }:
+    //    
+    if items[i] == item:
+      return i
+    i = i + 1
+  //
+  return i
+\end{lstlisting}
+\caption{Example of an upper bound invariant for indexOf.}
+\label{lst:upper-bound-indexof}
 \end{figure}
 
 \subsection{Array iterative assignment}
@@ -555,23 +659,56 @@ ensures r == |items|:
 	\item Combines range with array element assignment with variables replaced
 \end{itemize}
 
+The array iterative assignment invariant is a 
+
+\begin{figure}[ht]
+\noindent
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i = 0
+...
+while P
+  where all { j in 0..i | items[j] = f(j) }:
+  ...
+  items[i] = f(i)
+  i = i + 1
+  ...
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i = |items|
+...
+while P
+  where all { j in i..|items| | items[j] = f(j) }:
+  ...
+  items[i] = f(i)
+  i = i - 1
+  ...
+\end{lstlisting}
+\end{minipage}
+\caption{Generic example of array iterative assignment invariant}
+\label{lst:array-iter-gen}
+\end{figure}
+
+
 \todo{examples}
 
 \begin{figure}[ht]
 \begin{lstlisting}
 function add(int[] items, int delta) -> (int[] r)
 ensures |r| == |items|
-ensures all { i in 0..|r| | (items[i] + delta) == r[i] }:
-    int i = 0
-    int[] mod = items
-    while i < |items|
-    where i >= 0
-    where |items| == |mod|
-    // iterative assignment
-    where all { j in 0..i | mod[j] == (items[j] + delta) }:
-        mod[i] = items[i] + delta
-        i = i + 1
-    return mod
+ensures all { i in 0..|r| | items[i] + delta == r[i] }:
+  int i = 0
+  int[] mod = items
+  while i < |items|
+  where i >= 0
+  where |items| == |mod|
+  // iterative assignment
+  where all { j in 0..i | mod[j] == items[j] + delta }:
+    mod[i] = items[i] + delta
+    i = i + 1
+  return mod
 \end{lstlisting}
 \caption{Example of equal array length invariant.}
 \label{lst:equal-array-len}
