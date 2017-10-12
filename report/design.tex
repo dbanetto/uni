@@ -486,7 +486,7 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
 \label{lst:array-length-eq}
 \end{figure}
 
-\subsection{Upper bound}
+\subsection{Upper bound}\label{s:design-upper-bound}
 \comment{
 	Finds simple mutations \\
 	Figures out actually how much the value changes every iteration
@@ -659,7 +659,27 @@ ensures r >= 0 && r <= |items|:
 	\item Combines range with array element assignment with variables replaced
 \end{itemize}
 
-The array iterative assignment invariant is a 
+The array iterative assignment invariant describes how each element
+of an array is assigned.
+The common use case of this invariant is when a new array is having
+its elements assigned, either by applying a function over an element
+of another array or based on the index variable.
+This is similar to the \code{map} function common in functional languages.
+Figure~\ref{lst:array-iter-gen} is a generalized example of the invariant 
+and shows that it is unique, relative to the other targeted invariants, by
+using a universal quantifier.
+
+This loop invariant is built up of two components.
+The first component is the lower and upper bounds of the
+universal quantifier, one of the bounds will be the index
+variable and the other is the starting value of the index.
+The second component is the assignment expression used to
+determine the value of the element.
+Figure~\ref{lst:array-iter-gen} is a generalized example of the invariant 
+and shows the two possible variants of it.
+The left side shows an ascending assignment, going from starting value to the index, and
+the right shows the descending assignment, index to the starting value.
+
 
 \begin{figure}[ht]
 \noindent
@@ -691,8 +711,43 @@ while P
 \label{lst:array-iter-gen}
 \end{figure}
 
+The bounds of the quantifier is discovered by identifying the
+starting bound of an index variable.
+This is achieved in the same way as described for the starting bound
+invariant (see Section~\ref{s:design-starting-bound}).
+To ensure that every element is assigned during the loop, the magnitude of
+the change to the index variable is also checked to be either one or negative.
+This is enforced by using the same method in the upper bound invariant to
+determine the magnitude of the change (see Section~\ref{s:design-upper-bound}).
+The ordering of the index variable and its starting value is determined
+by the which direction it changes during the loop.
+For example, if the index is known to be increasing the bounds of the 
+quantifier will be starting value to index variable.
+This is demonstrated in figure~\ref{array-iter-assign} where
+the index vairable, \code{i}, is increasing each iteration and
+the starting value of quantifier is 0 with the upper bound of \code{i}.
 
-\todo{examples}
+The assignment expression for each element is simply selecting the
+assignment to an element of the array.
+The assignment expression cannot have any dependencies on the previous
+value of the array being assigned or to variables only aviable in the loop body.
+This is due to limitation of being able to refer to previous values of
+variables or element and variables within the loop.
+If these are not present the assignment expression can be
+safey used.
+This is shown in figure~\ref{array-iter-assign} with the 
+assignment on line 11.
+
+From these components they are merged to form the invariant.
+The indentied bounds are used as is while the assignment expression
+requires some modification.
+To create the quantifier a name for the quantifier's index is required.
+This can be any name so long that it does not collide with any existing variable.
+The assignment expresison is modified from being an assignment to a equilivance
+expresison and that all uses of the index variable is replaced with the
+quantifier's index variable.
+From this the invairant is formed.
+Figure~\ref{array-iter-assign} shows a full example of this invariant.
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -710,8 +765,8 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
     i = i + 1
   return mod
 \end{lstlisting}
-\caption{Example of equal array length invariant.}
-\label{lst:equal-array-len}
+\caption{Example of array iterative assignment invariant.}
+\label{lst:array-iter-assign}
 \end{figure}
 
 \section{Techniques used to infer properties of a loop}
