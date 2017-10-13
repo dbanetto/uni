@@ -29,6 +29,90 @@ Thus it is undetermined that the introduction of generated loop invariants would
 This is because of a change in direction of the project to focus on generating simple loop
 invariants over the study of the implications of generated invariants on programmers (see Section~\ref{s:requirements}).
 
+\section{Related Work}
+\comment{Covers the literature review and compare current solution to similar projects}
+
+The problem of loop invariants have been a target for generation for decades.
+Over this time other formally variable languages
+
+\todo{THIS SECTION}
+
+\fixme{Should this be in the conclusion section rather than here?}
+
+\subsection{Dafny}
+\comment{
+	explain how dafny is an alternative to Whiley in the Spec Lang space
+	has some features that are missing in Whiley that would be interesting to use
+	
+	* declaring variables as increasing or decreasing \\
+	* defining variables / fields as ghosts, to only be used in specifications
+	dafny - other formal language
+}
+
+Dafny is language a similar language to Whiley as they both are design with the
+goal to be  being formally verifiable.
+Dafny is a research language for a verifying compiler built by Microsoft
+Research~\cite{dafny-lang}.
+Dafny shares a majority of features with Whiley and makes advances in others.
+
+One feature Dafny is to provide a termination metric.
+This tells Dafny that the given expression will decrease with each iteration. 
+In turn this proves that with each iteration a step towards its termination is achieved \cite{dafny-started}\cite{dafny-lang}.
+By default this is inferred from analysis of the loop.
+This feature is similar in nature to a key mechanism behind the starting bound and upper bound
+generators, being able to determine if a variable increases or decreases
+(see Section~\ref{s:sequence-dir}). 
+
+Another feature of Dafny is variables can be annotated to be ghost variables
+and the previous value of a variable can be referenced.
+In Dafny a ghost variable is one that can only be used for verifications.
+This has no impact on the runtime of the program \cite{dafny-started}\cite{dafny-lang}.
+The previous value of a variable can use accessed by using a built-in
+function, \code{old}, that returns the previous value in specifications.
+These features would simplify the equal length and iterative assignment
+generators since they could generate zero-cost clones of arrays to use
+with their invariants. 
+
+
+\subsection{Methods to Generate Loop Invariants}
+\comment{explain how these methods create loop invariants}
+
+There has been research into automatic inference of loop invariants over
+the last three decades.
+Over this time a large range of methods has been devised to infer certain
+classes of invariants.
+These include logically weakening the post-conditions by back-propagating them
+to a loop invariant \cite{infer-postconditions}\cite{infer-dynamic} and
+matching a loop to a common pattern\cite{pattern-loop-inv}, similar to what is achieved in this
+report.
+
+\todo{this should really be completed at some point}
+
+\subsubsection{Backwards Propagation}
+
+\cite{infer-postconditions}
+\cite{infer-dynamic}
+
+% \subsubsection{Variable Aging}
+
+% \cite{infer-postconditions}
+% \cite{infer-dynamic}
+
+\subsection{Pattern-based loop invariant generation}
+
+\cite{pattern-loop-inv}
+
+% \subsubsection{Coupling}
+
+% \cite{infer-postconditions}
+% \cite{infer-dynamic}
+
+% \subsubsection{Term dropping}
+
+% \cite{infer-postconditions}
+% \cite{infer-dynamic}
+
+% \cite{struct-induction}
 
 \section{Future work}
 
