@@ -286,6 +286,219 @@ This can be achieved by finding patterns of what information generators are
 seeking and provide an interface where that information is computed once for
 all generators that require it and keep the traversal interface for unique generators.
 
+\section{Techniques used to infer properties of a loop}
+\comment{
+	Cover the individual techniques that were used in each generator \\
+	- discovering loop context \\
+	- determining if a variable has a simple mutation \\
+	- determining if a sequence is increasing or decreasing  \\
+	- decomposing loop conditions \\
+	- identify usage of variables in the loop \\
+	- associating a copied array back to its source \\
+	- checking for self dependencies \\
+}
+
+Each loop invariant is the composition multiple techniques to generate their
+invariants. This section will provide discuss the techniques, what they
+accomplish and where their limitations lay.
+The techniques covered are:
+
+\begin{itemize}
+	\item{Loop Context}
+	\item{Determining a simple mutation}
+	% \item{Decomposing Loop conditions and Invariants}
+	\item{Associate copied arrays to source}
+\end{itemize}
+
+\subsection{Loop Context}\label{s:loop-context}
+\comment{
+	Write about the pre-loop stuff \\
+	* how it collects data \\
+	* what data it collects \\
+	* why it collects \\
+	* how it decides what to collect \\
+	* how it differ between variables and parameters
+}
+
+\fixme{Break up and expand on this}
+
+The loop context is a summary about the prelude of the loop
+that generators will operate on.
+The main focus of the loop context is to provide details about
+local variables and parameters before the loop, such as their
+values or types.
+This is used by every loop invariant generator to identify local variables
+that could be used for the invariant.
+
+The loop context collects what it can determine about a variable.
+When analysing a simple block of code it updates the variable last known to
+the last known value. This is achieved by capturing the expression
+assigned to the variable.
+At a branching points, such as \code{if}'s or loops, the context of each 
+block is collected independently then merged back to the parent at the end of the block.
+If the block was a conditional branch the intersection of all paths are taken
+before merging with the parent.
+During the intersection if a variable is modified different in both branches it
+is then considered indeterminable as it is unknown which branch will be taken.
+Just as local variables fall out of scope in Whiley, they also do for loop contexts.
+
+The loop context checks assignments by deciding if the value is determinable.
+This is achieved by analysing the variable's assignment expression.
+Currently the expression is considered determinable if the expression contains constant
+values or other determinable variables used with any binary or unary operators.
+This is due to the results will always be consistent.
+However, if the expression contains a method call it is considered indeterminable.
+This is due to method's in Whiley have no guarantee of consistency.
+
+
+Figure~\ref{lst:loop-context} shows an illustration of information captured as
+the context is collected though the statements before the while loop.
+In particular the variable \code{limit} shows how branches are handled
+and that it becomes indeterminable at the loop due to being mutated in the \code{if}
+branch.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function f(int count): // C = { count: <parameter }
+  int[] items = [0; count] // C + { items -> [0; count] }
+
+  int limit = 0 // C +  { limit -> 0 } 
+
+  if g(items): // branch: C -> C`
+    int f = 1 // C' + { f -> 1 }
+    limit = h(items) // C' + { limit -> h(items) }
+  // C` intersection C => C + { limit -> ?? }
+
+  int i = 0 // C + { i -> 0 }
+
+  // Final Loop context
+  // C is { count -> <parameter>, items -> [0;count],
+  //   limit -> ??, i -> 0 }
+  while i <= limit:
+    items[i] = i
+    i = i + 1
+\end{lstlisting}
+\caption{Example of the information gathered by the loop context}
+\label{lst:loop-context}
+\end{figure}
+
+\subsection{Determining a simple mutation}\label{s:simple-mut}
+
+\fixme{Break up and expand on this}
+
+A simple mutation is an expression that only includes addition or subtraction
+of a known variable or constant.
+This is to test that the expression is a monotonic expression \cite{tanton2005encyclopedia}.
+Operations such as multiplication, division and function calls are disallowed
+because the monotonic property of these operations are dependent on their
+runtime values.
+For example a multiplication between a constant and a variable,
+the result of the expression may change from being an increasing expression
+to decreasing after some unknown point, such as a polynomial equation.
+
+The current design only allows a single variable to be in a simple mutation
+expression.
+That variable must also be the variable that is being mutated as well.
+For example in figure~\ref{lst:simple-mutations} the assignment of \code{i} on
+line 3 is simple since it refers to itself variable.
+However, the assignment of \code{f} on line 6 is not simple as
+it refers to a variable that is not \code{f}.
+This limitation is due to a only needing to 
+support single variable mutations for the loop invariants
+that depended on this mechanism.
+
+\begin{figure}[ht]
+	\begin{lstlisting}
+	int i = 0
+	int f = 0
+	i = i + 1 // simple
+	i = i + 1 - 10 + 1 + 1000 // simple
+	f = g(f)  // not simple
+	f = i + 1 // not simple
+	f = f * f // not simple
+	\end{lstlisting}
+	\caption{Example simple mutations}
+	\label{lst:simple-mutations}
+\end{figure}
+
+\subsection{Determining if a value is increasing or decreasing}\label{s:sequence-dir}
+
+\fixme{Break up and expand on this}
+
+From a simple mutation inside a loop it can be determined if the value is
+increasing or decreasing with each iteration.
+To achieve this the symbolic executable property of a simple mutation is
+exploited to simulate two iterations worth of mutations.
+The known variable in the mutation is set to an initial value of zero for
+the first iteration and uses the result for the second.
+Since the simple mutation is a linear monotonic function it is known that
+the difference between each iteration will be constant.
+From the result of difference between the first and second iteration the
+value can be observed to increase for all iterations if it is positive or
+decrease if negative. If there is no difference between the iterations then
+it is considered stationary and is considered an error state.
+This process is outlined in figure~\ref{math:simple-mutation}.
+
+\begin{figure}
+	$$\text{Given that } f(x) \text{ is a linear monotonic function}$$
+	
+	$$diff = f(f(0)) - f(0)$$
+	
+	\[
+	diff \begin{cases}
+	= 0 \quad f(x) \text{ is stationary}\\
+	> 0 \quad f(x) \text{ is increasing}\\
+	< 0 \quad f(x) \text{ is decreasing}\\
+	\end{cases}
+	\]
+	\caption{Outline of determining if a function increases or decreases with
+		each application}
+	\label{math:simple-mutation}
+\end{figure}
+
+%\subsection{Decomposing Loop conditions and Invariants}\label{s:cond-decompose}
+%\comment{
+%    Whiley semantics means all where clauses are conjunctively joined, \\
+%    A loop condition that is conjunctively joined can be broken into
+%    segments
+%}
+
+\subsection{Associate length of copied arrays to source}\label{s:copied-array}
+\comment{ was a array initialised with a copy from an array type or use a
+	generator }
+
+The length of a new array can determine by associating the length to a source
+array.
+This relies on how the new array is created, for example if the array is
+generated using an array generator or from copying another array it can be.
+However, if the array is generated by a function it is more difficult to
+determine and was out-of-scope.
+When using an array generator the length of the array can be determined by
+evaluating the count of the generator.
+Figure~\ref{lst:simple-mutations} has an example of this for the initialisation
+of \code{a}, where the length of the array is associated with the value 10.
+In the case of an array copy the array size can be determined by taking the
+size of the source array as they will be equal.
+This is shown in figure~\ref{lst:simple-mutations} when initialising \code{b}
+and \fixme{should associations be transitive? or transitive to a list of values}
+
+This technique is used to associate ghost arrays used to assist in writing
+loop invariants.
+
+\begin{figure}[ht]
+	\begin{lstlisting}
+	int[] a = [0; 10] { |a| -> 10 }
+	int[] b = a { |b| -> 10, |a| -> |b| }
+	int[] c = f() { c -> ?? }
+	
+	a = f() { |a| -> ?? }
+	
+	// final association: { |b| -> 10, |a| -> ??, |c| -> ?? }
+	\end{lstlisting}
+	\caption{Examples of associated array lengths}
+	\label{lst:assoicated-arrays}
+\end{figure}
+
 \section{Implemented Loop Invariant Generators}
 
 This section will cover how each loop invariant generator was implemented and their use cases.

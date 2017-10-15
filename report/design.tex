@@ -243,8 +243,6 @@ The targeted loop invariants are:
 	\item Array iterative assignment
 \end{itemize}
 
-
-
 \fixme{not sure if the loop pattern stuff actually works out now}
 \fixme{would loop invariant patterns be more applicable?}
 
@@ -652,12 +650,12 @@ ensures r >= 0 && r <= |items|:
 	creates $all { \_i in C .. i | a[\_i] == f(\_i) }$
 }
 
-\begin{itemize}
-	\item Find an array that has an element assigned every iteration
-	\item Identify the index variable
-	\item Finds the range of assignment, starting bound + current position
-	\item Combines range with array element assignment with variables replaced
-\end{itemize}
+%\begin{itemize}
+%	\item Find an array that has an element assigned every iteration
+%	\item Identify the index variable
+%	\item Finds the range of assignment, starting bound + current position
+%	\item Combines range with array element assignment with variables replaced
+%\end{itemize}
 
 The array iterative assignment invariant describes how each element
 of an array is assigned.
@@ -725,31 +723,31 @@ The ordering of the index variable and its starting value is determined
 by the which direction it changes during the loop.
 For example, if the index is known to be increasing the bounds of the 
 quantifier will be starting value to index variable.
-This is demonstrated in figure~\ref{array-iter-assign} where
-the index vairable, \code{i}, is increasing each iteration and
+This is demonstrated in figure~\ref{lst:array-iter-assign} where
+the index variable, \code{i}, is increasing each iteration and
 the starting value of quantifier is 0 with the upper bound of \code{i}.
 
 The assignment expression for each element is simply selecting the
 assignment to an element of the array.
 The assignment expression cannot have any dependencies on the previous
-value of the array being assigned or to variables only aviable in the loop body.
+value of the array being assigned or to variables only available in the loop body.
 This is due to limitation of being able to refer to previous values of
 variables or element and variables within the loop.
 If these are not present the assignment expression can be
-safey used.
-This is shown in figure~\ref{array-iter-assign} with the 
+safely used.
+This is shown in figure~\ref{lst:array-iter-assign} with the 
 assignment on line 11.
 
 From these components they are merged to form the invariant.
-The indentied bounds are used as is while the assignment expression
+The identified bounds are used as is while the assignment expression
 requires some modification.
 To create the quantifier a name for the quantifier's index is required.
 This can be any name so long that it does not collide with any existing variable.
-The assignment expresison is modified from being an assignment to a equilivance
-expresison and that all uses of the index variable is replaced with the
+The assignment expression is modified from being an assignment to a equivalence
+expression and that all uses of the index variable is replaced with the
 quantifier's index variable.
-From this the invairant is formed.
-Figure~\ref{array-iter-assign} shows a full example of this invariant.
+From this the invariant is formed.
+Figure~\ref{lst:array-iter-assign} shows a full example of this invariant.
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -769,202 +767,4 @@ ensures all { i in 0..|r| | items[i] + delta == r[i] }:
 \end{lstlisting}
 \caption{Example of array iterative assignment invariant.}
 \label{lst:array-iter-assign}
-\end{figure}
-
-\section{Techniques used to infer properties of a loop}
-\comment{
-Cover the individual techniques that were used in each generator \\
- - discovering loop context \\
- - determining if a variable has a simple mutation \\
- - determining if a sequence is increasing or decreasing  \\
- - decomposing loop conditions \\
- - identify usage of variables in the loop \\
- - associating a copied array back to its source \\
- - checking for self dependencies \\
-}
-
-Each loop invariant is the composition multiple techniques to generate their
-invariants. This section will provide discuss the techniques, what they
-accomplish and where their limitations lay.
-The techniques covered are:
-
-\begin{itemize}
-    \item{Loop Context}
-    \item{Determining a simple mutation}
-    % \item{Decomposing Loop conditions and Invariants}
-    \item{Associate copied arrays to source}
-\end{itemize}
-
-\subsection{Loop Context}\label{s:loop-context}
-\comment{
-Write about the pre-loop stuff \\
- * how it collects data \\
- * what data it collects \\
- * why it collects \\
- * how it decides what to collect \\
- * how it differ between variables and parameters
-}
-
-\fixme{Break up and expand on this}
-
-The loop context provides all of the techniques an understanding of the
-variables before the loop.
-This is used to replace the instance of the variable with its assigned value
-before the loop.
-This base information provides the values of local variables and parameters of
-the function and tracks their values through the statements before the loop.
-On a branching point in the program the context of each path is collected
-separately then the intersection is taken with respect to the
-parent context when the branches join.
-The intersection is used so only variables that were only defined in the
-branch does not leak into the rest of the context and variables defined outside
-of the branch and mutated in it are updated.
-In the case that an existing variable is mutated in a branch the value becomes
-undetermined as it is unknown if the branch will be taken.
-Figure~\ref{lst:loop-context} shows an illustration of information captured as
-the context is collected though the statements before the while loop.
-In particular the variable \code{limit} shows how branches are handled
-and that it becomes indeterminable at the loop due to being mutated in the if
-branch.
-
-\begin{figure}[ht]
-\begin{lstlisting}
-function f(int count): // C = { count: <parameter }
-    int[] items = [0; count] // C + { items -> [0; count] }
-
-    int limit = 0 // C +  { limit -> 0 } 
-
-    if g(items): // branch: C -> C`
-        int f = 1 // C' + { f -> 1 }
-        limit = h(items) // C' + { limit -> h(items) }
-    // C` intersection C => C + { limit -> ?? }
-
-    int i = 0 // C + { i -> 0 }
-
-    // Final Loop context
-    // C is { count -> <parameter>, items -> [0;count],
-    //   limit -> ??, i -> 0 }
-    while i <= limit:
-        items[i] = i
-        i = i + 1
-\end{lstlisting}
-\caption{Example of the information gathered by the loop context}
-\label{lst:loop-context}
-\end{figure}
-
-\subsection{Determining a simple mutation}\label{s:simple-mut}
-
-\fixme{Break up and expand on this}
-
-A simple mutation is an expression that only includes addition or subtraction
-of a known variable or constant.
-This is to test that the expression is a monotonic expression \cite{tanton2005encyclopedia}.
-Operations such as multiplication, division and function calls are disallowed
-because the monotonic property of these operations are dependent on their
-runtime values.
-For example a multiplication between a constant and a variable,
-the result of the expression may change from being an increasing expression
-to decreasing after some unknown point, such as a polynomial equation.
-
-The current design only allows a single variable to be in a simple mutation
-expression.
-That variable must also be the variable that is being mutated as well.
-For example in figure~\ref{lst:simple-mutations} the assignment of \code{i} on
-line 3 is simple since it refers to itself variable.
-However, the assignment of \code{f} on line 6 is not simple as
-it refers to a variable that is not \code{f}.
-This limitation is due to a only needing to 
-support single variable mutations for the loop invariants
-that depended on this mechanism.
-
-\begin{figure}[ht]
-\begin{lstlisting}
-int i = 0
-int f = 0
-i = i + 1 // simple
-i = i + 1 - 10 + 1 + 1000 // simple
-f = g(f)  // not simple
-f = i + 1 // not simple
-f = f * f // not simple
-\end{lstlisting}
-\caption{Example simple mutations}
-\label{lst:simple-mutations}
-\end{figure}
-
-\subsection{Determining if a value is increasing or decreasing}\label{s:sequence-dir}
-
-\fixme{Break up and expand on this}
-
-From a simple mutation inside a loop it can be determined if the value is
-increasing or decreasing with each iteration.
-To achieve this the symbolic executable property of a simple mutation is
-exploited to simulate two iterations worth of mutations.
-The known variable in the mutation is set to an initial value of zero for
-the first iteration and uses the result for the second.
-Since the simple mutation is a linear monotonic function it is known that
-the difference between each iteration will be constant.
-From the result of difference between the first and second iteration the
-value can be observed to increase for all iterations if it is positive or
-decrease if negative. If there is no difference between the iterations then
-it is considered stationary and is considered an error state.
-This process is outlined in figure~\ref{math:simple-mutation}.
-
-\begin{figure}
-    $$\text{Given that } f(x) \text{ is a linear monotonic function}$$
-
-    $$diff = f(f(0)) - f(0)$$
-
-    \[
-        diff \begin{cases}
-            = 0 \quad f(x) \text{ is stationary}\\
-            > 0 \quad f(x) \text{ is increasing}\\
-            < 0 \quad f(x) \text{ is decreasing}\\
-        \end{cases}
-    \]
-    \caption{Outline of determining if a function increases or decreases with
-    each application}
-\label{math:simple-mutation}
-\end{figure}
-
-%\subsection{Decomposing Loop conditions and Invariants}\label{s:cond-decompose}
-%\comment{
-%    Whiley semantics means all where clauses are conjunctively joined, \\
-%    A loop condition that is conjunctively joined can be broken into
-%    segments
-%}
-
-\subsection{Associate length of copied arrays to source}\label{s:copied-array}
-\comment{ was a array initialised with a copy from an array type or use a
-generator }
-
-The length of a new array can determine by associating the length to a source
-array.
-This relies on how the new array is created, for example if the array is
-generated using an array generator or from copying another array it can be.
-However, if the array is generated by a function it is more difficult to
-determine and was out-of-scope.
-When using an array generator the length of the array can be determined by
-evaluating the count of the generator.
-Figure~\ref{lst:simple-mutations} has an example of this for the initialisation
-of \code{a}, where the length of the array is associated with the value 10.
-In the case of an array copy the array size can be determined by taking the
-size of the source array as they will be equal.
-This is shown in figure~\ref{lst:simple-mutations} when initialising \code{b}
-and \fixme{should associations be transitive? or transitive to a list of values}
-
-This technique is used to associate ghost arrays used to assist in writing
-loop invariants.
-
-\begin{figure}[ht]
-\begin{lstlisting}
-int[] a = [0; 10] { |a| -> 10 }
-int[] b = a { |b| -> 10, |a| -> |b| }
-int[] c = f() { c -> ?? }
-
-a = f() { |a| -> ?? }
-
-// final association: { |b| -> 10, |a| -> ??, |c| -> ?? }
-\end{lstlisting}
-\caption{Examples of associated array lengths}
-\label{lst:assoicated-arrays}
 \end{figure}
