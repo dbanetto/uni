@@ -28,7 +28,7 @@ Some of these samples are fully verified when available where some may
 not due to issues present in Whiley. 
 These can be run using Whiley's web IDE ( \url{http://whileylabs.com} ) .
 
-\section{Starting bound}
+% \section{Starting bound}
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -68,7 +68,7 @@ function count(int[] items, int x) -> (int c):
 \caption{Example of a starting bound invariant with mutation within a conditional block.}
 \end{figure}
 
-\section{Equal array length}
+% \section{Equal array length}
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -82,7 +82,7 @@ ensures all { i in 0..|items| | (items[i] >= 0 ==> items[i] == r[i])
   int i = 0
   while i < |items|
   where |result| == |items| // equal array length
-  where i >= 0
+  where i >= 0 // starting bound
   where all { j in i..|result| | result[j] == 0 }
   where all { j in 0..i | (items[j] >= 0 ==> items[j] == result[j]) 
                      && (items[j] < 0 ==> result[j] == 0 ) }:
@@ -95,7 +95,7 @@ ensures all { i in 0..|items| | (items[i] >= 0 ==> items[i] == r[i])
 \caption{Example equal array length with generated arrays.}
 \end{figure}
 
-\section{Upper bound}
+% \section{Upper bound}
 
 \begin{figure}[ht]
 \begin{lstlisting}
@@ -106,7 +106,7 @@ ensures some { i in 0..|items| | r == items[i] }:
   int i = 1
   int m = items[0]
   while i < |items|
-  where i >= 1
+  where i >= 1 // starting bound
   where i <= |items| // upper bound
   where all { j in 0..i | m <= items[j] }
   where some { j in 0..i | m == items[j] }:
@@ -119,7 +119,7 @@ ensures some { i in 0..|items| | r == items[i] }:
 \label{lst:upper-bound-min}
 \end{figure}
 
-\section{Array iterative assignment}
+% \section{Array iterative assignment}
 
 \chapter{Evaluation}\label{A:eval}
 
@@ -131,20 +131,20 @@ ensures some { i in 0..|items| | r == items[i] }:
 \end{tabular}
 \end{center}
 
-\section{Code for evaluation walk through}\label{A:eval-walkthrough}
+% \section{Code for evaluation walk through}\label{A:eval-walkthrough}
 
-\subsection{Original code}
+% \subsection{Original code}
 
-\subsection{After broken down phase}
+% \subsection{After broken down phase}
 
-\subsection{After minimized phase}
+% \subsection{After minimized phase}
 
-\subsubsection{Without loop invariant generation}
+% \subsubsection{Without loop invariant generation}
 
-\subsubsection{With loop invariant generation}
+% \subsubsection{With loop invariant generation}
 
-\subsection{Output of reporting phase}
+% \subsection{Output of reporting phase}
 
-\todo{code blocks of a walk through of evaluation}
+% \todo{code blocks of a walk through of evaluation}
 
 \end{appendices}

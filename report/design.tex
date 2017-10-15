@@ -688,7 +688,8 @@ the right shows the descending assignment, index to the starting value.
 int i = 0
 ...
 while P
-  where all { j in 0..i | items[j] = f(j) }:
+  where all { j in 0..i |
+      items[j] = f(j) }:
   ...
   items[i] = f(i)
   i = i + 1
@@ -700,7 +701,8 @@ while P
 int i = |items|
 ...
 while P
-  where all { j in i..|items| | items[j] = f(j) }:
+  where all { j in i..|items| |
+      items[j] = f(j) }:
   ...
   items[i] = f(i)
   i = i - 1
