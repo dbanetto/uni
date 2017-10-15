@@ -80,7 +80,10 @@ with their invariants.
 There has been research into automatic inference of loop invariants over
 the last three decades.
 Over this time a large range of methods has been devised to infer certain
-classes of invariants.
+classes of invariants \cite{infer-dynamic}\cite{infer-postconditions}\cite{struct-induction}.
+This section will include two tool that utilise these methods,
+\text{gin-pink} \cite{infer-postconditions}, and \text{gin-dyn} \cite{infer-dyn}.
+
 These include logically weakening the post-conditions by back-propagating them
 to a loop invariant \cite{infer-postconditions}\cite{infer-dynamic} and
 matching a loop to a common pattern\cite{pattern-loop-inv}, similar to what is achieved in this
@@ -88,19 +91,43 @@ report.
 
 \todo{this should really be completed at some point}
 
-\subsubsection{Backwards Propagation}
+\subsubsection{Gin-Pink}
 
-\cite{infer-postconditions}
-\cite{infer-dynamic}
+In \textit{Inferring Loop Invariants using Postconditions} 
+the \textit{gin-pink}'s proposed \cite{infer-postconditions}.
+This is a dynamic loop invariant generator similar to the generator
+present in this report.
+\textit{gin-pink} generates loop invariants by considering the program's code
+and the supplied post-conditions.
+To achieve this a number of candidate invariants are generated from the 
+post-conditions of procedures.
+The candidate invariants are generating by applying heuristics to the
+post-conditions to form weaker conditions to be used.
+Each candidate invariant is tested to see if it holds.
+This contrasts with this report as they are both aiming to generate loop
+invariants but focus on different foundations.
+Where \textit{gin-pink} is aiming for more general invariants 
+this report is focused on known repetitive invariants.
+
+\subsubsection{Gin-Dyn}
+
+In \textit{Automating Full Functional Verification of Programs with Loops} the
+\textit{gin-dyn} tool is proposed \cite{infer-dynamic}.
+Like \textit{gin-pink} this tool generates a range of candidate invariants,
+however \textit{gin-dyn} takes it a step further by also using generated tests
+as a biases to create loop invariants.
+
+
+% \cite{infer-dynamic}
 
 % \subsubsection{Variable Aging}
 
 % \cite{infer-postconditions}
 % \cite{infer-dynamic}
 
-\subsection{Pattern-based loop invariant generation}
+% \subsection{Pattern-based loop invariant generation}
 
-\cite{pattern-loop-inv}
+% \cite{pattern-loop-inv}
 
 % \subsubsection{Coupling}
 
