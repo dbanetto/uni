@@ -305,3 +305,25 @@ displays as before. For example using `curl` this would look like:
 ![](./img/prime_512.png)
 
 ![](./img/prime_1024.png)
+
+\pagebreak
+
+# Challenge
+
+Website: [http://ec2-52-38-107-69.us-west-2.compute.amazonaws.com/](http://ec2-52-38-107-69.us-west-2.compute.amazonaws.com/)
+
+The site uses Github OAuth to authenticate the user.
+This is to prevent a drive by usage of the lambda functions.
+The backing site is a NodeJS application using [passportjs](http://passportjs.org) to
+handle the finer points of OAuth to GitHub.
+This establishes an authenticated session for the user to use the API.
+
+The lambda API is hidden behind the `/compute` api of the site.
+To use this endpoint the request must be authenticated with the cookies
+from the GitHub login.
+The parameters for the API mirrors the Lambda's API apart from the inclusion of 
+a `size` parameter.
+This is used to hint at which lambda function to use, be it small (128MiB), medium (256MiB), large (512MiB) or 
+extra large (1024MiB).
+
+The source code for this site is in `site.zip`.
