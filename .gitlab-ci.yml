@@ -3,9 +3,12 @@ image: aergus/latex
 pages:
   stage: deploy
   script:
+  - sudo apt install -y pandoc
   - mkdir -p public
-  - (cd report && make)
+  - (cd report/ && make)
+  - (cd slides/ && make)
   - mv report/proj_report_outline.pdf public/report.pdf
+  - mv report/slides.pdf public/slides.pdf
   artifacts:
     paths:
     - public
