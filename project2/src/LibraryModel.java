@@ -3,30 +3,30 @@
  * Author: David Barnett
  */
 
+import javax.swing.*;
 import java.sql.*;
 
-import javax.swing.*;
-import java.sql.Connection;
-import java.sql.SQLException;
-
-// canary for java is configured properly
-import org.postgresql.Driver;
-
-import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
 
 public class LibraryModel {
 
-    // For use in creating dialogs and making them modal
-    private JFrame dialogParent;
-    private final Connection conn;
-
+    // Runs before first instantiation of the LibraryModel class
     static {
         try {
             Class.forName(org.postgresql.Driver.class.getName());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            System.exit(1);
         }
+    }
+
+    private final Connection conn;
+    // For use in creating dialogs and making them modal
+    private JFrame dialogParent;
+
+    public LibraryModel(JFrame parent, String userid, String password) throws SQLException {
+        this.dialogParent = parent;
+        this.conn = getConnection(userid, password);
     }
 
     private String getUrl(String userId) {
@@ -37,23 +37,20 @@ public class LibraryModel {
         return DriverManager.getConnection(getUrl(userId), userId, password);
     }
 
-    public LibraryModel(JFrame parent, String userid, String password) throws SQLException {
-        this.dialogParent = parent;
-        this.conn = getConnection(userid, password);
-    }
-
     public String bookLookup(int isbn) {
         StringBuilder builder = new StringBuilder();
 
         try {
-            Statement stmt = conn.createStatement();
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM book WHERE isbn = ?");
+            stmt.setInt(1, isbn);
+            ResultSet results = stmt.executeQuery();
 
-            ResultSet results = stmt.executeQuery("SELECT * FROM book WHERE isbn = " + isbn);
+            builder.append("Book\n");
 
             if (results.isBeforeFirst()) {
                 buildBooks(results, builder);
             } else {
-                builder.append("No book with ISBN ").append(isbn).append(" found.").append('\n');
+                builder.append("\tNo book with ISBN ").append(isbn).append(" found.").append('\n');
             }
 
         } catch (SQLException e) {
@@ -64,17 +61,16 @@ public class LibraryModel {
         return builder.toString();
     }
 
+    /**
+     * Builds a table of books with authors
+     *
+     * @param bookQuery result of a book query
+     * @param builder where the table is built to
+     * @throws SQLException
+     */
     private void buildBooks(ResultSet bookQuery, StringBuilder builder) throws SQLException {
 
-        // header
-        builder.append("ISBN").append('\t');
-        builder.append("Title").append('\t');
-        builder.append("Edition").append('\t');
-        builder.append("Number of Copies").append('\t');
-        builder.append("Number Left");
-        builder.append('\n');
-
-        while(bookQuery.next()) {
+        while (bookQuery.next()) {
 
             int ISBN = bookQuery.getInt("isbn");
             String title = bookQuery.getString("title");
@@ -82,13 +78,27 @@ public class LibraryModel {
             int copies = bookQuery.getInt("numofcop");
             int left = bookQuery.getInt("numleft");
 
+            // build the authors list
+            StringBuilder authorList = new StringBuilder();
+            PreparedStatement authorsStmt = conn.prepareStatement("SELECT surname FROM book_author natural join author where isbn = ? ORDER BY authorseqno");
+            authorsStmt.setInt(1, ISBN);
+            ResultSet authors = authorsStmt.executeQuery();
 
-            builder.append(ISBN).append('\t');
-            builder.append(title).append('\t');
-            builder.append(edition).append('\t');
-            builder.append(copies).append('\t');
-            builder.append(left);
-            builder.append('\n');
+            while (authors.next()) {
+                if (!authors.isFirst()) {
+                    authorList.append(", ");
+                }
+                authorList.append(authors.getString("surname").trim());
+            }
+
+            builder.append(ISBN).append(": ").append(title).append('\n');
+            builder.append('\t')
+                    .append("Edition: ").append(edition)
+                    .append(" - Number of Copies: ").append(copies)
+                    .append(" - Copies left: ").append(left)
+                    .append('\n');
+            builder.append('\t').append("Authors: ").append(authorList.toString())
+                    .append('\n');
         }
     }
 
@@ -98,10 +108,12 @@ public class LibraryModel {
         try {
             Statement stmt = conn.createStatement();
 
-            ResultSet query = stmt.executeQuery("SELECT * FROM book");
+            ResultSet query = stmt.executeQuery("SELECT * FROM book ORDER BY isbn DESC");
 
+            builder.append("Book Catalogue\n");
             buildBooks(query, builder);
 
+            builder.append('\n');
         } catch (SQLException e) {
             builder.append("Error occurred while looking up catalogue").append('\n');
             builder.append(e.toString()).append('\n');
@@ -116,24 +128,43 @@ public class LibraryModel {
         try {
             Statement stmt = conn.createStatement();
 
-            ResultSet query = stmt.executeQuery("SELECT * FROM cust_book");
+            ResultSet query = stmt.executeQuery("SELECT isbn FROM cust_book GROUP BY isbn");
 
-            // header
-            builder.append("ISBN").append('\t');
-            builder.append("Due Date").append('\t');
-            builder.append("Customer Id");
-            builder.append('\n');
+            builder.append("Loaned books\n");
 
-            while(query.next()) {
+            while (query.next()) {
 
                 int ISBN = query.getInt("isbn");
-                String dueDate = query.getString("duedate");
-                int customerId = query.getInt("customerid");
+
+                PreparedStatement book = conn.prepareStatement("SELECT * FROM book WHERE isbn = ?");
+                book.setInt(1, ISBN);
+                ResultSet results = book.executeQuery();
+
+                buildBooks(results, builder);
+
+                builder.append("\tBorrowers:\n");
+
+                PreparedStatement borrowers = conn.prepareStatement("SELECT * FROM customer NATURAL JOIN cust_book WHERE isbn = ?");
+                borrowers.setInt(1, ISBN);
+                ResultSet borrow = borrowers.executeQuery();
+
+                while (borrow.next()) {
+                    int customerId = borrow.getInt("customerid");
+                    String lastName = borrow.getString("l_name");
+                    String firstName = borrow.getString("f_name");
+                    String city = borrow.getString("city");
+                    city = city == null ? "(no city)" : city;
+                    Date duedate = borrow.getDate("duedate");
 
 
-                builder.append(ISBN).append('\t');
-                builder.append(dueDate).append('\t');
-                builder.append(customerId);
+                    builder.append("\t\t").append(customerId).append(": ")
+                            .append(firstName.trim()).append(' ').append(lastName.trim())
+                            .append(" - ").append(city)
+                            .append(" due on ").append(duedate.toString())
+                            .append('\n');
+                }
+
+
                 builder.append('\n');
             }
 
@@ -145,24 +176,25 @@ public class LibraryModel {
         return builder.toString();
     }
 
+    /**
+     * Builds an author table to be displayed
+     *
+     * @param author result of an author query
+     * @param builder where the table is built to
+     * @throws SQLException
+     */
     private void buildAuthor(ResultSet author, StringBuilder builder) throws SQLException {
-        // header
-        builder.append("Author Id").append('\t');
-        builder.append("Name").append('\t');
-        builder.append("Surname");
-        builder.append('\n');
-
-        while(author.next()) {
+        while (author.next()) {
 
             int id = author.getInt("authorid");
             String name = author.getString("name");
             String surname = author.getString("surname");
 
 
-            builder.append(id).append('\t');
-            builder.append(name).append('\t');
-            builder.append(surname);
-            builder.append('\n');
+            builder.append('\t').append(id).append(": ")
+                    .append(name.trim()).append(", ")
+                    .append(surname)
+                    .append('\n');
         }
 
     }
@@ -171,14 +203,43 @@ public class LibraryModel {
         StringBuilder builder = new StringBuilder();
 
         try {
-            Statement stmt = conn.createStatement();
 
-            ResultSet query = stmt.executeQuery("SELECT * FROM author WHERE authorid = " + authorID);
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM author WHERE authorid = ?");
+            stmt.setInt(1, authorID);
+
+            ResultSet query = stmt.executeQuery();
+
+            builder.append("Author\n");
 
             if (query.isBeforeFirst()) {
-                buildAuthor(query, builder);
+
+                query.next();
+
+                builder.append('\t').append(query.getInt("authorid"))
+                        .append(" - ")
+                        .append(query.getString("name").trim())
+                        .append(query.getString("surname").trim())
+                        .append('\n');
+
+                PreparedStatement booksWritten = conn.prepareStatement("SELECT isbn, title FROM book NATURAL JOIN book_author WHERE authorid = ?");
+                booksWritten.setInt(1, authorID);
+
+                ResultSet written = booksWritten.executeQuery();
+
+                if (written.isBeforeFirst()) {
+                    builder.append("\tBooks written:\n");
+                    while (written.next()) {
+                        int isbn = written.getInt("isbn");
+                        String title = written.getString("title").trim();
+
+                        builder.append("\t\t").append(isbn).append(" - ").append(title).append('\n');
+                    }
+                } else {
+                    builder.append("\t(no books written)").append('\n');
+                }
+
             } else {
-                builder.append("No author found with id ").append(authorID).append('\n');
+                builder.append("\tNo author found with id ").append(authorID).append('\n');
             }
 
         } catch (SQLException e) {
@@ -197,6 +258,8 @@ public class LibraryModel {
 
             ResultSet query = stmt.executeQuery("SELECT * FROM author");
 
+            builder.append("Authors\n");
+
             buildAuthor(query, builder);
 
         } catch (SQLException e) {
@@ -207,27 +270,27 @@ public class LibraryModel {
         return builder.toString();
     }
 
+    /**
+     * Builds a customer table to be displayed
+     *
+     * @param customer result of an customer query
+     * @param builder where the table is built to
+     * @throws SQLException
+     */
     private void buildCustomer(ResultSet customer, StringBuilder builder) throws SQLException {
-        // header
-        builder.append("Customer Id").append('\t');
-        builder.append("Last Name").append('\t');
-        builder.append("First Name").append('\t');
-        builder.append("City");
-        builder.append('\n');
 
-        while(customer.next()) {
+        while (customer.next()) {
 
             int id = customer.getInt("customerid");
-            String lname = customer.getString("l_name");
-            String fname = customer.getString("f_name");
+            String lname = customer.getString("l_name").trim();
+            String fname = customer.getString("f_name").trim();
             String city = customer.getString("city");
+            city = city == null ? "(no city)" : city.trim();
 
 
-            builder.append(id).append('\t');
-            builder.append(lname).append('\t');
-            builder.append(fname).append('\t');
-            builder.append(city);
-            builder.append('\n');
+            builder.append('\t').append(id).append(": ")
+                    .append(fname).append(", ").append(lname)
+                    .append(" - ").append(city).append('\n');
         }
     }
 
@@ -239,10 +302,35 @@ public class LibraryModel {
 
             ResultSet query = stmt.executeQuery("SELECT * FROM customer WHERE customerid = " + customerID);
 
+            builder.append("Customer\n");
+
             if (query.isBeforeFirst()) {
                 buildCustomer(query, builder);
+
+                PreparedStatement borrowedStmt = conn.prepareStatement("SELECT title, isbn FROM customer NATURAL JOIN cust_book NATURAL JOIN book WHERE customerid = ?");
+                borrowedStmt.setInt(1, customerID);
+                ResultSet borrowed = borrowedStmt.executeQuery();
+
+                if (borrowed.isBeforeFirst()) {
+
+                    builder.append("\tBooks borrowed:\n");
+                    while (borrowed.next()) {
+
+                        builder.append("\t\t")
+                                .append(borrowed.getInt("isbn"))
+                                .append(" - ")
+                                .append(borrowed.getString("title").trim())
+                                .append('\n');
+
+                    }
+
+                } else {
+                    builder.append("\t(no books borrowed)\n");
+                }
+
+
             } else {
-                builder.append("No customer found with id ").append(customerID).append('\n');
+                builder.append("\tNo customer found with id ").append(customerID).append('\n');
             }
 
         } catch (SQLException e) {
@@ -261,6 +349,8 @@ public class LibraryModel {
 
             ResultSet query = stmt.executeQuery("SELECT * FROM customer");
 
+            builder.append("Customers\n");
+
             buildCustomer(query, builder);
 
         } catch (SQLException e) {
@@ -272,9 +362,10 @@ public class LibraryModel {
     }
 
     public String borrowBook(int isbn, int customerID,
-            int day, int month, int year) {
+                             int day, int month, int year) {
 
         StringBuilder builder = new StringBuilder();
+
 
         try {
             conn.setAutoCommit(false);
@@ -282,12 +373,14 @@ public class LibraryModel {
             Statement stmt = conn.createStatement();
 
             ResultSet customer = stmt.executeQuery("SELECT 1 FROM customer WHERE customerid = " + customerID + " FOR UPDATE");
+            // test if any result was found
             if (!customer.isBeforeFirst()) {
                 throw new SQLException("customer with id " + customerID + " does not exist");
             }
 
             ResultSet book = stmt.executeQuery("SELECT numofcop, numleft FROM book WHERE isbn = " + isbn + " FOR UPDATE");
             int numberLeft;
+            // test if any result was found
             if (!book.isBeforeFirst()) {
                 throw new SQLException("book with ISBN " + isbn + " does not exist");
             } else {
@@ -403,6 +496,15 @@ public class LibraryModel {
         }
     }
 
+    // ensure that if any unhandled error occurs the connection will be terminated
+    @Override
+    protected void finalize() throws Throwable {
+        if (conn != null && !conn.isClosed()) {
+            conn.close();
+        }
+        super.finalize();
+    }
+
     public String deleteCustomer(int customerID) {
         StringBuilder builder = new StringBuilder();
 
@@ -430,7 +532,7 @@ public class LibraryModel {
 
             conn.commit();
             builder.append("Successfully customer deleted customer (").append(customerID)
-                    .append(")") .append('\n');
+                    .append(")").append('\n');
         } catch (SQLException e) {
             builder.append("Error occurred while deleting customer ").append(customerID).append('\n');
             builder.append(e.getMessage()).append('\n');
@@ -458,10 +560,10 @@ public class LibraryModel {
                 throw new SQLException("Author with id " + authorID + " does not exist");
             }
 
-            ResultSet book = stmt.executeQuery("SELECT 1 FROM book_author WHERE authorid = " + authorID);
-            if (book.isBeforeFirst()) {
-                throw new SQLException("Author has books, cannot delete author until all books are deleted");
-            }
+            // Author -> Book_Author referential constraint to set to default on delete
+            PreparedStatement bookAuthorDefault = conn.prepareStatement("UPDATE book_author SET authorid = 0 WHERE authorid = ?");
+            bookAuthorDefault.setInt(1, authorID);
+            bookAuthorDefault.executeUpdate();
 
             PreparedStatement customerDelete = conn.prepareStatement("DELETE FROM author WHERE authorid = ?");
             customerDelete.setInt(1, authorID);
@@ -472,7 +574,7 @@ public class LibraryModel {
 
             conn.commit();
             builder.append("Successfully deleted author (").append(authorID)
-                    .append(")") .append('\n');
+                    .append(")").append('\n');
         } catch (SQLException e) {
             builder.append("Error occurred while deleting author ").append(authorID).append('\n');
             builder.append(e.getMessage()).append('\n');
@@ -500,10 +602,16 @@ public class LibraryModel {
                 throw new SQLException("Book with ISBN " + isbn + " does not exist");
             }
 
+            // Book -> Cust_Book referential requirement, restrict
             ResultSet book = stmt.executeQuery("SELECT 1 FROM cust_book WHERE isbn = " + isbn);
             if (book.isBeforeFirst()) {
                 throw new SQLException("A copy of the book is borrowed, cannot deleted book until all copies are returned");
             }
+
+            // Book -> Book_Author referential requirement, set to default
+            PreparedStatement bookAuthorDefault = conn.prepareStatement("UPDATE book_author SET isbn = 0 WHERE isbn = ?");
+            bookAuthorDefault.setInt(1, isbn);
+            bookAuthorDefault.executeUpdate();
 
             PreparedStatement bookDelete = conn.prepareStatement("DELETE FROM book WHERE isbn = ?");
             bookDelete.setInt(1, isbn);
@@ -511,10 +619,6 @@ public class LibraryModel {
             if (borrowResult == 0) {
                 throw new SQLException("Failed to delete from book table");
             }
-
-            PreparedStatement bookAuthorDelete = conn.prepareStatement("DELETE FROM book_author WHERE isbn = ?");
-            bookAuthorDelete.setInt(1, isbn);
-            borrowResult = bookAuthorDelete.executeUpdate();
 
             conn.commit();
             builder.append("Successfully deleted book (").append(isbn).append(")").append('\n');
