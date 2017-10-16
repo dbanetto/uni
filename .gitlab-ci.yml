@@ -8,7 +8,7 @@ pages:
   - (cd report/ && make)
   - (cd slides/ && make)
   - mv report/proj_report_outline.pdf public/report.pdf
-  - mv report/slides.pdf public/slides.pdf
+  - mv slides/slides.pdf public/slides.pdf
   artifacts:
     paths:
     - public
