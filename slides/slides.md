@@ -2,8 +2,26 @@
 % David Barnett
 % Supervisor: Lindsay Groves
 
-# Section
+# Outline
+
+ * Background
+ * Design
+ * Implementation
+ * Evaluation
+ * Conclusion
+
+# Background
+
+# Design
+
+# Implementation
+
+# Evaluation
+
+# Conclusion
 
 ----
 
-## Questions
+\begin{center}
+    \Huge{Questions}
+\end{center}
