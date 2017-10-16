@@ -17,6 +17,11 @@ Classic pitfalls include: \\
     * and too few diagrams or examples.
 }
 
+This chapter will cover the implementation of the targeted loop invariants
+and critical choices made during the implementation phase of the project.
+The areas covered are: the architectural decisions; how the generators
+were structured; key mechanisms that are common across the generators; 
+and, how the generators work and their current limitations.
 
 \todo{Looks best to move the next sections into impl chapter}
 
@@ -26,9 +31,8 @@ Classic pitfalls include: \\
 }
 \section{Approaches to Loop Invariant Generation}
 
-The principle design decision of this project was at
-what point in the Whiley Compiler pipeline
-to generate the loop invariants.
+A critical architecture decision of this project was to where 
+to add the loop invariant generators into Whiley's compiler pipeline.
 There are three candidate stages in the Whiley Compiler
 that the input program will go through in the process of
 being verified, the list is not necessarily in order of occurrence:
@@ -43,8 +47,6 @@ Each of these stages have different representations of the Whiley program and
 associated information about the program itself.
 In the resulting solution the design approach taken was to build upon
 Whiley's abstract syntax tree.
-
-
 
 \subsection{Whiley Intermediate Language (WyIL)}
 \comment{
