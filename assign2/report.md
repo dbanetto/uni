@@ -140,22 +140,32 @@ or `httpd`.
 > Note: due to issues with virtualbox I ended up using a docker network to simulate a
 client and proxy network. One with a squid proxy and the other using `curl` commands.
 
+Each part contains the snippet of squid config to accomplish the
+goal in each part.
+
 ## Part 1
 
 ```
 acl peak_morn time SMTWHFA 8:00-11:00
 acl peak_after time SMTWHFA 15:00-17:00
 
-acl bad_keywords url_regex -i “/etc/squid/blockedkeywords.txt”
+acl bad_keywords url_regex -i "/etc/squid/blockedkeywords.txt"
 
 http_access deny bad_keywords peak_morn peak_ater
+```
+
+Contents of `/etc/squid/blockedkeywords.txt`
+
+```
+.reddit.com
+.facebook.com
 ```
 
 ## Part 2
 
 ```
-acl ie browser "Internet Explorer"
-acl windows browser "Windows"
+acl ie browser MSIE
+acl windows browser Windows
 
 http_access deny ie windows
 ```
@@ -192,7 +202,16 @@ redirect to.
 ```
 acl client arp 02:42:ac:12:00:03
 
-acl blockfiles urlpath_regex -i "\.[js|pdf]$"
+acl blockmime rep_mime_type -i "/etc/ban_mime"
 
 http_access deny client blockfiles
+```
+
+Contents of `/etc/ban_mime`
+
+```
+^application/javascript$
+^text/javascript$
+^application/pdf$
+^application/x-pdf$
 ```
