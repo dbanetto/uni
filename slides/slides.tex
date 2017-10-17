@@ -1,0 +1,301 @@
+\documentclass[ignorenonframetext,]{beamer}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+\usetheme[]{Boadilla}
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\newif\ifbibliography
+\hypersetup{
+            pdftitle={Generating Simple Loop Invariants in Whiley},
+            pdfauthor={David Barnett},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{longtable,booktabs}
+\usepackage{caption}
+% These lines are needed to make table captions work with longtable:
+\makeatletter
+\def\fnum@table{\tablename~\thetable}
+\makeatother
+
+% Prevent slide breaks in the middle of a paragraph:
+\widowpenalties 1 10000
+\raggedbottom
+
+\AtBeginPart{
+  \let\insertpartnumber\relax
+  \let\partname\relax
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \let\insertsectionnumber\relax
+    \let\sectionname\relax
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \let\insertsubsectionnumber\relax
+  \let\subsectionname\relax
+  \frame{\subsectionpage}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+
+\title{Generating Simple Loop Invariants in Whiley}
+\author{David Barnett}
+\date{Supervisor: Lindsay Groves}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}{Outline}
+
+\begin{itemize}
+\tightlist
+\item
+  Background
+\item
+  Design
+\item
+  Implementation
+\item
+  Evaluation
+\item
+  Conclusion
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Motivation}
+
+\end{frame}
+
+\begin{frame}{Background}
+
+\end{frame}
+
+\begin{frame}{Solution}
+
+Generates 4 loop invariants
+
+\begin{itemize}
+\tightlist
+\item
+  Starting bound
+\item
+  Equal array length
+\item
+  Upper bound
+\item
+  Array iterative assignment
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Starting Bound}
+
+\begin{itemize}
+\tightlist
+\item
+  Generally counting variables
+\end{itemize}
+
+\begin{verbatim}
+int i = 0
+while C
+    where i >= 0
+    i = i + 1
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Equal array length}
+
+\begin{verbatim}
+copy = items
+// or
+copy = [0; |items|]
+
+while i <= |items|
+    where |copy| == |items|:
+    copy[i] = f(items[i])
+    i = i + 1
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Upper bound}
+
+\begin{verbatim}
+int i = 0
+while i < C
+    where i <= C:
+    i = i + 1
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Array iterative assignment}
+
+\begin{verbatim}
+int i = 0
+while i <= |items|
+    where all { k in 0..i | items[k] == f(k) }:
+    items[i] = f(i)
+    i = i + 1
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}{Evaluation}
+
+\begin{block}{Data sets}
+
+\begin{itemize}
+\item
+  Whiley Compiler test suite
+\item
+  SWEN224 assignments and labs
+\end{itemize}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Evaluation tool}
+
+\begin{block}{Assumption}
+
+Code to be evaluated can be compiled and verified normally.
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Evaluation tool}
+
+Has three stages
+
+\begin{itemize}
+\tightlist
+\item
+  Breakdown
+\item
+  Minimize
+\item
+  Reporting
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Evaluation - Breakdown}
+
+Normalizes the loop invariants in source code
+
+\begin{columns}
+\begin{column}{0.4\textwidth}
+\begin{block}{Before}
+\begin{verbatim}
+where A && B && C
+\end{verbatim}
+\end{block}
+\end{column}
+\begin{column}{0.1\textwidth}
+$\rightarrow$
+\end{column}
+\begin{column}{0.4\textwidth}
+\begin{block}{After}
+\begin{verbatim}
+where A
+where B
+where C
+\end{verbatim}
+\end{block}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{Results}
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+Type & Control & Minimized & Generated Invariants\tabularnewline
+\midrule
+\endhead
+Total Invariants & 160 & 135 & 176\tabularnewline
+Source Invariants & 160 & 135 & 41\tabularnewline
+Generated Invariants & & & 135\tabularnewline
+Starting bound & & & 94\tabularnewline
+Arrays Equal & & & 16\tabularnewline
+Upper Bound & & & 17\tabularnewline
+Iterative Assign & & & 8\tabularnewline
+\bottomrule
+\end{longtable}
+
+\end{frame}
+
+\begin{frame}{Results}
+
+\begin{itemize}
+\item
+  70\% reduction of invariants required in source code
+\item
+  Total invariants increased
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Conclusion}
+
+\begin{itemize}
+\item
+  Can generate simple loop invariants
+\item
+  Reduced number of invariants programmer provides
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+
+\begin{center}
+    \Huge{Questions}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Additional examples}
+
+\end{frame}
+
+\end{document}

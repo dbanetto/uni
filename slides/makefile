@@ -1,7 +1,8 @@
 all: slides.pdf
 
-%.pdf: %.md
-	pandoc $< -t beamer -o $@ -V theme:Boadilla
+%.pdf: %.tex
+	pdflatex $<
 
 clean:
+	rm -f *.aux *.log *.nav *.out *.snm *.toc *.vrb
 	rm -f slides.pdf
