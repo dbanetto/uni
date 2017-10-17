@@ -1,0 +1,5 @@
+acl client arp 02:42:ac:12:00:03
+
+acl blockfiles urlpath_regex -i "\.[js|pdf]$"
+
+http_access deny client blockfiles

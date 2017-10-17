@@ -1,0 +1,4 @@
+acl ie browser "Internet Explorer"
+acl windows browser "Windows"
+
+http_access deny ie windows

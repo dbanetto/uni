@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  client:
+    image: ubuntu:latest
+
+  squid:
+    image: minimum2scp/squid
+

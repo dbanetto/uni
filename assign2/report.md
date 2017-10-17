@@ -15,7 +15,7 @@ to handle all traffic going through it so that finding patterns between anomalie
 is a computational and data heavy task. Where a host-based IDS focuses on the single machine
 it is monitoring to discover potential intrusions.
 
->>>> FIX ME <<<<
+<!-- >>>> FIX ME <<<< -->
 
 ## B)
 
@@ -137,12 +137,62 @@ or `httpd`.
 
 # Practical Component (Squid Proxy)
 
+> Note: due to issues with virtualbox I ended up using a docker network to simulate a
+client and proxy network. One with a squid proxy and the other using `curl` commands.
+
 ## Part 1
+
+```
+acl peak_morn time SMTWHFA 8:00-11:00
+acl peak_after time SMTWHFA 15:00-17:00
+
+acl bad_keywords url_regex -i “/etc/squid/blockedkeywords.txt”
+
+http_access deny bad_keywords peak_morn peak_ater
+```
 
 ## Part 2
 
+```
+acl ie browser "Internet Explorer"
+acl windows browser "Windows"
+
+http_access deny ie windows
+```
+
 ## Part 3
+
+```
+auth_param basic program /usr/local/squid/bin/ncsa_auth /usr/local/squid /etc/passwd
+
+acl authed proxy_auth REQUIRED
+acl localnet src 192.168.1.0/24
+
+http_access allow authed localnet
+http_access deny all
+```
 
 ## Part 4
 
+```
+acl social_policy dstdomain "/etc/squid/banned_sites.txt"
+
+deny_info "http://http.cat/403" social_policy
+
+http_access deny social_policy
+```
+
+![Banned site redirect screenshot](./screent_shot.png)
+
+Note: the use of `http.cat` was used due to not finding a more appropriate target to
+redirect to.
+
 ## Part 5
+
+```
+acl client arp 02:42:ac:12:00:03
+
+acl blockfiles urlpath_regex -i "\.[js|pdf]$"
+
+http_access deny client blockfiles
+```

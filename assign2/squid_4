@@ -1,0 +1,5 @@
+acl social_policy dstdomain "/etc/squid/banned_sites.txt"
+
+deny_info "http://http.cat/403" social_policy
+
+http_access deny social_policy
