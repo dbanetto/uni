@@ -3,7 +3,6 @@ image: aergus/latex
 pages:
   stage: deploy
   script:
-  - apt install -y pandoc
   - mkdir -p public
   - (cd report/ && make)
   - (cd slides/ && make)
