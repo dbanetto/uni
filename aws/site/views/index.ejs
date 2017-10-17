@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>NWEN406 Test Site</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+  </head>
+  <body>
+
+    <% if (authed) { %>
+      <p>Hi <%= user.displayName %> </p>
+        
+    <form action="#" id="compute">
+
+      <div>
+        <label for="max">Maximum number</label>
+        <input name="max" type="number" min="1" value="10000" />
+      </div>
+
+      <div>
+        <label for="loops">Number of loops</label>
+        <input name="loops" type="number" min="1" value="1" />
+      </div>
+
+      <div>
+        <label for="size">Lambda size</label>
+        <select name="size">
+          <option value="0">small</option>
+          <option value="1">medium</option>
+          <option value="2">large</option>
+          <option value="3">extra large</option>
+        </select>
+      </div>
+
+      <div>
+        <input type="submit" value="Compute" />
+      </div>
+
+    </form>
+
+    <div id="results">
+    </div>
+    <script type="text/javascript" src="/script.js"></script>
+  <% } else { %>
+    <a href="/auth/github">Login with GitHub</a>
+  <% } %>
+
+  </body>
+</html>
