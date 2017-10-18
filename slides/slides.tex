@@ -9,7 +9,7 @@
 
 
 
-\begin{frame}{Outline}
+\begin{frame}{Overview}
 
 \begin{itemize}
 \item Motivation
@@ -155,6 +155,24 @@ while i <= |items|
 
 \begin{frame}{Evaluation}
 
+\begin{block}{Goal}
+Provide evidence that the generated invariants will reduce the
+number of invariants needed to be provided in the source code.
+\end{block}
+
+\begin{block}{Data sets}
+
+\begin{itemize}
+\item Whiley Compiler test suite
+\item SWEN224 assignments and labs
+\end{itemize}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Evaluation}
+
 \begin{block}{Data sets}
 
 \begin{itemize}
@@ -174,6 +192,7 @@ while i <= |items|
 
 \begin{itemize}
 \item Code to be evaluated can be compiled and verified normally.
+\item Loop invariant generator can be toggled.
 \end{itemize}
 
 \end{block}
@@ -252,7 +271,40 @@ where C
 
 \begin{frame}[fragile]{Evaluation - Report}
 
-Counts the invariants present, in source and generated.
+Counts and classifies the invariants present.
+
+\begin{columns}
+\begin{column}{0.4\textwidth}
+\begin{verbatim}
+  int i = 0
+  while i < |items|
+      where g(i):
+      f(items[i])
+      i = i + 1
+\end{verbatim}
+\end{column}
+
+\begin{column}{0.1\textwidth}
+    \[\rightarrow\]
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{longtable}[]{@{}llll@{}}
+\midrule
+\endhead
+Total Invariants & 3\tabularnewline
+Source Invariants & 1\tabularnewline
+Generated Invariants & 2\tabularnewline
+Starting bound & 1\tabularnewline
+Arrays Equal & 0\tabularnewline
+Upper Bound & 1\tabularnewline
+Iterative Assign & 0\tabularnewline
+\bottomrule
+\end{longtable}
+
+
+\end{column}
+\end{columns}
 
 \end{frame}
 
@@ -284,8 +336,10 @@ Iterative Assign & & & 8\tabularnewline
 \begin{frame}{Results}
 
 \begin{itemize}
-\item 70\% reduction of invariants required in source code
+\item 70\% reduction of invariants required in source code, compared to
+    minimized
 \item Total invariants increased
+\item 
 \end{itemize}
 
 \end{frame}
@@ -311,9 +365,85 @@ Iterative Assign & & & 8\tabularnewline
 
 \end{frame}
 
+\begin{frame}[fragile]{Additional examples}
 
+\begin{verbatim}
+function sum(int[] items) -> (int r)
+requires all { i in 0..|items| | items[i] >= 0 }:
+  int i = 0
+  int sum = 0
+  //
+  while i < |items|
+    where sum >= 0
+    where i >= 0: // starting bound
+    //
+    sum = sum + items[i]
+    i = i + 1
+  //
+  return sum
+\end{verbatim}
 
-\begin{frame}{Additional examples}
+\end{frame}
+
+\begin{frame}[fragile]{Additional examples}
+
+\begin{verbatim}
+function instances(int[] items, int x) -> (int c):
+  int i = 0
+  int c = 0
+  while i < |items|
+    where i >= 0
+    where c >= 0:
+    //
+    if items[i] == x:
+      c = c + 1
+    //
+    i = i + 1
+  //
+  return c
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Additional examples}
+
+\begin{verbatim}
+function add(int[] items, int delta) -> (int[] c):
+  int i = 0
+  int mod = items
+  while i < |items|
+    where i >= 0
+    where |mod| == |items|
+    where all { j in 0..i | mod[j] = items[j] + delta }:
+    //
+    mod[i] = items[j] + delta
+    i = i + 1
+  //
+  return mod
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Additional examples}
+
+\begin{verbatim}
+function min(int[] items) -> (int r)
+requires |items| > 0
+ensures all { i in 0..|items| | r <= items[i] }
+ensures some { i in 0..|items| | r == items[i] }:
+  int i = 1
+  int m = items[0]
+  while i < |items|
+  where i >= 1 // starting bound
+  where i <= |items| // upper bound
+  where all { j in 0..i | m <= items[j] }
+  where some { j in 0..i | m == items[j] }:
+    if m > items[i]:
+      m = items[i]
+    i = i + 1
+  return m
+\end{verbatim}
+
 
 \end{frame}
 
