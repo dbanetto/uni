@@ -7,58 +7,68 @@
 \begin{document}
 \frame{\titlepage}
 
+
+
 \begin{frame}{Outline}
 
 \begin{itemize}
-\tightlist
-\item
-  Background
-\item
-  Design
-\item
-  Implementation
-\item
-  Evaluation
-\item
-  Conclusion
+\item Motivation
+\item Background
+\item Solution
+\item Evaluation
+\item Conclusion
 \end{itemize}
 
 \end{frame}
 
+
+
 \begin{frame}{Motivation}
 
+Goals of the project
+\begin{itemize}
+\item{To generate simple loop invariants}
+\item{To investigate how generating loop invariants affect learning about loop
+        invariants}
+\end{itemize}
+
 \end{frame}
+
+
 
 \begin{frame}{Background}
 
 \end{frame}
+
+
 
 \begin{frame}{Solution}
 
 Generates 4 loop invariants
 
 \begin{itemize}
-\tightlist
-\item
-  Starting bound
-\item
-  Equal array length
-\item
-  Upper bound
-\item
-  Array iterative assignment
+\item Starting bound
+\item Equal array length
+\item Upper bound
+\item Array iterative assignment
 \end{itemize}
 
 \end{frame}
 
+
+
 \begin{frame}[fragile]{Starting Bound}
 
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
 \begin{itemize}
-\tightlist
-\item
-  Generally counting variables
+\item Generally counting variables
 \end{itemize}
 
+\end{column}
+
+\begin{column}{0.5\textwidth}
 \begin{verbatim}
 int i = 0
 while C
@@ -66,10 +76,22 @@ while C
     i = i + 1
 \end{verbatim}
 
+\end{column}
+
+\end{columns}
+
 \end{frame}
+
+
 
 \begin{frame}[fragile]{Equal array length}
 
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\end{column}
+
+\begin{column}{0.5\textwidth}
 \begin{verbatim}
 copy = items
 // or
@@ -80,29 +102,54 @@ while i <= |items|
     copy[i] = f(items[i])
     i = i + 1
 \end{verbatim}
+\end{column}
+\end{columns}
 
 \end{frame}
 
+
+
 \begin{frame}[fragile]{Upper bound}
 
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\end{column}
+
+\begin{column}{0.5\textwidth}
 \begin{verbatim}
 int i = 0
 while i < C
     where i <= C:
     i = i + 1
 \end{verbatim}
+\end{column}
+
+\end{columns}
 
 \end{frame}
 
+
+
 \begin{frame}[fragile]{Array iterative assignment}
 
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\end{column}
+
+\begin{column}{0.5\textwidth}
 \begin{verbatim}
 int i = 0
 while i <= |items|
-    where all { k in 0..i | items[k] == f(k) }:
+    where all { k in 0..i |
+        items[k] == f(k) }:
     items[i] = f(i)
     i = i + 1
 \end{verbatim}
+\end{column}
+
+\end{columns}
 
 \end{frame}
 
@@ -111,41 +158,38 @@ while i <= |items|
 \begin{block}{Data sets}
 
 \begin{itemize}
-\item
-  Whiley Compiler test suite
-\item
-  SWEN224 assignments and labs
+\item Whiley Compiler test suite
+\item SWEN224 assignments and labs
 \end{itemize}
 
 \end{block}
 
 \end{frame}
 
-\begin{frame}{Evaluation tool}
 
-\begin{block}{Assumption}
-
-Code to be evaluated can be compiled and verified normally.
-
-\end{block}
-
-\end{frame}
 
 \begin{frame}{Evaluation tool}
 
-Has three stages
+\begin{block}{Assumptions}
 
 \begin{itemize}
-\tightlist
-\item
-  Breakdown
-\item
-  Minimize
-\item
-  Reporting
+\item Code to be evaluated can be compiled and verified normally.
 \end{itemize}
 
+\end{block}
+
+
+\begin{block}{Steps}
+\begin{itemize}
+\item Breakdown
+\item Minimize
+\item Reporting
+\end{itemize}
+\end{block}
+
 \end{frame}
+
+
 
 \begin{frame}[fragile]{Evaluation - Breakdown}
 
@@ -175,7 +219,48 @@ where C
 
 \end{frame}
 
+
+
+\begin{frame}[fragile]{Evaluation - Minimize}
+
+Finds the smallest combonation of invariants to verify
+the program.
+
+\begin{columns}
+\begin{column}{0.4\textwidth}
+\begin{block}{Invariants}
+\begin{verbatim}
+where A
+where B
+where C
+\end{verbatim}
+\end{block}
+\end{column}
+\begin{column}{0.4\textwidth}
+\begin{align*}
+    &\{ A \} \\
+    &\{ B \} \\
+    &\{ C \} \\
+    &\{ A, B \} \\
+    &... \\
+    &\{ A, B, C \} \\
+\end{align*}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]{Evaluation - Report}
+
+Counts the invariants present, in source and generated.
+
+\end{frame}
+
+
+
 \begin{frame}{Results}
+
+Evaluation of the Whiley Compiler test suite
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule
@@ -194,27 +279,29 @@ Iterative Assign & & & 8\tabularnewline
 
 \end{frame}
 
+
+
 \begin{frame}{Results}
 
 \begin{itemize}
-\item
-  70\% reduction of invariants required in source code
-\item
-  Total invariants increased
+\item 70\% reduction of invariants required in source code
+\item Total invariants increased
 \end{itemize}
 
 \end{frame}
+
+
 
 \begin{frame}{Conclusion}
 
 \begin{itemize}
-\item
-  Can generate simple loop invariants
-\item
-  Reduced number of invariants programmer provides
+\item Can generate simple loop invariants
+\item Reduced number of invariants programmer provides
 \end{itemize}
 
 \end{frame}
+
+
 
 \begin{frame}
 
@@ -223,6 +310,8 @@ Iterative Assign & & & 8\tabularnewline
 \end{center}
 
 \end{frame}
+
+
 
 \begin{frame}{Additional examples}
 
