@@ -8,35 +8,12 @@
 \frame{\titlepage}
 
 
-
-\begin{frame}{Overview}
-
-\begin{itemize}
-\item Motivation
-\item Background
-\item Solution
-\item Evaluation
-\item Conclusion
-\end{itemize}
-
-\end{frame}
-
-
-
 \begin{frame}{Motivation}
 
 Goals of the project
 \begin{itemize}
-\item{To generate simple loop invariants}
-\item{To investigate how generating loop invariants affect learning about loop
-        invariants}
+\item{To implement generate simple loop invariants in Whiley}
 \end{itemize}
-
-\end{frame}
-
-
-
-\begin{frame}{Background}
 
 \end{frame}
 
@@ -55,27 +32,32 @@ Generates 4 loop invariants
 
 \end{frame}
 
-
-
 \begin{frame}[fragile]{Starting Bound}
 
 \begin{columns}
 
 \begin{column}{0.5\textwidth}
 \begin{itemize}
-\item Generally counting variables
+\item Generally for counting or index variables
+\item Made up of 3 components
+\begin{itemize}
+    \item the variable (\code{i}) - defined outside of the loop
+    \item an inequality (\code{>=}) - based on mutations of the variable in the loop
+    \item starting value (\code{0}) - known value of variable before the loop
 \end{itemize}
 
+\item Handles branches
+
+\end{itemize}
 \end{column}
 
 \begin{column}{0.5\textwidth}
 \begin{verbatim}
 int i = 0
 while C
-    where i >= 0
+    where i >= 0:
     i = i + 1
 \end{verbatim}
-
 \end{column}
 
 \end{columns}
@@ -83,12 +65,46 @@ while C
 \end{frame}
 
 
+\begin{frame}[fragile]{Starting Bound - Limitations}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item Cannot determine when a branch will never be executed
+    \item Only supports linear monotonic mutations with addition and subtract
+        of constants and the counting variable.
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+int i = 0
+
+while i < |items|:
+// can't be infer where i >= 0
+  apply(items[i])
+  if false:
+    i = i * -1
+  i = i + 1
+\end{verbatim}
+\end{column}
+
+\end{columns}
+
+\end{frame}
+
 
 \begin{frame}[fragile]{Equal array length}
 
 \begin{columns}
 
 \begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item Associates the length of arrays together by looking at assignments
+    \item Used when mapping one array to another
+    \item Supports common array construction, copying and array generator
+\end{itemize}
 \end{column}
 
 \begin{column}{0.5\textwidth}
@@ -107,6 +123,15 @@ while i <= |items|
 
 \end{frame}
 
+\begin{frame}[fragile]{Equal array length - Limitations}
+
+\begin{itemize}
+    \item Only supports locally assigned variables
+    \item Does not support using pre-conditions to associate arrays
+\end{itemize}
+
+\end{frame}
+
 
 
 \begin{frame}[fragile]{Upper bound}
@@ -114,6 +139,15 @@ while i <= |items|
 \begin{columns}
 
 \begin{column}{0.5\textwidth}
+\begin{itemize}
+\item Identifies upper limit of counting variable
+\item Has three components
+\begin{itemize}
+    \item counting variable (\code{i}) - defined outside of the loop 
+    \item mutation (\code{<=}) - determined by mutations in the loop
+    \item upper limit (\code{C}) - found in the loop condition
+\end{itemize}
+\end{itemize}
 \end{column}
 
 \begin{column}{0.5\textwidth}
@@ -131,7 +165,38 @@ while i < C
 
 
 
-\begin{frame}[fragile]{Array iterative assignment}
+\begin{frame}[fragile]{Upper bound - limitations}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item Identifies upper limit of counting variable
+\item Has three components
+\begin{itemize}
+    \item counting variable (\code{i}) - defined outside of the loop 
+    \item mutation (\code{<=}) - determined by mutations in the loop
+    \item upper limit (\code{C}) - found in the loop condition
+\end{itemize}
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+int i = 0
+while i < C:
+    if false:
+      i = i - 1
+    i = i + 1
+\end{verbatim}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{array iterative assignment}
 
 \begin{columns}
 
@@ -339,7 +404,7 @@ Iterative Assign & & & 8\tabularnewline
 \item 70\% reduction of invariants required in source code, compared to
     minimized
 \item Total invariants increased
-\item 
+\item
 \end{itemize}
 
 \end{frame}
