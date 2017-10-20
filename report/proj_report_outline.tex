@@ -19,6 +19,8 @@
 \usepackage{hyperref}
 \usepackage[toc,page]{appendix}
 \usepackage{csvsimple}
+\usepackage{longtable}
+\usepackage{booktabs}
 
 % definitions for code
 \definecolor{grey}{rgb}{0.95,0.95,0.95}
@@ -59,31 +61,31 @@
 \newcommand{\snd}{\textsuperscript{nd}}
 \newcommand{\sth}{\textsuperscript{th}}
 
-\newcommand{\todo}[1]{
-    {   \break
-        \color{blue} 
-        \fbox{\parbox{\textwidth}{
-        \textbf{TODO}
-        \textcolor{black}{\textit{#1}}
-    }}}
-}
-\newcommand{\fixme}[1]{
-    {   \break
-        \color{red} 
-        \fbox{\parbox{\textwidth}{
-        \textbf{FIXME}
-        \textit{#1}
-    }}}
-}
-\newcommand{\comment}[1]{
-    {  \color{ForestGreen}
-       \fbox{\parbox{\textwidth}{#1}}
-   }
-}
+%\newcommand{\todo}[1]{
+%    {   \break
+%        \color{blue} 
+%        \fbox{\parbox{\textwidth}{
+%        \textbf{TODO}
+%        \textcolor{black}{\textit{#1}}
+%    }}}
+%}
+%\newcommand{\fixme}[1]{
+%    {   \break
+%        \color{red} 
+%        \fbox{\parbox{\textwidth}{
+%        \textbf{FIXME}
+%        \textit{#1}
+%    }}}
+%}
+%\newcommand{\comment}[1]{
+%    {  \color{ForestGreen}
+%       \fbox{\parbox{\textwidth}{#1}}
+%   }
+%}
 
-% \newcommand{\fixme}[1]{}
-% \newcommand{\todo}[1]{}
-% \newcommand{\comment}[1]{}
+ \newcommand{\fixme}[1]{}
+ \newcommand{\todo}[1]{}
+ \newcommand{\comment}[1]{}
 
 \begin{document}
 
