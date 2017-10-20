@@ -132,6 +132,10 @@ public class LibraryModel {
 
             builder.append("Loaned books\n");
 
+            if (!query.isBeforeFirst()) {
+                builder.append("\t (no loaned books)\n");
+            }
+
             while (query.next()) {
 
                 int ISBN = query.getInt("isbn");
@@ -420,9 +424,13 @@ public class LibraryModel {
         } catch (SQLException e) {
             builder.append("Error occurred while borrowing book").append('\n');
             builder.append(e.getMessage()).append('\n');
-        } finally {
             try {
                 conn.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            try {
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -458,7 +466,7 @@ public class LibraryModel {
             borrowDelete.setInt(2, isbn);
             int borrowResult = borrowDelete.executeUpdate();
             if (borrowResult == 0) {
-                throw new SQLException("Failed to delete from borrow table");
+                throw new SQLException("Customer " + customerID + " does not have a copy of " + isbn + " to return.");
             }
 
             PreparedStatement bookUpdate = conn.prepareStatement("UPDATE book SET numleft = ? WHERE isbn = ?");
@@ -475,9 +483,13 @@ public class LibraryModel {
         } catch (SQLException e) {
             builder.append("Error occurred while returning book").append('\n');
             builder.append(e.getMessage()).append('\n');
-        } finally {
             try {
                 conn.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            try {
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -536,9 +548,13 @@ public class LibraryModel {
         } catch (SQLException e) {
             builder.append("Error occurred while deleting customer ").append(customerID).append('\n');
             builder.append(e.getMessage()).append('\n');
-        } finally {
             try {
                 conn.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            try {
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -578,9 +594,13 @@ public class LibraryModel {
         } catch (SQLException e) {
             builder.append("Error occurred while deleting author ").append(authorID).append('\n');
             builder.append(e.getMessage()).append('\n');
-        } finally {
             try {
                 conn.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            try {
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -625,9 +645,13 @@ public class LibraryModel {
         } catch (SQLException e) {
             builder.append("Error occurred while deleting book ").append(isbn).append('\n');
             builder.append(e.getMessage()).append('\n');
-        } finally {
             try {
                 conn.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            try {
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
