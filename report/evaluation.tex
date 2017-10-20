@@ -197,24 +197,50 @@ In the end this data set was not sought or evaluated.
 
 Figure~\ref{tb:whiley-summary} shows the summary table of all loop invariants
 reported when running the evaluation tool over the Whiley compiler test suite data set.
-The results table has 7 categories of loop invariants reported during the
-evaluation.
-The \textit{total invariants} column shows total number of invariants from
-either provided in the source code or generated.
-The \textit{source invariants} column shows the number of invariants that had to be
-provided in the source code to verify.
-The \textit{source invariants} shows the number of invariants that had to be
-provided in the source code to verify.
-The \textit{generated invariants} shows the number total number of generated
+The results table has 5 categories of loop invariants reported during the
+evaluation and two summaries of invariants provided in the source code or generated.
+The \textit{Source Invariants} shows the number of invariants that 
+are present in the source code. After the minimize stage these
+invariants are the smallest set required to verify the program and the loop.
+The \textit{Total Generated} row shows the number total number of generated
 invariants by all of the generators.
-The last four columns are specifically each type of generator used to
-create the invariant.
+The \textit{Total Invariants} row shows total number of invariants from
+either provided in the source code or generated.
+The other four columns are a break down of \textit{Total Generated} 
+into each of the four generator and a count of how many invariants they generated.
+
+The results show that the tool was ran with three configurations.
+The \textit{Control} configuration applied the breakdown stage to the source
+code and then reported the invariants found.
+These invariants were not minimized to be a baseline to be compared against
+other configurations.
+The \textit{Minimized} configuration applied each stage of the pipeline with
+the generation of loop invariants disabled.
+This is to provide a comparison to the \textit{Control} run to show how many
+invariants were required and a number to beat when generation was enabled.
+The \textit{Minimized (generated)} configuration applied each stage of the
+pipeline with generation of loop invariants enabled.
+This includes the breakdown of which generator created the invariants.
+
 
 \begin{figure}[ht]
 \begin{center}
-\begin{tabular}[c]{r}
-    \csvautotabular[]{appendix/summary.csv}{}
-\end{tabular}
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+Type & Control & Minimized & Minimized (generated)\tabularnewline
+\midrule
+\endhead
+Starting bound & 0 & 0 & 94\tabularnewline
+Arrays Equal & 0 & 0 & 16\tabularnewline
+Upper Bound & 0 & 0 & 17\tabularnewline
+Iterative Assign & 0 & 0 & 8\tabularnewline
+Total Generated & 0 & 0 & 135\tabularnewline
+\hline
+Source Invariants & 160 & 135 & 41\tabularnewline
+\bottomrule
+Total & 160 & 135 & 176\tabularnewline
+\end{longtable}
+
 \end{center}
 \caption{Results of Whiley compiler test suite data set}
 \label{tb:whiley-summary}
