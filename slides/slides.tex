@@ -128,6 +128,7 @@ while i <= |items|
 \begin{itemize}
     \item Only supports locally assigned variables
     \item Does not support using pre-conditions to associate arrays
+    \item Indirect associations, e.g. results of functions, constant size
 \end{itemize}
 
 \end{frame}
@@ -144,9 +145,11 @@ while i <= |items|
 \item Has three components
 \begin{itemize}
     \item counting variable (\code{i}) - defined outside of the loop 
-    \item mutation (\code{<=}) - determined by mutations in the loop
+    \item mutation (\code{<=}) - determined by values of mutations in the loop
     \item upper limit (\code{C}) - found in the loop condition
 \end{itemize}
+\item Similar to Starting bound but focuses on amount changed than just
+    if positive or negative.
 \end{itemize}
 \end{column}
 
@@ -165,18 +168,18 @@ while i < C
 
 
 
-\begin{frame}[fragile]{Upper bound - limitations}
+\begin{frame}[fragile]{Upper bound - Limitations}
 
 \begin{columns}
 
 \begin{column}{0.5\textwidth}
 \begin{itemize}
-\item Identifies upper limit of counting variable
-\item Has three components
+\item Only supports mutations of $\pm 1$ the variable
+\item Same as Starting bound
 \begin{itemize}
-    \item counting variable (\code{i}) - defined outside of the loop 
-    \item mutation (\code{<=}) - determined by mutations in the loop
-    \item upper limit (\code{C}) - found in the loop condition
+    \item Cannot determine when a branch will never be executed
+    \item Only supports linear monotonic mutations with addition and subtract
+        of constants and the counting variable.
 \end{itemize}
 \end{itemize}
 \end{column}
@@ -185,9 +188,7 @@ while i < C
 \begin{verbatim}
 int i = 0
 while i < C:
-    if false:
-      i = i - 1
-    i = i + 1
+    i = i + 2
 \end{verbatim}
 \end{column}
 
@@ -196,11 +197,25 @@ while i < C:
 
 
 
-\begin{frame}[fragile]{array iterative assignment}
+\begin{frame}[fragile]{Array Iterative Assignment}
 
 \begin{columns}
 
 \begin{column}{0.5\textwidth}
+
+\begin{itemize}
+    \item Simple iterative assignments to an array
+    \item Has two components
+    \begin{itemize}
+        \item range of quantifier (\code{0..i}) - from the index variable and its
+            starting value
+        \item assignment to an element (\code{items[i] = f(i)}) - in the loop
+            body
+    \end{itemize}
+    \item All instances of the index variable are replaced with the
+        quantifier's variable.
+\end{itemize}
+
 \end{column}
 
 \begin{column}{0.5\textwidth}
@@ -216,6 +231,31 @@ while i <= |items|
 
 \end{columns}
 
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Array Iterative Assignment - Limitations}
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item Each iteration needs an assignment
+    \item No support for assignments in branches
+    \item Destination array cannot be used in assignment
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+while i <= |xs|:
+    if i % 2:
+        xs[i] = i - 1
+    else:
+        xs[i] = i
+\end{verbatim}
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}{Evaluation}
@@ -236,20 +276,6 @@ number of invariants needed to be provided in the source code.
 
 \end{frame}
 
-\begin{frame}{Evaluation}
-
-\begin{block}{Data sets}
-
-\begin{itemize}
-\item Whiley Compiler test suite
-\item SWEN224 assignments and labs
-\end{itemize}
-
-\end{block}
-
-\end{frame}
-
-
 
 \begin{frame}{Evaluation tool}
 
@@ -265,114 +291,14 @@ number of invariants needed to be provided in the source code.
 
 \begin{block}{Steps}
 \begin{itemize}
-\item Breakdown
-\item Minimize
-\item Reporting
+\item Breakdown - Normalizes the loop invariants in source code.
+\item Minimize - Finds the smallest combonation of invariants to verify
+the program.
+\item Reporting - Counts and classifies the invariants present.
 \end{itemize}
 \end{block}
 
 \end{frame}
-
-
-
-\begin{frame}[fragile]{Evaluation - Breakdown}
-
-Normalizes the loop invariants in source code
-
-\begin{columns}
-\begin{column}{0.4\textwidth}
-\begin{block}{Before}
-\begin{verbatim}
-where A && B && C
-\end{verbatim}
-\end{block}
-\end{column}
-\begin{column}{0.1\textwidth}
-$\rightarrow$
-\end{column}
-\begin{column}{0.4\textwidth}
-\begin{block}{After}
-\begin{verbatim}
-where A
-where B
-where C
-\end{verbatim}
-\end{block}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-
-
-\begin{frame}[fragile]{Evaluation - Minimize}
-
-Finds the smallest combonation of invariants to verify
-the program.
-
-\begin{columns}
-\begin{column}{0.4\textwidth}
-\begin{block}{Invariants}
-\begin{verbatim}
-where A
-where B
-where C
-\end{verbatim}
-\end{block}
-\end{column}
-\begin{column}{0.4\textwidth}
-\begin{align*}
-    &\{ A \} \\
-    &\{ B \} \\
-    &\{ C \} \\
-    &\{ A, B \} \\
-    &... \\
-    &\{ A, B, C \} \\
-\end{align*}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-\begin{frame}[fragile]{Evaluation - Report}
-
-Counts and classifies the invariants present.
-
-\begin{columns}
-\begin{column}{0.4\textwidth}
-\begin{verbatim}
-  int i = 0
-  while i < |items|
-      where g(i):
-      f(items[i])
-      i = i + 1
-\end{verbatim}
-\end{column}
-
-\begin{column}{0.1\textwidth}
-    \[\rightarrow\]
-\end{column}
-
-\begin{column}{0.5\textwidth}
-\begin{longtable}[]{@{}llll@{}}
-\midrule
-\endhead
-Total Invariants & 3\tabularnewline
-Source Invariants & 1\tabularnewline
-Generated Invariants & 2\tabularnewline
-Starting bound & 1\tabularnewline
-Arrays Equal & 0\tabularnewline
-Upper Bound & 1\tabularnewline
-Iterative Assign & 0\tabularnewline
-\bottomrule
-\end{longtable}
-
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
 
 
 \begin{frame}{Results}
@@ -381,31 +307,19 @@ Evaluation of the Whiley Compiler test suite
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule
-Type & Control & Minimized & Generated Invariants\tabularnewline
+    Type & Control & Minimized & Minimized (generated)\tabularnewline
 \midrule
 \endhead
-Total Invariants & 160 & 135 & 176\tabularnewline
+Starting bound & 0 & 0 & 94\tabularnewline
+Arrays Equal & 0 & 0 & 16\tabularnewline
+Upper Bound & 0 & 0 & 17\tabularnewline
+Iterative Assign & 0 & 0 & 8\tabularnewline
+Total Generated & 0 & 0 & 135\tabularnewline
+\hline
 Source Invariants & 160 & 135 & 41\tabularnewline
-Generated Invariants & & & 135\tabularnewline
-Starting bound & & & 94\tabularnewline
-Arrays Equal & & & 16\tabularnewline
-Upper Bound & & & 17\tabularnewline
-Iterative Assign & & & 8\tabularnewline
 \bottomrule
+Total & 160 & 135 & 176\tabularnewline
 \end{longtable}
-
-\end{frame}
-
-
-
-\begin{frame}{Results}
-
-\begin{itemize}
-\item 70\% reduction of invariants required in source code, compared to
-    minimized
-\item Total invariants increased
-\item
-\end{itemize}
 
 \end{frame}
 
@@ -413,13 +327,15 @@ Iterative Assign & & & 8\tabularnewline
 
 \begin{frame}{Conclusion}
 
+The goal to implement generators of simple loop invariants was achieved.
+
 \begin{itemize}
 \item Can generate simple loop invariants
-\item Reduced number of invariants programmer provides
+\item Reduced number of invariants programmer provides, by 70\% for
+    Whiley Compiler test suite
 \end{itemize}
 
 \end{frame}
-
 
 
 \begin{frame}
@@ -440,7 +356,8 @@ requires all { i in 0..|items| | items[i] >= 0 }:
   //
   while i < |items|
     where sum >= 0
-    where i >= 0: // starting bound
+    where i >= 0
+    where i <= |items|:
     //
     sum = sum + items[i]
     i = i + 1
@@ -458,7 +375,8 @@ function instances(int[] items, int x) -> (int c):
   int c = 0
   while i < |items|
     where i >= 0
-    where c >= 0:
+    where c >= 0
+    where i <= |items|:
     //
     if items[i] == x:
       c = c + 1
@@ -478,6 +396,7 @@ function add(int[] items, int delta) -> (int[] c):
   int mod = items
   while i < |items|
     where i >= 0
+    where i <= |items|
     where |mod| == |items|
     where all { j in 0..i | mod[j] = items[j] + delta }:
     //
@@ -499,8 +418,8 @@ ensures some { i in 0..|items| | r == items[i] }:
   int i = 1
   int m = items[0]
   while i < |items|
-  where i >= 1 // starting bound
-  where i <= |items| // upper bound
+  where i >= 1
+  where i <= |items|
   where all { j in 0..i | m <= items[j] }
   where some { j in 0..i | m == items[j] }:
     if m > items[i]:
