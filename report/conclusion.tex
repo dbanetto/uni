@@ -25,7 +25,7 @@ these repetitive simple loop invariants have been reduced.
 
 The secondary goal of allowing more programmers and student utilise formally verifiable
 languages was not evaluated.
-Thus it is undetermined that the introduction of generated loop invariants would achieved this goal.
+Thus, it is undetermined that the introduction of generated loop invariants would achieve this goal.
 This is because of a change in direction of the project to focus on generating simple loop
 invariants over the study of the implications of generated invariants on programmers (see Section~\ref{s:requirements}).
 
@@ -58,7 +58,7 @@ Dafny shares a majority of features with Whiley and makes advances in others.
 One feature Dafny is to provide a termination metric.
 This tells Dafny that the given expression will decrease with each iteration. 
 In turn this proves that with each iteration a step towards its termination is achieved \cite{dafny-started}\cite{dafny-lang}.
-By default this is inferred from analysis of the loop.
+By default, this is inferred from analysis of the loop.
 This feature is similar in nature to a key mechanism behind the starting bound and upper bound
 generators, being able to determine if a variable increases or decreases
 (see Section~\ref{s:sequence-dir}). 
@@ -115,7 +115,7 @@ In \textit{Automating Full Functional Verification of Programs with Loops} the
 \textit{gin-dyn} tool is proposed \cite{infer-dynamic}.
 Like \textit{gin-pink} this tool generates a range of candidate invariants,
 however \textit{gin-dyn} takes it a step further by also using generated tests
-as a biases to create loop invariants.
+as a bias to create loop invariants.
 
 
 % \cite{infer-dynamic}
@@ -169,7 +169,7 @@ as \code{i >= 0}.
 	either find these new invariants by hand, or ML \\
 }
 
-Only some of the loop patterns in Whiley were identified and exploited for loop
+Only some loop patterns in Whiley were identified and exploited for loop
 invariants.
 A future work could expand the number of loop invariant generators or reduce
 the limitations in the current generators.
@@ -192,7 +192,7 @@ analysis techniques.
 A technical issue of extending the Whiley compiler is the architecture forces
 the programmer to support all statements and expressions.
 This causes a large amount of duplication of code for each component of the
-compiler to traverse the abstract syntax tree of any of Whiley or the internal
+compiler to traverse the abstract syntax tree of Whiley or the internal
 languages of WyIL and WyAL.
 This accumulates technical debt for each component as they all need to be
 updated to handle new syntax.
@@ -246,7 +246,7 @@ Whiley and WhileyWeb.
 Generated loop invariants could be shown as warnings with code snippets of what
 was generated and why they were generated.
 The challenge of this project is to control the loop invariant
-generators and display their results in a natural and user friendly way.
+generators and display their results in a natural and user-friendly way.
 This would also provide an opportunity to do user testing on how generated
 loop invariants affect student learning of loop invariants that could not be
 completed with this project.

@@ -50,8 +50,8 @@ outline (see Appendix~\ref{A:proj-outline}).
 The base requirements of each loop invariant generator is to be grounded
 in practicality of the invariant not the generality of its use cases.
 This is to say that it is not worth expanding a loop invariant
-generator to cover cases that are unlikely to actually occur for generality
-sake.
+generator to cover cases that are unlikely to actually occur 
+for generality’s sake.
 
 The other major requirement is that the Whiley compiler will be improved
 with the addition of loop invariant generators.
@@ -62,7 +62,7 @@ Some parts of the original project outline fell out of scope of this project.
 This included the students of SWEN224 would be used to evaluate this solution.
 The decision to drop this requirement was in favour of focusing on implementing
 many loop invariant generator rather than making a split effort of implementing
-less generators so that proper user testing can be completed.
+fewer generators so that proper user testing can be completed.
 It was also found to be impracticable as the course layout of SWEN224 saw the
 Whiley section taught in the last half of the semester with loop invariant in
 particular taught in the final weeks making properly timed user studies
@@ -72,7 +72,7 @@ impracticable.
 
 \todo{make requirements eat the considerations section}
 
-Below is a list of design considerations that were identified to keep to ensure
+Below is a list of design considerations that were identified to keep ensuring
 that these requirements are met.
 Each of these considerations either focus the development of the loop
 generators or to force quality control on how they interact with the rest of the
@@ -83,7 +83,7 @@ compiler.
     \item{Not to hamper the ability to inspect and debug generated code.}
     \item{Avoid impacting runtime with generating code.}
     \item{Ensure the user can control the feature.}
-    \item{Not all of the generated loop invariants will be useful.}
+    \item{Not all generated loop invariants will be useful.}
 \end{itemize}
 
 \subsection{Backwards Compatibility}
@@ -150,7 +150,7 @@ For example figure~\ref{lst:vars} would replace the \code{modified} variable
 with \code{items} and the generated code will have an assignment just before
 the while loop.
 The issue of creating local variables is that it could add a runtime cost by
-adding an additional copy of a potentially large data structure
+adding a copy of a potentially large data structure
 and holding it in memory without being used.
 The alternative to this is to restrict the loop invariant generators to check
 for other variables that can work as pseudo-ghost variables.
@@ -193,13 +193,13 @@ The command line interface and the WhileyWeb IDE are the only user interfaces
 of the Whiley compiler.
 The modification of the WhileyWeb IDE was out of scope of this project as it
 would only be beneficial if user studies were conducted.
-Thus the only user interface that the usability needs to be maintained or
+Thus, the only user interface that the usability needs to be maintained or
 improved is the command line interface.
 This includes how users can control the loop invariants generators and what
 compiler feedback is required.
-This is handled by exposing control of the loop invariants generators via
-a compiler flag.
-This is inline with how other optional features are handled in Whiley and
+These features are controlled by exposing the option to enable 
+loop invariants generators via a compiler flag.
+This is in line with how other optional features are handled in Whiley and
 other standard compilers such as the GNU C compiler.
 
 \subsection{Essential Invariants}\label{s:essential-inv}
@@ -218,7 +218,7 @@ This means that it is acceptable that a generated invariant is not
 checked that it is redundant for the verification of the loop or the function
 as whole.
 If the generated loop invariant were checked if they were redundant
-they would need to determine what is essential either by greatly increasing
+they would need to determine what is an essential invariant by greatly increasing
 the complexity of the generators by inferring if there is another invariant
 that is a stronger or weaker condition than itself.
 Another method would be to attempting to find the
@@ -327,7 +327,7 @@ instead of a constant value. The value of \code{|items|} is known since the
 size of \code{items} is not mutated before or during the loop.
 
 To identify if a variable is used as for counting the value has to be
-mutated during the loop with relation it self.
+mutated during the loop with relation itself.
 This behaviour is generally observed with all counting since the 
 new value builds upon its previous value.
 In the general form in figure~\ref{lst:starting-bound-gen} this is
@@ -407,7 +407,7 @@ and stored into another array.
 Other common uses are when each element in an array is being applied
 a function then stored in another array of equal length.
 
-The resulting loop invariant has a single components it needs to identify.
+The resulting loop invariant has a single component it needs to identify.
 That there is an association of length between arrays and it is maintained
 throughout the loop.
 From these components the loop invariant can be inferred.
@@ -521,6 +521,18 @@ Figure~\ref{lst:upper-bound-gen} shows a generalised form
 of this invariant with its two variants of a positive 
 upper bound (left) and a negative upper bound (right).
 
+The upper bound invariant was inspired from variable ageing
+\cite{infer-dynamic}\cite{infer-postconditions}.
+This is a technique for generating a possible invariant
+by replacing a variable with an expression that represents
+its value in the previous iteration of the loop.
+This technique does not always generate valid invariants
+since it does not consider how the variable is mutated in
+the loop.
+The upper bound invariant is a stricter version of
+variable ageing by requiring that the mutation is
+monotonic and have a related expression in the loop condition.
+
 \begin{figure}[ht]
 \noindent
 \begin{minipage}{.45\textwidth}
@@ -555,13 +567,13 @@ starting bound invariant (see Section~\ref{s:design-starting-bound}).
 This is shown in the generic example of figure~\ref{lst:upper-bound-gen}
 that a variable \code{i} exists.
 
-To find the upper bound the loop condition is analyzed.
+To find the upper bound the loop condition is analysed.
 This is to identify a loop condition that includes an
 inequality that includes the counting variable.
 To achieve this the loop condition can be split
 by conjunctive statements so each can be checked on their own.
 This is shown in the generic example in figure~\ref{lst:upper-bound-gen}
-by the while condition is a conjunctive between and condition code{P}
+by the while condition is a conjunctive between and condition \code{P}
 and an inequality involving the counting variable \code{i}.
 From this it can be inferred that the upper bound of the counting 
 variable is \code{C}.
@@ -743,7 +755,7 @@ The identified bounds are used as is while the assignment expression
 requires some modification.
 To create the quantifier a name for the quantifier's index is required.
 This can be any name so long that it does not collide with any existing variable.
-The assignment expression is modified from being an assignment to a equivalence
+The assignment expression is modified from being an assignment to an equivalence
 expression and that all uses of the index variable is replaced with the
 quantifier's index variable.
 From this the invariant is formed.

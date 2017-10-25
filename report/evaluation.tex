@@ -29,7 +29,7 @@ in the source code can be counted against the number needed with
 
 This section will give an overview of the evaluation tool used to
 determine the types of loop invariants required.
-Each \code{where} clauses is assumed to be an atomic invariant for the loop and is treated as a single unit.
+Each \code{where} clauses are assumed to be an atomic invariant for the loop and is treated as a single unit.
 An atomic invariant is one that cannot be logically decomposed into a smaller form. 
 The tool has three stages to evaluate the code.
 There is a pre-evaluation filtering that checks the code being evaluated does
@@ -87,7 +87,7 @@ What this does and how it benefits the evaluation \\
 This stage of evaluation finds the smallest set of invariants
 required for the program to verify.
 Since generated loop invariants cannot be minimized their total cannot be
-reduce, however the total number of invariants provided in the source code can
+reduced, however the total number of invariants provided in the source code can
 be.
 This is achieved by trying to verify every combination of the \code{where} clauses.
 This is computed from the empty set of invariants to the full set.
@@ -142,9 +142,9 @@ Explain that there is not much data to pick from \\
 Discuss the data sets used and what problems they have \\
 }
 
-Since Whiley is not a widely used language there is not many large codebases
+Whiley is not a widely used language there is not many large code bases
 to test against.
-The only choices of codebases large that are verified to test are either the
+The choices of code bases large that are verified to test are the
 Whiley compiler test suite and student work from SWEN224.
 Each of these data sets have issues with its contents and availability.
 
@@ -158,14 +158,14 @@ The test suite has a large range of code and only a subset of them include
 loop and fewer that are fully verified.
 There is a total of 102 tests that include both loops and loop invariants to
 evaluate.
-The issue with this codebase is that it is not truly indicative of
+The issue with this code base is that it is not truly indicative of
 natural coding since each program is for a test.
 This however gives a large range of examples and cases to test against
 as each program is different due to testing practises.
 
 An implication of using the compiler test suite is that not all test
 are pass.
-This is due to some of the test presents in the suite are used for marking
+This is due to some test present in the suite are used for marking
 known bugs in the compiler or theorem prover.
 These programs are listed in the test suites and are removed from
 the data set to prevent attempting to evaluate code that is known to
@@ -203,13 +203,13 @@ The \textit{Source Invariants} shows the number of invariants that
 are present in the source code. After the minimize stage these
 invariants are the smallest set required to verify the program and the loop.
 The \textit{Total Generated} row shows the number total number of generated
-invariants by all of the generators.
+invariants by all generators.
 The \textit{Total Invariants} row shows total number of invariants from
 either provided in the source code or generated.
 The other four columns are a break down of \textit{Total Generated} 
 into each of the four generator and a count of how many invariants they generated.
 
-The results show that the tool was ran with three configurations.
+The results show that the tool was run with three configurations.
 The \textit{Control} configuration applied the breakdown stage to the source
 code and then reported the invariants found.
 These invariants were not minimized to be a baseline to be compared against
@@ -275,7 +275,7 @@ atomic invariants and it took multiple generated invariants to replace a single 
 This is possible since the method to breakup invariants was simply splitting conjunctive statements
 where some invariants could be logically broken up with more complex algorithms.
 
-The evaluation also reveals that not all of the loop invariants in the original
+The evaluation also reveals that not all loop invariants in the original
 code was required.
 This is shown by the decrease from 160 loop invariants to 135 loop invariants
 in the minimized code.
