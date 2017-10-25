@@ -31,11 +31,11 @@ This chapter will discuss the requirements and considerations taken to design th
 of this project.
 These considerations are derived by the project requirements
 and guided by improving or retaining the same level of
-usability of the Whiley Compiler for a Whiley developer and a maintainer of the
+usability of the Whiley compiler for a Whiley developer and a maintainer of the
 compiler fixing or updating the modified compiler.
 It will also discuss the internal design decisions of
 where to place the loop invariants generators in the
-current architecture of the Whiley Compiler.
+current architecture of the Whiley compiler.
 This includes where the generated loop invariants are found and
 how they are inserted into the program.
 The final design decision discussed is how the multiple generators are managed.
@@ -190,7 +190,7 @@ Choice to not repeat compilation and verification
 }
 
 The command line interface and the WhileyWeb IDE are the only user interfaces
-of the Whiley Compiler.
+of the Whiley compiler.
 The modification of the WhileyWeb IDE was out of scope of this project as it
 would only be beneficial if user studies were conducted.
 Thus the only user interface that the usability needs to be maintained or

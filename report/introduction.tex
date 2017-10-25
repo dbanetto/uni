@@ -37,11 +37,12 @@ generating some simple loop invariants.
 % Why
 The primary motivation behind this project is to improve the experience writing
 verified programs in Whiley.
+Whiley is a programming language that supports formal software verification \cite{whiley-origin}.
 Currently the process of writing loop invariants can be tedious with 
 repetition of common invariants.
-To relieve some of these burden this project is to generate loop invariants.
+This project seeks to improve this by generating some of these tedious loop invariants.
 Though it is known that generating loop invariants generally is uncomputable,
-the focus is to generate practical loop invariants. \todo{There should be a cite for this}
+the focus is to generate practical loop invariants.
 The most practical loop invariants to generate are loop invariants that
 are simple in nature and common throughout verified code.
 For example, the index variable is within the range of the array being
@@ -50,13 +51,10 @@ iterated through~\cite{loop-patterns}.
 The secondary motivation for this project is to enable more programmers and
 students to utilise formally verified languages.
 The hypothesis of David J. Pearce, \textit{Verification is challenging when it requires a creative step},
-describes his observations with the difficultly of student's with loop invariants~\cite{spec-usability}.
+describes his observations with the difficultly of students with loop invariants~\cite{spec-usability}.
 The hypothesis covers the disconnect between loop invariants can have from the
 post-condition with invariants about implementation details, such as an index
 of an array.
-In practise from tutoring students in Whiley
-it has been observed that another issue is from students being able to identify trivial
-properties and assumes the verifier can too.
 This project seeks to relieve some of these problems meeting some of these
 expectations by generating some loop invariants.
 An example of a common misconception is that the verifier knows that a copied
@@ -65,15 +63,32 @@ array has the same size as its source.
 \section{Solution}
 
 % brief overview of solution
-This project provides to this problem is an extension to
-the Whiley Compiler to generate simple loop invariants.
+The goal of this project is to build an extension to
+the Whiley compiler that generates simple loop invariants.
 This includes the identification of simple loop invariants and being able
 to generate a loop invariant from the source code of a Whiley program.
-Since the Whiley Compiler is an open source project this project will be
-hosted in a fork of compiler.
+Since the Whiley compiler is an open source project this project will be
+hosted in a fork of the compiler.
+
+The approach of this project is to focus on identifying simple invariants
+and implementing generator for them.
+The simple invariants are identified by inspecting Whiley code for common
+invariants. 
+From there a method to recognise the conditions for the invariant and
+its components are devised.
+This allows a generator to be implemented that will recognise when
+the invariant should be applied and how to build it from the components
+it has found. 
+
+To ensure that the implemented loop invariant generators do reduce
+the number of invariants an experiment was conducted.
+This experiment tested if generating of loop invariants 
+would reduce the number of invariants needed to be provided.
+It was run over a large Whiley code base and found that
+it does greatly reduce the number of invariants in the code.
 
 % 'simple'
-The definition of a simple loop invariants for this project is an invariant that is
+The guideline used for a simple loop invariants in project is an invariant that is
 obvious at inspection that an invariant both exists and would hold.
 An example would be that while iterating through an array the index
 will not go out of bounds of the array, such as figure~\ref{lst:whiley-ex-1}.
@@ -102,22 +117,11 @@ ensures r == |items| || items[r] == item:
 \caption{Verifiable Whiley code to find index of an item in an array}
 \label{lst:whiley-ex-1}
 \end{figure}
-%
-%% loop patterns
-%These simple loop invariants are a product of common design patterns in loops.
-%For this report the idea of loop patterns are introduced and are akin to
-%software architecture design patterns on a more mechanical level.
-%From studying a known loop pattern properties can be derived from it.
-%Such as figure~\ref{lst:whiley-ex-1} that has a common loop pattern of
-%iterating an array via an index variable.
-%From this pattern you know that that during the loop that the index will be
-%within bounds of the array.
-%This can be exploited by statically detecting the loop patterns and assisting
-%the Whiley Compiler by generating loop invariants.
+
 
 \section{Overview}
 
-This report is broken up into 7 chapters with each chapter detailing a separate part of the project.
+This report is broken up into 6 chapters with each chapter detailing a separate part of the project.
 Chapter~\ref{C:background} explains the background research, concepts and related work to this report.
 Chapter~\ref{C:design} discusses the design limitation, goals and choices that went into designing the
 solution for this project.

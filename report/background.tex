@@ -111,7 +111,7 @@ These are: copy semantics; and array generators~\cite{whiley-design}.
 The Whiley language specification book is available for the full
 specification of the language~\cite{whiley-spec}.
 
-\subsubsection{Copy semantics} is a design decision of Whiley to
+\paragraph{Copy semantics} is a design decision of Whiley to
 make clones of data instead of referencing the data on assignment \cite{whiley-arrays}.
 Figure~\ref{lst:whiley-array-copy} shows an example of the variable
 \code{b} making a copy of \code{a} and that mutating \code{a} later
@@ -143,7 +143,7 @@ assert |a| == |b|
 \label{lst:whiley-array-copy}
 \end{figure}
 
-\subsubsection{Array generator} is a feature in Whiley to generate an array
+\paragraph{Array generator} is a feature in Whiley to generate an array
 of a specific element duplicated over a specific size~\cite{whiley-spec}
 \cite{whiley-arrays}.
 Figure~\ref{lst:whiley-array-gen} shows an example of using an array generator
@@ -219,7 +219,7 @@ the loop must then restore the invariant.
 Thus what is known in the loop is that the loop condition ($C$)
 and the loop invariant ($I$) holds as shown below.
 
-$$\text{Iteration} \quad C \wedge I $$
+% $$\text{Iteration} \quad C \wedge I $$
 
 On exit of the loop the loop invariant must still hold.
 Since the loop has ceased the loop condition no longer
