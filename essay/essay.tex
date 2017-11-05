@@ -7,7 +7,7 @@
 
 \begin{document}
 
-\title{SWEN304 - When to use NoSQL}
+\title{When to use NoSQL}
 \author{David Barnett}
 \affiliation{School of Engineering and Computer Science \\
 Victoria University of Wellington, \\
@@ -22,15 +22,24 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 
 \vspace{.1in}
 
-\noindent{\em Keywords:} NoSQL, Use cases, Document Store, Column Base
+\noindent{\em Keywords:} NoSQL, Use cases, Document Store, Column Base, Graph database
 
 \section{Introduction}
 % Cover the aim of the essay
 
-Over the last few years a large range of NoSQL database have been developed
-and used in production.
-This report explores when to use a NoSQL database over a traditional relational
-database.
+\paragraph{} With growing use of NoSQL databases in production environments it has become more
+important to understand when and why to use them over a traditional
+relational database.
+NoSQL can be broken down to many different types which differ on how
+data is represented~\cite{type_nosql}.
+For example the traditional relational databases are based upon relational
+model and relational algebra~\cite{relational_db}. 
+
+\paragraph{} This report will cover some common types of NoSQL databases.
+These are: Document store; Column base; and, Graph databases.
+For each of these types this report will give an overview on how each type 
+operates and a description of its use case with a comparison with a 
+traditional SQL database.
 
 \cite{whats_new}
 \cite{sql_nosql_gap}
@@ -38,6 +47,16 @@ database.
 
 \section{What is NoSQL}
 % brief overview
+
+\paragraph{} NoSQL is a class of databases that are not based on the
+traditional relational data model~\cite{nosql_db}.
+This has been motivated by some limitations of relational databases
+when handling large amounts of data that is produced and consumed
+quickly across a large geographic area~\cite{nosql_db}.
+
+Where relational databases are based on a structured
+data model that is strictly enforced~\ref{relational_db}
+
 % compare with relational model
 
 % give definition of a database? (managed store of data)
@@ -45,8 +64,12 @@ database.
 
 \subsection{BASE}
 % What it is
+
 % How does it compare to ACID
+
 % What does this mean
+
+% === Document Store ===
 
 \section{Document Store}
 % How does it work
@@ -66,6 +89,8 @@ database.
 % Why are people choosing this
 % Compare to relational counterpart
 
+% === Column base ===
+
 \section{Column base}
 % How does it work
 % Relate it back to BASE
@@ -78,7 +103,9 @@ database.
 % Why are people choosing this
 % Compare to relational counterpart
 
-\section{Key-value store}
+% === graph ===
+
+\section{Graph}
 % How does it work
 % Relate it back to BASE
 
@@ -97,4 +124,3 @@ database.
 \bibliography{essay}
 
 \end{document}
-
