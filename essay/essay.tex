@@ -58,20 +58,30 @@ variety of models are used, such as graphs, documents or objects.
 These allow for application specific optimisations that
 a relational database could not provide.
 The need for these optimisations are motivated by the growing
-volume of data that is being handled by applications~\cite{nosql_db}.
-To accommodate these optimisations a shift in the design of the
-databases occurred.
+volume of data used in large distributed systems~\cite{nosql_db}.
+
 
 \paragraph{}
-The design goals for NoSQL database compared to
-a relational database are similar but distinct.
-They both share the goal of providing a service that
-manages the storage and retrieval of data.
-However, they differ in what properties
-of these actions they guarantee.
+The CAP theorem states that no distributed system can be
+simultaneously always consistent, available and
+partitions tolerant but at most two of these properties~\cite{base,nosql_db,compare_nosql}.
+This is due to the conflict between these properties, such as a
+strictly consistent database handling an update would
+need to lock the modified data as the update is being distributed
+so all clients have the same consistent data.
+
+\paragraph{}
+In the case of databases they can be designed to provide a
+range of guarantees and to how the data is stored and retrieved.
 For relational databases they are designed to hold
-the properties of a relational database~\cite{relational_db,base}.
+the ACID properties~\cite{relational_db,base}.
 Figure~\ref{l:acid} provides a brief outline of the ACID properties.
+These properties ensure that the data committed will be stored in a 
+consistent manner that allows some concurrency.
+This is highly desired in applications that require guaranteed consistency
+for critical data such as bank accounts.
+In terms of the CAP theorem the consistency aspect is the most important
+guarantee.
 
 \begin{figure}
 \begin{itemize}
@@ -83,45 +93,40 @@ Figure~\ref{l:acid} provides a brief outline of the ACID properties.
     \item \textbf{D}urability - after a successful transaction the results
         are persistent over crashes.
 \end{itemize}
-    \caption{Outline of the ACID properties \cite{relational_db,base}}
-    \label{l:acid}
+    \caption{Outline of the ACID properties~\cite{relational_db,base}}\label{l:acid}
 \end{figure}
-
-
-% compare with relational model
-
-Where relational databases are based on a structured
-data model that is strictly enforced~\cite{relational_db}
-
+%
 % give definition of a database? (managed store of data)
 % relational is based on set theory and relational algebra
 
-\subsection{BASE}
 %% BASE
 % What it is
 
-\cite{base}
+\paragraph{}
+An alternative to ACID is BASE where the objective is replaced from consistency
+to availability.
+This is desirable in large distributed systems that do not need to be
+fully consistent but require to always be available.
+For example an application will not mind that it has some stale or
+inconsistent data since it has been built to handle it.
+This is generally present in NoSQL databases when used in multiple
+locations, such as a distributed document store~\cite{base}.
+Figure~\ref{l:base} has a brief outline of these properties.
 
+\begin{figure}
 \begin{itemize}
-    \item \textbf{B}asically
-    \item \textbf{A}vailable
-    \item \textbf{S}oft state
-    \item \textbf{E}ventual consistency
+    \item \textbf{B}asically \textbf{A}vailable - When a part of the system
+        fails only some or none of the data maybe be unavailable rather than
+        all of it.
+    \item \textbf{S}oft state - The data present on a node may change over time
+        without a direct update as eventual consistency is applied.
+    \item \textbf{E}ventual consistency - The shared data on a node will become consistent with
+        other nodes over time.
 \end{itemize}
+\caption{Overview of BASE properties~\cite{base}}\label{l:base}
+\end{figure}
 
 % How does it compare to ACID
-
-% What does this mean
-
-\subsection{CAP}
-%% CAP theory
-% what is it
-
-\begin{itemize}
-    \item \textbf{C}onsistency
-    \item \textbf{A}vailability
-    \item \textbf{P}artition tolerance
-\end{itemize}
 
 % how it relates to NoSQL
 
