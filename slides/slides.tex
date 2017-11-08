@@ -12,7 +12,8 @@
 
 Goals of the project
 \begin{itemize}
-\item{To implement generate simple loop invariants in Whiley}
+\item{To implement generators for simple loop invariants in Whiley}
+\item{\st{To be evaluated by SWEN224 Students}}
 \end{itemize}
 
 \end{frame}
@@ -21,7 +22,7 @@ Goals of the project
 
 \begin{frame}{Solution}
 
-Generates 4 loop invariants
+Generates 4 loop invariants by adding another analysis pass in the compiler
 
 \begin{itemize}
 \item Starting bound
@@ -141,7 +142,7 @@ while i <= |items|
 
 \begin{column}{0.5\textwidth}
 \begin{itemize}
-\item Identifies upper limit of counting variable
+\item Identifies upper limit of a counting variable
 \item Has three components
 \begin{itemize}
     \item counting variable (\code{i}) - defined outside of the loop 
@@ -249,7 +250,7 @@ while i <= |items|
 \begin{column}{0.5\textwidth}
 \begin{verbatim}
 while i <= |xs|:
-    if i % 2:
+    if i % 2 == 0:
         xs[i] = i - 1
     else:
         xs[i] = i
@@ -269,7 +270,7 @@ number of invariants needed to be provided in the source code.
 
 \begin{itemize}
 \item Whiley Compiler test suite
-\item SWEN224 assignments and labs
+\item Past SWEN224 assignments and labs
 \end{itemize}
 
 \end{block}
