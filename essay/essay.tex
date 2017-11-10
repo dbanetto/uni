@@ -140,6 +140,57 @@ Figure~\ref{l:base} has a brief outline of these properties.
 %  - document can be inspected by DBMS
 % Relate it back to BASE
 
+\paragraph{}
+Document store databases are designed to store their data in the form of
+structured documents~\cite{base}.
+There are a wide range of structured documents used with document store
+databases, such as XML, JSON and more~\cite{base,compare_nosql}.
+Two implementations of a document store database are: \textbf{MongoDB} which
+structures its data as JSON~\cite{base}; and, \textbf{BaseX} which is based on XML
+documents~\cite{basex}.
+Though the format of the documents are well defined the 
+way how data is laid out within this format is not.
+This makes documents stores a semi-structured database.
+
+\paragraph{}
+The data model for a document store can be simpler relative a relational model.
+A single document is an instance of an entity, such as someone's contact information.
+Where in a relational model someone's contact information would be
+normalized to be spread over many tables as there are many optional sections.
+In this case the document representation is simpler as it has all of the
+information in one place.
+This lead to the pattern of storing all the data for a single entity into
+one document rather than spread it over many relations that then need to
+joined.
+
+\paragraph{}
+A benefit of a document store is being able to query the documents
+by leveraging their structure.
+This is exposed to the user through the database's API or a format specific
+query language, such as XPath for XML~\cite{xpath}.
+For example in MongoDB the call in figure~\ref{lst:mongo} would retrieve all
+stored documents about books with the title \textit{Database}.
+In this case MongoDB's API is designed to mimic the internal JSON structure 
+of the stored documents.
+Another example is BaseX with its ability to use XPath to query a document.
+In figure~\ref{lst:basex} shows a simple XPath query that also retrieves
+the documents that contain books with the title \textit{Database}.
+
+\begin{figure}
+\begin{verbatim}
+books.find({ title: "Database" })
+\end{verbatim}
+\caption{Example query for MongoDB}
+\label{lst:mongo}
+\end{figure}
+
+\begin{figure}
+\begin{verbatim}
+/book/tite[text() = 'Database']
+\end{verbatim}
+\caption{Example query for BaseX using XPath}
+\label{lst:basex}
+\end{figure}
 
 \subsection{Use case}
 % When are people using this
@@ -147,6 +198,8 @@ Figure~\ref{l:base} has a brief outline of these properties.
 %  - XML store
 % Example of use case
 %  - Searching
+
+
 
 \subsection{When to use it}
 % Why are people choosing this
