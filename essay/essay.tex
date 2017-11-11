@@ -22,7 +22,7 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 
 \vspace{.1in}
 
-\noindent{\em Keywords:} NoSQL, Use cases, Document Store, Column Base, Graph database
+\noindent{\em Keywords:} NoSQL, Use cases, Document Store, Columnar, Graph database
 
 \section{Introduction}
 % Cover the aim of the essay
@@ -38,33 +38,29 @@ model and relational algebra~\cite{relational_db}.
 
 \paragraph{}
 This report will cover some common types of NoSQL databases.
-These are: Document store; Column base; and, Graph databases.
+These are: Document store; Columnar; and, Graph databases.
 For each of these types this report will give an overview on how each type
 operates and a description of its use case with a comparison with a
-traditional SQL database.
-
-\cite{whats_new}
-\cite{sql_nosql_gap}
-\cite{scalable_sql}
+ relational database.
 
 \section{What is NoSQL}
 % brief overview
 
 \paragraph{}
 NoSQL is a class of databases that are not based on
-a relational data model~\cite{nosql_db}.
+a relational data model~\cite{nosql_db,nosql_survey}.
 Instead of using relations the data is modeled using a large
 variety of models are used, such as graphs, documents or objects.
 These allow for application specific optimisations that
 a relational database could not provide.
 The need for these optimisations are motivated by the growing
-volume of data used in large distributed systems~\cite{nosql_db}.
+volume of data used in large distributed systems~\cite{nosql_db,nosql_survey}.
 
 
 \paragraph{}
 The CAP theorem states that no distributed system can be
 simultaneously always consistent, available and
-partitions tolerant but at most two of these properties~\cite{base,nosql_db,compare_nosql}.
+partitions tolerant but at most two of these properties~\cite{base,nosql_db,compare_nosql,nosql_survey}.
 This is due to the conflict between these properties, such as a
 strictly consistent database handling an update would
 need to lock the modified data as the update is being distributed
@@ -104,7 +100,7 @@ guarantee.
 
 \paragraph{}
 An alternative to ACID is BASE where the objective is replaced from consistency
-to availability.
+to availability~\cite{nosql_survey}.
 This is desirable in large distributed systems that do not need to be
 fully consistent but require to always be available.
 For example an application will not mind that it has some stale or
@@ -142,7 +138,7 @@ Figure~\ref{l:base} has a brief outline of these properties.
 
 \paragraph{}
 Document store databases are designed to store their data in the form of
-structured documents~\cite{base}.
+structured documents~\cite{base,nosql_survey}.
 There are a wide range of structured documents used with document store
 databases, such as XML, JSON and more~\cite{base,compare_nosql}.
 Two implementations of a document store database are: \textbf{MongoDB} which
@@ -153,10 +149,12 @@ way how data is laid out within this format is not.
 This makes documents stores a semi-structured database.
 
 \paragraph{}
-The data model for a document store can be simpler relative a relational model.
+The data model for a document store can be simpler relative a relational
+model~\cite{nosql_survey}.
 A single document is an instance of an entity, such as someone's contact information.
 Where in a relational model someone's contact information would be
-normalized to be spread over many tables as there are many optional sections.
+normalized to be spread over many tables as there are many optional
+sections.
 In this case the document representation is simpler as it has all of the
 information in one place.
 This lead to the pattern of storing all the data for a single entity into
@@ -199,25 +197,72 @@ books.find({ title: "Database" })
 % Example of use case
 %  - Searching
 
+\cite{nosql_performance}
+% should include what people use it for and why they choose it
 
+% === Columnar ===
 
-\subsection{When to use it}
-% Why are people choosing this
-% Compare to relational counterpart
-
-% === Column base ===
-
-\section{Column base}
+\section{Columnar}
 % How does it work
 % Relate it back to BASE
 
+\paragraph{}
+Columnar or column-orientated databases are a type of NoSQL databases that
+stores data in tables by column rather than by row~\cite{nosql_survey}.
+The goal of a columnar database is to store large quantities of data efficiently
+while maintaining efficient operations on columns~\cite{nosql_survey,nosql_eval}.
+An implementation of a columnar database is Google's
+\textbf{BigTable} which is used for large scale~\cite{bigtable}.
+
+\paragraph{}
+To achieve this the data model used in columnar is a table.
+Though this data model is similar to a relational model it has a few key
+differences.
+One such difference is that each column is serialized to disk separately to enable
+quick reads of a column.
+This enables a columnar database to \textit{spare}, efficiently storing
+the data on disk due to being able to skip null values~\cite{bigtable} and the
+opportunity to compress the data.
+Another difference is that there is no support to associate columns together,
+such as a foreign relation in a relational model~\cite{relational_db,nosql_survey}.
+Thus when making changes to a column only the effected column would be needed
+to be checked for consistency errors.
+This allows for many concurrent reads and writes across the database as each
+column is independent in both consistency and in storage~\cite{nosql_survey}.
+
+
+Figures~\ref{lst:row} and~\ref{lst:column} provide a contrast between
+row and column orientated representations.
+
+\begin{figure}
+\begin{verbatim}
+    SWEN304:Database Egineering:T2:2017
+    COMP304:Programming languages:T2:2017
+\end{verbatim}
+\caption{Example of a table stored by rows}
+\label{lst:row}
+\end{figure}
+
+\begin{figure}
+\begin{verbatim}
+    SWEN304:COMP304
+    Database Egineering:Programming languages
+    T2:T2
+    2017:2017
+\end{verbatim}
+\caption{Example of a table stored by column}
+\label{lst:column}
+\end{figure}
+
+\cite{usingcolumn}
+
 \subsection{Use case}
 % When are people using this
+%  - Data warehousing
 % Example of use case
 
-\subsection{When to use it}
-% Why are people choosing this
-% Compare to relational counterpart
+\cite{nosql_performance}
+\cite{bigtable}
 
 % === graph ===
 
@@ -229,12 +274,9 @@ books.find({ title: "Database" })
 % When are people using this
 % Example of use case
 
-\subsection{When to use it}
-% Why are people choosing this
-% Compare to relational counterpart
+\cite{nosql_performance}
 
 \section{Conclusion}
-
 
 \bibliographystyle{agsm}
 \bibliography{essay}
