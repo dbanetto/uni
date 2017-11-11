@@ -211,9 +211,27 @@ Columnar or column-orientated databases are a type of NoSQL databases that
 stores data in tables by column rather than by row~\cite{nosql_survey}.
 The goal of a columnar database is to store large quantities of data efficiently
 while maintaining efficient operations on columns~\cite{nosql_survey,nosql_eval}.
-An implementation of a columnar database is Google's
-\textbf{BigTable} which is used for large scale~\cite{bigtable}.
+Implementations of a columnar database are Google's
+\textbf{BigTable}, which is used for large scale~\cite{bigtable}, and
+\textbf{Cassandra}, ~\cite{cassandra}.
 
+% data model
+\paragraph{}
+The data model of columnar databases is a multi-dimensional
+map~\cite{bigtable,nosql_eval}.
+Each instance of an entity is a row in a table.
+With each row it is given a row name, this is used to uniquely identify the
+given row.
+Each row has a set of columns that describe the entity
+The columns maybe grouped together into a column family which then are
+stored together.
+The members of a column family are generally all the same data type as each
+other~\cite{bigtable}.
+This is to allow optimised retrieval of commonly paired columns effectively.
+To query data from a row of the database the row name and column name are
+required to uniquely access the data~\cite{bigtable}.
+
+% benefits
 \paragraph{}
 To achieve this the data model used in columnar is a table.
 Though this data model is similar to a relational model it has a few key
