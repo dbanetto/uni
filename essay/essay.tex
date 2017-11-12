@@ -233,24 +233,39 @@ required to uniquely access the data~\cite{bigtable}.
 
 % benefits
 \paragraph{}
-To achieve this the data model used in columnar is a table.
-Though this data model is similar to a relational model it has a few key
-differences.
-One such difference is that each column is serialized to disk separately to enable
-quick reads of a column.
-This enables a columnar database to \textit{spare}, efficiently storing
-the data on disk due to being able to skip null values~\cite{bigtable} and the
-opportunity to compress the data.
-Another difference is that there is no support to associate columns together,
-such as a foreign relation in a relational model~\cite{relational_db,nosql_survey}.
+Columnar databases are similar to relational databases but has some key
+characteristics that differentiate them.
+These range from how the data is stored on disk, what parts of the
+data is indexed, how foreign relations are handled and more~\cite{nosql_survey}.
+
+\paragraph{}
+The column-orientated method of storing data in columnar databases is a 
+key characteristic.
+To achieve this each column is serialized to disk
+separately~\cite{bigtable,nosql_survey}.
+This allows for faster reads of a single column, such as aggregates.
+Figures~\ref{lst:row} and~\ref{lst:column} show the difference in serialisation
+between a row-orientated database and a column-orientated database where each
+line is a separate file.
+A side effect of having similar data stored together is a greater potential to
+compress the data more efficient~\cite{nosql_survey}.
+This enables a columnar database to be sparse with its storage of data~\cite{bigtable}.
+
+\paragraph{}
+The common usage of indexes in databases are to store the indexed columns
+separately for quick access~\cite{relational_db}.
+However, in columnar databases all of the columns are already stored
+separately and thus an index~\cite{nosql_survey}.
+
+\paragraph{}
+A characteristic of columnar databases is not supporting associations between
+rows.
+This implies that common features from relational models, such as a foreign relation, 
+are not supported~\cite{relational_db,nosql_survey}.
 Thus when making changes to a column only the effected column would be needed
 to be checked for consistency errors.
 This allows for many concurrent reads and writes across the database as each
 column is independent in both consistency and in storage~\cite{nosql_survey}.
-
-
-Figures~\ref{lst:row} and~\ref{lst:column} provide a contrast between
-row and column orientated representations.
 
 \begin{figure}
 \begin{verbatim}
@@ -278,6 +293,9 @@ row and column orientated representations.
 % When are people using this
 %  - Data warehousing
 % Example of use case
+
+The use cases for a columnar database focus on long term storage of large
+volumes of data, or data warehousing.
 
 \cite{nosql_performance}
 \cite{bigtable}
