@@ -373,13 +373,29 @@ columnar databases.
 %  - Data warehousing
 % Example of use case
 
-The use cases for a columnar database focus on long term storage of large
-volumes of data, or data warehousing.
+\paragraph{}
+The use case for columnar database for long term storage of large volumes of
+data, or commonly referred to data warehousing~\cite{usingcolumn,bigtable}.
+This is due to its ability to efficiently store the data on disk
+due to the compressibility of data when stored as columns as opposed
+to rows.
+Another factor is that even with large volumes of data columns can
+be quickly accessed as they are effectively indexed when stored as
+columns.
+This allows for fast aggregations over a column.
 
-Data store for MapReduce, batch orientated work
+\paragraph{}
+Compared to a relational database the feature set of a columnar database.
+This is the trade-off between optimising for disk space and having
+complex features such as foreign key relationships.
+The speed to read data is comparative to an indexed attribute
+for a relational database as each column in a columnar database is
+indexed.
 
-\cite{nosql_performance}
-\cite{bigtable}
+\paragraph{}
+The time to use a columnar database is when long term storage is important.
+This is because of the space savings of compressed columns but still able
+to use the data as indexes.
 
 % === graph ===
 
