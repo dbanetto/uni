@@ -187,12 +187,13 @@ efficiently~\cite{xpath}.
 
 \paragraph{}
 % examples of querying
-Figures~\ref{lst:mongo} and \ref{lst:basx} illustrate queries on a document
+Figures~\ref{lst:mongo} and~\ref{lst:basex} illustrate queries on a document
 store about books.
 These figures show how the each database uses the format to search
 the documents.
 For example, the MongoDB query in figure~\ref{lst:mongo} that would retrieve all
-stored documents about books with the title \textit{Database}~\cite{mongodb}.
+stored documents about books with the title
+\textit{Database}~\cite{nosql_db}.
 This query is simply looking for a union between the given object and a
 document that shares the same structure.
 
@@ -232,10 +233,40 @@ books.find({ title: "Database" })
 % Example of use case
 %  - Searching
 
-A common use case of Document store databases are
+\paragraph{}
+The use case to use a document store database is when
+the data is unstructured and can have large range of attributes.
+For example a database about all the parts and serial numbers
+of a car.
+Each part will have common attributes, such as its serial numbers,
+manufactures, etc. 
+However, they also have varying attributes such
+as number of ignitions for a spark plug or total revolutions for
+a tyre.
 
-\cite{nosql_performance}
+\paragraph{}
+For a document store database could each part in its own document.
+Each of the parts would need its name and serial number, this would
+be enforced by the application as document stores do not enforce these
+constraints~\cite{nosql_db,basex,nosql_survey}.
+From there any additional attribute would be optional and could
+be added to any part with any type.
+This has the downside of possibly having a shared attribute that
+is inconsistently encoded which will have to be handled by the application
+code.
+
+\paragraph{}
+In comparison a relational database that provides the same functionally
+would be more complicated than the document store.
+The relational approach would be to have a \textit{parts} table
+and a large number of optional tables that can be joined to the parts
+table to get all of the part's attributes.
+This has the downside of using large joins that will slow down
+queries~\cite{scalable_sql}.
+
 % should include what people use it for and why they choose it
+
+% \subsection{When to use it}
 
 % === Columnar ===
 
@@ -250,7 +281,7 @@ The goal of a columnar database is to store large quantities of data efficiently
 while maintaining efficient operations on columns~\cite{nosql_survey,nosql_eval}.
 Implementations of a columnar database are Google's
 \textbf{BigTable}, which is used for large scale~\cite{bigtable}, and
-\textbf{Cassandra}, ~\cite{cassandra}.
+\textbf{Cassandra},~\cite{cassandra}.
 
 \subsection{Data model}
 
