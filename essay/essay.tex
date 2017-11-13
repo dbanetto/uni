@@ -75,7 +75,7 @@ range of guarantees and to how the data is stored and retrieved.
 For relational databases they are designed to hold
 the ACID properties~\cite{relational_db,base}.
 Figure~\ref{l:acid} provides a brief outline of the ACID properties.
-These properties ensure that the data committed will be stored in a 
+These properties ensure that the data committed will be stored in a
 consistent manner that allows some concurrency.
 This is highly desired in applications that require guaranteed consistency
 for critical data such as bank accounts.
@@ -142,7 +142,7 @@ databases, such as XML, JSON and more~\cite{base,compare_nosql}.
 Two implementations of a document store database are: \textbf{MongoDB} which
 structures its data as JSON~\cite{base}; and, \textbf{BaseX} which is based on XML
 documents~\cite{basex}.
-Though the format of the documents are well defined the 
+Though the format of the documents are well defined the
 way how data is laid out within this format is not.
 This makes documents stores a semi-structured database.
 
@@ -152,6 +152,8 @@ This makes documents stores a semi-structured database.
 The data model for a document store can be simpler relative a relational
 model~\cite{nosql_survey}.
 A single document is an instance of an entity, such as someone's contact information.
+The document is addressable by a unique key, similar to a key in a key-value
+store~\cite{nosql_survey,sql_nosql}
 Where in a relational model someone's contact information would be
 normalized to be spread over many tables as there are many optional
 sections.
@@ -160,21 +162,52 @@ information in one place.
 This lead to the pattern of storing all the data for a single entity into
 one document rather than spread it over many relations that then need to
 joined.
+Documents can be grouped by various means,
+these include: metadata; hierarchy; tags; and, collections~\cite{sql_nosql}.
+With the groupings queries can be refined to certain groups to optimise
+queries.
 
 \subsection{Operations}
 
 \paragraph{}
-A benefit of a document store is being able to query the documents
-by leveraging their structure.
-This is exposed to the user through the database's API or a format specific
-query language, such as XPath for XML~\cite{xpath}.
-For example in MongoDB the call in figure~\ref{lst:mongo} would retrieve all
-stored documents about books with the title \textit{Database}.
-In this case MongoDB's API is designed to mimic the internal JSON structure 
-of the stored documents.
-Another example is BaseX with its ability to use XPath to query a document.
-In figure~\ref{lst:basex} shows a simple XPath query that also retrieves
-the documents that contain books with the title \textit{Database}.
+The usage of a document store database is as simple as the data it hold.
+This is due to simplicity of the API required to retrieve and store data into
+the database.
+As evident by implementations of document stores that model all operations
+with a RESTful interface, such as CouchDB~\cite{couchdb}.
+
+\paragraph{}
+A benefit of the semi-structure of a document is the ability to query it
+without a schema defining its layout.
+This is achieved by databases leveraging the known properties of the
+document format to allow for optimised traversals.
+For example in a document store using XML the query language XPath is a
+powerful tool to be able to query elements of the document
+efficiently~\cite{xpath}.
+
+\paragraph{}
+% examples of querying
+Figures~\ref{lst:mongo} and \ref{lst:basx} illustrate queries on a document
+store about books.
+These figures show how the each database uses the format to search
+the documents.
+For example, the MongoDB query in figure~\ref{lst:mongo} that would retrieve all
+stored documents about books with the title \textit{Database}~\cite{mongodb}.
+This query is simply looking for a union between the given object and a
+document that shares the same structure.
+
+Another example the BaseX in figure~\ref{lst:basex} with its
+ability to use XPath to query a document~\cite{basex}.
+This query is functionally equivalent to the MongoDB query before, expect it uses
+an XML specific query language to achieve it.
+These queries return documents that share the structure and values used in the
+query.
+
+Since the documents are not enforced to have this structure not all documents
+checked during the search would match, even simply on structure.
+For example if audio books were also included in the document store the user
+could query for play time or page count and only retrieve a book that these
+attributes apply to.
 
 \begin{figure}
 \begin{verbatim}
@@ -186,7 +219,7 @@ books.find({ title: "Database" })
 
 \begin{figure}
 \begin{verbatim}
-/book/tite[text() = 'Database']
+/book/title[text() = 'Database']
 \end{verbatim}
 \caption{Example query for BaseX using XPath}
 \label{lst:basex}
@@ -198,6 +231,8 @@ books.find({ title: "Database" })
 %  - XML store
 % Example of use case
 %  - Searching
+
+A common use case of Document store databases are
 
 \cite{nosql_performance}
 % should include what people use it for and why they choose it
@@ -242,7 +277,7 @@ These range from how the data is stored on disk, what parts of the
 data is indexed, how foreign relations are handled and more~\cite{nosql_survey}.
 
 \paragraph{}
-The column-orientated method of storing data in columnar databases is a 
+The column-orientated method of storing data in columnar databases is a
 key characteristic.
 To achieve this each column is serialized to disk
 separately~\cite{bigtable,nosql_survey}.
@@ -263,7 +298,7 @@ separately and thus an index~\cite{nosql_survey}.
 \paragraph{}
 A characteristic of columnar databases is not supporting associations between
 rows.
-This implies that common features from relational models, such as a foreign relation, 
+This implies that common features from relational models, such as a foreign relation,
 are not supported~\cite{relational_db,nosql_survey}.
 Thus when making changes to a column only the effected column would be needed
 to be checked for consistency errors.
