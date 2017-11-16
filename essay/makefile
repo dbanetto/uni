@@ -10,7 +10,7 @@ wc: essay.pdf
 	pdftotext essay.pdf - | wc -w
 
 count:
-	texcount.pl essay.tex
+	texcount essay.tex
 
 clean:
 	rm -f *.aux *.blg *.bbl *.log

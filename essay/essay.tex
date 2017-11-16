@@ -403,22 +403,79 @@ to use the data as indexes.
 % How does it work
 % Relate it back to BASE
 
-Graph databases use sets of edges and nodes to represent
-data~\cite{nosql_survey}.
-
+\paragraph{}
+Graph databases are a class of NoSQL databases that are based on graph
+theory~\cite{nosql_survey,sql_nosql}.
+The goal of a graph database is to capture the connections between
+nodes and being able to traverse them,
+such as hierarchies~\cite{type_nosql}.
+This is achieved by using the graph data model which is based upon 
+sets of nodes, edges and properties~\cite{nosql_survey,sql_nosql}.
+Some implementations of graph databases are \textbf{Neo4j}~\cite{neo4j}
+and \textbf{GraphDB}~\cite{graphdb}.
 
 \subsection{Data model}
 
+\paragraph{}
+The data model for a graph database is built on graph
+theory~\cite{nosql_survey,sql_nosql,graphdb}.
+Thus it uses the building blocks of graphs (nodes, edges and
+properties~\cite{graphdb}).
+Each nodes in the graph represent an entity in the model.
+The properties of the graph are represent the attributes of 
+an instance of an entity.
+These are key-value pairs on the node with no schema to defined what
+key-value pairs that should be provided~\cite{neo4j}.
+This would be comparative to a single row in a relational data
+model~\cite{relational_db}.
+The edges between two nodes represent the relationship between
+them.
+These edges can be directed or bi-direction, depending on the database
+implementation~\cite{graphdb,neo4j}.
+The edges may also provide some properties
+An example of an edge would be an associate relation between two user accounts
+to store such a relationship between the users.
+
+\paragraph{}
+From the data model some characteristics of graph databases.
+
+%Graph traversals are executed with constant speed independent of total size of the graph. There are no set operations 
+%involved that decrease performance as seen with join operations in RDBMS
+\cite{sql_nosql}
+
+%Graph databases are having high performance in context to their deep traversals.
+\cite{sql_nosql}
+
+%These are used for shortest path calculations.
+\cite{sql_nosql}
+
+%These are scalable. But its complexity increases
+\cite{sql_nosql}
+
 \subsection{Operations}
 
+Index free Adjacency  traversal~\cite{type_nosql}
+
+Transactional, ACID support~\cite{type_nosql}
 
 \subsection{Use case}
 % When are people using this
 % Example of use case
 
+% finding colleges or friends
+
+% Using adjacency lists to recommend things
+
+% Literal graph work 
+
 \cite{nosql_performance}
 
 \section{Conclusion}
+
+% briefly cover:
+%  * what each database is
+%  * when to use each database
+% end with: there are many good situations to use NoSQL database etc.
 
 \bibliographystyle{agsm}
 \bibliography{essay}
