@@ -437,10 +437,33 @@ An example of an edge would be an associate relation between two user accounts
 to store such a relationship between the users.
 
 \paragraph{}
-From the data model some characteristics of graph databases.
+Due to the data model graph databases have many properties and
+characteristic that unique.
+These are all derived from the use of graph theory.
+Some of these properties include:
+constant time traversals over any size graph;
+deep traversals across many edges;
+and, shortest path calculation.
 
-%Graph traversals are executed with constant speed independent of total size of the graph. There are no set operations 
-%involved that decrease performance as seen with join operations in RDBMS
+%Graph traversals are executed with constant speed independent of total size of the graph.
+%There are no set operations involved that decrease performance as seen with join operations in RDBMS
+A property of a graph database is constant time traversals through the
+graph~\cite{sql_nosql}.
+
+A property of the graph model is that joining many nodes is cheap.
+This is in contrast of relational databases where joining relations
+together is a costly~\cite{relational_db}.
+This difference is from how relations are stored in each of these
+databases.
+For a graph database a relation between two entities can be made
+by adding an edge between them.
+To retrieve this data it only takes a simple traversal to the
+node~\cite{neo4j}.
+However, in a relational database the relationship must be included
+in the schema as a foreign key.
+To retrieve this data the foreign relation must then be searched for
+which tuple each given row is referring to~\cite{relational_db}.
+
 \cite{sql_nosql}
 
 %Graph databases are having high performance in context to their deep traversals.
@@ -449,14 +472,25 @@ From the data model some characteristics of graph databases.
 %These are used for shortest path calculations.
 \cite{sql_nosql}
 
-%These are scalable. But its complexity increases
-\cite{sql_nosql}
-
 \subsection{Operations}
 
 Index free Adjacency  traversal~\cite{type_nosql}
 
 Transactional, ACID support~\cite{type_nosql}
+
+A difficulty to a graph database is that it is complex
+to distribute it over many servers~\cite{sql_nosql}.
+This is due to the complexity of balancing the
+graph across many servers due to how the graph is
+cut determines how effective the balancing is.
+For example if the graph is split such that all of the
+actively queried nodes are one server then the graph is
+not distributed well since the load is not balanced across
+all servers. If the nodes are naïvely spread across the nodes
+there maybe many edges that require traversals across servers
+which slows down the overall query time.
+To resolve this a minimal cut of the graph is taken, minimising edges
+between servers but still spreading the node count~\cite{neo4j}.
 
 \subsection{Use case}
 % When are people using this
