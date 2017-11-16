@@ -368,6 +368,13 @@ SQL called CQL~\cite{cassandra}.
 This allows knowledge from relation databases to be easily transferred to
 columnar databases.
 
+\paragraph{}
+Accessing data in a columnar database is closer to a key-value
+store than a relational database.
+This is because to access a column of a database the composite of
+the row name and the column name is used to identify the
+data~\cite{nosql_survey,usingcolumn}.
+
 \subsection{Use case}
 % When are people using this
 %  - Data warehousing
@@ -447,9 +454,20 @@ and, shortest path calculation.
 
 %Graph traversals are executed with constant speed independent of total size of the graph.
 %There are no set operations involved that decrease performance as seen with join operations in RDBMS
-A property of a graph database is constant time traversals through the
-graph~\cite{sql_nosql}.
+\paragraph{}
+Graph databases are well optimised for traversals between nodes.
+This occurs in constant time no matter the size of the graph~\cite{sql_nosql}.
+This is due to all edges between the node points directly
+to the other node.
+As a result of this it is very cheap to traverse through many
+edges to find a deep relationships of a given node in a single
+query.
+In comparison if this was attempted in a relational database
+the act of traversing multiple layers would be difficult and
+require many expensive join to traverse deep
+relationships~\cite{sql_nosql_gap,relational_db,neo4j}.
 
+\paragraph{}
 A property of the graph model is that joining many nodes is cheap.
 This is in contrast of relational databases where joining relations
 together is a costly~\cite{relational_db}.
@@ -464,21 +482,41 @@ in the schema as a foreign key.
 To retrieve this data the foreign relation must then be searched for
 which tuple each given row is referring to~\cite{relational_db}.
 
-\cite{sql_nosql}
-
-%Graph databases are having high performance in context to their deep traversals.
-\cite{sql_nosql}
-
 %These are used for shortest path calculations.
-\cite{sql_nosql}
+\paragraph{}
+Since a graph database is based on graph theory all of the
+traversal algorithms can be applied to the database~\cite{sql_nosql}.
+This allows for a large variety of complex queries that is
+not practical in a relational database.
+For example the shortest path between two nodes or finding
+clusters of nodes.
+From applying these algorithms a new perspective on the data can
+be found that no other database type could offer.
 
 \subsection{Operations}
 
-Index free Adjacency  traversal~\cite{type_nosql}
+\paragraph{}
+The operation of a graph database is not as simple as
+other databases.
+Where other databases will have loosely coupled entities
+or none at all, a graph has direct ties between nodes.
+This can lead to some additional features in the operation
+of the database and some additional complexities.
 
-Transactional, ACID support~\cite{type_nosql}
+\paragraph{}
+One benefit of the tightly coupled nodes is cheap
+adjacency lists~\cite{type_nosql}.
+These are critical part of making an efficient graph
+algorithm as they are required in every operation.
 
-A difficulty to a graph database is that it is complex
+\paragraph{}
+Due to the tightly coupled nodes some graph databases
+implement the ACID properties~\cite{type_nosql,neo4j}.
+An example of this is Neo4j which has support for
+concurrent transactions~\cite{neo4j}.
+
+\paragraph{}
+A difficulty in using a graph database is that it is complex
 to distribute it over many servers~\cite{sql_nosql}.
 This is due to the complexity of balancing the
 graph across many servers due to how the graph is
