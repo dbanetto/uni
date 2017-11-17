@@ -17,7 +17,12 @@ Email:~{\tt barentdavi@myvuw.ac.nz}}
 \maketitle
 
 \begin{abstract}
-    TODO Abstract
+    With a large range of new database options in the current environment it
+    is hard to know what are NoSQL databases and when to use them.
+    In this report the data model and operations of three types of NoSQL
+    databases (Document store, Columnar, Graph) are explained.
+    This also includes some discussion of the operation of each database
+    and a use case to highlight when a NoSQL database could be utilised.
 \end{abstract}
 
 \vspace{.1in}
@@ -504,6 +509,17 @@ This can lead to some additional features in the operation
 of the database and some additional complexities.
 
 \paragraph{}
+The general usage of a graph database is simple.
+This includes creating a new node, adding a property to one
+and forming a relationship between two nodes.
+This is achieved by a simple query languages such
+as Cypher from Neoj4~\cite{neo4j}.
+The language is modeled on SQL so a relational database
+developer can read the queries with existing knowledge.
+However, the introduction of new syntax for traversals
+in the language makes this slightly more difficult.
+
+\paragraph{}
 One benefit of the tightly coupled nodes is cheap
 adjacency lists~\cite{type_nosql}.
 These are critical part of making an efficient graph
@@ -534,13 +550,20 @@ between servers but still spreading the node count~\cite{neo4j}.
 % When are people using this
 % Example of use case
 
+\paragraph{}
+The use case for a graph database is in a relationship
+heavy application.
+This is due to its advantage of efficiently handling
+common graph operations such as adjacency lists~\cite{neo4j,nosql_survey}.
+An example of this would be a social network that keeps track
+of relationships between users.
+The main advantages of using a graph database in this context is
+the complexity of operations such as suggesting friends-of-friends is
+much less than a relational database~\cite{nosql_performance,neo4j}.
+
 % finding colleges or friends
-
 % Using adjacency lists to recommend things
-
 % Literal graph work 
-
-\cite{nosql_performance}
 
 \section{Conclusion}
 
@@ -548,6 +571,27 @@ between servers but still spreading the node count~\cite{neo4j}.
 %  * what each database is
 %  * when to use each database
 % end with: there are many good situations to use NoSQL database etc.
+
+\paragraph{}
+Each NoSQL database has a use case that it has been optimised for.
+These are evident from looking at the data model and the operations of
+each type of database.
+In this report three types of NoSQL databases have been discussed.
+The first was Document store which is a semi-structured database that
+utilises the format of the documents to enable fast queries of the stored
+documents.
+This is best suited to be used when the data is largely self contained and can
+be serialized into a uniform data format such as JSON or
+XML~\cite{type_nosql,basex}.
+The second was Columnar which is a column-orientated store that focuses
+on the storage of large volumes of data then relationships between
+rows.
+This is best suited for long term storage of data since it is optimised to
+be efficient with its disk space usage~\cite{bigtable}.
+The third was Graph database which used graph theory to model the data.
+This is best suited for relationship heavy applications that would
+be utilising many graph-based algorithms to extract insight from the data.
+
 
 \bibliographystyle{agsm}
 \bibliography{essay}
