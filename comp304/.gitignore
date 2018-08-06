@@ -1,0 +1,6 @@
+*.hi
+*.o
+comp304*
+!*.hs
+!*.lhs
+report.pdf
