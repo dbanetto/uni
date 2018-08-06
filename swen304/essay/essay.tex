@@ -1,0 +1,599 @@
+\documentclass{CRPITStyle}
+\usepackage[authoryear]{natbib}
+\renewcommand{\cite}{\citep}
+\pagestyle{empty}
+\thispagestyle{empty}
+\hyphenation{roddick}
+
+\begin{document}
+
+\title{When to use NoSQL}
+\author{David Barnett}
+\affiliation{School of Engineering and Computer Science \\
+Victoria University of Wellington, \\
+PO Box 600, Wellington, 6140 \\
+Email:~{\tt barentdavi@myvuw.ac.nz}}
+
+\maketitle
+
+\begin{abstract}
+    With a large range of new database options in the current environment it
+    is hard to know what are NoSQL databases and when to use them.
+    In this report the data model and operations of three types of NoSQL
+    databases (Document store, Columnar, Graph) are explained.
+    This also includes some discussion of the operation of each database
+    and a use case to highlight when a NoSQL database could be utilised.
+\end{abstract}
+
+\vspace{.1in}
+
+\noindent{\em Keywords:} NoSQL, Use cases, Document Store, Columnar, Graph database
+
+\section{Introduction}
+% Cover the aim of the essay
+
+\paragraph{}
+With growing use of NoSQL databases in production environments it has become more
+important to understand when and why to use them over a traditional
+relational database.
+NoSQL can be broken down to many different types which differ on how
+data is represented~\cite{type_nosql}.
+For example the traditional relational databases are based upon relational
+model and relational algebra~\cite{relational_db}.
+
+\paragraph{}
+This report will cover some common types of NoSQL databases.
+These are: Document store; Columnar; and, Graph databases.
+For each of these types this report will give an overview on how each type
+operates and a description of its use case relative to a relational database
+offering.
+
+\section{What is NoSQL}
+% brief overview
+
+\paragraph{}
+NoSQL is a class of databases that are not based on
+a relational data model~\cite{nosql_db,nosql_survey}.
+Instead of using relations the data is modeled using a large
+variety of models are used, such as graphs, documents or objects.
+These allow for application specific optimisations that
+a relational database could not provide.
+The need for these optimisations are motivated by the growing
+volume of data used in large distributed systems~\cite{nosql_db,nosql_survey}.
+
+\subsection{CAP Theorem}
+
+\paragraph{}
+The CAP theorem states that no distributed system can be
+simultaneously always consistent, available and
+partitions tolerant but at most two of these properties~\cite{base,nosql_db,compare_nosql,nosql_survey}.
+This is due to the conflict between these properties, such as a
+strictly consistent database handling an update would
+need to lock the modified data as the update is being distributed
+so all clients have the same consistent data.
+
+% trade-off between consistency, availability and partition tolerant
+
+\paragraph{}
+In the case of databases they can be designed to provide a
+range of guarantees and to how the data is stored and retrieved.
+For relational databases they are designed to hold
+the ACID properties~\cite{relational_db,base}.
+Figure~\ref{l:acid} provides a brief outline of the ACID properties.
+These properties ensure that the data committed will be stored in a
+consistent manner that allows some concurrency.
+This is highly desired in applications that require guaranteed consistency
+for critical data such as bank accounts.
+In terms of the CAP theorem the consistency aspect is the most important
+guarantee.
+
+\begin{figure}
+\begin{itemize}
+    \item \textbf{A}tomic - every transaction will either
+        succeed and be applied or fail and commit no modifications.
+    \item \textbf{C}onsistent - the state of all relations are
+        always in a consistent state.
+    \item \textbf{I}solation - transactions are performed as if sequentially.
+    \item \textbf{D}urability - after a successful transaction the results
+        are persistent over crashes.
+\end{itemize}
+    \caption{Outline of the ACID properties~\cite{relational_db,base}}\label{l:acid}
+\end{figure}
+%
+% give definition of a database? (managed store of data)
+% relational is based on set theory and relational algebra
+
+\subsection{BASE}
+% What it is
+
+\paragraph{}
+An alternative to ACID is BASE where the objective is replaced from consistency
+to availability~\cite{nosql_survey}.
+This is desirable in large distributed systems that do not need to be
+fully consistent but require to always be available.
+For example an application will not mind that it has some stale or
+inconsistent data since it has been built to handle it.
+This is generally present in NoSQL databases when used in multiple
+locations, such as a distributed document store~\cite{base}.
+Figure~\ref{l:base} has a brief outline of these properties.
+
+\begin{figure}
+\begin{itemize}
+    \item \textbf{B}asically \textbf{A}vailable - When a part of the system
+        fails only some or none of the data maybe be unavailable rather than
+        all of it.
+    \item \textbf{S}oft state - The data present on a node may change over time
+        without a direct update as eventual consistency is applied.
+    \item \textbf{E}ventual consistency - The shared data on a node will become consistent with
+        other nodes over time.
+\end{itemize}
+\caption{Overview of BASE properties~\cite{base}}\label{l:base}
+\end{figure}
+
+
+% === Document Store ===
+
+\section{Document Store}
+% How does it work
+%  - key to a structured document
+%  - document can be inspected by DBMS
+% Relate it back to BASE
+
+\paragraph{}
+Document store databases are designed to store their data in the form of
+structured documents~\cite{base,nosql_survey}.
+There are a wide range of structured documents used with document store
+databases, such as XML, JSON and more~\cite{base,compare_nosql}.
+Two implementations of a document store database are: \textbf{MongoDB} which
+structures its data as JSON~\cite{base}; and, \textbf{BaseX} which is based on XML
+documents~\cite{basex}.
+Though the format of the documents are well defined the
+way how data is laid out within this format is not.
+This makes documents stores a semi-structured database.
+
+\subsection{Data model}
+
+\paragraph{}
+The data model for a document store can be simpler relative a relational
+model~\cite{nosql_survey}.
+A single document is an instance of an entity, such as someone's contact information.
+The document is addressable by a unique key, similar to a key in a key-value
+store~\cite{nosql_survey,sql_nosql}
+Where in a relational model someone's contact information would be
+normalized to be spread over many tables as there are many optional
+sections.
+In this case the document representation is simpler as it has all of the
+information in one place.
+This lead to the pattern of storing all the data for a single entity into
+one document rather than spread it over many relations that then need to
+joined.
+Documents can be grouped by various means,
+these include: metadata; hierarchy; tags; and, collections~\cite{sql_nosql}.
+With the groupings queries can be refined to certain groups to optimise
+queries.
+
+\subsection{Operations}
+
+\paragraph{}
+The usage of a document store database is as simple as the data it hold.
+This is due to simplicity of the API required to retrieve and store data into
+the database.
+As evident by implementations of document stores that model all operations
+with a RESTful interface, such as CouchDB~\cite{couchdb}.
+
+\paragraph{}
+A benefit of the semi-structure of a document is the ability to query it
+without a schema defining its layout.
+This is achieved by databases leveraging the known properties of the
+document format to allow for optimised traversals.
+For example in a document store using XML the query language XPath is a
+powerful tool to be able to query elements of the document
+efficiently~\cite{xpath}.
+
+\paragraph{}
+% examples of querying
+Figures~\ref{lst:mongo} and~\ref{lst:basex} illustrate queries on a document
+store about books.
+These figures show how the each database uses the format to search
+the documents.
+For example, the MongoDB query in figure~\ref{lst:mongo} that would retrieve all
+stored documents about books with the title
+\textit{Database}~\cite{nosql_db}.
+This query is simply looking for a union between the given object and a
+document that shares the same structure.
+
+Another example the BaseX in figure~\ref{lst:basex} with its
+ability to use XPath to query a document~\cite{basex}.
+This query is functionally equivalent to the MongoDB query before, expect it uses
+an XML specific query language to achieve it.
+These queries return documents that share the structure and values used in the
+query.
+
+Since the documents are not enforced to have this structure not all documents
+checked during the search would match, even simply on structure.
+For example if audio books were also included in the document store the user
+could query for play time or page count and only retrieve a book that these
+attributes apply to.
+
+\begin{figure}
+\begin{verbatim}
+books.find({ title: "Database" })
+\end{verbatim}
+\caption{Example query for MongoDB}
+\label{lst:mongo}
+\end{figure}
+
+\begin{figure}
+\begin{verbatim}
+/book/title[text() = 'Database']
+\end{verbatim}
+\caption{Example query for BaseX using XPath}
+\label{lst:basex}
+\end{figure}
+
+\subsection{Use case}
+% When are people using this
+%  - JSON store
+%  - XML store
+% Example of use case
+%  - Searching
+
+\paragraph{}
+The use case to use a document store database is when
+the data is unstructured and can have large range of attributes.
+For example a database about all the parts and serial numbers
+of a car.
+Each part will have common attributes, such as its serial numbers,
+manufactures, etc. 
+However, they also have varying attributes such
+as number of ignitions for a spark plug or total revolutions for
+a tyre.
+
+\paragraph{}
+For a document store database could each part in its own document.
+Each of the parts would need its name and serial number, this would
+be enforced by the application as document stores do not enforce these
+constraints~\cite{nosql_db,basex,nosql_survey}.
+From there any additional attribute would be optional and could
+be added to any part with any type.
+This has the downside of possibly having a shared attribute that
+is inconsistently encoded which will have to be handled by the application
+code.
+
+\paragraph{}
+In comparison a relational database that provides the same functionally
+would be more complicated than the document store.
+The relational approach would be to have a \textit{parts} table
+and a large number of optional tables that can be joined to the parts
+table to get all of the part's attributes.
+This has the downside of using large joins that will slow down
+queries~\cite{scalable_sql}.
+
+% should include what people use it for and why they choose it
+
+% \subsection{When to use it}
+
+% === Columnar ===
+
+\section{Columnar}
+% How does it work
+% Relate it back to BASE
+
+\paragraph{}
+Columnar or column-orientated databases are a type of NoSQL databases that
+stores data in tables by column rather than by row~\cite{nosql_survey}.
+The goal of a columnar database is to store large quantities of data efficiently
+while maintaining efficient operations on columns~\cite{nosql_survey,nosql_eval}.
+Implementations of a columnar database are Google's
+\textbf{BigTable}, which is used for large scale~\cite{bigtable}, and
+\textbf{Cassandra},~\cite{cassandra}.
+
+\subsection{Data model}
+
+% data model
+\paragraph{}
+The data model of columnar databases is a multi-dimensional
+map~\cite{bigtable,nosql_eval}.
+Each instance of an entity is a row in a table.
+With each row it is given a row name, this is used to uniquely identify the
+given row.
+Each row has a set of columns that describe the entity
+The columns maybe grouped together into a column family which then are
+stored together.
+The members of a column family are generally all the same data type as each
+other~\cite{bigtable}.
+This is to allow optimised retrieval of commonly paired columns effectively.
+To query data from a row of the database the row name and column name are
+required to uniquely access the data~\cite{bigtable}.
+
+\paragraph{}
+Columnar databases are similar to relational databases but has some key
+characteristics that differentiate them.
+These range from how the data is stored on disk, what parts of the
+data is indexed, how foreign relations are handled and more~\cite{nosql_survey}.
+
+\paragraph{}
+The column-orientated method of storing data in columnar databases is a
+key characteristic.
+To achieve this each column is serialized to disk
+separately~\cite{bigtable,nosql_survey}.
+This allows for faster reads of a single column, such as aggregates.
+Figures~\ref{lst:row} and~\ref{lst:column} show the difference in serialisation
+between a row-orientated database and a column-orientated database where each
+line is a separate file.
+A side effect of having similar data stored together is a greater potential to
+compress the data more efficient~\cite{nosql_survey}.
+This enables a columnar database to be sparse with its storage of data~\cite{bigtable}.
+
+\paragraph{}
+The common usage of indexes in databases are to store the indexed columns
+separately for quick access~\cite{relational_db}.
+However, in columnar databases all of the columns are already stored
+separately and thus an index~\cite{nosql_survey}.
+
+\paragraph{}
+A characteristic of columnar databases is not supporting associations between
+rows.
+This implies that common features from relational models, such as a foreign relation,
+are not supported~\cite{relational_db,nosql_survey}.
+Thus when making changes to a column only the effected column would be needed
+to be checked for consistency errors.
+This allows for many concurrent reads and writes across the database as each
+column is independent in both consistency and in storage~\cite{nosql_survey}.
+
+
+\begin{figure}
+\begin{verbatim}
+    SWEN304:Database Egineering:T2:2017
+    COMP304:Programming languages:T2:2017
+\end{verbatim}
+\caption{Example of a table stored by rows}
+\label{lst:row}
+\end{figure}
+
+\begin{figure}
+\begin{verbatim}
+    SWEN304:COMP304
+    Database Egineering:Programming languages
+    T2:T2
+    2017:2017
+\end{verbatim}
+\caption{Example of a table stored by column}
+\label{lst:column}
+\end{figure}
+
+\subsection{Operations}
+
+\paragraph{}
+Using a columnar database is similar to a relational database~\cite{usingcolumn}.
+Some implementations of columnar databases even use similar query languages to
+SQL that is common in relational databases.
+For example, Cassandra offers a query language that is very close to
+SQL called CQL~\cite{cassandra}.
+This allows knowledge from relation databases to be easily transferred to
+columnar databases.
+
+\paragraph{}
+Accessing data in a columnar database is closer to a key-value
+store than a relational database.
+This is because to access a column of a database the composite of
+the row name and the column name is used to identify the
+data~\cite{nosql_survey,usingcolumn}.
+
+\subsection{Use case}
+% When are people using this
+%  - Data warehousing
+% Example of use case
+
+\paragraph{}
+The use case for columnar database for long term storage of large volumes of
+data, or commonly referred to data warehousing~\cite{usingcolumn,bigtable}.
+This is due to its ability to efficiently store the data on disk
+due to the compressibility of data when stored as columns as opposed
+to rows.
+Another factor is that even with large volumes of data columns can
+be quickly accessed as they are effectively indexed when stored as
+columns.
+This allows for fast aggregations over a column.
+
+\paragraph{}
+Compared to a relational database the feature set of a columnar database.
+This is the trade-off between optimising for disk space and having
+complex features such as foreign key relationships.
+The speed to read data is comparative to an indexed attribute
+for a relational database as each column in a columnar database is
+indexed.
+
+\paragraph{}
+The time to use a columnar database is when long term storage is important.
+This is because of the space savings of compressed columns but still able
+to use the data as indexes.
+
+% === graph ===
+
+\section{Graph}
+% How does it work
+% Relate it back to BASE
+
+\paragraph{}
+Graph databases are a class of NoSQL databases that are based on graph
+theory~\cite{nosql_survey,sql_nosql}.
+The goal of a graph database is to capture the connections between
+nodes and being able to traverse them,
+such as hierarchies~\cite{type_nosql}.
+This is achieved by using the graph data model which is based upon 
+sets of nodes, edges and properties~\cite{nosql_survey,sql_nosql}.
+Some implementations of graph databases are \textbf{Neo4j}~\cite{neo4j}
+and \textbf{GraphDB}~\cite{graphdb}.
+
+\subsection{Data model}
+
+\paragraph{}
+The data model for a graph database is built on graph
+theory~\cite{nosql_survey,sql_nosql,graphdb}.
+Thus it uses the building blocks of graphs (nodes, edges and
+properties~\cite{graphdb}).
+Each nodes in the graph represent an entity in the model.
+The properties of the graph are represent the attributes of 
+an instance of an entity.
+These are key-value pairs on the node with no schema to defined what
+key-value pairs that should be provided~\cite{neo4j}.
+This would be comparative to a single row in a relational data
+model~\cite{relational_db}.
+The edges between two nodes represent the relationship between
+them.
+These edges can be directed or bi-direction, depending on the database
+implementation~\cite{graphdb,neo4j}.
+The edges may also provide some properties
+An example of an edge would be an associate relation between two user accounts
+to store such a relationship between the users.
+
+\paragraph{}
+Due to the data model graph databases have many properties and
+characteristic that unique.
+These are all derived from the use of graph theory.
+Some of these properties include:
+constant time traversals over any size graph;
+deep traversals across many edges;
+and, shortest path calculation.
+
+%Graph traversals are executed with constant speed independent of total size of the graph.
+%There are no set operations involved that decrease performance as seen with join operations in RDBMS
+\paragraph{}
+Graph databases are well optimised for traversals between nodes.
+This occurs in constant time no matter the size of the graph~\cite{sql_nosql}.
+This is due to all edges between the node points directly
+to the other node.
+As a result of this it is very cheap to traverse through many
+edges to find a deep relationships of a given node in a single
+query.
+In comparison if this was attempted in a relational database
+the act of traversing multiple layers would be difficult and
+require many expensive join to traverse deep
+relationships~\cite{sql_nosql_gap,relational_db,neo4j}.
+
+\paragraph{}
+A property of the graph model is that joining many nodes is cheap.
+This is in contrast of relational databases where joining relations
+together is a costly~\cite{relational_db}.
+This difference is from how relations are stored in each of these
+databases.
+For a graph database a relation between two entities can be made
+by adding an edge between them.
+To retrieve this data it only takes a simple traversal to the
+node~\cite{neo4j}.
+However, in a relational database the relationship must be included
+in the schema as a foreign key.
+To retrieve this data the foreign relation must then be searched for
+which tuple each given row is referring to~\cite{relational_db}.
+
+%These are used for shortest path calculations.
+\paragraph{}
+Since a graph database is based on graph theory all of the
+traversal algorithms can be applied to the database~\cite{sql_nosql}.
+This allows for a large variety of complex queries that is
+not practical in a relational database.
+For example the shortest path between two nodes or finding
+clusters of nodes.
+From applying these algorithms a new perspective on the data can
+be found that no other database type could offer.
+
+\subsection{Operations}
+
+\paragraph{}
+The operation of a graph database is not as simple as
+other databases.
+Where other databases will have loosely coupled entities
+or none at all, a graph has direct ties between nodes.
+This can lead to some additional features in the operation
+of the database and some additional complexities.
+
+\paragraph{}
+The general usage of a graph database is simple.
+This includes creating a new node, adding a property to one
+and forming a relationship between two nodes.
+This is achieved by a simple query languages such
+as Cypher from Neoj4~\cite{neo4j}.
+The language is modeled on SQL so a relational database
+developer can read the queries with existing knowledge.
+However, the introduction of new syntax for traversals
+in the language makes this slightly more difficult.
+
+\paragraph{}
+One benefit of the tightly coupled nodes is cheap
+adjacency lists~\cite{type_nosql}.
+These are critical part of making an efficient graph
+algorithm as they are required in every operation.
+
+\paragraph{}
+Due to the tightly coupled nodes some graph databases
+implement the ACID properties~\cite{type_nosql,neo4j}.
+An example of this is Neo4j which has support for
+concurrent transactions~\cite{neo4j}.
+
+\paragraph{}
+A difficulty in using a graph database is that it is complex
+to distribute it over many servers~\cite{sql_nosql}.
+This is due to the complexity of balancing the
+graph across many servers due to how the graph is
+cut determines how effective the balancing is.
+For example if the graph is split such that all of the
+actively queried nodes are one server then the graph is
+not distributed well since the load is not balanced across
+all servers. If the nodes are naïvely spread across the nodes
+there maybe many edges that require traversals across servers
+which slows down the overall query time.
+To resolve this a minimal cut of the graph is taken, minimising edges
+between servers but still spreading the node count~\cite{neo4j}.
+
+\subsection{Use case}
+% When are people using this
+% Example of use case
+
+\paragraph{}
+The use case for a graph database is in a relationship
+heavy application.
+This is due to its advantage of efficiently handling
+common graph operations such as adjacency lists~\cite{neo4j,nosql_survey}.
+An example of this would be a social network that keeps track
+of relationships between users.
+The main advantages of using a graph database in this context is
+the complexity of operations such as suggesting friends-of-friends is
+much less than a relational database~\cite{nosql_performance,neo4j}.
+
+% finding colleges or friends
+% Using adjacency lists to recommend things
+% Literal graph work 
+
+\section{Conclusion}
+
+% briefly cover:
+%  * what each database is
+%  * when to use each database
+% end with: there are many good situations to use NoSQL database etc.
+
+\paragraph{}
+Each NoSQL database has a use case that it has been optimised for.
+These are evident from looking at the data model and the operations of
+each type of database.
+In this report three types of NoSQL databases have been discussed.
+The first was Document store which is a semi-structured database that
+utilises the format of the documents to enable fast queries of the stored
+documents.
+This is best suited to be used when the data is largely self contained and can
+be serialized into a uniform data format such as JSON or
+XML~\cite{type_nosql,basex}.
+The second was Columnar which is a column-orientated store that focuses
+on the storage of large volumes of data then relationships between
+rows.
+This is best suited for long term storage of data since it is optimised to
+be efficient with its disk space usage~\cite{bigtable}.
+The third was Graph database which used graph theory to model the data.
+This is best suited for relationship heavy applications that would
+be utilising many graph-based algorithms to extract insight from the data.
+
+
+\bibliographystyle{agsm}
+\bibliography{essay}
+
+\end{document}
