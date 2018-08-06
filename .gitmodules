@@ -1,6 +1,6 @@
 [submodule "wyc"]
-	path = wyc
+	path = engr489/wyc
 	url = git@github.com:zyphrus/WhileyCompiler.git
 [submodule "wyeval"]
-	path = wyeval
+	path = engr489/wyeval
 	url = git@github.com:zyphrus/WyEval.git
