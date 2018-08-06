@@ -1,14 +1,11 @@
-<<<<<<< HEAD
 *.aux
 *.bbl
 *.blg
 *.log
 essay.pdf
 .DS_Store
-=======
 *.log
 report.pdf
 *.aux
 *.blg
 *.bbl
->>>>>>> swen301/master
