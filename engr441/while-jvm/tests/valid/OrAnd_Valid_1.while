@@ -1,0 +1,17 @@
+bool fail() {
+    assert false;
+    return true;
+}
+
+void andTest() {
+    bool x = false && fail();
+}
+
+void orTest() {
+    bool x = true || fail();
+}
+
+void main() {
+    andTest();
+    orTest();
+}

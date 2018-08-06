@@ -1,0 +1,31 @@
+int|string|char a() {
+    return "hi";
+}
+
+string|int|char b() {
+    return "hi";
+}
+
+int|char|string c() {
+    return "hi";
+}
+
+string|char|int d() {
+    return "hi";
+}
+
+char|string|int e() {
+    return "hi";
+}
+
+char|int|string f() {
+    return "hi";
+}
+
+void main() {
+    assert(a() == b());
+    assert(a() == c());
+    assert(a() == d());
+    assert(a() == e());
+    assert(a() == f());
+}

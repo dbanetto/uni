@@ -1,0 +1,14 @@
+int|bool f(int y) {
+    var x;
+    if (y > 0) {
+        x = { a: true };
+    } else {
+        x = { a: 10 };
+    }
+    return x.a;
+}
+
+void main() {
+    assert ( f(10) == true);
+    assert ( f(-10) == 10);
+}

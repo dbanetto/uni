@@ -1,0 +1,21 @@
+type List is { int elem, List next }|{ int elem }
+
+void main() {
+    List list = { elem: 1, next: { elem: 2 } };
+    var end = false;
+
+    var cursor = list;
+
+    while (!end) {
+        match (cursor) {
+            case ({ int elem , List next } node) {
+                assert(node.elem == 1);
+                cursor = node.next;
+            }
+            case ({ int elem } node) {
+                assert(node.elem == 2);
+                end = true;
+            }
+        }
+    }
+}

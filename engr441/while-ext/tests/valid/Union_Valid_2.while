@@ -1,0 +1,8 @@
+int|string s(string|int e) {
+    return e;
+}
+
+void main() {
+    assert s(1) == 1;
+    assert s("Hello") == "Hello";
+}

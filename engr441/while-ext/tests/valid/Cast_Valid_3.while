@@ -1,0 +1,9 @@
+type A is { int|string f }
+type B is { string f }
+type C is { int f }
+
+void main() {
+    A a = { f: "string" };
+    B b = (B) a;
+    C c = (C) a;
+}

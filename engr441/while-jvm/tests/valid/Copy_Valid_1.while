@@ -1,0 +1,12 @@
+int[] f(int[] xs) {
+    xs[0] = 0;
+    return xs;
+}
+
+
+void main() {
+    int[] xs1 = [1, 2, 3];
+    int[] xs2 = f(xs1);
+    assert xs1 == [1, 2, 3];
+    assert xs2 == [0, 2, 3];
+}

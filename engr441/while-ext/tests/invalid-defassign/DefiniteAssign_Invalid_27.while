@@ -1,0 +1,6 @@
+void main() {
+    int i;
+    do {
+        skip;
+    } while(i == 1);
+}

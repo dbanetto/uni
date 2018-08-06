@@ -1,0 +1,11 @@
+int|string a() {
+    return "hi";
+}
+
+string|int b() {
+    return "hi";
+}
+
+void main() {
+    assert(a() == b());
+}

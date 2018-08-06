@@ -1,0 +1,11 @@
+type aT is { int f }
+type bT is { int f, int g }
+
+bT|aT f(aT input) {
+    return input;
+}
+
+void main() {
+    aT input = { f : 1 };
+    assert f(input) == input;
+}

@@ -1,0 +1,10 @@
+type A is int[]|string[]
+type B is int|string []
+
+A toA(B val) {
+    return val;
+}
+
+void main() {
+    skip;
+}

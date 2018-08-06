@@ -1,0 +1,11 @@
+void main() {
+    switch (3) {
+        case 0..5:
+            assert true;
+            break;
+        default:
+            assert false;
+            break;
+    }
+
+}

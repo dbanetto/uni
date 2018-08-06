@@ -1,0 +1,11 @@
+type Foo is { int x, int y }
+
+Foo setXToZero(Foo foo) {
+    foo.x = 0;
+    return foo;
+}
+
+void main() {
+    Foo foo = { x: 1, y: 1 };
+    assert setXToZero(foo) == { x: 0, y: 1 };
+}

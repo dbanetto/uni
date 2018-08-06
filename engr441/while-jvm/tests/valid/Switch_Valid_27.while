@@ -1,0 +1,15 @@
+int f({ int x } o) {
+  switch(o) {
+    case { x: 6 }:
+      return 1;
+  }
+  return -1;
+}
+
+{ int x } g() {
+    return { x: 6 };
+}
+
+void main() {
+    assert f(g()) == 1;
+}

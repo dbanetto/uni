@@ -1,0 +1,6 @@
+void main() {
+    do {
+        continue;
+        assert true;
+    } while(true);
+}

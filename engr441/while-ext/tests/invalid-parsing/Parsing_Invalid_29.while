@@ -1,0 +1,4 @@
+void main() {
+    skip;
+    int i = 0;
+}

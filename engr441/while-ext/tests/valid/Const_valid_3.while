@@ -1,0 +1,10 @@
+void main() {
+    int i = 1;
+    const int pi = 3;
+    switch (i) {
+        case pi:
+            break;
+        default:
+            break;
+    }
+}

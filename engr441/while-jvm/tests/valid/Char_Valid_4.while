@@ -1,0 +1,14 @@
+int f(int num) {
+    int i = 0;
+    while(i < num) {
+        i = i + 1;
+    }
+    return i;
+}
+
+
+void main() {
+    int result = f(4);
+    print(result);
+    assert result == 4;
+}

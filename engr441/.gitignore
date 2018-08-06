@@ -1,0 +1,5 @@
+*.pdf
+*.iml
+.idea/
+*.class
+out/
