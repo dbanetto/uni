@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Assign 03.jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/Assign_03_jar</output-path>
-    <root id="archive" name="Assign 03.jar">
-      <element id="module-output" name="Assign 03" />
-      <element id="dir-copy" path="$PROJECT_DIR$/src" />
-    </root>
-  </artifact>
-</component>
