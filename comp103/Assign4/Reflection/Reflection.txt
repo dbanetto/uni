@@ -1,0 +1,41 @@
+/* Reflection.txt for COMP103
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
+ */
+
+For your reflection:
+====================
+
+Firstly, describe how far you got, on this assignment. If there was a problem
+you got stuck on, what was that problem?
+
+
+Java provides several different implementations of the =Set= type, including =HashSet= and
+=TreeSet=.  Why didn't it provide =ArraySet= ?  (After all, it provided the
+=ArrayList= implementation of the =List= type!).
+
+
+Coming up with good test methods can be as hard as writing the code that it is
+testing. Suggest some guidelines or principles for writing good test methods.
+
+
+--------------------------------------------------------------------
+
+Got up to Challenge in ArraySet
+Got up to Challenge in ArrayQueue
+
+The main problem was trying to get reflection to work so I could test
+the value of data in ArrayQueue, but then opted for public access to the 
+base array for simplicity.
+
+Java does not provide an ArraySet because it is horrendously slow compared
+to the other two implementations. This is generally caused by most operations
+(add, remove, find) in ArraySet are O(n) operations with HashSet being O(1) as
+it sues hashes. This is even more shown by the benchmarking done with HashSet being
+up to 198040% better than its ArraySet counterpart.
+
+Some guidelines or principles when writing tests could be :
+ one test method should test one feature each. 
+ A test class should correspond to one class
+ Each test case should be autonomous (non-order dependent)

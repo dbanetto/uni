@@ -1,0 +1,47 @@
+/* Reflection.txt for COMP103
+ * Name: David Barnett
+ * Usercode: 300313764
+ * ID: barnetdavi
+ */
+
+For your Reflection:
+====================
+
+First, describe how far you got on this assignment. If there was a problem
+you got stuck on, what was that problem?
+
+* Do you think that having both classes "Images" and "ImageNode" is overkill?
+  What pros and cons can you think of in comparison to just using ImageNode?
+
+* Did you notice the different complexity of adding an image
+  before vs after the cursor?
+  What are the complexities and what is the cause of this complexity difference?
+
+* Can you think of an extension to "ImageNode" that would avoid the
+  above mentioned complexity difference?
+
+* Cursors are a good way of obtaining quick access to a certain point in a list.
+  Can you think of a potential problem if a client does not use Images.setCursor correctly?
+
+----------------------------------------------------------------
+
+In the assignment I implemented all functions outlined in the assignment document,
+including challenge and completion. There was no major problems in doing this assignment,
+expect with a few mistakes with putting recursive functions in their iterative counterparts.
+
+I do not think that having both Images and ImageNode is overkill in this context. In the
+given context of a slider show viewer the choice of having a wrapper class around the nodes made
+it easier to preform whole list operation in a cleaner fashion. The con's however would be the
+next round of null checks for the cursor and head nodes.
+
+Yes, I did notice the added complexity of adding a node before the cursor and after. This is because
+this linked lists is not symmetric thus only forward to the end, causing the need for searching from
+the start to find the cursor's previous node.
+
+An extension to ImageNode that would remove this complexity is to add a `previous` pointer
+to keep track of what is before the node. This would also easy traversal of the linked list
+in both directions but add some complexity to the code because it now must make sure the two
+pointers are pointing to the correct places.
+
+A potential problem for using Images.setCursor incorrectly could be the cursor could be moved
+to another list than the linked list contained in Images.

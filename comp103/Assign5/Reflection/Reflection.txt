@@ -1,0 +1,49 @@
+/* Reflection.txt for COMP103
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
+ */
+
+For your reflection:
+====================
+
+Firstly, describe how far you got, on this assignment. If there was a problem
+you got stuck on, what was that problem?
+
+
+Some of the recursive algorithms in this assignment could have been written
+just as easily using simple loops.
+
+Which recursive methods could have been easily written with loops?
+
+What are the advantage(s) or disadvantage(s) of using recursive methods
+rather than loops.
+
+Why couldn't the others be easily written with loops?
+
+Many people find recursion hard to understand at first, although it doesn't do
+anything different from previous programs - it just involves methods which call
+methods.  Why is it tricky?
+
+--------------------------------------------------------------------
+
+Got up to Challenge on both parts.
+
+The creation of the stepping stones and maze solver could of
+easily been reworked to use loops.
+
+The advantages of using a recursive method over a loop would be:
+splitting the problem into base cases and building the solution from
+there, while compared to a loop method getting the same kind of result
+can lead to a mass of controller objects counter-balancing the benefit
+of not worrying about stack overflows
+
+The other recursive methods cannot be easily re-written as loop's
+because, for example the string permutation builder, is dependent on the
+on the results of its children to finish itself, and replicating this
+behavior in a loop is not worth the time
+
+Recursive algorithms are tricky to understand as the step of
+solving the problem is not entirely clear. This causes some
+confusion of trying to find the logic used to complete a step
+in the algorithm.

@@ -1,0 +1,32 @@
+COMP 103 Assignment 5
+Report on SortedArraySet testing and benchmarking
+
+Name: David Barnett
+ID : 300313464
+
+Testing: SortedArraySet
+
+Which test methods succeeded or failed on your implementation of SortedArraySet:
+	All Succeeded
+
+Performance Benchmarking:
+What were the results of your timing tests?
+(Give the time to load the dictionary and the time to check the story, for
+  - SortedArraySet, ArraySet, and HashSet.
+  - dictionaryUnsorted.txt and dictionarySorted.txt
+
+Data Used| Test | Sorted Array Set | ArraySet | HashSet
+Unsorted |Load  |        293.86s   | 279.70s  | 0.259s
+         |Check |          1.71s   | 174.62s  | 0.192s
+-------------------------------------------------------
+Sorted   |Load  |          0.60s   | 279.83s  | 0.265s
+         |Check |          2.83s   | 173.70s  | 0.279s
+
+The results from the bench-marking is not surprising as it
+is expected that the HashSet is extremely fast with its O(1)
+search for an existing element against the O(n) of the ArraySet
+and O(log(n)) of SortedArraySet.
+
+What was a surprise was the speed up in the load time from unsorted
+data to sorted data for the SortedArraySet. Taking it from ArraySet
+levels to nearly challenge the HashSet

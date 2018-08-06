@@ -1,0 +1,31 @@
+COMP 103 Assignment 4 
+Report on ArraySet testing and benchmarking
+
+Name: David Barnett
+
+Testing:
+Which test methods succeeded or failed on your implementation of ArraySet:
+
+Results of Array Set Testing:
+	Core : 8/8 passed
+	Completion : 13/13 passed
+
+Benchmarking:
+What were the results of your timing tests?
+(Give the time to load the dictionary and the time to check the story, for both
+ArraySet and HashSet.)
+
+Tests done on a AMD FX-4100 with 8GiB of RAM and on a hard drive
+
+Time to load:
+	HashSet     ~150ms
+	ArraySet ~297060ms
+
+Time to Check:
+	Plato:
+		HashSet  :    ~660ms
+		ArraySet : ~189000ms
+
+	Hamlet:
+		HashSet  :   ~660ms
+		ArraySet : ~61367ms

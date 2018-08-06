@@ -1,0 +1,31 @@
+/* Reflection.txt for COMP103
+ * Name: David Barnett
+ * Usercode: barnetdavi
+ * ID: 300313764
+ */
+
+For your reflection:
+====================
+
+First, describe how far you got on this assignment. If there was a problem you got stuck on what was that problem?
+
+* Did you notice a difference in speed of the application compared to the one of assignment 4? Where does the speed difference come from?
+
+* What did you observe comparing the height of the tree, both after loading the dictionary words and after removing the bad words? How do you explain this result?
+
+* What is the numerical difference between the height of the tree you observed and the theoretical minimum? State the number and briefly comment on how much it affects the search speed.
+
+----------------------------------------------------------------
+
+Got up to challenge, completing the in order traversal, but not the self balancing tree
+I did have problems with the remove `bad words` not completing and creating stack overflows.
+
+Yes, the BTS was considerably faster than the application from assignment 4. The speed
+comes from the O(log n) find and add an item.
+
+Comparing the height of the trees with and without bad words is similar as the binary tree is not balancing itself with the
+removal of so many nodes.
+
+I observed a height of 37 and the theoretical minimum is 18, thus making a difference of 19. This would effect the
+search speed because it does not mean the number of elements to be known not needed to be searched is not halved
+each comparison.

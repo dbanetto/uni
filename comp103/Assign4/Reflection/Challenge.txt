@@ -1,0 +1,12 @@
+Do all consumer threads in ThreadChallenge get the same number of elements from the queue. Ie, is the queue fair?
+    Why/Why not?
+    (Answer this for both Java's ArrayBlockingQueue and your own extended ArrayQueue, if you did it.) 
+
+If not, how could you implement a fair queue?
+
+Neither the ArrayBlockingQueue or ArrayQueueCh are "fair" queues as 
+both have a seemingly random distribution of consumed counts.
+
+To implement a fair multi-threaded queue would most likely
+require a queue of requests that have asked to take an item and
+deal with them in order 
