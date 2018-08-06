@@ -1,0 +1,67 @@
+Changes to the echo server / client.
+
+The echo server's joke was changed to:
+
+Knock, Knock
+Justin
+Justin Who?
+Just in the neighbourhood, thought I would drop by.
+
+To achieve these changes I changed the sequence of messsage and
+the  replies printed in EchoClient.java and also updated the
+message checks and replies in Connection.java.
+
+Evidence of the program function
+
+> EchoServer
+
+Waiting for connections on 43501
+Client 1: Knock, knock
+Server: Who's there?
+Client 1: Justin
+Server: Justin who?
+Client 1: Just in the neighborhood, thought I would drop by.
+Server: <<<<groan>>>>
+Client 1: bye
+
+> EchoClient
+
+Who's there?
+Justin who?
+<<<<groan>>>>
+
+==========================================
+
+Changes to the Search.
+
+To achieve a user defined amount of keys to try the number is captured from the
+arguments of the program.
+
+The argument list was changed from:
+
+    Search <starting key> <key size> <ciphertext>
+
+To:
+
+    Search <starting key> <key size> <number to try> <ciphertext>
+
+Using the the <number to try> instead of the contast 100 in the loop of different
+keys to try.
+
+Evidence of Program's fucntion:
+note: non-printable characters have been omitted with a `...`
+
+The command below gave the following output.
+
+> Search 3185209670 4 1 :+UHC88LxQEgKq6BmdGo31UtE5HqTimlZssAZMXqSXXXT7NJLc52Fng==
+
+3185209670...No key found!
+
+The command below gave the following output.
+
+> Search 3185209670 4 100 :+UHC88LxQEgKq6BmdGo31UtE5HqTimlZssAZMXqSXXXT7NJLc52Fng==
+
+3185209670...3185209671...3185209672...3185209673...3185209674...3185209675...3185209676...3185209677...3185209678...3185209679...3185209680...Plaintext found!
+
+May good flourish; Kia hua ko te pai
+key is (hex) BDDA7150 3185209680
