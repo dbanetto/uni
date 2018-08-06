@@ -1,0 +1,27 @@
+This is a doctest based regression suite for assignment1.py
+Each '>>' line is run as if in a python shell, and counts as a test.
+The next line, if not '>>' is the expected output of the previous line.
+If anything doesn't match exactly (including trailing spaces), the test fails.
+
+Import the functions
+>>> from assignment1 import print_before
+
+Test the list problem:
+>>> print_before(["a","b","c"],"b")
+['a']
+>>> print_before(["a","b","c"],"c")
+['a', 'b']
+>>> print_before(["a","b","c"],"")
+['a', 'b', 'c']
+>>> print_before([],"")
+[]
+>>> print_before([],"a")
+[]
+>>> print_before([],[])
+Expected a string
+>>> print_before([],"a")
+[]
+>>> print_before("","a")
+Expected a list of words
+
+
