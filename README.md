@@ -52,3 +52,10 @@ you can email on the address listed on this account**
 
 This mono repo was created by using the included `merge.sh` script to bring in
 unrelated git histories to preserve all history from these courses.
+
+## License
+
+The source code in this repo is licensed under MIT. Any other copyrighted
+material is copyrighted to their respective owners and are included here since
+they were given as apart of course work. They can and will be removed on
+request if so desired.
