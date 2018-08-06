@@ -1,0 +1,6 @@
+acl peak_morn time SMTWHFA 8:00-11:00
+acl peak_after time SMTWHFA 15:00-17:00
+
+acl bad_keywords url_regex -i “/etc/squid/blockedkeywords.txt”
+
+http_access deny bad_keywords peak_morn peak_ater

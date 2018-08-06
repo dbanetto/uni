@@ -1,0 +1,6 @@
+report.pdf
+hack-a-vote/ballotbox
+hack-a-vote/build
+hack-a-vote/dist
+hack-a-vote/*.class
+hack-a-vote/*.html

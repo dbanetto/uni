@@ -1,0 +1,7 @@
+auth_param basic program /usr/local/squid/bin/ncsa_auth /usr/local/squid /etc/passwd
+
+acl authed proxy_auth REQUIRED
+acl localnet src 192.168.1.0/24
+
+http_access allow authed localnet
+http_access deny all
