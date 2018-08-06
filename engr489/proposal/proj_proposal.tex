@@ -1,0 +1,384 @@
+%% $RCSfile: proj_proposal.tex,v $
+%% $Revision: 1.3 $
+%% $Date: 2016/06/10 03:44:08 $
+%% $Author: kevin $
+
+\documentclass[11pt, a4paper, twoside, openright]{report}
+
+\usepackage{float} % lets you have non-floating floats
+\usepackage{listings}
+\usepackage{color}
+\usepackage{url} % for typesetting urls
+\usepackage[parfill]{parskip}
+
+%  We don't want figures to float so we define
+%
+\newfloat{fig}{thp}{lof}[chapter]
+\floatname{fig}{Figure}
+
+\definecolor{grey}{rgb}{0.95,0.95,0.95}
+
+\lstset{ %
+    backgroundcolor=\color{grey},
+    frame=single,
+    numbers=left
+}
+
+%% These are standard LaTeX definitions for the document
+%%
+\title{Generating simple loop invariants for Whiley}
+\author{David Barnett}
+
+%% This file can be used for creating a wide range of reports
+%%  across various Schools
+%%
+%% Set up some things, mostly for the front page, for your specific document
+%
+% Current options are:
+% [ecs|msor|sms]          Which school you are in.
+%                         (msor option retained for reproducing old data)
+% [bschonscomp|mcompsci]  Which degree you are doing
+%                          You can also specify any other degree by name
+%                          (see below)
+% [font|image]            Use a font or an image for the VUW logo
+%                          The font option will only work on ECS systems
+%
+\usepackage[image,ecs]{vuwproject}
+
+% You should specifiy your supervisor here with
+%     \supervisor{Firstname Lastname}
+% use \supervisors if there are more than one supervisor
+\supervisors{Lindsay Groves}
+
+% Unless you've used the bschonscomp or mcompsci
+%  options above use
+\otherdegree{Bachelor of Engineering with Honours in Software Engineering}
+% here to specify degree
+
+% Comment this out if you want the date printed.
+\date{}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+% Make the page numbering roman, until after the contents, etc.
+\frontmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+    % This document gives some ideas about how to write a project
+    % proposal, and provides a template for a proposal. You should discuss
+    % your proposal with your supervisor.
+    An obstacle to using Whiley for formally verified software is the 
+    repetition of simple loop invariants.
+    This project is to generate simple loop invariants using
+    known techniques, such as static analysis and post-condition mutation.
+    The project will research these methods and implement some techniques
+    into the Whiley language.
+    The success of this project is evaluated based on the reduction
+    of simple loop invariants for the general Whiley programmer.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+
+%\tableofcontents
+
+% we want a list of the figures we defined
+%\listof{fig}{Figures}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\mainmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Whiley is a programming language designed to support formal verification, and now using in teacher SWEN224 at VUW.
+% One of the biggest obstacles to practical use of Whiley,
+% especially in a teaching context, is the need for  the programmer to provide detailed loop invariants,
+% many of which are stating trivial or obvious properties.
+% The aim of this project is to develop techniques to generate simple loop invariants for Whiley,
+% so as to ease the burden on the programmer,
+% allowing them to focus on more interesting invariants that relate directly to the properties the are trying to establish.
+%
+% It is well that generating loop invariants is very hard - indeed, it is uncomputable in general.
+% The emphasis in this project is not on generality but on practicality.
+% The first step will be to look at some of the approaches that have been described in the literature,
+% and then implement one of them, or some combination, in Whiley, then look at ways in which this can be improved.
+% Ideally, then implementation will be available in time to be evaluated with SWEN224 students in Trimester 2.
+
+\section*{1. Introduction}
+
+%%% Given text
+%% In this section you should include a very brief introduction to the
+%% problem to the problem and the project.
+%
+%% Your project proposal should cover the following points:
+%
+%% \begin{itemize}
+%%     \item the engineering problem that you are going to solve;
+%%     \item how you plan to solve your problem;
+%%     \item how you intend to evaluate your solution; and
+%%     \item any resource requirements for your project such as software,
+%%         hardware or other resources that will be needed in the course of the
+%%         project.
+%% \end{itemize}
+
+Formal verification is an important tool to ensure the correctness of software.
+This generally requires the programmer to specify invariants such as
+pre- and post-conditions for procedures or invariants for a type and much more.
+One type of invariant is the loop invariant,
+which must hold upon entering the loop, each iteration of the loop 
+and on termination of the loop \cite{invarints-classifiction}.
+To specify these invariants correctly it takes expert knowledge and is an obstacle
+to adoption of formal verification.
+
+Whiley is a programming language for formal verification in
+which writing loop invariants is an obstacle for the programmer.
+This project aims to reduce the burden of providing loop invariants by generating
+simple loop invariants for the programmer through different techniques.
+
+These techniques could include static analysis of the program, mutating specification
+given or any other technique described in the literature. Thus, the project
+will start with a survey of existing literature and learn the Whiley language
+and compiler. This leads to implementing techniques that are identified to be a
+benefit to Whiley.
+
+The resources needed to complete this project are generally provided by the University.
+However, it would be a great addition to be able to communicate with the lead developer
+of Whiley, David J. Pearce, as he is on sabbatical leave for the duration
+of the project.
+
+% Your proposal should be not more than than 4 pages long with about 3 pages of content.
+
+\section*{2. The Problem}
+
+%%% WHAT
+
+% problem: Whiley requires detailed loop invariants to be provided
+% some of these are tedious and can be to make, index within bound of array, &
+% the reader can see these from inspection (trivial and tedious).
+
+%\cite{infer-dynamic}
+%\cite{infer-postconditions}
+%\cite{invarints-classifiction}
+%\cite{whiley-design}
+
+The programming language Whiley is designed for software verification \cite{whiley-design} and
+faces the issue of simple loop invariants are a burden to implement.
+This project aims to lift some from the programmer to specify loop invariants
+by generating simple loop invariants from the provided code and specification.
+This project will not generate loop invariants in general as it is known to be incomputable
+in general but a subset of loop invariants are possible and has been generated \cite{infer-dynamic} \cite{infer-postconditions}.
+These use methods such as dynamically testing the code for invariants, mutating the post condition of the loop
+and using static analysis to determine invariants \cite{infer-dynamic} \cite{infer-postconditions}.
+
+Figure \ref{fig:whiley-ex-1} is an example of Whiley code that has a simple loop invariant.
+The invariant ensures that the index \code{i} keeps within the bounds of \code{items}.
+This can be verified by sight from the termination condition of the loop and how \code{i} is modified.
+The aim of the project is to reduce the need to invariants such as this by implementing
+a loop invariant generator for the Whiley language so that the programmer will not have
+to specify simple invariants like this so they could focus on more interesting invariants.
+
+\begin{figure}[h]
+    \begin{lstlisting}
+    function indexOf(int[] items, int item) -> (int r)
+        ensures r == |items| || items[r] == item:
+
+        int i = 0
+
+        while i < |items|
+        where i >= 0 && i <= |items|:
+
+            if items[i] == item:
+                break
+            i = i + 1
+
+        return i
+    \end{lstlisting}
+    \caption{Example of current Whiley code.}
+    \label{fig:whiley-ex-1}
+\end{figure}
+
+% Why is this important:
+% * Whiley is used in SWEN224 to teach the younglings about verified code & software correctness
+% * Obstacle to practical use of Whiley, in a teaching context and industry
+
+
+% Aim:
+% * Make it easier to program by reducing the amount of tedious/trivial proofs (demonstrate less code)
+% * generate loop invariants based off code using methods described in literature. (implement algorithms from literature)
+% * to make it modular and be able to turn off generation to let
+%   students think about these easy loop invariants (implement modularity)
+
+
+%%% Given text
+%% In this section you should give a brief description of the problem
+%% itself. You want to briefly explain the problem, why it is important
+%% to solve the problem and define your project aims. After reading this
+%% section, the reader should understand why it is a problem, believe
+%% that it is important to solve and have a clear idea of the aims of
+%% your project.
+%
+%% When describing the aims of the project, you should avoid vague,
+%% unmeasurable words like `analyse', `investigate', `describe', and use
+%% specific, measurable words like `implement', `demonstrate', `show',
+%% `prove'.
+%
+%% For example:
+%
+%% \begin{itemize}
+%%     \item[\bf Good] The aim of this project is to implement and evaluate a
+%%         management system for network switches;
+%% \end{itemize}
+%% is much better than:
+%% \begin{itemize}
+%%     \item[\bf Bad] The aim of this project is to investigate management
+%%         systems for network switches.
+%% \end{itemize}
+%
+%% In the second case there is no idea of how much work is involved, and
+%% you will never know whether you have finished. You and your supervisor
+%% (and the markers of your project) may have very different ideas about
+%% what such an `investigation' involves. Of course, it is possible that
+%% the task you set yourself is not achievable, but if you are clear from
+%% the outset this is less likely, and will more easily be corrected.
+
+
+\section*{3. Proposed Solution}
+
+%%% HOW
+
+% plan:
+%  * find papers about generating loop invariants
+%  * read and understand them (out: bibliography)
+%  * compare different methods of invariant generation (out: section in report) [ 70's vs. Modern techniques ] ( 2 weeks )
+%  * read and understand the Whiley compiler ( 1 weel )
+%  * write priminaly report ( est: 2 weeks )
+%  * choose a small test project to compare the end-results with (e.g. game of tic-tac-toe) ( est: 1 week )
+%  * design a modular system to enable loop invariant generation (out: design documents) ( est: 1 week )
+%  * Implement the simplest loop invariant generator (out: code) ( est: 2 weeks )
+%  * refactor sample project to use new generator (out: code) (est: 1 week)
+%  * write report (out: report ) (est: 1 month )
+%  * give presentation of work (out: presentation ) (est: 3 weeks)
+%
+%  note: accompany each invariant generator with a sample of before & after
+
+The literature for loop invariants describe some techniques to generate
+invariants from static analysis or mutating the post-condition and a 
+combination.
+The first step of this project will be to survey the literature
+for techniques that can be translated to the Whiley setting.
+During this time a review of the Whiley language, compiler, and theorem prover
+will be necessary to understand how these techniques would fit in.
+
+From the identified techniques some of them will be implemented in the
+Whiley language with the aim to remove the burden of a class of simple invariants,
+such as keeping the index within bounds of the array.
+Each generator and targeted simple invariants will require already existing
+or new sample code to verify that the changes to Whiley have been successful.
+
+Below is an itemized list of an estimation of each section of the project.
+The time allocated of the twenty-five weeks from proposal hand-in to
+final report is due is allocated as such. 
+
+% TODO: finalize how this looks
+\begin{itemize}
+    \item Survey loop invariant literature for report (est: 2 weeks) 
+    \item Review the Whiley language and tools (est: 2 weeks)
+    \item Identify appropriate loop invariant generator methods (est: 2 weeks)
+    \item Write preliminary report (est: 2 weeks)
+    \item Implement loop invariant generators identified (est: 8 weeks)
+    \item Experiment with loop invariant generator's practical use (est: 2 weeks)
+    \item Write final report (est: 3 weeks)
+    \item Write and present the final presentation (est: 3 weeks)
+\end{itemize}
+
+%%% Given text
+%% In this section you will explain how solve the problem, that is, how
+%% you intend to carry the project out. At this early stage you need to
+%% be both clear about what you are going to do and flexible enough to
+%% adapt to changing circumstances. Making an early plan will not prevent
+%% you from running into trouble, but it will help you identify possible
+%% problems early. For example, if you intended to run an experiment in
+%% HCI, you might realise early on that there would be problems gathering
+%% sufficient data to get reliable results, and that you should re-design
+%% your experiment.
+%
+%% Part of the planning process involves producing a timetable for when
+%% the work is actually going to be done.
+%
+%% Each part of the project should produce some output. For example you
+%% might plan on spending two weeks on background reading: the output of
+%% this will be a bibliography, and a possibly a literature survey for
+%% your report. Indeed, if you take the advice given above about having
+%% specific, measurable goals, you should describe this part of your
+%% project as:
+%
+%% \begin{itemize}
+%%     \item[\bf Good] Produce bibliography (est: 2 weeks)
+%% \end{itemize}
+%% rather than
+%% \begin{itemize}
+%%     \item[\bf Bad] Background reading (est: 2 weeks)
+%% \end{itemize}
+%
+%% Note that the methodology you outline here is dependent upon the type
+%% of project and engineering area. You must talk to your supervisor
+%% about this.
+
+\section*{4. Evaluating your Solution}
+
+%%% WITH
+
+% comparing the code reduction in sample programs to see how much is saved
+% with using the generators
+% * compare performance ?
+% * evaluate how strong / buggy / crashy the new generators are
+
+The project is evaluated in how it has reduced the burden for a Whiley programmer.
+The main measure to quantify the change will be a comparison of the code required
+to specify a problem with and without the generated invariants.
+Other metrics will be considered while evaluating the project are 
+the success rate of the generators to provide a valid loop invariant.
+
+%%% Given text
+%% In this section you will explain how you will evaluate your solution
+%% once you have built it. The method of evaluation will be domain
+%% specific. Your supervisor should provide guidance as to what is an
+%% appropriate form of evaluation. For example, user testing for a HCI
+%% project or performance measurement for a Network Engineering project.
+
+\section*{5. Resource Requirements}
+
+% resources:
+%   * a computer
+%   * access to food
+%   * access to the literature
+%   * a line of communication to the main developer of Whiley
+
+It is assumed that the majority of the resources that are required are already being
+provided by Victoria University of Wellington.
+This includes the access to a workstation computer with software for Java development
+and access to literature on the topics of software verification
+and generating loop invariants.
+An optional resource that would help the project would be communication
+with Whiley's core developer, David J. Pearce, as he is on sabbatical leave for the duration
+of the project.
+No other resources have been identified.
+
+
+%%% Given text
+%% In this section you will detail any resource requirements such as
+%% hardware, software or access to subjects.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\backmatter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\bibliographystyle{ieeetr}
+\bibliographystyle{acm}
+\bibliography{proj_proposal}
+\end{document}

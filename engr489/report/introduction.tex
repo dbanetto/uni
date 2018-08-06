@@ -1,0 +1,133 @@
+\chapter{Introduction}\label{C:intro}
+\comment{
+The purpose here is to introduce the problem being solved,  to motivate \\
+why it is a problem one should care about, and to outline the solution developed \\
+during the project. \\
+
+
+Remember:  the introduction is the first part of the report an examiner will read. \\
+
+If he/she finishes reading it without a proper understanding of the \\
+problem being solved or what has been done, then they will almost certainly  \\
+struggle with understanding the remainder.  You should attempt to make the project goals \\
+and associated specifications as clear and as quantifiable as possible. These goals and \\
+specifications should inform everything else that follows, so it is important to establish \\
+them in the examiners mind. \\
+
+Should cover \\
+* motivation of problem \\
+* context of the problem \\
+* explain why it is interesting \\
+* hint at how the this project solves it \\
+* overview   of how it unfolds
+}
+
+% outline
+\todo{Get a better opening line}
+\todo{replace intro paragraph, focus on the teaching aspect of this project}
+
+
+A common burden of writing formally verified code is providing loop invariants.
+This is exacerbated by simple and repetitive loop invariants are present throughout the program.
+Whiley shared this problem and this project is to alleviate some of this burden by
+generating some simple loop invariants.
+
+\section{Motivation}
+
+% Why
+The primary motivation behind this project is to improve the experience writing
+verified programs in Whiley.
+Whiley is a programming language that supports formal software verification \cite{whiley-origin}.
+Currently the process of writing loop invariants can be tedious with 
+repetition of common invariants.
+This project seeks to improve this by generating some of these tedious loop invariants.
+Though it is known that generating loop invariants generally is uncomputable,
+the focus is to generate practical loop invariants.
+The most practical loop invariants to generate are loop invariants that
+are simple in nature and common throughout verified code.
+For example, the index variable is within the range of the array being
+iterated through~\cite{loop-patterns}.
+
+The secondary motivation for this project is to enable more programmers and
+students to utilise formally verified languages.
+The hypothesis of David J. Pearce, \textit{Verification is challenging when it requires a creative step},
+describes his observations with the difficultly of students with loop invariants~\cite{spec-usability}.
+The hypothesis covers the disconnect between loop invariants can have from the
+post-condition with invariants about implementation details, such as an index
+of an array.
+This project seeks to relieve some of these problems meeting some of these
+expectations by generating some loop invariants.
+An example of a common misconception is that the verifier knows that a copied
+array has the same size as its source.
+
+\section{Solution}
+
+% brief overview of solution
+The goal of this project is to build an extension to
+the Whiley compiler that generates simple loop invariants.
+This includes the identification of simple loop invariants and being able
+to generate a loop invariant from the source code of a Whiley program.
+Since the Whiley compiler is an open source project this project will be
+hosted in a fork of the compiler.
+
+The approach of this project is to focus on identifying simple invariants
+and implementing generator for them.
+The simple invariants are identified by inspecting Whiley code for common
+invariants. 
+From there a method to recognise the conditions for the invariant and
+its components are devised.
+This allows a generator to be implemented that will recognise when
+the invariant should be applied and how to build it from the components
+it has found. 
+
+To ensure that the implemented loop invariant generators do reduce
+the number of invariants an experiment was conducted.
+This experiment tested if generating of loop invariants 
+would reduce the number of invariants needed to be provided.
+It was run over a large Whiley code base and found that
+it does greatly reduce the number of invariants in the code.
+
+% 'simple'
+The guideline used for a simple loop invariants in project is an invariant that is
+obvious at inspection that an invariant both exists and would hold.
+An example would be that while iterating through an array the index
+will not go out of bounds of the array, such as figure~\ref{lst:whiley-ex-1}.
+The purpose of having a definition of an simple invariant is to prevent
+possible confusion when what looks to be unproven code is verified and to point
+the scope of the project away from being too general, such as supporting
+a rare scenarios such as indexing an array with a polynomial formula.
+This leaves the more interesting invariants for the user to define.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function indexOf (int[] items, int item) -> (int r)
+ensures r == |items| || items[r] == item:
+
+    int i = 0
+
+    while i < |items|
+      where i >= 0 && i <= |items|:
+
+        if items[i] == item:
+            break
+        i = i + 1
+
+    return i
+\end{lstlisting}
+\caption{Verifiable Whiley code to find index of an item in an array}
+\label{lst:whiley-ex-1}
+\end{figure}
+
+
+\section{Overview}
+
+This report is broken up into 6 chapters with each chapter detailing a separate part of the project.
+Chapter~\ref{C:background} explains the background research, concepts and related work to this report.
+Chapter~\ref{C:design} discusses the design limitation, goals and choices that went into designing the
+solution for this project.
+Chapter~\ref{C:impl} provides the details of the mechanisms behind the implemented 
+loop invariant generators including examples of application and their limitations.
+Chapter~\ref{C:eval} details of the experiment carried out with this project to determine if it is
+successful, including the tool and data sets used.
+Chapter~\ref{C:con} concludes the report with the conclusions drawn from the project,
+related work and future work.  

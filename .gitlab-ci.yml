@@ -1,0 +1,15 @@
+image: aergus/latex
+
+pages:
+  stage: deploy
+  script:
+  - mkdir -p public
+  - (cd report/ && make)
+  - (cd slides/ && make)
+  - mv report/proj_report_outline.pdf public/report.pdf
+  - mv slides/slides.pdf public/slides.pdf
+  artifacts:
+    paths:
+    - public
+  only:
+  - master

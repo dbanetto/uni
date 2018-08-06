@@ -1,0 +1,150 @@
+\begin{appendices}
+
+\chapter{Project Details}\label{A:proj-details}
+
+\section{Original Project Outline}\label{A:proj-outline}
+
+Whiley is a programming language designed to support formal verification, and now using in teacher SWEN224 at VUW.
+One of the biggest obstacles to practical use of Whiley,
+especially in a teaching context, is the need for  the programmer to provide detailed loop invariants,
+many of which are stating trivial or obvious properties.
+The aim of this project is to develop techniques to generate simple loop invariants for Whiley,
+so as to ease the burden on the programmer,
+allowing them to focus on more interesting invariants that relate directly to
+the properties the are trying to establish.
+
+It is well that generating loop invariants is very hard, indeed, it is uncomputable in general.
+The emphasis in this project is not on generality but on practicality.
+The first step will be to look at some of the approaches that have been described in the literature,
+and then implement one of them, or some combination, in Whiley, then look at ways in which this can be improved.
+Ideally, then implementation will be available in time to be evaluated with SWEN224 students in Trimester 2.
+
+\chapter{Code examples}\label{A:code-examples}
+
+\todo{add more examples}
+
+This appendix contains multiple examples of invariants as code samples.
+Some of these samples are fully verified when available where some may
+not due to issues present in Whiley. 
+These can be run using Whiley's web IDE ( \url{http://whileylabs.com} ) .
+
+% \section{Starting bound}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function sum(int[] items) -> (int r)
+requires all { i in 0..|items| | items[i] >= 0 }:
+  int i = 0
+  int sum = 0
+  //
+  while i < |items|
+    where sum >= 0
+    where i >= 0: // starting bound
+    //
+    sum = sum + items[i]
+    i = i + 1
+  //
+  return sum
+\end{lstlisting}
+\caption{Example of a starting bound invariant.}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function count(int[] items, int x) -> (int c):
+  int i = 0
+  int c = 0
+  while i < |items|
+    where i >= 0
+    where c >= 0:
+    //
+    if items[i] == x:
+      c = c + 1
+    //
+    i = i + 1
+  //
+  return c
+\end{lstlisting}
+\caption{Example of a starting bound invariant with mutation within a conditional block.}
+\end{figure}
+
+% \section{Equal array length}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+type nat is (int x) where x >= 0
+
+function toNat(int[] items) -> (nat[] r)
+ensures |items| == |r|
+ensures all { i in 0..|items| | (items[i] >= 0 ==> items[i] == r[i])
+                             && (items[i] < 0 ==> r[i] == 0 ) }:
+  nat[] result = [0;|items|]
+  int i = 0
+  while i < |items|
+  where |result| == |items| // equal array length
+  where i >= 0 // starting bound
+  where all { j in i..|result| | result[j] == 0 }
+  where all { j in 0..i | (items[j] >= 0 ==> items[j] == result[j]) 
+                     && (items[j] < 0 ==> result[j] == 0 ) }:
+    if items[i] >= 0:
+      result[i] = items[i]
+    i = i + 1
+  //
+  return result
+\end{lstlisting}
+\caption{Example equal array length with generated arrays.}
+\end{figure}
+
+% \section{Upper bound}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function min(int[] items) -> (int r)
+requires |items| > 0
+ensures all { i in 0..|items| | r <= items[i] }
+ensures some { i in 0..|items| | r == items[i] }:
+  int i = 1
+  int m = items[0]
+  while i < |items|
+  where i >= 1 // starting bound
+  where i <= |items| // upper bound
+  where all { j in 0..i | m <= items[j] }
+  where some { j in 0..i | m == items[j] }:
+    if m > items[i]:
+      m = items[i]
+    i = i + 1
+  return m
+\end{lstlisting}
+\caption{Example of an upper bound invariant.}
+\label{lst:upper-bound-min}
+\end{figure}
+
+% \section{Array iterative assignment}
+
+\chapter{Evaluation}\label{A:eval}
+
+\section{Failed to Evaluate}\label{A:eval-failed}
+
+\begin{center}
+\begin{tabular}{r}
+    \csvautotabular[]{appendix/blacklist.csv}{}
+\end{tabular}
+\end{center}
+
+% \section{Code for evaluation walk through}\label{A:eval-walkthrough}
+
+% \subsection{Original code}
+
+% \subsection{After broken down phase}
+
+% \subsection{After minimized phase}
+
+% \subsubsection{Without loop invariant generation}
+
+% \subsubsection{With loop invariant generation}
+
+% \subsection{Output of reporting phase}
+
+% \todo{code blocks of a walk through of evaluation}
+
+\end{appendices}

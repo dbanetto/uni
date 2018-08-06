@@ -1,0 +1,12 @@
+File,Reason for Failure
+Complex\_Valid\_6,nothing to minimize
+Property\_Valid\_5,parsing error from breakdown
+Property\_Valid\_6,parsing error from breakdown
+Property\_Valid\_7,parsing error from breakdown
+RecursiveType\_Valid\_5,nothing to minimize
+While\_Valid\_14,nothing to minimize
+While\_Valid\_17,nothing to minimize
+While\_Valid\_42,never terminates
+While\_Valid\_47,nothing to minimize
+While\_Valid\_48,nothing to minimize
+While\_Valid\_49,could not compile

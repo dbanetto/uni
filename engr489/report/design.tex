@@ -1,0 +1,782 @@
+\chapter{Design}\label{C:design}
+\comment{
+The aim here is to identify the key trade-offs in any design work you have undertaken.
+When solving a complex problem, there are normally many different
+approaches one can take — each with its own advantages and disadvantages.
+It is expected that students will have initially considered a range of different solutions,
+and will then have narrowed these down. The reasons why a particular approach was
+discounted should be documented here.
+
+
+Remember:
+Appropriate design notation (e.g. UML diagrams) can be very helpful in conveying different aspects of a design.
+It is vital that your design not be carried out in a vacuum.
+Your design should be motivated very clearly by your goals and specifications.
+Make sure that it is clear why you took the decisions that you did.
+Do not give the impression that you settled on a design because it “felt right”
+or that you tinkered around until you found something that worked.
+
+Should cover: \\
+ * techniques of loop invariant generation, \\
+ * problem analysis \\
+ * express the requirements of the solution \\
+}
+
+% intro to problem, what is the design space for this issue
+%
+
+\fixme{Update to include techniques are here, architectures in impl}
+
+This chapter will discuss the requirements and considerations taken to design the implementation
+of this project.
+These considerations are derived by the project requirements
+and guided by improving or retaining the same level of
+usability of the Whiley compiler for a Whiley developer and a maintainer of the
+compiler fixing or updating the modified compiler.
+It will also discuss the internal design decisions of
+where to place the loop invariants generators in the
+current architecture of the Whiley compiler.
+This includes where the generated loop invariants are found and
+how they are inserted into the program.
+The final design decision discussed is how the multiple generators are managed.
+
+\section{Requirements}\label{s:requirements}
+\comment{
+    should cover the functional and non-functional requirements
+}
+
+The requirements for this project are derived from the original project
+outline (see Appendix~\ref{A:proj-outline}).
+The base requirements of each loop invariant generator is to be grounded
+in practicality of the invariant not the generality of its use cases.
+This is to say that it is not worth expanding a loop invariant
+generator to cover cases that are unlikely to actually occur 
+for generality’s sake.
+
+The other major requirement is that the Whiley compiler will be improved
+with the addition of loop invariant generators.
+This implicitly includes maintaining the current level of quality or
+improving the experience with this extension.
+
+Some parts of the original project outline fell out of scope of this project.
+This included the students of SWEN224 would be used to evaluate this solution.
+The decision to drop this requirement was in favour of focusing on implementing
+many loop invariant generator rather than making a split effort of implementing
+fewer generators so that proper user testing can be completed.
+It was also found to be impracticable as the course layout of SWEN224 saw the
+Whiley section taught in the last half of the semester with loop invariant in
+particular taught in the final weeks making properly timed user studies
+impracticable.
+
+\todo{expand on the problem}
+
+\todo{make requirements eat the considerations section}
+
+Below is a list of design considerations that were identified to keep ensuring
+that these requirements are met.
+Each of these considerations either focus the development of the loop
+generators or to force quality control on how they interact with the rest of the
+compiler.
+
+\begin{itemize}
+    \item{Backward compatibility with non-loop invariant generated code.}
+    \item{Not to hamper the ability to inspect and debug generated code.}
+    \item{Avoid impacting runtime with generating code.}
+    \item{Ensure the user can control the feature.}
+    \item{Not all generated loop invariants will be useful.}
+\end{itemize}
+
+\subsection{Backwards Compatibility}
+\comment{
+pre-existing code should not fail because of the generated invariants
+code that compiles without the flag should still compile with the flag
+restricts loop invariants to be precise  and strict to avoid "wrong"
+}
+
+To maintain the quality of compiler code that previously would verify without 
+generated loop invariants should still verify with them.
+This is important for any existing codebases in Whiley to have choice of
+moving to use the generated loop invariants without needing to resolving new
+errors.
+If and when this occurs it is considered a bug and evidence that the implementation 
+of a generated loop invariant is unsound and should be reviewed.
+
+\subsection{Inspection and Debugging}
+\comment{
+Allow debugging / reviewing  of generated code
+achieved by emitting compiler messages about what, where and why they are
+generated
+}
+
+The ability to be able to inspect or debug the generated code is an important feature to
+ensure quality of extension to Whiley.
+This is in the form of compiler message describing what, where and why
+the loop invariants were generated or by writing the modified program back
+to disk as source code.
+This allows a user to be able to inspect and review the generated loop invariants for
+debugging of their code or in the process of debugging a generator.
+The compromise made by this feature is that it requires coupling to other
+subsystems to report back these changes.
+For example to emit a compiler message appropriately it would need
+to couple with the logging sub-system to enforce common log modes such as
+\code{DEBUG} and \code{VERBOSE}.
+
+\subsection{Impacting Runtime}\label{s:design-create-var}
+\comment{
+Whiley does not have the notion of ghost variables \\
+* possible name collisions \\
+* This is to be avoided \\
+
+Does force the programmer to make ghost variables or make copies
+that make sense if they were making the invariants themselves vs generated
+}
+
+To ensure the quality of generated code there should be no impact on the
+runtime of the program.
+The most problematic situation is attempting to refer to previous values of
+a variable during or before the loop.
+Whiley does not have a notion of ghost variables, variables only used for
+specifications, this forces the use of additional local variables instead~\cite{whiley-origin}.
+Figure~\ref{lst:vars} shows a common code example when the additional local
+variables are used, in this case \code{items} variable is used to compare
+against the previous value.
+This forces a loop generator to either create their own ghost variables or
+attempt to identify another local variable in the program that will act as the
+same.
+To generate the local variable the type of the copied variable is needed to be
+known to mimic and a new statement directly before the loop is needed to be
+added.
+For example figure~\ref{lst:vars} would replace the \code{modified} variable
+with \code{items} and the generated code will have an assignment just before
+the while loop.
+The issue of creating local variables is that it could add a runtime cost by
+adding a copy of a potentially large data structure
+and holding it in memory without being used.
+The alternative to this is to restrict the loop invariant generators to check
+for other variables that can work as pseudo-ghost variables.
+This pattern is common in Whiley code as the lack of ghost variables require
+the style of code in figure~\ref{lst:vars} to verify.
+This resolves the issue of hidden local variables from the programmer
+and gives them control over how they are handled.
+The trade-off of not having a hidden runtime cost with restricted generators
+is the most beneficial for the end-user as existing code will also benefit
+and for more complex invariants the ghost variables are still required.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function add_one(int[] items) -> int[]:
+    i = 0
+    modified = items
+    //
+    while i < |items|
+        where all { k in 0..i | modified[i] == items[i] + 1 }
+        where |modified| == |items|:
+        modified = items[i] + 1
+        i = i + 1
+    //
+    return modified
+\end{lstlisting}
+\caption{Example of Whiley program with \code{modified}.}
+\label{lst:vars}
+\end{figure}
+
+\subsection{Usability}
+\comment{
+COMPILER FLAGS \\
+How easy it is to control the functionality  \\
+Error messages \\
+No goal on time impact \\
+Choice to not repeat compilation and verification
+}
+
+The command line interface and the WhileyWeb IDE are the only user interfaces
+of the Whiley compiler.
+The modification of the WhileyWeb IDE was out of scope of this project as it
+would only be beneficial if user studies were conducted.
+Thus, the only user interface that the usability needs to be maintained or
+improved is the command line interface.
+This includes how users can control the loop invariants generators and what
+compiler feedback is required.
+These features are controlled by exposing the option to enable 
+loop invariants generators via a compiler flag.
+This is in line with how other optional features are handled in Whiley and
+other standard compilers such as the GNU C compiler.
+
+\subsection{Essential Invariants}\label{s:essential-inv}
+\comment{
+It is known that all invariants generated will not be useful to proving the post-condition
+(due to P-C has no input generated inv) \\
+
+It is OK to have the minimal set of invariants
+to test if it is essential requires repetitive verifications, infringes on
+impact on compile time.
+}
+
+To provide some base quality of loop invariant generators that generated invariants 
+can be redundant.
+This means that it is acceptable that a generated invariant is not
+checked that it is redundant for the verification of the loop or the function
+as whole.
+If the generated loop invariant were checked if they were redundant
+they would need to determine what is an essential invariant by greatly increasing
+the complexity of the generators by inferring if there is another invariant
+that is a stronger or weaker condition than itself.
+Another method would be to attempting to find the
+minimal set of invariants by testing combinations of invariants.
+The trade-off of this decision is that at the cost of having some redundant
+invariants that the complexity of code and time generating loop invariants is
+greatly reduced.
+
+\section{Targeted loop invariants}\label{s:target-loop-inv}
+
+This project targeted four simple loop invariants to generate.
+These invariants have been observed to be repetitive in Whiley code and 
+can be inferred from the code before the loop and  in the loop body itself.
+This section will describe each of these invariants and their conditions
+with examples annotated to highlight the target invariant\footnote{There are additional examples of each invariant included in appendix~\ref{A:code-examples}}.
+The targeted loop invariants are:
+
+\begin{itemize}
+	\item Starting bound invariant
+	\item Equal array lengths
+	\item Upper bound
+	\item Array iterative assignment
+\end{itemize}
+
+\fixme{not sure if the loop pattern stuff actually works out now}
+\fixme{would loop invariant patterns be more applicable?}
+
+\todo{refer to appendix of code examples for additional code}
+
+\subsection{Starting bound}\label{s:design-starting-bound}
+\comment{
+	finds entry value \\
+	creates invariants from composing things \\
+	has the loop pattern of \\
+	int $i$ = $X$ \\
+	while $C$: \\
+	   $P_1$ \\
+	   $i = i (+|-) N$ \\
+	   $P_2$
+}
+
+The starting bound invariant is a common invariant used with counting
+variables.
+It is used to assert that the counting variable will increase or decrease
+in terms of a starting value.
+The most common use of this invariant is when the counting variable is 
+used to index an array.
+For example, given a variable \code{i} that is used to iterate 
+through an array from start to end, 
+\code{i} can be said to always be equal to or greater than \code{0}.
+This would become \code{i >= 0} as a Whiley loop invariant.
+Other uses include counting down attempts or counting the number of iterations
+that meet a condition.
+
+The resulting loop invariant is built up of three components.
+The first component is the counting variable ;
+the second component is the known start point of the counting variable before the loop ; 
+and, the third is an inequality that is determined by if the counting variable will increase or decrease
+from its starting point during the loop.
+Figure~\ref{lst:starting-bound-gen} shows a generalised form of the invariant
+in both the increasing (left) and decreasing (right) forms.
+
+\begin{figure}[ht]
+\noindent\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i = C
+...
+while P
+  where i >= C:
+  ... 
+  i = i + D
+  ...
+\end{lstlisting}
+
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i = C
+...
+while P
+  where i <= C:
+  ... 
+  i = i - D
+  ...
+\end{lstlisting}	
+\end{minipage}\hfill
+\caption{The generalized form of the starting bound invariant}
+\label{lst:starting-bound-gen}
+\end{figure}
+
+To identify the invariant each component of it needs to be identified in the program.
+The starting point of the invariant is identified by observing a variable being
+assigned to a known value before the loop.
+From this observation the starting point of the variable is known.
+In the general form in figure~\ref{lst:starting-bound-gen} shows that a variable \code{i} 
+is assigned a value of \code{C} some time before the loop.
+This is generally being set to 0 when the count increases or the length of
+an array when the count decreases.
+Figure~\ref{lst:starting-bound-double} and \ref{lst:starting-bound-contains} illustrates this
+in the context of working Whiley functions.
+In figure~\ref{lst:starting-bound-double} it can be observed
+that \code{i} and \code{r} are both set to \code{0} before the loop with no modifications.
+Figure~\ref{lst:starting-bound-contains} is similar except that 
+the starting value for \code{i} is \code{|items|}
+instead of a constant value. The value of \code{|items|} is known since the 
+size of \code{items} is not mutated before or during the loop.
+
+To identify if a variable is used as for counting the value has to be
+mutated during the loop with relation itself.
+This behaviour is generally observed with all counting since the 
+new value builds upon its previous value.
+In the general form in figure~\ref{lst:starting-bound-gen} this is
+shown on line 6 where \code{i} is mutated by changing the value by plus or minus
+\code{D}.
+\code{D} in this case is the total change in one iteration.
+This allows for \code{D} to be within conditional blocks or nested-loops.
+The value of \code{D} must be determinable to either monotonically increase or decrease \code{i} each iteration.
+
+
+If the mutation can be determined to be either increasing or decreasing 
+the appropriate inequality can be used with the counting variable and starting value.
+This can be seen in invariants of figures~\ref{lst:starting-bound-double} and \ref{lst:starting-bound-contains}.
+In figure~\ref{lst:starting-bound-double} it can be observed that \code{i} and \code{r} are both
+increasing and have starting value of \code{0}.
+From this the invariants on lines 7 and 8 can be inferred.
+In figure~\ref{lst:starting-bound-contains} shows that \code{i} has a starting value of
+\code{|items|} and is decreasing with each iteration thus the invariant on line 6 can be inferred.
+
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function double(int n) -> (int r)
+requires n >= 0
+ensures n * 2 == r:
+	int i = 0
+	int r = 0
+	while i < n
+		where r >= 0  // starting bound
+		where i >= 0: // starting bound
+		r = r + 2
+		i = 1 + 1
+	return r
+\end{lstlisting}
+\caption{Example of a starting bound invariant for doubling a number.}
+\label{lst:starting-bound-double}
+\end{figure}
+
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function contains(int[] items, int item) -> (bool r)
+ensures  r ==> some { i in 0..|items| | items[i] == item }
+ensures !r ==> all  { i in 0..|items| | items[i] != item }:
+  int i = |items|
+  while i > 0
+  where i <= |items| // starting bound
+  where all { j in i..|items| | items[j] != item }:
+    i = i - 1
+    if items[i] == item:
+      return true
+  //
+  return false
+\end{lstlisting}
+\caption{Example of a starting bound invariant for a contains function.}
+\label{lst:starting-bound-contains}
+\end{figure}
+
+\subsection{Equal array length}
+\comment{
+	* finds associated arrays \\
+	* checks to make sure source is not modified \\
+	* asserts their length is the same \\
+	
+	pattern: \\
+	
+	$x = ( a | [X;|a|] )$ \\
+	while C: \\
+	$P$ - not includes $x = X$, $a = Y$\\
+}
+
+The equal array length invariant is a common invariant when accessing two
+arrays with the same length.
+This invariant correlates the length of two arrays by asserting they are equal.
+The most common usage of this is when the values of one array are being mutated
+and stored into another array.
+Other common uses are when each element in an array is being applied
+a function then stored in another array of equal length.
+
+The resulting loop invariant has a single component it needs to identify.
+That there is an association of length between arrays and it is maintained
+throughout the loop.
+From these components the loop invariant can be inferred.
+Figure~\ref{lst:equal-array-length-gen} is a generalized form
+of this invariant.
+
+
+\begin{figure}[ht]
+\noindent
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+copy = items
+...
+while C
+  where |copy| == |items|:
+  ...
+  items[i] = f(copy[i])
+  // or
+  copy[i] = f(item[i])
+  ...
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+copy = [0; |items|]
+...
+while C
+  where |copy| == |items|:
+  ...
+  copy[i] = f(items[i])
+  // or
+  items[i] = f(copy[i])
+  ...
+\end{lstlisting}
+\end{minipage}
+\caption{Generic example of equal array lengths}
+\label{lst:equal-array-length-gen}
+\end{figure}
+
+The association of length between the arrays can be identified by inspecting 
+how the arrays are constructed.
+Arrays could be directly associated with an array copy or generating
+a new array with the length set to another array's length.
+They can also be indirectly related by two arrays being generated
+to have same length via the same value (e.g. variable or constant).
+To ensure that this association is maintained the arrays must not 
+be assigned a new value before or during the loop after the association
+is formed.
+Figure~\ref{lst:equal-array-length-gen} shows these two methods to
+identify these associations, with copy on the left and generated 
+arrays on the right.
+Figure~\ref{lst:array-length-eq} shows an example of 
+Whiley code using this invariant.
+The \code{mod} and \code{items} arrays are associated on line
+8 when \code{mod} is assigned a clone of \code{items}. 
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function add(int[] items, int delta) -> (int[] r)
+ensures |r| == |items|
+ensures all { i in 0..|r| | items[i] + delta == r[i] }:
+    int i = 0
+    int[] mod = items
+    while i < |items|
+    where |mod| == |items| // equal array length
+    where i >= 0
+    where all { j in 0..i | items[j] + delta == mod[j] }:
+        mod[i] = items[i] + delta
+        i = i + 1
+    //
+    return mod
+\end{lstlisting}
+\caption{Example of equal array length invariant.}
+\label{lst:array-length-eq}
+\end{figure}
+
+\subsection{Upper bound}\label{s:design-upper-bound}
+\comment{
+	Finds simple mutations \\
+	Figures out actually how much the value changes every iteration
+	(is slight change on finding sequence direction, just stricter) \\
+	checks to ensure that the variable is apart of the termination condition of the
+	loop \\
+	Allow mutations of +1 or -1 each iteration\\
+	
+	pattern: \\
+	
+	$i = N$ \\
+	while $C$ \\
+	$P_1$ \\
+	$i = i (+|-) (1|-1)$ \\
+	$P_2$ \\
+}
+
+The upper bound invariant limits the range of a counting variable.
+This is common when the counter has a known range it has to be within,
+such as indexing an array.
+The common use case is when finding the index of an element,
+this requires the index to be bound between the start and end of the
+array with the inclusion of the error result of -1 or the length of the array.
+Much like how the starting bound invariant bounds
+the counting variable based on knowledge before the loop,
+the upper bound invariant gives a bound based on during the loop.
+
+The resulting loop invariant is built of three components.
+The first is identifying the counting variable; 
+the second is identifying the upper bound by inspecting the
+loop conditions; and, the third is determining the 
+magnitude of which the counting variable changes each iteration.
+Figure~\ref{lst:upper-bound-gen} shows a generalised form
+of this invariant with its two variants of a positive 
+upper bound (left) and a negative upper bound (right).
+
+The upper bound invariant was inspired from variable ageing
+\cite{infer-dynamic}\cite{infer-postconditions}.
+This is a technique for generating a possible invariant
+by replacing a variable with an expression that represents
+its value in the previous iteration of the loop.
+This technique does not always generate valid invariants
+since it does not consider how the variable is mutated in
+the loop.
+The upper bound invariant is a stricter version of
+variable ageing by requiring that the mutation is
+monotonic and have a related expression in the loop condition.
+
+\begin{figure}[ht]
+\noindent
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i
+...
+while i > C && P
+  where i - D > C:
+  ...
+  i = i + D
+  ...
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i
+...
+while i < C && P
+  where i + D < C:
+  ...
+  i = i - D
+  ...
+\end{lstlisting}
+\end{minipage}
+\caption{Generic example of upper bound}
+\label{lst:upper-bound-gen}
+\end{figure}
+
+The method to identify the counting variable component
+of the invariant is the same as described in the 
+starting bound invariant (see Section~\ref{s:design-starting-bound}).
+This is shown in the generic example of figure~\ref{lst:upper-bound-gen}
+that a variable \code{i} exists.
+
+To find the upper bound the loop condition is analysed.
+This is to identify a loop condition that includes an
+inequality that includes the counting variable.
+To achieve this the loop condition can be split
+by conjunctive statements so each can be checked on their own.
+This is shown in the generic example in figure~\ref{lst:upper-bound-gen}
+by the while condition is a conjunctive between and condition \code{P}
+and an inequality involving the counting variable \code{i}.
+From this it can be inferred that the upper bound of the counting 
+variable is \code{C}.
+Figures~\ref{lst:upper-bound} and \ref{lst:upper-bound-indexof}
+both provide full examples of the loop condition being mutated
+into the upper bound invariant.
+
+The final component of the invariant determines the range of 
+which \code{i} will exceed the upper bound on termination of the
+loop.
+This is similar to the starting bound invariant's method to 
+determine the direction of a mutation (see
+Section~\ref{s:design-starting-bound}).
+However, in this case instead of tracking if the change is positive or
+negative the value of the mutation is tracked.
+This allows sequential mutations to concatenate and when merging
+branches differing values would cause it to be indeterminable.
+
+This invariant can be simplified in particular cases.
+The conditions for this are that the magnitude
+of the change of the count variable is either positive or negative one
+and the inequality in the loop condition is strict.
+With these conditions the invariant can be simplified to converting the
+strict inequalities to non-strict inequalities.
+This is due to counting variables always being integer values.
+This is shown in figures~\ref{lst:upper-bound} and
+\ref{lst:upper-bound-indexof} where both upper bound
+invariant as in this simplified form.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function len(int[] items) -> (int r)
+ensures r == |items|:
+  int i = 0
+  while i < |items|
+  where i <= |items| // upper bound
+  where i >= 0:
+    i = i + 1
+  return i
+\end{lstlisting}
+\caption{Example of an upper bound invariant for the length of a list.}
+\label{lst:upper-bound}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function indexOf(int[] items, int item) -> (int r)
+ensures r == |items| ==> all { i in 0..|items| | items[i] != item }
+ensures r >= 0  && r < |items| ==> items[r] == item
+ensures r >= 0 && r <= |items|:
+  //
+  int i = 0
+  while i < |items|
+  where i >= 0
+  where i <= |items| // upper bound
+  where all { k in 0 .. i | items[k] != item }:
+    //    
+    if items[i] == item:
+      return i
+    i = i + 1
+  //
+  return i
+\end{lstlisting}
+\caption{Example of an upper bound invariant for indexOf.}
+\label{lst:upper-bound-indexof}
+\end{figure}
+
+\subsection{Array iterative assignment}
+\comment{
+	Finds arrays that are being set \\
+	Ensures the assignments are not self-dependent \\
+	Identifies the index variable and is simple mutations \\
+	Ensure index start of mutation on array, like starting bound \\
+	figures out sequence direction of index, ascending or descending the array \\
+	use index as the upper or lower bound \\
+	determines range of the mutation \\
+	
+	pattern: \\
+	
+	$i = N$ \\
+	$a = [ .. ]$ \\
+	while $C$: \\
+	$a[i] = f(i)$ \\
+	$i = i (+|-) (1|-1)$ \\
+	
+	creates $all { \_i in C .. i | a[\_i] == f(\_i) }$
+}
+
+%\begin{itemize}
+%	\item Find an array that has an element assigned every iteration
+%	\item Identify the index variable
+%	\item Finds the range of assignment, starting bound + current position
+%	\item Combines range with array element assignment with variables replaced
+%\end{itemize}
+
+The array iterative assignment invariant describes how each element
+of an array is assigned.
+The common use case of this invariant is when a new array is having
+its elements assigned, either by applying a function over an element
+of another array or based on the index variable.
+This is similar to the \code{map} function common in functional languages.
+Figure~\ref{lst:array-iter-gen} is a generalized example of the invariant 
+and shows that it is unique, relative to the other targeted invariants, by
+using a universal quantifier.
+
+This loop invariant is built up of two components.
+The first component is the lower and upper bounds of the
+universal quantifier, one of the bounds will be the index
+variable and the other is the starting value of the index.
+The second component is the assignment expression used to
+determine the value of the element.
+Figure~\ref{lst:array-iter-gen} is a generalized example of the invariant 
+and shows the two possible variants of it.
+The left side shows an ascending assignment, going from starting value to the index, and
+the right shows the descending assignment, index to the starting value.
+
+
+\begin{figure}[ht]
+\noindent
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i = 0
+...
+while P
+  where all { j in 0..i |
+      items[j] = f(j) }:
+  ...
+  items[i] = f(i)
+  i = i + 1
+  ...
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}
+int i = |items|
+...
+while P
+  where all { j in i..|items| |
+      items[j] = f(j) }:
+  ...
+  items[i] = f(i)
+  i = i - 1
+  ...
+\end{lstlisting}
+\end{minipage}
+\caption{Generic example of array iterative assignment invariant}
+\label{lst:array-iter-gen}
+\end{figure}
+
+The bounds of the quantifier is discovered by identifying the
+starting bound of an index variable.
+This is achieved in the same way as described for the starting bound
+invariant (see Section~\ref{s:design-starting-bound}).
+To ensure that every element is assigned during the loop, the magnitude of
+the change to the index variable is also checked to be either one or negative.
+This is enforced by using the same method in the upper bound invariant to
+determine the magnitude of the change (see Section~\ref{s:design-upper-bound}).
+The ordering of the index variable and its starting value is determined
+by the which direction it changes during the loop.
+For example, if the index is known to be increasing the bounds of the 
+quantifier will be starting value to index variable.
+This is demonstrated in figure~\ref{lst:array-iter-assign} where
+the index variable, \code{i}, is increasing each iteration and
+the starting value of quantifier is 0 with the upper bound of \code{i}.
+
+The assignment expression for each element is simply selecting the
+assignment to an element of the array.
+The assignment expression cannot have any dependencies on the previous
+value of the array being assigned or to variables only available in the loop body.
+This is due to limitation of being able to refer to previous values of
+variables or element and variables within the loop.
+If these are not present the assignment expression can be
+safely used.
+This is shown in figure~\ref{lst:array-iter-assign} with the 
+assignment on line 11.
+
+From these components they are merged to form the invariant.
+The identified bounds are used as is while the assignment expression
+requires some modification.
+To create the quantifier a name for the quantifier's index is required.
+This can be any name so long that it does not collide with any existing variable.
+The assignment expression is modified from being an assignment to an equivalence
+expression and that all uses of the index variable is replaced with the
+quantifier's index variable.
+From this the invariant is formed.
+Figure~\ref{lst:array-iter-assign} shows a full example of this invariant.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function add(int[] items, int delta) -> (int[] r)
+ensures |r| == |items|
+ensures all { i in 0..|r| | items[i] + delta == r[i] }:
+  int i = 0
+  int[] mod = items
+  while i < |items|
+  where i >= 0
+  where |items| == |mod|
+  // iterative assignment
+  where all { j in 0..i | mod[j] == items[j] + delta }:
+    mod[i] = items[i] + delta
+    i = i + 1
+  return mod
+\end{lstlisting}
+\caption{Example of array iterative assignment invariant.}
+\label{lst:array-iter-assign}
+\end{figure}

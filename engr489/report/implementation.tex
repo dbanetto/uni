@@ -1,0 +1,852 @@
+\chapter{Implementation}\label{C:impl}
+\comment{
+The aim here is to explain the technical aspects of the project.
+The challenge is to ensure the text is clear and understandable.
+This is not easy, as ideas and concepts involved are often complex in nature.
+Nevertheless, if an examiners cannot understand how the implementation works,
+he/she cannot award marks for it.
+If this happens, the student is fault for poor communication. \\
+
+Remember: \\
+nothing is so complicated that it cannot be clearly explained.
+Classic pitfalls include: \\
+    * long convoluted sentences, \\
+    * use of long words, \\
+    * too much time spent discussing irrelevant details, \\
+    * poor organisation of sections, subsections and paragraphs, \\
+    * and too few diagrams or examples.
+}
+
+This chapter will cover the implementation of the targeted loop invariants
+and critical choices made during the implementation phase of the project.
+The areas covered are: the architectural decisions; how the generators
+were structured; key mechanisms that are common across the generators; 
+and, how the generators work and their current limitations.
+
+\todo{Looks best to move the next sections into impl chapter}
+
+\comment{
+	Biggest design decision  was at what level are the invariants going to be inferred
+	then where are they going to be generated
+}
+\section{Approaches to Loop Invariant Generation}
+
+A critical architecture decision of this project was to where 
+to add the loop invariant generators into Whiley's compiler pipeline.
+There are three candidate stages in the Whiley compiler
+that the input program will go through in the process of
+being verified, the list is not necessarily in order of occurrence:
+
+\begin{itemize}
+	\item{Whiley Intermediate Language}
+	\item{Whiley Assertion Language}
+	\item{Whiley's Abstract Syntax Tree}
+\end{itemize}
+
+Each of these stages have different representations of the Whiley program and
+associated information about the program itself.
+In the resulting solution the design approach taken was to build upon
+Whiley's abstract syntax tree.
+
+\subsection{Whiley Intermediate Language (WyIL)}
+\comment{
+	possible method to create tool on WyIL
+	
+	What could be achieve with this:
+	
+	* is designed to be a binary version of the code
+	
+	* WyIL goal is to make intermediate language between ALL targets of Whiley
+	
+	* AST converted into loosely connected values via integers
+	
+	* less information readily available
+}
+
+The Whiley Intermediate Language (WyIL) is a binary representation of a Whiley program
+that can be easily transformed into other targets such as languages or
+instruction sets \cite{wyil}.
+It is a register based language with no nested expressions
+that also includes blocks to group together statements such as the body of a loop.
+This allows the language to keep a majority of its structure except for
+local variables and intermediate values becoming indistinguishable
+without analysis.
+
+The structure of internal API to query and modify WyIL code impedes a
+generator's ability to identify components of invariants.
+This is from the internal structure of a statement in WyIL where each
+statement is loosely defined with op codes and blocks.
+By generating the loop invariants as additional byte code the ability to
+inspect the result and debug them are hampered relative to operating on the
+AST.  This is because the ability to decompile from WyIL to Whiley could
+be impeded which prevents the user from being able to inspect the generated
+code.
+WyIL can also be decompiled to a representation similar to assembly, see
+figure~\ref{lst:design-wyil} for an example of Whiley code compared to its
+intermediate language equivalent.
+This example shows the amount of information available about the variables
+in the program and their usage in the loop.
+This approach was not selected due to the conceptual divide between the loops
+seen by in the programmer source code to their representation in WyIL which
+would make it difficult to understand why an invariant was generated.
+
+
+\begin{figure}
+\noindent\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
+i = 0
+while i < |items|
+where i >= 0:
+  i = i + 1
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={WyIL Code},frame=tlrb,numbers=none]{Name}
+const %1 = 0
+loop modifies %1
+invariant :
+const %2 = 0
+ifge %1, %2
+goto lab_0
+fail
+.lab_0
+return
+ifge %1, %0
+goto lab_1
+add %1 = %1, %0
+.lab_1
+return %1
+\end{lstlisting}
+\end{minipage}
+\caption{Example of simple Whiley snippet as WyIL}
+\label{lst:design-wyil}
+\end{figure}
+
+\subsection{Whiley Assertion Language (WyAL)}
+\comment{
+	WyAL, what it is:
+	
+	* changes would be more dramatic
+	
+	* Does not have the same level of control
+	
+	* hosted inside the theorem prover
+}
+
+The Whiley Assertion language (WyAL) is derived from WyIL to create
+assertions for the Whiley automated theorem prover \cite{wyal}.
+WyAL follows a similar syntax to regular Whiley except that the program
+is a collection of boolean expressions with additional constructs such as
+if branches and universal quantifiers.
+No program logic or structure is held in WyAL but are kept in the source
+WyIL program.
+
+Figure~\ref{lst:design-wyal} shows an example of WyAL code generated from
+the given Whiley code.
+This figure shows the assertions for a simple loop invariant as well as the
+assertion message which are directly displayed to the user on failure.
+The main benefit of generating loop invariants at the WyAL level is the
+impact of the new loop invariants are contained to only the verification
+process and prevents a generator author from breaking a design consideration,
+such as not creating variables, as the Whiley code is immutable by this point.
+However, since the lack of program logic in WyAL requires the use of a WyIL program
+as backing the same issues with WyIL are present with working on WyAL.
+This includes the difficultly to correlate between the high-level structure
+in a Whiley program to the resulting WyIL code.
+
+\begin{figure}
+\noindent\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={Whiley Code},frame=tlrb,numbers=none]{Name}
+i = 0
+while i < |items|
+where i >= 0:
+  i = i + 1
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[caption={WyAL Code},frame=tlrb,numbers=none,breaklines=true]{Name}
+// some omitted
+      
+assert "loop invariant does not hold on entry":
+    forall(int i$0):
+      if:
+        i$0 == 0
+      then:
+        count_loopinv_6(i$0)
+
+// some omitted
+\end{lstlisting}
+\end{minipage}
+\caption{Example of simple Whiley snippet as WyAL}
+\label{lst:design-wyal}
+\end{figure}
+
+\subsection{Whiley Abstract Syntax Tree}
+\comment{
+	Whiley files \\
+	* Closest to programmer code \\
+	* most information in the most related form \\
+}
+
+The Whiley abstract syntax tree (AST) is the closest representation to
+the source code.
+This also includes the most information available, which includes detailed
+types, variable names and expression trees \cite{whiley-origin}.
+The AST is broken into three types of: top-level declarations of types,
+methods and functions ; statements blocks for individual statements
+such as assignments or structures such as if statements; and, expressions
+that include the usage of variables, function calls and constants.
+There is some overlap between statements and expressions in the AST,
+such as function calls are both statements and expressions given that they
+return a value.
+This allows the invariant generator to be able to identify loop patterns in the
+structure.
+
+However, the amount of information comes as at a cost of being able to parse
+it and discover relevant information.
+The structure of internal API of the Whiley AST forces a recursive decent
+approach, much like the other internal languages in the compiler.
+However, the AST is the richest in terms of number of types of nodes
+in the AST needed to be supported to parse properly with
+statement trees, expression trees and top-level declarations of methods and
+types.
+The cost of supporting all of these different nodes in the AST is
+repeated code handling traversal and needing to handle a large range
+of cases to parse a statement.
+These costs are acceptable since it allows for generators to be
+the most expressive and enable other design constraints of
+debugging and inspection.
+
+\section{Architecture of Loop Invariant Generators}
+\comment{
+	ALL ONE BLOB! vs strategy + a common set of information \\
+	Explain how each generator is distinct code \\
+	UML of strategy pattern \\
+	the utility package
+}
+
+Another critical design decision was the architecture of how loop invariant
+generators operate on the AST.
+The architecture needs to fit with other similar static analysis checks
+implemented, such as the definite assignment and type system, which all
+traverse the AST once.
+For this solution two architectural options are available to solve this issue:
+
+\begin{itemize}
+	\item{Monolithic, traversing the AST once and apply all generators at once,}
+	\item{Multiple sweeps, traversing the AST once but repeat loops multiple times for each generator}
+\end{itemize}
+
+The architecture chosen for the resulting solution is  traversing the AST once
+but repeating on loops so that each generator could inspect the loop.
+
+\subsection{Monolithic Single Sweep}
+\comment{
+	What would a monolithic look like \\
+	single pass \\
+	how would it impact metrics such as maintainability \\
+	how would it impact performance \\
+}
+
+A monolithic single sweep of the AST will only visit each
+node in the AST once to generate the loop invariants.
+This requires all loop invariant generators to be operating
+during the pass or have all of their required information collected
+in the single pass.
+This minimizes the operational cost of traversing the loop body
+multiple times at the cost of maintaining a monolithic loop invariant generator.
+However, with the interweaving of multiple generators the maintenance of the
+monolithic structure becomes issue prone.
+This option was not implemented as the maintenance cost out weighed any
+runtime performance benefits gained.
+
+
+\todo{include UML of what the pipeline would look like with this arch}
+
+\subsection{Multiple Sweeps with the Strategy Pattern}
+\comment{
+	What would a monolithic look like \\
+	* multi-pass, no entire file multiple-times but same section \\
+	* how would it impact metrics such as maintainability \\
+	* how would it impact performance
+}
+
+Multiple sweeps of loops in the AST with a different strategy for each sweep
+will only visit most nodes once but loop bodies.
+This allows the loop generators to have complete control over how they traverse the loop
+body's AST at the cost of traversing the loop multiple times.
+The additional benefit of each generator being separate is the maintenance cost
+of adding a new generator or modifying an existing generator is greatly reduced
+relative to a monolithic approach as each generator is not intertwined with
+each other.
+This option was selected as the cost of maintenance was significantly less
+than a monolithic solution.
+Another factor is that the architecture could still progress towards
+a partial monolithic-strategy based architecture if the performance hit
+of traversing loops becomes a bottleneck.
+This can be achieved by finding patterns of what information generators are
+seeking and provide an interface where that information is computed once for
+all generators that require it and keep the traversal interface for unique generators.
+
+\section{Techniques used to infer properties of a loop}
+\comment{
+	Cover the individual techniques that were used in each generator \\
+	- discovering loop context \\
+	- determining if a variable has a simple mutation \\
+	- determining if a sequence is increasing or decreasing  \\
+	- decomposing loop conditions \\
+	- identify usage of variables in the loop \\
+	- associating a copied array back to its source \\
+	- checking for self dependencies \\
+}
+
+Each loop invariant is the composition multiple techniques to generate their
+invariants. This section will provide discuss the techniques, what they
+accomplish and where their limitations lay.
+The techniques covered are:
+
+\begin{itemize}
+	\item{Loop Context}
+	\item{Determining a simple mutation}
+	% \item{Decomposing Loop conditions and Invariants}
+	\item{Associate copied arrays to source}
+\end{itemize}
+
+\subsection{Loop Context}\label{s:loop-context}
+\comment{
+	Write about the pre-loop stuff \\
+	* how it collects data \\
+	* what data it collects \\
+	* why it collects \\
+	* how it decides what to collect \\
+	* how it differ between variables and parameters
+}
+
+The loop context is a summary about the prelude of the loop
+that generators will operate on.
+The focus of the loop context is to provide details about
+local variables and parameters before the loop, such as their
+values or types.
+This is used by every loop invariant generator to identify local variables
+that could be used for the invariant.
+
+The loop context is a collection of what can be determined about a variable before entering
+a loop.
+When analysing a simple block of code it updates the variable last known to
+the last known value. This is achieved by capturing the expression
+assigned to the variable.
+At a branching points, such as \code{if}'s or loops, the context of each 
+block is collected independently then merged back to the parent at the end of the block.
+If the block was a conditional branch the intersection of all paths are taken
+before merging with the parent.
+During the intersection if a variable is modified different in both branches it
+is then considered indeterminable as it is unknown which branch will be taken.
+Just as local variables fall out of scope in Whiley, they also do for loop contexts.
+
+The loop context checks assignments by deciding if the value is determinable.
+This is achieved by analysing the variable's assignment expression.
+Currently the expression is considered determinable if the expression contains constant
+values or other determinable variables used with any binary or unary operators.
+This is due to the results will always be consistent.
+However, if the expression contains a method call it is considered indeterminable.
+This is due to method's in Whiley have no guarantee of consistency.
+
+
+Figure~\ref{lst:loop-context} shows an illustration of information captured as
+the context is collected though the statements before the while loop.
+In particular the variable \code{limit} shows how branches are handled
+and that it becomes indeterminable at the loop due to being mutated in the \code{if}
+branch.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function f(int count): // C = { count: <parameter }
+  int[] items = [0; count] // C + { items -> [0; count] }
+
+  int limit = 0 // C +  { limit -> 0 } 
+
+  if g(items): // branch: C -> C`
+    int f = 1 // C' + { f -> 1 }
+    limit = h(items) // C' + { limit -> h(items) }
+  // C` intersection C => C + { limit -> ?? }
+
+  int i = 0 // C + { i -> 0 }
+
+  // Final Loop context
+  // C is { count -> <parameter>, items -> [0;count],
+  //   limit -> ??, i -> 0 }
+  while i <= limit:
+    items[i] = i
+    i = i + 1
+\end{lstlisting}
+\caption{Example of the information gathered by the loop context}
+\label{lst:loop-context}
+\end{figure}
+
+\subsection{Determining a simple mutation}\label{s:simple-mut}
+
+\fixme{Break up and expand on this}
+
+A simple mutation is an expression that only includes addition or subtraction
+of a known variable or constant.
+This is to test that the expression is a monotonic expression \cite{tanton2005encyclopedia}.
+Operations such as multiplication, division and function calls are disallowed
+because the monotonic property of these operations are dependent on their
+runtime values.
+For example a multiplication between a constant and a variable,
+the result of the expression may change from being an increasing expression
+to decreasing after some unknown point, such as a polynomial equation.
+
+The current design only allows a single variable to be in a simple mutation
+expression.
+That variable must also be the variable that is being mutated as well.
+For example in figure~\ref{lst:simple-mutations} the assignment of \code{i} on
+line 3 is simple since it refers to itself variable.
+However, the assignment of \code{f} on line 6 is not simple as
+it refers to a variable that is not \code{f}.
+This limitation is due to a only needing to 
+support single variable mutations for the loop invariants
+that depended on this mechanism.
+
+\begin{figure}[ht]
+	\begin{lstlisting}
+	int i = 0
+	int f = 0
+	i = i + 1 // simple
+	i = i + 1 - 10 + 1 + 1000 // simple
+	f = g(f)  // not simple
+	f = i + 1 // not simple
+	f = f * f // not simple
+	\end{lstlisting}
+	\caption{Example simple mutations}
+	\label{lst:simple-mutations}
+\end{figure}
+
+\subsection{Determining if a value is increasing or decreasing}\label{s:sequence-dir}
+
+\fixme{Break up and expand on this}
+
+From a simple mutation inside a loop it can be determined if the value is
+increasing or decreasing with each iteration.
+To achieve this the symbolic executable property of a simple mutation is
+exploited to simulate two iterations worth of mutations.
+The known variable in the mutation is set to an initial value of zero for
+the first iteration and then uses the result for the second iteration.
+Since the simple mutation is a linear monotonic function it is known that
+the difference between each iteration will be constant.
+From the result of difference between the first and second iteration the
+value can be observed to increase for all iterations if it is positive or
+decrease if negative. If there is no difference between the iterations then
+it is considered stationary and is considered an error state.
+This process is outlined in figure~\ref{math:simple-mutation}.
+
+\begin{figure}
+	$$\text{Given that } f(x) \text{ is a linear monotonic function}$$
+	
+	$$diff = f(f(0)) - f(0)$$
+	
+	\[
+	diff \begin{cases}
+	= 0 \quad f(x) \text{ is stationary}\\
+	> 0 \quad f(x) \text{ is increasing}\\
+	< 0 \quad f(x) \text{ is decreasing}\\
+	\end{cases}
+	\]
+	\caption{Outline of determining if a function increases or decreases with
+		each application}
+	\label{math:simple-mutation}
+\end{figure}
+
+%\subsection{Decomposing Loop conditions and Invariants}\label{s:cond-decompose}
+%\comment{
+%    Whiley semantics means all where clauses are conjunctively joined, \\
+%    A loop condition that is conjunctively joined can be broken into
+%    segments
+%}
+
+\subsection{Associate length of copied arrays to source}\label{s:copied-array}
+\comment{ was a array initialised with a copy from an array type or use a
+	generator }
+
+The length of a new array can determine by associating the length to a source
+array.
+This relies on how the new array is created, for example if the array is
+generated using an array generator or from copying another array it can be.
+Other methods to create local arrays exist, such as array constants or
+results of function, but these were not seen to be useful to support.
+When using an array generator the length of the array can be determined by
+evaluating the count of the generator.
+Figure~\ref{lst:simple-mutations} has an example of this for the initialisation
+of \code{a}, where the length of the array is associated with the value 10.
+In the case of an array copy the array size can be determined by taking the
+size of the source array as they will be equal.
+This is shown in figure~\ref{lst:simple-mutations} when initialising \code{b}
+and \fixme{should associations be transitive? or transitive to a list of values}
+
+This technique is used to associate ghost arrays used to assist in writing
+loop invariants.
+
+\begin{figure}[ht]
+	\begin{lstlisting}
+	int[] a = [0; 10] { |a| -> 10 }
+	int[] b = a { |b| -> 10, |a| -> |b| }
+	int[] c = f() { c -> ?? }
+	
+	a = f() { |a| -> ?? }
+	
+	// final association: { |b| -> 10, |a| -> ??, |c| -> ?? }
+	\end{lstlisting}
+	\caption{Examples of associated array lengths}
+	\label{lst:assoicated-arrays}
+\end{figure}
+
+\section{Implemented Loop Invariant Generators}
+
+This section will cover how each loop invariant generator was implemented and their use cases.
+Each generator only cover a subset of the cases described 
+for their corresponding loop invariant in section~\ref{s:target-loop-inv}.
+
+\subsection{Starting bound}
+
+The implementation of the starting bound invariant covers only linear monotonic counters.
+This generator utilises and composes multiple mechanisms to determine 
+if a variable in the
+loop is a counting variable with a known starting bound to apply the invariant for.
+These mechanisms are: the loop context (see section \ref{s:loop-context}) ;
+determining a simple mutation (see section \ref{s:simple-mut}) ; and,
+determining if a mutation is increase or decreasing (see section \ref{s:sequence-dir}).
+From this a variable is known to be increasing or decreasing, this is known as its direction.
+
+The generator supports multiple mutations of the same variable in the loop.
+To determine the final direction of the variable each mutation is merged though
+using the lattice described in figure~\ref{eq:start-lattice}.
+This shows that a variable could have four directions, unknown ($\top$),
+increasing ($+$), decreasing ($-$) and indeterminable ($\bot$).
+Merges occur on an assignment or when branches, 
+such as \code{if}'s or nested loops, join back.
+With the lattice a given variable's direction can be determined and also
+decided if it is valid (increasing or decreasing) or invalid (unknown or indeterminable).
+
+\begin{figure}
+$$\text{values} = \{ \top, +, -, \bot \}$$
+\[
+\text{Lattice} \begin{cases*}
+\quad X \cup \top = X \\
+\quad X \cup X = X \\
+\quad X \cup Y = \bot
+\end{cases*}
+\]
+\caption{Starting bound lattice to determine mutation direction}
+\label{eq:start-lattice}
+\end{figure}
+
+For variables that have a valid direction and a valid entry in the loop context an invariant
+can be generated.
+There are three components to the generated invariant: variable being mutated, an inequality based
+on the variable's direction, and the known value of the variable before entering the loop.
+The inequalities used in the expression are appropriate to the direction. 
+If the variable was increasing then the variable will be greater than or equal to the known value
+and vis versa for a decreasing variable.
+
+To illustrate this generator the figures~\ref{lst:whiley-start} and \ref{lst:whiley-start-if}
+show simplified examples.
+Figure~\ref{lst:whiley-start} shows the most simplistic and common use case for this
+generator. Where figure~\ref{lst:whiley-start-if} shows a more complex case 
+with an \code{if} branch that changes the magnitude of the mutation but not the direction. 
+
+\begin{figure}[ht]
+\begin{lstlisting}
+...
+int i = 0
+
+while i < |items|:
+  // 'where i >= 0' is inferred
+  apply(items[i])
+  i = i + 1
+...
+\end{lstlisting}
+\caption{Simple example of inferring starting bound of index}
+\label{lst:whiley-start}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+int i = x
+
+while i < |items|:
+  // 'where i <= x' is inferred
+  apply(items[i])
+  if skip(item[i]):
+    i = i - 2
+  else:
+    i = i - 1
+\end{lstlisting}
+\caption{Starting bound invariant with branch}
+\label{lst:whiley-start-if}
+\end{figure}
+
+\subsubsection{Limitations}
+
+There are many limitations to the starting bound generator.
+The main root of these limitations is only handling the case
+of single variable linear monotonic functions. 
+This prevents the invariant being generated for other
+methods of counting or using complex logic that determines
+the mutation each iteration.
+
+One example is having multiple nested loops to count or index
+the inner-element then combining them together to a total variable.
+In this example each counter for the nested loops will have a generated
+starting bound invariant but the total will not.
+This is due to the mutation of the total failing the test of a simple
+mutation where the only variable allowed is itself.
+
+Another example of the limitations present is shown in figure~\ref{lst:whiley-start-limit}.
+This shows that the starting bound invariant will not be generated because
+the direction is indeterminable.
+Though on inspection it is clear that \code{i} will not decrement since it is
+in a branch that will never execute.
+However, the components of the generator does not understand this
+since they lack the ability to test branches for tautologies
+to prune branches from their analysis. 
+
+\begin{figure}[ht]
+\begin{lstlisting}
+int i = 0
+
+while i < |items|:
+// 'where i >= 0' cannot be  inferred
+  apply(items[i])
+  if false:
+    i = i - 1
+  i = i + 1
+\end{lstlisting}
+\caption{Example of a limitation of the Starting bound generator}
+\label{lst:whiley-start-limit}
+\end{figure}
+
+\subsection{Equal array length}
+
+\fixme{remove techniques to design}
+
+The equal array length invariant generator is implementation handles copied and
+generated arrays.
+This generator unities the associated array mechanism to determine if the
+length of two arrays are equal (see Section~\ref{s:copied-array}).
+From this association the generator then discovers what arrays should
+be asserted equal in the loop invariant by checking if they are used in the
+loop body.
+This is to filter out known unessential invariants since they are known not to
+be used.
+
+The figure~\ref{lst:whiley-length} shows an example of the equal array length
+invariant being generated.
+Lines 1 and 3 show that the second array's association can be formed by either
+copying or generating an array with by using the length of another array.
+From either of these lines \code{copy} and \code{items} are linked until
+either of these arrays are re-assigned or one falls out of scope.
+Line 6 show that both of the associated arrays are used, one in an expression
+and the other having an element assigned.
+Both of these uses are examples of what the generator considers as usage in
+the loop body.
+Given these findings the generator then can generate the invariant that
+the two associated arrays equal length as shown on line 5.
+
+\begin{figure}
+\begin{lstlisting}
+    int[] copy = items
+    // or
+    float[] copy = [0.0;|items|]
+    while i < |items|:
+        // 'where |copy| == |items|' is inferred
+        copy[i] = apply(items[i])
+\end{lstlisting}
+\caption{Simple example of inferring array lengths are equal}
+\label{lst:whiley-length}
+\end{figure}
+
+\subsubsection{Limitations}
+
+The limitations present in the implementation of the generator is
+that other methods of creating arrays are not supported.
+This includes the return of a function and an array constant.
+In the case of a function the post-condition would need to
+give a specification about the length of the array to create
+such an invariant.
+These are illustrated in figure~\ref{lst:whiley-length-limit}.
+
+\begin{figure}
+\begin{lstlisting}
+function zeroes(int len) -> (int[] r)
+requires len >= 0
+ensures |r| == len:
+    return [0;len]
+
+function f():
+    int i = 0
+    int[] a = zeroes(5)
+    int[] b = [1,2,3,4,5]
+    while i < |a|
+    // where |a| == |b| could be inferred
+        // omitted
+\end{lstlisting}
+\caption{Limitations of equal array length invariant generator}
+\label{lst:whiley-length-limit}
+\end{figure}
+
+\subsection{Upper bound}\label{s:upper-bound-impl}
+
+The upper bound generator is implemented to only handle a change of one each iteration.
+This generator is made from composing and modifying mechanisms from other generators.
+The core mechanisms used are finding a simple mutation (see Section~\ref{s:simple-mut}) ,
+a modification to determining if the mutation is increasing or decreasing (see Section~\ref{s:sequence-dir})
+and breaking down the loop condition.
+From these the loop invariant can be generated.
+
+For the upper bound invariant the generator needs to know how much the variable changes
+every iteration. 
+To achieve this the mechanism to determine if the expression is increasing or decreasing is
+modified to expose the change of value between each iteration rather than if it is a positive or
+negative change.
+The lattice in figure~\ref{eq:start-lattice} is modified such that the values used in the lattice
+are now integers instead of only positive or negative.
+The case of handling assignments were also modified such that the value is summed instead of merged.
+This allows for the total change for a block of code to be computed.
+The current implementation only allows a total change of plus or minus one.
+This is due to the generator's instability when generating other values.
+
+After the value that a variable changes every iteration is identified the loop
+condition is used to identify an upper bound.
+To achieve this the loop condition is broken down into each conjunctive parts to handle
+separately.
+Each of these parts are checked for a simple inequality that contains a variable
+with a known mutation compared to a bound.
+Once a candidate condition is found it's weakened by applying the change of the variable
+to the bound.
+An optimisation is added that when the changed value is plus or minus one with the condition containing
+a strict inequality of the corresponding type it is weakened to a regular inequality.
+
+\begin{figure}
+\begin{lstlisting}
+function find(int[] items, int item) -> (int r)
+ensures all { i in 0..r | items[i] != item }
+ensures r != |items| ==> items[i] == item:
+	int i = 0
+	while i < |items|
+		where all { j in 0..i | items[j] != item }
+		// `where i >= 0` inferred starting bound
+		// `where i <= |items|` inferred upper bound
+		if items[i] == item
+			break
+		i = i + 1
+	//
+	return i
+\end{lstlisting}
+\caption{Example of a generated upper bound invariant}
+\label{lst:whiley-upper-bound}
+\end{figure}
+
+Figure~\ref{lst:whiley-upper-bound} illustrates this a case when this invariant is generated.
+The value that \code{i} changes each iteration is clear on inspection that it is one and
+the condition of the loop both contains \code{i} and a simple inequality.
+In this case the optimised method is used by weakening the strict inequality of less than to
+less than or equal to.
+
+\subsubsection{Limitations}
+
+The main limitation applied to this generator is only being able to 
+handle the case of a changed value of plus or minus one.
+This is the most common case for this generator but it could handle
+some more simple cases.
+
+Another limitation is in how the loop condition is broken down.
+Currently the simple task of splitting on conjunctions.
+This has limits the possibility to identify an upper bound.
+To relieve some this limitation the conditions could
+be rearranged or simplified to better identify an upper bound. 
+
+\subsection{Array iterative assignment}
+
+The array iterative assignment generator has many steps to build
+a universal quantifier.
+The first step is to identify an array that has elements being assigned each iteration.
+For that assignment the indexing expression used is checked that it linearly
+iterates through the array.
+From there the element assignment is checked to be not depend on itself.
+With this the invariant can be generated.
+This generator is mostly a composition of the starting and upper bound generators with
+the addition of checking assignments.
+
+To identify an assignment that occurs every iteration the generator
+only considers top-level statements in the loop body.
+This disallows variables that are used in other blocks such as
+\code{if}'s or nested loops.
+With this restriction it is known that every iteration of the loop 
+the next element is assigned.
+
+To ensure that each element is assigned in ascending or descending order the index variable's mutations
+are checked.
+This is to make sure that the element assignments proceed one by one and in a consistent order.
+To achieve this the index variable is check that it's mutated by plus or minus one each
+iteration in the same manner as the Upper Bound (see Section~\ref{s:upper-bound-impl}).
+This lets the generator knows that the assignments are ascending or descending order.
+
+With the ordering and assignment the loop invariant can be built.
+There are four components of the universal quantifier generated.
+The first is the variable name of counter in the quantifier expression,
+this is derived from the index variable name.
+For example in figure~\ref{lst:array-iter-assign} the index
+variable \code{i} is transformed into \code{\_i}.
+This done so there is traceability between the generated invariant to
+its the original parts.
+
+The range of the quantifier is split into two parts, the lower and upper
+bound. One of the bounds will be the starting value of the index variable
+and the other the index variable itself.
+The ordering of this is dependent on if the assignment is ascending or 
+descending through the array.
+
+The final component is the expression of the universal quantifier.
+This is a modification of the original assignment in the loop body.
+First the assignment is transformed into a boolean equal.
+The second modification is replacing all occurrences of index variable
+with the quantifier's counting variable.
+From this the invariant is complete.  
+
+\begin{figure}
+\begin{lstlisting}
+int[] a = [0 ; 100]
+int i = 0
+while i < |a|
+	// `where all { _i in 0..i | a[_i] == f(_i) }`
+	a[i] = f(i)
+	i = i + 1
+\end{lstlisting}
+\caption{Example array iterative assignment generator}
+\label{lst:array-iter-assign}
+\end{figure}
+
+\subsubsection{Limitations}
+
+A limitation of this generator is that the assignment expression cannot
+reference itself.
+This is shown in figure~\ref{lst:limit-array-iter-assign} where the assignment
+of \code{a[i]} depends on the previous value of \code{a[i]}.
+The limitation of is from the generator not being able to compare the previous
+value of the element.
+A possible solution of this would be to introduce a ghost variable to hold the
+previous value, however this functionality is undesirable (see section~\ref{s:design-create-var}),
+but could utilised if introduced as a language feature.
+
+
+\begin{figure}
+\begin{lstlisting}
+int[] a = g(100)
+int i = 0
+while i < |a|
+	a[i] = a[i] + f(a)
+	i = i + 1
+\end{lstlisting}
+\caption{Limitation of array iterative assignment generator}
+\label{lst:limit-array-iter-assign}
+\end{figure}

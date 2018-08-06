@@ -1,0 +1,435 @@
+\include{header}
+
+\title{Generating Simple Loop Invariants in Whiley \\ ENGR489}
+\author{David Barnett}
+\date{Supervisor: Lindsay Groves}
+
+\begin{document}
+\frame{\titlepage}
+
+
+\begin{frame}{Motivation}
+
+Goals of the project
+\begin{itemize}
+\item{To implement generators for simple loop invariants in Whiley}
+\item{\st{To be evaluated by SWEN224 Students}}
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}{Solution}
+
+Generates 4 loop invariants by adding another analysis pass in the compiler
+
+\begin{itemize}
+\item Starting bound
+\item Equal array length
+\item Upper bound
+\item Array iterative assignment
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Starting Bound}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item Generally for counting or index variables
+\item Made up of 3 components
+\begin{itemize}
+    \item the variable (\code{i}) - defined outside of the loop
+    \item an inequality (\code{>=}) - based on mutations of the variable in the loop
+    \item starting value (\code{0}) - known value of variable before the loop
+\end{itemize}
+
+\item Handles branches
+
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+int i = 0
+while C
+    where i >= 0:
+    i = i + 1
+\end{verbatim}
+\end{column}
+
+\end{columns}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Starting Bound - Limitations}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item Cannot determine when a branch will never be executed
+    \item Only supports linear monotonic mutations with addition and subtract
+        of constants and the counting variable.
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+int i = 0
+
+while i < |items|:
+// can't be infer where i >= 0
+  apply(items[i])
+  if false:
+    i = i * -1
+  i = i + 1
+\end{verbatim}
+\end{column}
+
+\end{columns}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Equal array length}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item Associates the length of arrays together by looking at assignments
+    \item Used when mapping one array to another
+    \item Supports common array construction, copying and array generator
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+copy = items
+// or
+copy = [0; |items|]
+
+while i <= |items|
+    where |copy| == |items|:
+    copy[i] = f(items[i])
+    i = i + 1
+\end{verbatim}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]{Equal array length - Limitations}
+
+\begin{itemize}
+    \item Only supports locally assigned variables
+    \item Does not support using pre-conditions to associate arrays
+    \item Indirect associations, e.g. results of functions, constant size
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Upper bound}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item Identifies upper limit of a counting variable
+\item Has three components
+\begin{itemize}
+    \item counting variable (\code{i}) - defined outside of the loop 
+    \item mutation (\code{<=}) - determined by values of mutations in the loop
+    \item upper limit (\code{C}) - found in the loop condition
+\end{itemize}
+\item Similar to Starting bound but focuses on amount changed than just
+    if positive or negative.
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+int i = 0
+while i < C
+    where i <= C:
+    i = i + 1
+\end{verbatim}
+\end{column}
+
+\end{columns}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Upper bound - Limitations}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item Only supports mutations of $\pm 1$ the variable
+\item Same as Starting bound
+\begin{itemize}
+    \item Cannot determine when a branch will never be executed
+    \item Only supports linear monotonic mutations with addition and subtract
+        of constants and the counting variable.
+\end{itemize}
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+int i = 0
+while i < C:
+    i = i + 2
+\end{verbatim}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Array Iterative Assignment}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+
+\begin{itemize}
+    \item Simple iterative assignments to an array
+    \item Has two components
+    \begin{itemize}
+        \item range of quantifier (\code{0..i}) - from the index variable and its
+            starting value
+        \item assignment to an element (\code{items[i] = f(i)}) - in the loop
+            body
+    \end{itemize}
+    \item All instances of the index variable are replaced with the
+        quantifier's variable.
+\end{itemize}
+
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+int i = 0
+while i <= |items|
+    where all { k in 0..i |
+        items[k] == f(k) }:
+    items[i] = f(i)
+    i = i + 1
+\end{verbatim}
+\end{column}
+
+\end{columns}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Array Iterative Assignment - Limitations}
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item Each iteration needs an assignment
+    \item No support for assignments in branches
+    \item Destination array cannot be used in assignment
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{verbatim}
+while i <= |xs|:
+    if i % 2 == 0:
+        xs[i] = i - 1
+    else:
+        xs[i] = i
+\end{verbatim}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Evaluation}
+
+\begin{block}{Goal}
+Provide evidence that the generated invariants will reduce the
+number of invariants needed to be provided in the source code.
+\end{block}
+
+\begin{block}{Data sets}
+
+\begin{itemize}
+\item Whiley Compiler test suite
+\item Past SWEN224 assignments and labs
+\end{itemize}
+
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}{Evaluation tool}
+
+\begin{block}{Assumptions}
+
+\begin{itemize}
+\item Code to be evaluated can be compiled and verified normally.
+\item Loop invariant generator can be toggled.
+\end{itemize}
+
+\end{block}
+
+
+\begin{block}{Steps}
+\begin{itemize}
+\item Breakdown - Normalizes the loop invariants in source code.
+\item Minimize - Finds the smallest combonation of invariants to verify
+the program.
+\item Reporting - Counts and classifies the invariants present.
+\end{itemize}
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}{Results}
+
+Evaluation of the Whiley Compiler test suite
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+    Type & Control & Minimized & Generated\tabularnewline
+\midrule
+\endhead
+Starting bound & 0 & 0 & 94\tabularnewline
+Arrays Equal & 0 & 0 & 16\tabularnewline
+Upper Bound & 0 & 0 & 17\tabularnewline
+Iterative Assign & 0 & 0 & 8\tabularnewline
+Total Generated & 0 & 0 & 135\tabularnewline
+\hline
+Source Invariants & 160 & 135 & 41\tabularnewline
+\bottomrule
+Total & 160 & 135 & 176\tabularnewline
+\end{longtable}
+
+\end{frame}
+
+
+
+\begin{frame}{Conclusion}
+
+The goal to implement generators of simple loop invariants was achieved.
+
+\begin{itemize}
+\item Can generate simple loop invariants
+\item Reduced number of invariants programmer provides, by 70\% for
+    Whiley Compiler test suite
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+
+\begin{center}
+    \Huge{Questions}
+\end{center}
+
+\end{frame}
+
+\begin{frame}[fragile]{Additional examples}
+
+\begin{verbatim}
+function sum(int[] items) -> (int r)
+requires all { i in 0..|items| | items[i] >= 0 }:
+  int i = 0
+  int sum = 0
+  //
+  while i < |items|
+    where sum >= 0
+    where i >= 0
+    where i <= |items|:
+    //
+    sum = sum + items[i]
+    i = i + 1
+  //
+  return sum
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Additional examples}
+
+\begin{verbatim}
+function instances(int[] items, int x) -> (int c):
+  int i = 0
+  int c = 0
+  while i < |items|
+    where i >= 0
+    where c >= 0
+    where i <= |items|:
+    //
+    if items[i] == x:
+      c = c + 1
+    //
+    i = i + 1
+  //
+  return c
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Additional examples}
+
+\begin{verbatim}
+function add(int[] items, int delta) -> (int[] c):
+  int i = 0
+  int mod = items
+  while i < |items|
+    where i >= 0
+    where i <= |items|
+    where |mod| == |items|
+    where all { j in 0..i | mod[j] = items[j] + delta }:
+    //
+    mod[i] = items[j] + delta
+    i = i + 1
+  //
+  return mod
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Additional examples}
+
+\begin{verbatim}
+function min(int[] items) -> (int r)
+requires |items| > 0
+ensures all { i in 0..|items| | r <= items[i] }
+ensures some { i in 0..|items| | r == items[i] }:
+  int i = 1
+  int m = items[0]
+  while i < |items|
+  where i >= 1
+  where i <= |items|
+  where all { j in 0..i | m <= items[j] }
+  where some { j in 0..i | m == items[j] }:
+    if m > items[i]:
+      m = items[i]
+    i = i + 1
+  return m
+\end{verbatim}
+
+
+\end{frame}
+
+\end{document}

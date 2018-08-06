@@ -1,0 +1,412 @@
+\chapter{Background}\label{C:background}
+\comment{
+The background should cover any important terminology and/or
+concepts used in the remainder of the report, and should demonstrate an
+understanding of previous works which are relevant.
+
+Remember: A good related work section does not just provide a list of previous works,
+accompanied with short summaries.
+Wherever possible it must extract real insight from these works, painting a
+picture of how they relate to each other and the project.
+}
+
+
+This project draws from research in the field of formal software verification.
+The project is based on the Whiley language which supports formal software
+verification.
+The concept of loop invariants are a necessity is a key to this project.
+
+Formal methods is an application of mathematics to prove software and hardware
+systems against a given specification. \todo{cite this}
+Formal software verification is the specific application to software with
+the intention to prove its correctness.
+
+\todo{fix this stuff}
+
+\section{Formal Software Verification Languages}
+\comment{
+ * Formal Software Verification \\
+ * goals of class of languages (could be covered in Whiley)
+}
+
+Formal software verification is a field of software engineering with the
+purpose to create software that is able to be mathematically verified to be
+correct \cite{survey-formal-soft}.
+Prof. Sir Tony Hoare issued a grand challenge to create a \textit{verifying compiler}
+that guarantees the correctness of the program before running it \cite{Hoare-grand}.
+There has been tool sets that expand languages to achieve this, such as
+the SPARK tool set for the Ada \cite{spark-ada}\cite{spark-high-integ}.
+Though this generally restricts the functionality of the language, for example
+using Ada with SPARK disallows the use of pointers which makes general purpose
+programming more challenging relative to C \cite{spark-ada}.
+There are some languages that are designed and built from the ground up to
+be a formal software language and have a \textit{verifying compiler}.
+These languages include such as Whiley~\cite{whiley-origin} and Dafny~\cite{dafny-lang}.
+
+\section{Whiley}
+\comment{
+Whiley \\
+ * goals of the lang \\
+ * samples of code \\
+ * whiley design paper \\
+}
+
+The Whiley language is a general purpose language that has first class
+support for formal software verification through its syntax and compiler
+tool set~\cite{whiley-origin}.
+The design goal for Whiley is to make a platform for formal verification~\cite{whiley-origin}.
+The tool set includes the compiler and an accompanying theorem prover.
+The compiler translates the source code to an intermediate language which
+can then be used with the theorem prover or transforms it into a target
+language such as JVM byte code or JavaScript~\cite{whiley-design}
+\cite{wyil}.
+
+The structure of a Whiley program is similar to most imperative languages
+such as Java or Python.
+In Whiley there are functions and methods with the point of difference being
+that functions are pure and must return a result,
+where methods can be impure and can optionally return a result
+\cite{whiley-spec}\cite{whiley-design}.
+Both functions and methods can have pre- and post-conditions using
+\code{requires} and \code{ensures} respectfully as shown for the \code{min}
+function in figure~\ref{lst:whiley-exp}.
+Types can be declared as aliases of structures and can include type invariants,
+such as the \code{nat} type in figure~\ref{lst:whiley-exp}.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function min(int a, int b) -> (int m)
+requires true
+ensures m == a || m == b
+ensures m <= a && m <= b:
+    if a < b:
+        return a
+    else:
+        return b
+
+type nat is (int x) where x >= 0
+
+method main():
+    nat i = 0
+    while i < 10:
+        assert min(i, 0) == 0
+        assert min(100, i) == i
+        i = i + 1
+\end{lstlisting}
+\caption{Example of a programs structure in Whiley}
+\label{lst:whiley-exp}
+\end{figure}
+
+\subsection{Whiley Features}
+\comment{
+Cover the key features used in the loop invariants generators \\
+These are features differ languages so will be covered \\
+* while loops where clause - covered in While and loop invs \\
+* array copy \\
+* array generator
+}
+
+This section explains two features of Whiley leveraged to generate loop invariants.
+These are: copy semantics; and array generators~\cite{whiley-design}.
+The Whiley language specification book is available for the full
+specification of the language~\cite{whiley-spec}.
+
+\paragraph{Copy semantics} is a design decision of Whiley to
+make clones of data instead of referencing the data on assignment \cite{whiley-arrays}.
+Figure~\ref{lst:whiley-array-copy} shows an example of the variable
+\code{b} making a copy of \code{a} and that mutating \code{a} later
+will not effect the value of \code{b}.
+This is often utilised to make a copy of an array before mutating it
+and use it as a reference point in an invariant~\cite{whiley-arrays}.
+This is an important usability feature of Whiley as copying values
+instead of taking references allows for simpler verification due to lack
+of pointers and disallows accidental mutations by unknown references.
+\footnote{
+Though it is not related to this project,
+Whiley does support explicit references to data.
+They also include lifetimes to how long the references can live
+to remove null reference errors, similar to Rust's lifetimes~\cite{rust-lang}.
+}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+a = [1, 2, 3]
+b = a
+assert a == b
+assert |a| == |b|
+
+a[0] = 2
+assert a != b
+assert |a| == |b|
+\end{lstlisting}
+\caption{Example an array copy in Whiley}
+\label{lst:whiley-array-copy}
+\end{figure}
+
+\paragraph{Array generator} is a feature in Whiley to generate an array
+of a specific element duplicated over a specific size~\cite{whiley-spec}
+\cite{whiley-arrays}.
+Figure~\ref{lst:whiley-array-gen} shows an example of using an array generator
+in Whiley and its associated results.
+This is a short hand for creating arrays with a default value which is useful
+to fill an array of arbitrary length with a default value.
+A result of this feature is with static analysis is possible to infer the
+length of the array at runtime by equating the array length to the value
+from the generator, for example line 7 of figure~\ref{lst:whiley-array-gen}.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+a = [0; 3]
+
+assert |a| == 3
+assert |a| == [0, 0, 0]
+
+b = [0; |a|]
+assert |a| == |b|
+\end{lstlisting}
+    \caption{Example an array generator in Whiley}
+    \label{lst:whiley-array-gen}
+\end{figure}
+
+\section{Loop Invariants}
+\comment{
+Loop invariants - overview of loop invariants
+Theorem prover knows nothing about loop invariants - must give all \\
+* must hold at entry \\
+* must hold each iteration \\
+* must hold on exit \\
+* implies post-condition \\
+* implied by pre-condition \\
+}
+
+Sir Prof.\ Tony Hoare described a general loop with an invariant in
+the \textit{Rule of iteration} to be
+portion of a program ($S$) that is repeated while a condition ($C$)
+holds and an assertion ($I$) that holds on every
+iteration~\cite{hoare-logic}~\cite{loop-inv-survey}.
+Figure~\ref{lst:general-loop} is an example of this general loop with Whiley
+syntax.
+The loop invariant is then able to be used to prove properties of the
+loop~\cite{loop-inv-survey}.
+The loop invariant is a part of the three stages of the loop: entry;
+iteration; and exit.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+while C:
+    assert I
+    S
+\end{lstlisting}
+    \caption{A general loop with an invariant $I$}
+    \label{lst:general-loop}
+\end{figure}
+
+At the entry of the loop the loop invariant must hold.
+This results in that the pre-condition of the loop ($P$) must imply
+the loop invariant ($I$) as shown below.
+This is illustrated in figure~\ref{lst:whiley-inv} where pre-condition
+before entering the loop is clearly that \code{i} equals 0 and that holds
+true for the invariants, in particular that \code{i >= 0}.
+
+$$\text{Entry} \quad P \implies I$$
+
+With each iteration of the loop the invariant is asserted somewhere
+inside the loop body~\cite{hoare-logic}.
+This is generally done at the start of the loop for while
+statements~\cite{whiley-origin}.
+With the invariant holding at the start of the loop the end of 
+the loop must then restore the invariant.
+Thus what is known in the loop is that the loop condition ($C$)
+and the loop invariant ($I$) holds as shown below.
+
+% $$\text{Iteration} \quad C \wedge I $$
+
+After the loop, the invariant ($I$) must still hold and it is
+known that the loop condition does not.
+This includes both cases were the loop was iterated any number
+of times or not at all.
+Thus, an exit of the loop can be described
+as the conjunction of loop invariant and the logical
+not of the loop condition.
+This results in an implication of the post-condition of the
+loop.
+
+$$\text{Exit} \quad I \wedge \neg{C} \implies Q$$
+
+Figure~\ref{lst:whiley-inv} illustrates this as the
+post condition of the loop can be reasoned to be the following
+from the loop condition and the invariant:
+$$\neg{ ( i < |items| ) } \wedge i \leq |items| \wedge i \geq 0$$
+
+This can be simplified to down:
+
+$$ i = |items| \wedge i \geq 0$$
+
+This implies the post-condition of the function that $r = |items|$ with
+the variable \code{i} renamed to \code{r}.
+Each of the stages of a loop are similar to building an inductive proof \cite{invarints-classifiction}.
+
+\subsection{Loop Invariants in Whiley}
+
+In the Whiley language the concept of loop invariants are a 1\textsuperscript{st} class
+construct.
+Whiley gives syntax for providing \code{where} clauses to a \code{while}
+statement.
+Each of the \code{where} is a boolean expression which is the loop
+invariant predicate.
+Having multiple \code{where} clauses are equivalent to all the clauses are
+conjunctively joined.
+Figure~\ref{lst:whiley-inv} gives a full example of using a loop invariant
+in Whiley. The \code{where} clauses on lines 6 and 7 are Whiley's syntax for
+providing the loop invariant in the form of a predicate.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function count(int[] items) -> (int r)
+ensures r == |items|:
+    int i = 0
+    //
+    while i < |items|
+        where i >= 0
+        where i <= |items|:
+        i = i + 1
+    //
+    return i
+\end{lstlisting}
+\caption{Example of loop invariant in Whiley}
+\label{lst:whiley-inv}
+\end{figure}
+
+\section{Classification of Loop Invariants}
+\comment{
+classification of loop invariants
+ * proves property \\
+ * hints to theorem prover \\
+ * examples \\
+}
+
+There are two classifications of loop invariants.
+These are bounding loop invariants and essential invariant~\cite{invarints-classifiction}~\cite{loop-inv-survey}.
+With the classification of a loop invariant it helps to make
+it clearer what the purpose of the invariant is trying to achieve.
+
+A \textit{bounding loop invariant} is an invariant that is designed
+to limit the values of a variable to assert correctness of the loop
+body~\cite{loop-inv-survey}.
+Figure~\ref{lst:whiley-inv-class} has an example of a bounding invariant on
+line 6. This loop invariant does have any impact on finding an index
+of the given item but is to assert that the variable \code{i} will index
+the array correctly by being inside the valid range of 0 to the length of
+the array (exclusively).
+The loop condition provides the upper limit of the range of \code{i} but
+the lower bound is needed to be provided as an invariant.
+The most common bounding invariant observed is enforcing the starting bound
+of a range.
+
+An \textit{essential invariant} is an invariant that is an inductive step towards the
+postcondition\cite{invarints-classifiction}~\cite{loop-inv-survey}.
+Figure~\ref{lst:whiley-inv-class} has an example of an essential invariant on
+line 7.
+In this case loop invariant is a weakening of the postcondition to only
+check that the item is not contained the array previously processed.
+This invariant provides the essential inductive reasoning for when the item is
+not contained inside the array.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+function indexOf(int[] items, int item) -> (int r)
+ensures r >= 0 && r < |items| ==> items[r] == item
+ensures r == |items| ==> all { i in 0..|items| | items[i] != item }:
+    int i = 0
+    while i < |items|
+        where i >= 0
+        where all { j in 0..i | items[j] != item }:
+        if items[i] == item:
+            break
+        i = i + 1
+    return i
+\end{lstlisting}
+\caption{Example of loop with bounding and essential invariants}
+\label{lst:whiley-inv-class}
+\end{figure}
+
+\section{Categories of Generated Loop Invariants}
+\comment{
+Methods to generate loop invariants \\
+Generally generating loop invariants are impossible! \\
+}
+
+It has been proven that it is not possible to generate loop invariants
+generally \todo{cite this}
+so various methods have been developed to generate some invariants.
+These methods can be sorted into one of two categories, static and dynamic.
+This section will give an overview of static and dynamic methods of loop
+invariants.
+
+\subsection{Static Generation of Loop Invariants}
+
+The static generation of loop invariants use the
+semantics and analysis of the source code to generate the loop invariants
+\cite{java-static-symb}.
+Techniques used to statically generate loop invariants are:
+weakening postconditions~\cite{infer-postconditions};  symbolic
+execution~\cite{java-static-symb}; and structural
+induction~\cite{struct-induction}.
+These techniques are strict and conservative in generating loop invariants
+to ensure what was generated is a valid invariant without being able to
+verify it.
+
+% The key difference between the categories is
+% that invariants found statical hold true
+% but is restricted to what can be generated.
+% \cite{benderfinding}\cite{Leino2005LoopIO}.
+% The solution presented in this report uses
+% the principles of static methods to generate loop invariants.
+
+\todo{EXAMPLES}
+
+\subsection{Dynamic Generation of Loop Invariants}
+
+Dynamic invariants are similar to dynamic program analysis
+tools, they execute the program to find properties.
+In the case of dynamically generating loop invariants a
+common technique to generate a set of candidate invariants
+and modify the program to include them for verification.
+The techniques used to generate the candidate loop invariants
+can be derived from less-strict static analysis techniques and
+from observing the execution of the program.
+This allows a greater range of invariants to be inferred at
+the cost of the time taken to test if the candidate invariants are
+valid~\cite{infer-dynamic}\cite{infer-postconditions}.
+
+
+%\subsection{Loop Design Pattern}
+%
+%A loop design pattern is similar to an architecture pattern.
+%In that they can be classified into groups by there intent of
+%the pattern and how they are implemented.
+%For example, a strategy pattern is implemented to enable changes of
+%behaviour dependent on some input by utilising interfaces.
+%An example of a loop pattern would be a search through
+%an array for an element or processing all elements of an array
+%\cite{loop-patterns}.
+%A loop pattern can be described in the same terms of an architectural pattern
+%by providing the following outline from figure~\ref{l:design-pattern}
+%from \textit{A Pattern Language} \cite{pattern-lang}.
+%
+%\begin{figure}[ht]
+%\begin{itemize}
+%    \item{\textbf{Examples} of pattern in application}
+%    \item{\textbf{Context} in which the pattern is used}
+%    \item{\textbf{Problem} that the pattern addresses or solves}
+%    \item{\textbf{Forces} requirements or trade offs that constrain possible
+%        solutions}
+%    \item{\textbf{Solution} the pattern}
+%    \item{\textbf{Resulting Context} having used the pattern, what is needed
+%        now}
+%\end{itemize}
+%    \caption{Elements of a design pattern\cite{pattern-lang}}
+%    \label{l:design-pattern}
+%\end{figure}
+
+

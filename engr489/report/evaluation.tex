@@ -1,0 +1,286 @@
+\chapter{Evaluation}\label{C:eval}
+\comment{
+The purpose of the evaluation section is to demonstrate whether you did \\
+or did not satisfy the project goals or specifications. \\
+If you can tie the performance of your design to some real specification then \\
+your evaluation is much stronger. “My code runs in 29 ms” is much weaker than \\
+“my code runs within the 30 ms window allowable for real-time performance of the. . . ”. \\
+
+
+In many cases the evaluation of a project requires significant extra work to design and build test harnesses. \\
+These should be explained so that the validity and scope of the evaluation can be understood. \\
+Make liberal use of graphs and other figures. \\
+They are much more effective at communicating many results than are words. \\
+}
+
+\section{Goal}
+
+The goal of evaluating the loop invariant generators is to test objectively how much the
+user provided loop invariants can be reduced.
+This is achieved by finding removing redundant invariants until the minimal
+set of user provided invariants is found with the rest generated.
+From this the number of invariants the user will have to provide
+in the source code can be counted against the number needed with 
+
+\todo{include a step by step evaluation of a piece of code}
+
+\section{Evaluation tool}\label{S:eval-tool}
+\comment{explanation of the evaluation tool and what each piece does}
+
+This section will give an overview of the evaluation tool used to
+determine the types of loop invariants required.
+Each \code{where} clauses are assumed to be an atomic invariant for the loop and is treated as a single unit.
+An atomic invariant is one that cannot be logically decomposed into a smaller form. 
+The tool has three stages to evaluate the code.
+There is a pre-evaluation filtering that checks the code being evaluated does
+contain a loop and verifies with the vanilla compiler.
+The first stage breaks down the loop invariants to make them consistent
+across writing styles ;
+the second stage finds the minimal set of loop invariants required to verify ;
+and, the final stage identifies what invariants are present in the minimal
+verified code.
+
+
+\subsection{Breakdown}
+\comment{
+What this does and how it benefits the evaluation \\
+* normalises the data set \\
+* removes the difference between the one-liner master and the laid out \\
+thinker \\
+* breaks up conjunctive expressions in the loop invariants \\
+}
+
+The breakdown step attempts to normalize the loop invariants of coding styles
+and break down invariants into atomic invariants.
+This is achieved by breaking up all top-level conjunctive invariants into
+separate \code{where} clauses.
+As this is functionally equivalent as all the \code{where} clauses are
+conjunctively joined instead each invariant being separate makes it easier to count
+and identify what they are.
+An example of this in figure~\ref{lst:breakdown} as it shows much the large
+invariant on line 1 is broken into lines 3 and 4.
+The limitation of this technique that it only breaks up invariants that are
+certainly can be broken up where other invariants that could be logically
+re-arranged to be split up are not.
+The result of this phase is written to disk to be used in the minimizing stage.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+where a < b && b < c || (f && g)
+// breaks down to
+where a < b
+where b < c || (f && g)
+\end{lstlisting}
+\caption{Illustration of how the invariants are broken down}
+\label{lst:breakdown}
+\end{figure}
+
+
+\subsection{Minimizing}
+\comment{
+What this does and how it benefits the evaluation \\
+ * finds the smallest subset of loop invariants for the code to compile \\
+ * tests with and without  \\
+ * tests combinations of  \\
+}
+
+This stage of evaluation finds the smallest set of invariants
+required for the program to verify.
+Since generated loop invariants cannot be minimized their total cannot be
+reduced, however the total number of invariants provided in the source code can
+be.
+This is achieved by trying to verify every combination of the \code{where} clauses.
+This is computed from the empty set of invariants to the full set.
+Once a single set is found to successfully verify it is flagged as the minimal
+set of invariants and computation stops.
+It is guaranteed to find some set of invariants that verify as the code being
+evaluated is already known to verify with no modifications.
+This process can be augmented to have the loop invariant generator enabled or
+disabled so that they can be compared with minimal invariants.
+
+\subsection{Reporting}
+\comment{
+What this does and how it benefits the evaluation \\
+  include the eval script here to piece it all together \\
+ * collects data about each run \\
+ * explain how each data set is tested \\
+  + files that do not contain while loops are removed via grep'ing them \\
+  + are checked if they will compile and verify before any changes (removes original errors from data set) \\
+}
+
+The final stage of the evaluation is tool is to report on what loop invariants
+are present in the code.
+Each loop is processed and considered individually when counting the
+invariants.
+This includes what invariants are provided in the source code, what has been
+loop invariants are generated and what generators were used.
+This is achieved by counting the loop invariants in the AST after the loop
+invariants generators have been applied.
+The generator that was used to make the loop invariant is identified by
+exploiting an implementation detail that generated invariants are tagged
+with an attribute that describes why they were made.
+From this the data used for the evaluation is generated.
+
+\subsection{Known Issues}
+
+There is some known issues with the evaluation tool and how it handles some
+programs.
+These issues stem from deeper issues that reside in the version of the compiler
+that this project is based off.
+One of these issues is that after minimizing the loop invariants the Whiley
+code is written out to disk for inspection and to be used in the reporting
+stage. There is an issue with Whiley's transformer that converts from AST
+back to source where string literals are printed as an array of integers.
+When this is written out the original and printed source is now different
+and when attempted to compile again it fails.
+This is caused by Whiley's internal representation of string types as an array
+of integers which has recently been fix in an upstream release of Whiley.
+
+\section{Data Sets}
+\comment{
+Explain that there is not much data to pick from \\
+Discuss the data sets used and what problems they have \\
+}
+
+Whiley is not a widely used language there is not many large code bases
+to test against.
+The choices of code bases large that are verified to test are the
+Whiley compiler test suite and student work from SWEN224.
+Each of these data sets have issues with its contents and availability.
+
+\subsection{Whiley Compiler Tests}
+
+The Whiley compiler test suite is built to test the compiler's ability to
+compile and verify particular features of Whiley.
+This test suite was also use in the development of the loop invariant
+generators to ensure that the correctness of the compiler.
+The test suite has a large range of code and only a subset of them include
+loop and fewer that are fully verified.
+There is a total of 102 tests that include both loops and loop invariants to
+evaluate.
+The issue with this code base is that it is not truly indicative of
+natural coding since each program is for a test.
+This however gives a large range of examples and cases to test against
+as each program is different due to testing practises.
+
+An implication of using the compiler test suite is that not all test
+are pass.
+This is due to some test present in the suite are used for marking
+known bugs in the compiler or theorem prover.
+These programs are listed in the test suites and are removed from
+the data set to prevent attempting to evaluate code that is known to
+not work even for the unmodified compiler.
+
+Even with filtering out the known bad test some of them failed to be evaluated.
+These are listed in Appendix~\ref{A:eval-failed}.
+They all manage to pass the checking phase of the evaluation but then later
+failed due to other errors. The most common error was \textit{nothing to minimize}
+which denotes that the code did not a combination of invariants that would verify, 
+even using all provided.
+
+\subsection{Assignments and Labs from SWEN224}
+
+The assignments and labs from SWEN224 is also a large codebase that could be
+used with permission.
+The main issue with this codebase is its availability.
+The advice on the topic was that to use and include the results of
+evaluating student work would require the permission of individual students
+which is infeasible to get a reasonable quantity.
+The other issue with this codebase that each program will follow the same
+structure as they are all solving the same problems.
+This would result in duplicates of results between students.
+In the end this data set was not sought or evaluated.
+
+\section{Results}
+
+\subsection{Whiley Compiler Tests}
+
+Figure~\ref{tb:whiley-summary} shows the summary table of all loop invariants
+reported when running the evaluation tool over the Whiley compiler test suite data set.
+The results table has 5 categories of loop invariants reported during the
+evaluation and two summaries of invariants provided in the source code or generated.
+The \textit{Source Invariants} shows the number of invariants that 
+are present in the source code. After the minimize stage these
+invariants are the smallest set required to verify the program and the loop.
+The \textit{Total Generated} row shows the number total number of generated
+invariants by all generators.
+The \textit{Total Invariants} row shows total number of invariants from
+either provided in the source code or generated.
+The other four columns are a break down of \textit{Total Generated} 
+into each of the four generator and a count of how many invariants they generated.
+
+The results show that the tool was run with three configurations.
+The \textit{Control} configuration applied the breakdown stage to the source
+code and then reported the invariants found.
+These invariants were not minimized to be a baseline to be compared against
+other configurations.
+The \textit{Minimized} configuration applied each stage of the pipeline with
+the generation of loop invariants disabled.
+This is to provide a comparison to the \textit{Control} run to show how many
+invariants were required and a number to beat when generation was enabled.
+The \textit{Minimized (generated)} configuration applied each stage of the
+pipeline with generation of loop invariants enabled.
+This includes the breakdown of which generator created the invariants.
+
+
+\begin{figure}[ht]
+\begin{center}
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+Type & Control & Minimized & Minimized (generated)\tabularnewline
+\midrule
+\endhead
+Starting bound & 0 & 0 & 94\tabularnewline
+Arrays Equal & 0 & 0 & 16\tabularnewline
+Upper Bound & 0 & 0 & 17\tabularnewline
+Iterative Assign & 0 & 0 & 8\tabularnewline
+Total Generated & 0 & 0 & 135\tabularnewline
+\hline
+Source Invariants & 160 & 135 & 41\tabularnewline
+\bottomrule
+Total & 160 & 135 & 176\tabularnewline
+\end{longtable}
+
+\end{center}
+\caption{Results of Whiley compiler test suite data set}
+\label{tb:whiley-summary}
+\end{figure}
+
+\section{Discussion}
+
+The results from evaluating the Whiley compiler suite show that a majority of
+the loop invariants in the codebase could be generated.
+This is shown by comparing the \textit{source invariants} between the
+minimized and generated results, from 135 to 41 invariants (70\% reduction).
+From these results it is clear the loop invariant generators accomplish does
+reduce amount of repetitive simple invariants that the user had to provide.
+
+The most used loop generator is the starting bound generator.
+It achieved a 70\% share of the total generated loop invariants with 94 out of
+135 invariants.
+This is expected as this invariant is found any time a variable
+is used to linearly index an array.
+Coupled with iterating arrays is also one of the most common uses of loops
+makes the starting bound invariant the most generated invariant.
+
+The total number of invariants present in the generated code is greater
+than the minimized and control code.
+There is 41 more loop invariants than the minimized code and 16 more than the control.
+This was anticipated since the generated loop invariants are not minimized by either
+the evaluation tool or when they are generated (see section \ref{s:essential-inv}).
+The generated invariants are not tested if they are essential or not and this is
+evidence of the generators creating more invariants than required.
+An alternative interpretation is that the source invariants were not sufficiently broken down to
+atomic invariants and it took multiple generated invariants to replace a single invariant.
+This is possible since the method to breakup invariants was simply splitting conjunctive statements
+where some invariants could be logically broken up with more complex algorithms.
+
+The evaluation also reveals that not all loop invariants in the original
+code was required.
+This is shown by the decrease from 160 loop invariants to 135 loop invariants
+in the minimized code.
+This shows another application for the evaluation tool to be used to remove redundant
+loop invariants.
+As the tool can take minutes to run on complex examples or a large file this
+would be best utilised as an invariant quality tool such as code coverage tools
+are used in general development.

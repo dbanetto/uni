@@ -1,0 +1,24 @@
+Fail at Check phase: 24
+All files that failed are included in the ignored verfiable list of the Compiler
+
+
+Type            Total Inv	Source Inv	Generated Inv	Starting bound	Arrays Equal	Ageing	Iterative Assign
+Control         160         160         0               0           	0           	0   	0
+Mimimized       135         135         0               0               0               0       0
+Generated Inv   176         41   	    135       	    94           	16            	17     	8
+
+
+
+Failed but passed test:
+
+Complex_Valid_6 - nothing to minimize
+Property_Valid_5 - parsing error from breakdown
+Property_Valid_6 - parsing error from breakdown
+Property_Valid_7 - parsing error from breakdown
+RecursiveType_Valid_5 - nothing to minimize
+While_Valid_14 - nothing to minimize
+While_Valid_17 - nothing to minimize
+While_Valid_42 - never terminates
+While_Valid_47 - nothing to minimize
+While_Valid_48 - nothing to minimize
+While_Valid_49 - could not compile
