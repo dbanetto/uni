@@ -1,0 +1,165 @@
+hadoop dfs -rm -r -f aol-output
+DEPRECATED: Use of this script to execute hdfs command is deprecated.
+Instead use the hdfs command for it.
+
+Deleted aol-output
+hadoop dfs -rm -r -f "aol-output_temp"
+DEPRECATED: Use of this script to execute hdfs command is deprecated.
+Instead use the hdfs command for it.
+
+Deleted aol-output_temp
+hadoop jar target/loganalysis-1.0.jar nz.ac.vuw.ecs.barnetdavi.LogAnalysis  /tmp/aol aol-output -summary -reducetasks 4
+Allocating 4 reduce tasks
+Running Summary algorithm
+17/08/21 22:33:55 INFO client.RMProxy: Connecting to ResourceManager at co246a-9.ecs.vuw.ac.nz/130.195.4.139:8032
+17/08/21 22:33:55 INFO hdfs.DFSClient: Created HDFS_DELEGATION_TOKEN token 605 for barnetdavi on 130.195.4.140:9000
+17/08/21 22:33:55 INFO security.TokenCache: Got dt for hdfs://co246a-a.ecs.vuw.ac.nz:9000; Kind: HDFS_DELEGATION_TOKEN, Service: 130.195.4.140:9000, Ident: (HDFS_DELEGATION_TOKEN token 605 for barnetdavi)
+17/08/21 22:33:55 INFO input.FileInputFormat: Total input files to process : 11
+17/08/21 22:33:55 INFO mapreduce.JobSubmitter: number of splits:21
+17/08/21 22:33:56 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1502070693803_0480
+17/08/21 22:33:56 INFO mapreduce.JobSubmitter: Kind: HDFS_DELEGATION_TOKEN, Service: 130.195.4.140:9000, Ident: (HDFS_DELEGATION_TOKEN token 605 for barnetdavi)
+17/08/21 22:33:56 INFO impl.YarnClientImpl: Submitted application application_1502070693803_0480
+17/08/21 22:33:56 INFO mapreduce.Job: The url to track the job: http://co246a-9.ecs.vuw.ac.nz:8088/proxy/application_1502070693803_0480/
+17/08/21 22:33:56 INFO mapreduce.Job: Running job: job_1502070693803_0480
+17/08/21 22:34:01 INFO mapreduce.Job: Job job_1502070693803_0480 running in uber mode : false
+17/08/21 22:34:01 INFO mapreduce.Job:  map 0% reduce 0%
+17/08/21 22:34:08 INFO mapreduce.Job:  map 5% reduce 0%
+17/08/21 22:34:14 INFO mapreduce.Job:  map 24% reduce 0%
+17/08/21 22:34:15 INFO mapreduce.Job:  map 33% reduce 0%
+17/08/21 22:34:18 INFO mapreduce.Job:  map 52% reduce 0%
+17/08/21 22:34:19 INFO mapreduce.Job:  map 81% reduce 0%
+17/08/21 22:34:20 INFO mapreduce.Job:  map 92% reduce 0%
+17/08/21 22:34:21 INFO mapreduce.Job:  map 100% reduce 0%
+17/08/21 22:34:22 INFO mapreduce.Job:  map 100% reduce 75%
+17/08/21 22:34:23 INFO mapreduce.Job:  map 100% reduce 100%
+17/08/21 22:34:24 INFO mapreduce.Job: Job job_1502070693803_0480 completed successfully
+17/08/21 22:34:24 INFO mapreduce.Job: Counters: 51
+	File System Counters
+		FILE: Number of bytes read=11555843
+		FILE: Number of bytes written=26590694
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=2279190394
+		HDFS: Number of bytes written=10240795
+		HDFS: Number of read operations=75
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=8
+	Job Counters 
+		Killed map tasks=1
+		Launched map tasks=21
+		Launched reduce tasks=4
+		Data-local map tasks=6
+		Rack-local map tasks=15
+		Total time spent by all maps in occupied slots (ms)=293674
+		Total time spent by all reduces in occupied slots (ms)=21184
+		Total time spent by all map tasks (ms)=293674
+		Total time spent by all reduce tasks (ms)=21184
+		Total vcore-milliseconds taken by all map tasks=293674
+		Total vcore-milliseconds taken by all reduce tasks=21184
+		Total megabyte-milliseconds taken by all map tasks=300722176
+		Total megabyte-milliseconds taken by all reduce tasks=21692416
+	Map-Reduce Framework
+		Map input records=36389629
+		Map output records=36389566
+		Map output bytes=550194827
+		Map output materialized bytes=11556323
+		Input split bytes=2884
+		Combine input records=36389566
+		Combine output records=657436
+		Reduce input groups=657426
+		Reduce shuffle bytes=11556323
+		Reduce input records=657436
+		Reduce output records=657426
+		Spilled Records=1314872
+		Shuffled Maps =84
+		Failed Shuffles=0
+		Merged Map outputs=84
+		GC time elapsed (ms)=9906
+		CPU time spent (ms)=211190
+		Physical memory (bytes) snapshot=7060484096
+		Virtual memory (bytes) snapshot=48333959168
+		Total committed heap usage (bytes)=4980211712
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=2279187510
+	File Output Format Counters 
+		Bytes Written=10240795
+17/08/21 22:34:24 INFO client.RMProxy: Connecting to ResourceManager at co246a-9.ecs.vuw.ac.nz/130.195.4.139:8032
+17/08/21 22:34:24 INFO hdfs.DFSClient: Created HDFS_DELEGATION_TOKEN token 606 for barnetdavi on 130.195.4.140:9000
+17/08/21 22:34:24 INFO security.TokenCache: Got dt for hdfs://co246a-a.ecs.vuw.ac.nz:9000; Kind: HDFS_DELEGATION_TOKEN, Service: 130.195.4.140:9000, Ident: (HDFS_DELEGATION_TOKEN token 606 for barnetdavi)
+17/08/21 22:34:25 INFO input.FileInputFormat: Total input files to process : 4
+17/08/21 22:34:25 INFO mapreduce.JobSubmitter: number of splits:4
+17/08/21 22:34:25 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1502070693803_0481
+17/08/21 22:34:25 INFO mapreduce.JobSubmitter: Kind: HDFS_DELEGATION_TOKEN, Service: 130.195.4.140:9000, Ident: (HDFS_DELEGATION_TOKEN token 606 for barnetdavi)
+17/08/21 22:34:25 INFO impl.YarnClientImpl: Submitted application application_1502070693803_0481
+17/08/21 22:34:25 INFO mapreduce.Job: The url to track the job: http://co246a-9.ecs.vuw.ac.nz:8088/proxy/application_1502070693803_0481/
+17/08/21 22:34:25 INFO mapreduce.Job: Running job: job_1502070693803_0481
+17/08/21 22:34:30 INFO mapreduce.Job: Job job_1502070693803_0481 running in uber mode : false
+17/08/21 22:34:30 INFO mapreduce.Job:  map 0% reduce 0%
+17/08/21 22:34:35 INFO mapreduce.Job:  map 100% reduce 0%
+17/08/21 22:34:38 INFO mapreduce.Job:  map 100% reduce 100%
+17/08/21 22:34:39 INFO mapreduce.Job: Job job_1502070693803_0481 completed successfully
+17/08/21 22:34:39 INFO mapreduce.Job: Counters: 50
+	File System Counters
+		FILE: Number of bytes read=156
+		FILE: Number of bytes written=1113444
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=10241371
+		HDFS: Number of bytes written=33
+		HDFS: Number of read operations=24
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=8
+	Job Counters 
+		Launched map tasks=4
+		Launched reduce tasks=4
+		Data-local map tasks=1
+		Rack-local map tasks=3
+		Total time spent by all maps in occupied slots (ms)=11378
+		Total time spent by all reduces in occupied slots (ms)=5562
+		Total time spent by all map tasks (ms)=11378
+		Total time spent by all reduce tasks (ms)=5562
+		Total vcore-milliseconds taken by all map tasks=11378
+		Total vcore-milliseconds taken by all reduce tasks=5562
+		Total megabyte-milliseconds taken by all map tasks=11651072
+		Total megabyte-milliseconds taken by all reduce tasks=5695488
+	Map-Reduce Framework
+		Map input records=657426
+		Map output records=657426
+		Map output bytes=9885232
+		Map output materialized bytes=228
+		Input split bytes=576
+		Combine input records=657426
+		Combine output records=4
+		Reduce input groups=1
+		Reduce shuffle bytes=228
+		Reduce input records=4
+		Reduce output records=1
+		Spilled Records=8
+		Shuffled Maps =16
+		Failed Shuffles=0
+		Merged Map outputs=16
+		GC time elapsed (ms)=343
+		CPU time spent (ms)=6360
+		Physical memory (bytes) snapshot=1862434816
+		Virtual memory (bytes) snapshot=15448117248
+		Total committed heap usage (bytes)=1369964544
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=10240795
+	File Output Format Counters 
+		Bytes Written=33
