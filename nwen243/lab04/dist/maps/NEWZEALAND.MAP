@@ -1,0 +1,30 @@
+host wellington {
+    x=655, y=545
+    wan to auckland{
+    costperframe = 2
+    }
+    wan to christchurch{
+    costperframe = 2
+    }
+}
+host christchurch {
+    x=630, y=600
+    wan to wellington{
+    costperframe = 2
+    }
+    wan to dunedin{
+    costperframe = 1
+    }
+}
+host auckland {
+    x=640, y=490
+    wan to wellington{
+    costperframe = 2
+    }
+}
+host dunedin {
+    x=615, y=650
+    wan to christchurch{
+    costperframe = 1
+    }
+}

@@ -1,0 +1,76 @@
+
+host N1 {
+    x=500, y=500
+    wan to N2 {
+        costperframe = 2
+    }
+    wan to N3 {
+        costperframe = 2
+    }
+    wan to N4 {
+        costperframe = 2
+    }
+    wan to N5 {
+        costperframe = 2
+    }
+}
+host N2 {
+    x=600, y=500
+    wan to N1 {
+        costperframe = 2
+    }
+    wan to N3 {
+        costperframe = 2
+    }
+    wan to N4 {
+        costperframe = 2
+    }
+    wan to N5 {
+        costperframe = 2
+    }
+}
+host N3 {
+    x=400, y=500
+    wan to N2 {
+        costperframe = 2
+    }
+    wan to N1 {
+        costperframe = 2
+    }
+    wan to N4 {
+        costperframe = 2
+    }
+    wan to N5 {
+        costperframe = 2
+    }
+}
+host N4 {
+    x=500, y=600
+    wan to N2 {
+        costperframe = 2
+    }
+    wan to N3 {
+        costperframe = 2
+    }
+    wan to N1 {
+        costperframe = 2
+    }
+    wan to N5 {
+        costperframe = 2
+    }
+}
+host N5 {
+    x=525, y=525
+    wan to N2 {
+        costperframe = 2
+    }
+    wan to N3 {
+        costperframe = 2
+    }
+    wan to N4 {
+        costperframe = 2
+    }
+    wan to N1 {
+        costperframe = 2
+    }
+}

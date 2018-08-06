@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">NasaDailyImage</string>
+    <string name="image_title">Image Title goes here</string>
+    <string name="image_date">Image Date goes here</string>
+    <string name="image_description">Image Description goes here</string>
+    <string name="action_settings">Settings</string>
+    <string name="temp_test_string">temp_test_string</string>
+    <string name="share">Share</string>
+</resources>

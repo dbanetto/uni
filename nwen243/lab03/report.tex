@@ -1,0 +1,144 @@
+\documentclass[11pt]{article}
+\title{\textbf{NWEN243 Lab 3 Report}}
+\author{David Barnett ID:300313764}
+
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{epstopdf}
+\usepackage{float}
+\floatstyle{boxed}
+\restylefloat{figure}
+\DeclareGraphicsExtensions{.eps}
+
+\begin{document}
+
+\maketitle
+
+\section{Abstract}\label{abstract}
+
+This experiment aims to investigate a the efficiency of a range of
+routing protocols in a simulated network. While changing the different network
+maps the methods of the protocols and maximum hops were also changed. Through
+the experiment it was shown that the \emph{Flooding 3} routing algorithm was
+most efficient. Changing the maximum hops showed no significant difference.
+
+\section{Introduction}\label{introduction}
+
+In this experiment affect of different routing protocols with a range of
+variety of topologies. This was composed by with firstly comparing all
+the different routing protocols with each of the topology. Secondly
+comparing the efficiency of using the 3rd routing protocol
+against two topologies with varying maximum hops.
+
+\section{Method}\label{method}
+
+\paragraph{}
+The method used to simulate the different protocols over a range of topologies
+running a cnet, a network simulator program by University of Western
+Australia, simulation with the given protocol and map. Repeated the simulation
+for all protocols on all maps for a simulated time of 10 minutes on 56Kbps
+network.
+
+\paragraph{}
+The method to obtain the varying hop was done by increasing protocol 3's
+max hop count the running the same simulation over the New Zealand +
+Australian and World maps.
+
+\paragraph{}
+The three protocols used in this experiments used different strategies to
+route the packets through the network. The protocol dubbed \emph{Flooding 1}
+use a method of which once it receives a packet it then sends it across all
+links. \emph{Flooding 2} use a similar method to \emph{Flooding 1} but
+did not send the packet back along the wire it was sent from. While
+\emph{Flooding 3} has the same tactic as \emph{Flooding 2} to start with
+but as packets are exchanged the node builds a table of links over time.
+The node then uses the table to appropriate to send the packet down.
+
+
+\section{Results}\label{results}
+
+\paragraph{}
+The results are in terms of delivery efficiency as a percentage of number of
+packets sent that are received by the destination.
+
+\subsection{Protocols \& Topography}\label{}
+
+\includegraphics[width=0.5\textwidth]{res/NORTH-ISLAND-MAP-plot.png}
+\includegraphics[width=0.5\textwidth]{res/NEWZEALAND-MAP-plot.png}
+\includegraphics[width=0.5\textwidth]{res/NZ-AUS-MAP-plot.png}
+\includegraphics[width=0.5\textwidth]{res/WORLD-MAP-plot.png}
+
+Note: The results from the simulation of the WORLD.MAP is not complete as the
+simulation stopped mid way in each run for the different protocols due to congestion
+errors at different intervals for each routing protocol.
+
+\subsection{Varying Hops}\label{hops}
+
+\includegraphics[width=0.9\linewidth]{res/NZ-AUS-MAP-hops-plot.png}
+
+\includegraphics[width=0.9\linewidth]{res/WORLD-MAP-hops-plot.png}
+
+\section{Discussion}\label{discussion}
+
+\paragraph{}
+The results show a variety of properties of each of the tested routing
+protocols. In the case of the North Island map there was not much difference
+between the three protocols. Most likely due the small size of the map, only 2 nodes,
+would prevent the problems that the larger maps would of have.
+
+
+\paragraph{}
+The results from the New Zealand map show that the \emph{Flooding 1} and
+\emph{Flooding 2} are constant with their efficiency and both considerably
+lower than \emph{Flooding 3}. The limiting factor of
+
+\paragraph{}
+The log-like curve featured in all of the large maps that \emph{Flooding 3}
+displays is attributed to its major design difference, learning the network as
+it is used. This enables the node to sends out packets more intelligently
+than the other routing protocols and reduce congestion in the network allowing
+for more successful communications on the network.
+
+\paragraph{}
+The New Zealand and Australia map show the gap between \emph{Flooding 2}
+\emph{Flooding 3} grow larger as the node count and complexity of the node
+graph grows. In these results and the New Zealand map results show that
+\emph{Flooding 2} preforms better than \emph{Flooding 1}. This would be
+contributed to the slight difference in design where \emph{Flooding 2} does not
+send back the packet from where it came from. In a map that is more akin to a
+linked list, like the North Island and (but less so) the New Zealand map,
+allowing the packet to propagate to the destination while causing less
+network congestion than \emph{Flooding 1}.
+
+
+\paragraph{}
+The World map shows the limits of the routing protocols. As the world map is by
+far the most complex of all the given maps an equally complex routing system
+would be need to route the packs without the failure that all three of the
+protocols has shown. All three of the protocols failed to complete their
+simulations due to the network falling over completely. \emph{Flooding 1}
+failed the quickest due to its rapid production of packets filling the network.
+While \emph{Flooding 2} did a bit better \emph{Flooding 3} managed to keep the
+network longer than other protocols. It However did not seem like it made pass
+the setup phase as shown by the logarithmic nature of the curve. As it is
+setting up it behaves in a similar manner to \emph{Flooding 2} so a crash is
+possible.
+
+\paragraph{}
+Re-running the World and New Zealand + Australia maps with \emph{Flooding 3}
+plus having the doubled hop limit, maximum nodes the packet would be routed through
+before being dropped, showed no significant difference in the both maps. The
+variance between the 4 and 8 hops were below 0.2\%. This was most likely due to
+the affect of the congestion due to the protocol out weighed or neutralized the
+benefits of being able to send a packet over a greater distance.
+
+\section{Conclusion}\label{conclusion}
+
+The experiment showed the limitation of the a simple routing algorithms. It
+also found that small changes like not sending the packet back from where it
+came can cause large improvements in delivery efficiency and even greater if
+collecting data from the network to build a table to help make routing
+decisions. The experiment show as well that that increasing the maximum hops
+did not have an affect on the efficiency of \emph{Flooding 3}.
+
+\end{document}

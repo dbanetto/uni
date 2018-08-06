@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+DURATION="10mins"
+EVERY="10"			# seconds
+#
+#
+echo "#define MAXHOPS 8" > hops.h
+for map in "WORLD.MAP" "NZ AUS.MAP"
+do
+    echo "#include \"maps/${map}\"" > map.h
+    for f in 3
+    do
+        cnet -W -q -T -e $DURATION -s -f ${EVERY}secs FLOODING$f	| \
+            grep 'Efficiency'						| \
+            cut -d: -f 2						| \
+            awk "{ printf(\"%d %s\n\", ++i * $EVERY, \$1); }"		> data/result-8hop-$map.flood$f
+    done
+
+    map_low=$(echo ${map} | sed -e 's/.MAP/\-MAP/' | sed -e 's/ /-/')
+    echo ${map_low}
+
+    gnuplot <</EOF
+
+    set title "Comparison of 4 to 8 hops using flooding3 protocol - ${map}"
+    set xlabel "Running time (seconds)"
+    set ylabel "Delivery efficiency (%)"
+
+    set grid
+    set yrange [0:]
+
+    map = "${map}"
+
+    set terminal png size 800,600 enhanced font "Sans,16"
+    set output "../res/${map_low}-hops-plot.png"
+    plot	\
+        sprintf("data/result-%s.flood3", map)		title "4 hops" with linespoints, \
+        sprintf("data/result-8hop-%s.flood3", map)		title "8 hops" with linespoints
+/EOF
+done
+
