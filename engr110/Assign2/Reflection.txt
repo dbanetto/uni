@@ -1,0 +1,23 @@
+﻿Reflection
+----------
+
+Name : David Barnett
+ID : 300313764
+
+
+What went right?
+---------------------------------------------------
+The parts of this assessment that went right was the teamwork in my group was a lot better than what I have had in past experiences. This is because for each step through all decisions were gracefully discussed to try and get the best of what little time we had as a group.
+
+
+What went wrong?
+---------------------------------------------------
+The main part of what went wrong this assessment is that overall lack of understanding of the whole process of going through designing, implementing and iterating a complex physical model like the passive dynamic walker. With most of the time it felt as the simulation tools were a black box that spits out some numbers which held no real value. This coupled with no one in our group had the required physics understanding to breakdown the complex model into a manageable size to tweak at. 
+
+
+
+What could be improved next time?
+---------------------------------------------------
+Next time what I could do to make the assessment to go smother is to try to read and understand the simulation tools to be able to leverage the given tools to the best that they could be. Also taking more time than I already had to trying to pick apart the physics of the walker to try and provide some guided tweaks that could be applied to the model.
+
+I would like to see some more time given to being able to test the built models but seeing how short of time the labs are and how all the models get taken so early leaving some groups without a model until later in the lab session, does not seem the most plausible thing to improve. The rush of testing near the 1 hour 30 minute mark to the end does not help either, but is a given as the earlier portion of the lab is used by the teams to talk through and simulate their models.
