@@ -1,0 +1,112 @@
+Name: David Barnett
+Student ID: 300313764
+
+
+A*
+----------------------------
+def astar (start, goal, vehicle, restrictions)
+	fringe: Priority Queue
+	visited: Set
+
+	fringe.enqueue <start, null, 0, estimate(start, goal)> // (parent, from, costToHere, estTotalCost)
+
+	Repeat until fringe is empty:
+		<node, from, costToHere, totalCostToGoal> <- dequeue(fringe)
+		if node not in visited then:
+			visited.add node
+			if node is goal then:
+				exit
+			for each edge out of node:
+				if vehicle is allowed through node and not restricted:
+					if edge not in visited:
+						costToNeigh = costToHere + edge.weight
+						costToGoal = costToNeigh + estimate(edge, goal)
+						fringe.enqueue <edge, node, costToNeigh, costToGoal>
+
+
+A* Path cost and heuristic estimate
+-----------------------------------
+
+Distance: cost is the length of the road segment and the heuristic is the euclidean distance
+
+Time: the cost is determined by t = d/v with a penalty applied if passing through a traffic light.
+
+The estimate is made from distance from node to goal
+with the v = the max speed on the road being used. If the next intersection can only in one
+direction, such as a motorway ramp, the weighted average of the speed of the edge and
+the only next possible edge, weighted on length, is used.
+
+
+Iterative Articulation Points
+-----------------------------
+
+// Handles the disconnected graphs
+def IdentifyArticulationPoints(nodes_in_graph):
+
+	unvisitedNodes = nodes_in_graph
+	articulationPoints = {}
+
+	while unvisitedNodes is not empty:
+		rootNode = unVisistedNodes[0]
+
+		articulationPoints.add articulationPointsRoot(rootNode, unvisitedNodes)
+
+	return articulationPoints
+
+// Handles the root node sepcial case
+def articulationPointsRoot(rootNode, unVisitedNode):
+
+	articulationPoints = {}
+	unvisitedNodes.remove rootNode
+
+	subTrees = 0
+	for each neighbour of rootNode:
+		if neighbour is in unvisistedNodes:
+			articulationPoints.add articulationPoints(rootNode, neighbour, unvisitedNodes)
+			subTrees++
+
+	if subTrees > 1:
+		articulationPoints.add rootNode
+
+	return articulationPoints
+
+// handles general case
+def articulationPoints(rootNode, fristNode, unvisitedNodes):
+	stack push <- <firstNode, 1, <rootNode, 0, null>>
+
+	articulationPoints = {}
+	while stack is not empty:
+		elem = stack.peek
+		if elem.children == null:
+			elem.reachback = elem.depth
+			for each neighbour of elem:
+				if neighbour not elem.parent:
+					elem.children enqueue neighbour
+
+		else if elem.children is not empty:
+			child = elem.children.poll
+			if child in unvisitedNodes:
+				unvisitedNodes.remove child
+				stack.add <child, elem.depth + 1, elem>
+			else:
+				elem.reachback = min(elem.reachBack, child.depth)
+
+		else:
+			if elem.reachback >= elem.parent.reachback:
+				articulationPoints.add elem.parent
+			elem.parent.reachback = min(elem.reachback, elem.parent.reachback)
+
+	return articulationPoints
+
+
+Program Testing
+---------------
+
+Tested against other results in other mapping programs.
+To test articulation points I tested on the small map and looked for unlikely
+articulation points and solved them by hand.
+
+
+For testing the distance and time metrics I started motorway on-ramp and ended
+somewhere down the line of the motorway. Which is generally faster to take the motorway
+and shorter to not take the motorway thus the two metrics would differ and allow for testing

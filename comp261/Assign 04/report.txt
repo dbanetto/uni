@@ -1,0 +1,13 @@
+Student ID: 300313764
+Student Name: David Barnett
+
+What the Parser do?:
+
+* All 4 parts
+
+Extension:
+
+	Implemented a parse time and run time type checks
+
+	Variables support Boolean and Integer values
+	variables types are assigned on initialization and checked when used

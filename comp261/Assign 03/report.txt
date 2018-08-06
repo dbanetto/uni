@@ -1,0 +1,47 @@
+Student ID: 300313764
+Student: David Barnett
+
+
+What the Program does do
+------------------------
+
+* Loads the model / scene from file
+* Renders the scene
+* Can rotate, translate, and scale the scene
+  Controls : Rotate WASD
+			 Scale Q E
+			 Translation Arrow keys
+* Can, on button press, center on the scene
+* Added dynamic lights
+  Control: L
+
+What the Program does not do
+----------------------------
+
+* implement Gouraud shading or Phong shading
+
+
+What bugs have not been resolved
+--------------------------------
+
+* Rendered polygons may sometimes have long extending lines out,
+  this is most likely due to float errors or infinity gradients.
+  However most of the bug has been contained with only allowing
+  drawing within the polygon's bounds on the screen and float error
+  checks (NaN and infinity)
+
+
+How the Program was tested
+--------------------------
+
+* Mainly through comparing the rendered results with the given
+  images
+
+* Stepping through problem areas with debugger
+
+* With transformations, some simple sanity checks were done by hand
+
+Extensions
+----------
+
+* re-positions model to 0,0,z

@@ -1,0 +1,24 @@
+Describe what your code does and doesn't do.
+
+It does not implement remove, it does not index the values to another block in leaf nodes
+
+Describe any bugs that you have not been able to resolve.
+
+None known.
+
+Report briefly on the performance of your program - how many block reads and writes were required on average to find a value or to add a new record.
+
+Not the best. Single writes per-block update, some redundant block reads could be
+optimized with caching parent on traversal and intercepting read requests with the read value, but deleting cache on write to that block.
+
+Outline how you tested that your program worked.
+
+Loaded host-list.txt.
+
+Tested with test-list.txt and host-list.txt, any missing was inspected with step debugging down the tree.
+
+Also counting the number of entries while iterating all and matched it to length of host-list.txt
+
+Describe any of the extensions you did and discuss the results.
+
+None
