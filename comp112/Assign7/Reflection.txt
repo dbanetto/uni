@@ -1,0 +1,142 @@
+Reflection
+==========
+
+Resizing
+--------
+
+Shapes can be resized from the UI by using the width/height sliders
+
+The use of sliders to change the width/height of the shapes
+is appropriate but limits the range of sizes that can be used.
+With the given range of 1-512, it does not allow for the most variability
+of sizes as other solutions. But the size is appropriate to fit the restrictions
+from the set width/height of the drawing panel given by the UI class. I did not allow
+for anything large than 512 in the UI as given a large range it would become difficult
+to choose smaller increments of size, and if the shape was too big it could take up the whole
+screen and not allow for 2D movement. This however an be by-passed by editing
+the save files, but this is not a user-friendly approach to solve the problem,
+but it does allow for some type solution.
+
+Moving
+------
+
+The design of moving shapes around is to only allow it in "selection"
+mode (which is the default mode if not in sticky mode).
+This mode shows the selected object with an extra thick border
+to signal it is selected. The Moving of the shape is done through clicking
+and dragging on the shape. 
+
+Note:
+If a click and drag is attempted on the background
+this will move the view-port of editor or by using the arrow keys.
+
+The moving of shapes of can only be done by selecting and dragging on
+a single shape. This is because providing a UI option (other than providing
+a button to enter selection mode) would cause far too much clutter than is needed.
+The UI option is not required because of the installed UI idea of being able to 
+click and drag on an object is an installed idea. This was tested on both a desktop
+and a touch screen with pleasing results on both platforms.
+
+Deleting
+--------
+
+Deleting (shape or line) is done by clicking on the UI button or
+using the hot keys Delete/Backspace on a selected shape/line.
+
+The combination of UI and hot keys are used to allow for multiple
+types work flows. The hot keys are limited functionally in comparison
+to the UI button. This is because the UI button can have sticky mode
+enabled for, but the hot keys only allow for current selection deleting.
+
+This limitation is acceptable because it is common for the delete
+key only to effect the selected and this behaviour was kept to keep
+with this known behaviour.
+
+The UI choice of managing both shapes and lines through the same
+interface was to simplify the use of lines for the user. As creating 
+is inherently a choice that has to be clearly differentiated, deleting
+however is differentiated in a different manner so it does not require
+multiple buttons to get across the idea of being able to delete anything
+on the screen.
+
+Setting Text
+------------
+
+To set the text on a shape, this requires a shape to be selected
+and to press enter for the "Set Text" text field in the UI panel.
+
+The text in the text field is seen as the "default" text and is added
+to any newly created shapes.
+
+The settings of text is a very primitive method of changing the text
+of objects and lacks a true edit, being able to edit the already present text
+instead of having to re-write if the field has changed before. Also having
+the current text in the field being the default text is better than nothing
+but may not be the best way to tackle this problem. Another text field was
+not added for purely having as default text to reduce an already cluttered UI.
+
+Adding/Removing Lines
+---------------------
+
+Adding lines is started by the hot key l ( with L is with sticky mode enabled).
+To start linking two shapes together start by selecting one shape and dragging the
+line to the other shape and release.
+
+To remove a line select it and either press Delete in the UI or press Delete/Backspace on
+the keyboard.
+
+Having both a UI option and hot key option for line management is helpful,
+as it gives the user options for using the editor. The UI decision for deleting portion is explained 
+in Deleting
+
+Sticky Mode
+-----------
+
+This is a mouse mode which retains the last operation
+instead of defaulting back to the selection mode.
+
+It can be accessed by pressing the Toggle Sticky Mode in the UI
+or using a regular hot key with shift, e.g. r is normal rectangle placement
+R (r + shift ) is sticky rectangle placement
+
+The state of Sticky Mode is shown in the message bar.
+
+View Port
+---------
+
+The diagram editor emulates a 2D environment to allow for more space
+to build diagrams. This can be controlled by clicking and dragging on the 
+background of the editor panel or using the arrow keys.
+
+The emulated 2D environment allows for greater use of the editor,
+allowing smaller screen resolutions to have the same ability to view
+the diagram as larger one. This could of also been accomplished by using
+a zoom function.
+
+The 2D environment did not change the UI must, expect for the fact that dragging
+on the background will move you around in the 2D space instead of doing a box select of
+multiple shapes. I believe that the 2D space was more important than box selection as
+having the ability to move around a diagram would be more useful than moving a multiple
+shapes around a fixed area. This choice was forced to be made as there was no user-friendly
+way to differentiate the intention of the user from the given input channels.
+
+Fill/Border/Line/Text Colour
+----------------------------
+
+Changing the of a colour of an element of a shape
+is controlled purely through the UI Buttons. The option
+to change a selected shape's colour is given by just using
+the button(s), while changing the default colour(s) is done
+by not having any shape selected.
+
+Having each element that can be coloured being able
+for the user to set themselves is what I saw as important
+for the end user. As I see colour customisation for a diagram
+to be on the same level of importance as a large variety of shapes.
+
+However taking the route of having so many elements that can be coloured
+did create the most UI clutter of the features in this diagram editor.
+
+Having a HUD of the current defaults of the colours on the digram editor
+screen, is helpful to keep track visually of what colours are being used, 
+but it does take up screen space of the editor.

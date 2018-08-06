@@ -1,0 +1,33 @@
+Questions for Reflection.
+=========================
+
+1.  For the Scrabble game, we recommended using arrays for the rack and the
+board, but ArrayList for the bag.  Why? Compare the strengths and weaknesses of arrays vs ArrayLists.
+
+The advantage of using an array for the rack is having the ability of an empty slot to easily visualize to the user that the tile
+is not there anymore, or even being able to swap positions or arrangements of the tiles is only possible because of the fixed amount of elements in the array. In comparison an ArrayList would not be able to do any of these things easily. This is due to the dynamic nature of the ArrayList, changing its size as it is needed, an item removed the length of the ArrayList deceases and vis versa. This prevents having a blank/null position to represent a Tile out of rack.
+
+The ArrayList is however better suited to be used to keep track of the tiles in the bag. This is because of how easy it is to take out a random tile from the bag and never getting nulls. For example if an array was used for the bag the program would have to pick a random number between 0 and the length and keep on going until it finds a tile to take from the array. This sounds ok but as the number of tiles left in the bag tend to 0 the number of misses will increase. If you however use an ArrayList in the same manner the length of the ArrayList will decrease so the range of random numbers will always get a tile first time.
+
+2. There are many different ways that you could have done the checking for a
+valid play in the scrabble game (ie, checking that the working tiles were in a
+row or column with no gaps and connected to the previous tiles).  What would be a good way of going about the design of a tricky method like this?
+
+The cleanest way of going about this problem would be some light recursion and modulate the algorithm as much as possible.
+
+For example having a function to find the end of a word from two points of a known portion of the word
+e.g AB[CDEF]G knowing CDEF is a horizontal word and check outwards onto AB and G and ending because there is only null after them, returning the position of the start (point closest to origin) and the length of the line.
+This function can be used to find perpendicular words and if the word is just a portion of a bigger word.
+
+
+3. Last week you constructed a list of the key Java programming
+constructs that you used.  Add the important new constructs you used
+this week to that list, with a very brief note about each one.
+
+& - AND bit-wise operator - Good for checking flags in an int
+
+4. If you learned any more important concepts about programming or Computer
+Science, add them to your list from last week.
+
+"Every Recursion method has an iterative alternative" - I knew this parse before but I now understand it better and how to do it
+

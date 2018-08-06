@@ -1,0 +1,32 @@
+Questions for Reflection.
+=========================
+
+1.  What is the advantage of making a DodgemCar class?  Why is it better
+than putting all the code in a single DodgemGame class, like we did
+with the floorCleaner in Assignment 1?
+
+The advantage of making a DodgemCar class was being able to make n amount of cars while not having to write each Car in, like the floorCleaner. The use of the DodgemCar class shows the advantages of object oriented
+programming to functional.
+
+2. The assignment split the development of both programs into three
+stages (Core, Completion, and Challenge).  This was partly for
+marking, but it was also intended to make it easier to do the
+program.  Why does it it help to have several stages? What Software Engineering
+methodology does this reflect?
+
+Breaking down the problem into core, completion and challenge stages help make the projects more manageable as there is tangible goals for each part and a sense of progress. This reflects the divide and conquer methodology.  
+
+3. Last week you constructed a list of the key Java programming
+constructs that you used.  Add the important new constructs you used
+this week to that list, with a very brief note about each one.
+
+Java.awt.Point – Point class that deals in doubles and calculates distances
+Java.awt.Rectangle – Rectangle class that handles interceptions of rectangles.
+
+4. If you learned any more important concepts about programming or Computer
+Science, add them to your list from last week.
+
+UI Thread and Main thread. This caused some problems as: if the game is run on the press on a button instead of waiting on the main thread to be activated the UI does not render.
+
+
+
